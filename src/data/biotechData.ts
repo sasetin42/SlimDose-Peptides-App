@@ -54,23 +54,23 @@ export function getCompoundDetails(
   let appearance = 'White Lyophilized Powder';
   let form = 'Acetate Salt (Lyophilized)';
   let solubility = 'Soluble in Water or Physiological Saline';
-  let storageLyophilized = storageConditions || 'Store at -20°C. Keep desiccated and protect from light.';
-  let storageReconstituted = 'Keep refrigerated at 2°C to 8°C. Do not freeze reconstituted solutions.';
-  let stability = 'Lyophilized powder is stable at room temperature for up to 90 days. Store below -20°C for up to 24 months. Reconstituted solution is stable for up to 30 days.';
-  let diluent = 'Bacteriostatic Water (0.9% Benzyl Alcohol) or Sterile Physiological Saline';
-  let reconstituentVolume = '1.0 mL to 2.0 mL per vial';
-  let mixingInstruction = 'Gently inject the diluent down the side of the vial. Do not shake. Roll the vial between the palms of your hands until completely dissolved.';
+  const storageLyophilized = storageConditions || 'Store at -20°C. Keep desiccated and protect from light.';
+  const storageReconstituted = 'Keep refrigerated at 2°C to 8°C. Do not freeze reconstituted solutions.';
+  const stability = 'Lyophilized powder is stable at room temperature for up to 90 days. Store below -20°C for up to 24 months. Reconstituted solution is stable for up to 30 days.';
+  const diluent = 'Bacteriostatic Water (0.9% Benzyl Alcohol) or Sterile Physiological Saline';
+  const reconstituentVolume = '1.0 mL to 2.0 mL per vial';
+  const mixingInstruction = 'Gently inject the diluent down the side of the vial. Do not shake. Roll the vial between the palms of your hands until completely dissolved.';
   let researchApplications = [
     'In vitro cell culture receptor affinity testing',
     'Evaluation of cellular uptake and metabolic pathway modeling',
     'Assessment of structural integrity under physical stressors'
   ];
-  let handlingPPE = [
+  const handlingPPE = [
     'Wear chemical safety goggles or face shield.',
     'Use laboratory gloves (nitrile or latex) and protective laboratory coat.',
     'Work within a certified biosafety cabinet or laminar flow hood.'
   ];
-  let toxicology = 'The toxicological properties of this compound have not been fully characterized. Handle with extreme caution.';
+  const toxicology = 'The toxicological properties of this compound have not been fully characterized. Handle with extreme caution.';
 
   // Specific peptides mapping
   if (normSlug.includes('semaglutide')) {

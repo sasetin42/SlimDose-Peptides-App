@@ -1084,7 +1084,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           disabled={isOutOfStock}
           className={`flex-1 py-3 px-6 rounded-2xl text-white text-xs sm:text-sm font-extrabold tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-[#3C6CA8] via-blue-600 to-[#2A5288] hover:from-[#315A8E] hover:to-[#214373] text-white`}
         >
-          {isOutOfStock ? 'Out of Stock' : product.pre_order_enabled ? 'Pre-Order Now' : 'Add to cart'}
+          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
           {!isOutOfStock && <ShoppingCart className="w-4 h-4" />}
         </button>
       </div>
@@ -1268,7 +1268,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                   : 'bg-brand-500 hover:bg-brand-600 shadow-md hover:shadow-brand-500/20'
               }`}
             >
-              {isOutOfStock ? 'Unavailable' : product.pre_order_enabled ? 'Pre-Order' : 'Add'}
+              {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
               {!isOutOfStock && <ShoppingCart className="w-4 h-4" />}
             </button>
           </div>

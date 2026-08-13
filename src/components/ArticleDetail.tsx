@@ -156,7 +156,7 @@ export default function ArticleDetail() {
         // Directly update localStorage (since ArticleDetail is on a separate route)
         try {
             const savedCart = localStorage.getItem('peptide_cart');
-            let cartItems = savedCart ? JSON.parse(savedCart) : [];
+            const cartItems = savedCart ? JSON.parse(savedCart) : [];
 
             // Check if item already exists
             const existingIndex = cartItems.findIndex(

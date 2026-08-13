@@ -81,8 +81,8 @@ async function hydrateItems(persisted: PersistedCartItem[]): Promise<CartItem[]>
   const productIds = Array.from(new Set(persisted.map((p) => p.product_id)));
 
   // Try Supabase first (for real products)
-  let productMap = new Map<string, Product>();
-  let variationMap = new Map<string, ProductVariation>();
+  const productMap = new Map<string, Product>();
+  const variationMap = new Map<string, ProductVariation>();
 
   try {
     const { data: products } = await supabase

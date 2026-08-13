@@ -9,20 +9,16 @@ import {
   deleteDoc,
   query as firestoreQuery,
   where,
-  orderBy,
-  limit as firestoreLimit,
   onSnapshot,
 } from 'firebase/firestore';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
 } from 'firebase/auth';
 import {
   ref,
   uploadBytes,
-  getDownloadURL,
   deleteObject,
 } from 'firebase/storage';
 
@@ -496,6 +492,34 @@ export const supabase = {
         };
       }
       return { data: { session: null }, error: null };
+    }
+  },
+  functions: {
+    invoke: async (functionName: string, options?: { body?: any }) => {
+      try {
+        console.log(`⚡ Invoking Edge Function: ${functionName}`, options?.body);
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://xvhsyawffuhymkpxkuzc.supabase.co';
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/${functionName}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'apikey': supabaseAnonKey,
+          },
+          body: JSON.stringify(options?.body || {}),
+        });
+
+        const resData = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          return { data: null, error: new Error(resData?.error || resData?.message || `HTTP ${response.status}`) };
+        }
+        return { data: resData, error: null };
+      } catch (err: any) {
+        console.error(`❌ Edge Function ${functionName} error:`, err);
+        return { data: null, error: err };
+      }
     }
   },
 };

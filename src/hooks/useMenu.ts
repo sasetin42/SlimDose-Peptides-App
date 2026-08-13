@@ -81,7 +81,7 @@ export function useMenu() {
       if (!sbError && data && data.length > 0) {
         // Fetch variations
         const productIds = data.map(p => p.id);
-        let variationsByProduct = new Map<string, ProductVariation[]>();
+        const variationsByProduct = new Map<string, ProductVariation[]>();
         const { data: allVariations } = await supabase
           .from('product_variations')
           .select('*')

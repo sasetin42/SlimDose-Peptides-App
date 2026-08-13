@@ -326,7 +326,7 @@ const PaymentMethodManager: React.FC<PaymentMethodManagerProps> = ({
                 <span className="text-sm sm:text-base">Dashboard</span>
               </button>
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-navy-900">
-                Payment Methods
+                Payment Methods & Gateways
               </h1>
             </div>
             <button
@@ -334,18 +334,87 @@ const PaymentMethodManager: React.FC<PaymentMethodManagerProps> = ({
               className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-navy-900 hover:bg-navy-800 text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl border border-navy-900/20 text-sm sm:text-base"
             >
               <Plus className="h-4 w-4" />
-              <span>Add Payment Method</span>
+              <span>Add Manual Payment Method</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8 space-y-6">
+        {/* HitPay Gateway Integration Card */}
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-[#3C6CA8]/30 overflow-hidden">
+          <div className="bg-gradient-to-r from-navy-900 via-[#3C6CA8] to-navy-900 p-4 sm:p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-blue-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">HitPay Payment Gateway Integration</h2>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                    Live Edge Function
+                  </span>
+                </div>
+                <p className="text-xs text-blue-100/80 mt-0.5">
+                  Direct online payments via Cards, QRPH, GCash, Maya, and Billease with automatic webhook verification.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-6 space-y-4 bg-slate-50/50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Gateway Status</span>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-sm font-bold text-slate-800">Active & Ready</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">Accepts online customer payments instantly.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Processing Fee Rate</span>
+                <div className="text-sm font-bold text-[#3C6CA8]">3% (Subject Fee)</div>
+                <p className="text-[11px] text-slate-500 mt-1">Calculated automatically on checkout total.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">Supported Channels</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {['QRPH', 'GCash', 'Maya', 'Billease', 'VISA / MC'].map((channel) => (
+                    <span key={channel} className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold text-[10px] border border-slate-200">
+                      {channel}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 text-blue-900 text-xs leading-relaxed space-y-2">
+              <div className="flex items-center gap-2 font-bold text-sm text-[#3C6CA8]">
+                <span>⚡ Live Integration Technical Details</span>
+              </div>
+              <p>
+                • <strong>Edge Function URL:</strong> <code className="bg-white/80 px-1.5 py-0.5 rounded font-mono text-[11px] border border-blue-200">/functions/v1/hitpay-create-checkout</code><br />
+                • <strong>Webhook Verification:</strong> <code className="bg-white/80 px-1.5 py-0.5 rounded font-mono text-[11px] border border-blue-200">/functions/v1/hitpay-webhook</code><br />
+                • <strong>Auto Order Status:</strong> Transitions automatically from <span className="font-semibold text-amber-700">pending</span> to <span className="font-semibold text-emerald-700">paid</span> upon successful callback.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Manual Payment Methods List */}
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-navy-700/30 overflow-hidden">
           <div className="p-4 sm:p-6">
-            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
-              Payment Methods
+            <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-gold-600" />
+                <span>Manual Bank / e-Wallet Accounts</span>
+              </div>
+              <span className="text-xs text-slate-500 font-normal">
+                {paymentMethods.length} Methods Configured
+              </span>
             </h2>
 
             {paymentMethods.length === 0 ? (

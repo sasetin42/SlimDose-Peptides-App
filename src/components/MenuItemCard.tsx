@@ -189,7 +189,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             ) : (
               <>
                 <ShoppingCart className="w-3.5 h-3.5" />
-                <span>{product.pre_order_enabled ? 'Pre-Order' : hasMultipleVariations ? 'Quick Add' : 'Add to Cart'}</span>
+                <span>Add to Cart</span>
               </>
             )}
           </button>

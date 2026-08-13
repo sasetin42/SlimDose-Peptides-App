@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ShieldCheck, Package, CreditCard, Sparkles, Heart, Copy, Check, MessageCircle, Tag, XCircle, CheckCircle, Upload, X, FileImage, Loader2, Info, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Package, CreditCard, Sparkles, Heart, Copy, Check, MessageCircle, Tag, XCircle, CheckCircle, CheckCircle2, Upload, X, FileImage, Loader2, Info, Wallet, User, Mail, Phone, MapPin, Building2, Navigation, Globe, FileText, Truck, Percent, ShoppingBag, ChevronDown, Search, Lock, MessageSquare } from 'lucide-react';
+import { PH_PROVINCES, searchProvinces, getCitiesForProvince, getBarangaysForCity } from '../lib/philippineLocations';
 
 const HITPAY_METHOD_ID = 'hitpay';
 import type { CartItem } from '../types';
@@ -191,6 +192,42 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
   const [promoError, setPromoError] = useState('');
   const [promoSuccess, setPromoSuccess] = useState('');
 
+  // Custom Shipping Location Dropdown State
+  const [isShippingDropdownOpen, setIsShippingDropdownOpen] = useState(false);
+  const shippingDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Custom Philippine Location Dropdowns State (Province, City, Barangay)
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [provinceSearch, setProvinceSearch] = useState('');
+  const provinceDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const [isCityOpen, setIsCityOpen] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const cityDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const [isBarangayOpen, setIsBarangayOpen] = useState(false);
+  const [barangaySearch, setBarangaySearch] = useState('');
+  const barangayDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (shippingDropdownRef.current && !shippingDropdownRef.current.contains(event.target as Node)) {
+        setIsShippingDropdownOpen(false);
+      }
+      if (provinceDropdownRef.current && !provinceDropdownRef.current.contains(event.target as Node)) {
+        setIsProvinceOpen(false);
+      }
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+        setIsCityOpen(false);
+      }
+      if (barangayDropdownRef.current && !barangayDropdownRef.current.contains(event.target as Node)) {
+        setIsBarangayOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [step]);
@@ -245,9 +282,9 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
       const { data: promo, error } = await supabase
         .from('promo_codes')
         .select('*')
-        .eq('code', code)
+        .ilike('code', code)
         .eq('active', true)
-        .single();
+        .maybeSingle();
 
       if (error || !promo) {
         setPromoError('Invalid or inactive promo code');
@@ -933,26 +970,26 @@ Please confirm this order. Thank you!
   if (step === 'details') {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 px-3 sm:px-6 lg:px-8 animate-fadeIn">
-        <div className="max-w-6xl mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-3xl border border-gray-200 dark:border-slate-800">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
-            <div className="flex items-center gap-3">
-              <span className="font-heading text-lg font-extrabold text-gray-900 dark:text-white">Checkout</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold border border-[#3C6CA8]/20 dark:bg-[#3C6CA8]/20 dark:text-blue-300 dark:border-[#3C6CA8]/40">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-20 rounded-t-3xl">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <span className="font-heading text-base sm:text-lg font-extrabold text-gray-900 dark:text-white shrink-0">Checkout</span>
+              <span className="text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold border border-[#3C6CA8]/20 dark:bg-[#3C6CA8]/20 dark:text-blue-300 dark:border-[#3C6CA8]/40 truncate">
                 Step 1 of 2: Information
               </span>
             </div>
             <button
               onClick={onBack}
-              className="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-[#3C6CA8] transition-colors cursor-pointer"
+              className="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-[#3C6CA8] transition-colors cursor-pointer shrink-0"
               aria-label="Return to Cart"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Cart
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Back to</span> Cart
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900">
+          <div className="p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900 rounded-b-3xl">
             {pricesUpdatedAt && (
               <div className="mb-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-800">
                 <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -964,19 +1001,6 @@ Please confirm this order. Thank you!
                 </button>
               </div>
             )}
-            <button
-              onClick={onBack}
-              className="text-gray-700 hover:text-gold-600 font-medium mb-4 md:mb-6 flex items-center gap-2 transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="text-sm md:text-base">Back to Cart</span>
-            </button>
-
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-black to-gray-900 bg-clip-text text-transparent mb-6 md:mb-8 flex items-center gap-2">
-              Checkout
-              <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-gold-600" />
-            </h1>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Form */}
               <div className="lg:col-span-2 space-y-4 md:space-y-6">
@@ -1039,170 +1063,358 @@ Please confirm this order. Thank you!
                 ) : (
                   <>
                 {/* Customer Information */}
-                <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                    <div className="bg-gradient-to-br from-gold-500 to-gold-600 p-2 rounded-xl">
-                      <Package className="w-5 h-5 md:w-6 md:h-6 text-black" />
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-5 md:p-6 border border-gray-200 dark:border-slate-800">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <User className="w-5 h-5" />
                     </div>
-                    Customer Information
+                    <span>Customer Information</span>
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name *
+                      <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-[#3C6CA8]" /> Full Name <span className="text-rose-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="input-field"
-                        placeholder="Juan Dela Cruz"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          className="w-full text-sm pl-10 pr-3 py-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium"
+                          placeholder="Dr. Juan Dela Cruz"
+                          required
+                        />
+                        <User className="w-4 h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
+                      <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" /> Email Address <span className="text-rose-500">*</span>
                       </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input-field"
-                        placeholder="juan@gmail.com"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full text-sm pl-10 pr-3 py-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium"
+                          placeholder="sarah.jenkins@biotech-research.org"
+                          required
+                        />
+                        <Mail className="w-4 h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number *
+                      <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <Phone className="w-3.5 h-3.5 text-[#3C6CA8]" /> Phone Number <span className="text-rose-500">*</span>
                       </label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="input-field"
-                        placeholder="09XX XXX XXXX"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full text-sm pl-10 pr-3 py-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium"
+                          placeholder="0917-555-8899"
+                          required
+                        />
+                        <Phone className="w-4 h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Shipping Address */}
-                <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                    <div className="bg-gradient-to-br from-gold-500 to-gold-600 p-2 rounded-xl">
-                      <Package className="w-5 h-5 md:w-6 md:h-6 text-black" />
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-5 md:p-6 border border-gray-200 dark:border-slate-800 relative z-20">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <MapPin className="w-5 h-5" />
                     </div>
-                    Shipping Address
+                    <span>Shipping Address</span>
                   </h2>
                   <div className="space-y-4">
+                    {/* 1. Street Address */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Street Address *
+                      <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-rose-500" /> Street Address <span className="text-rose-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className="input-field"
-                        placeholder="123 Rizal Street"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Barangay *
-                      </label>
-                      <input
-                        type="text"
-                        value={barangay}
-                        onChange={(e) => setBarangay(e.target.value)}
-                        className="input-field"
-                        placeholder="Brgy. San Antonio"
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          City *
-                        </label>
+                      <div className="relative">
                         <input
                           type="text"
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className="input-field"
-                          placeholder="Quezon City"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          className="w-full text-sm pl-10 pr-3 py-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium"
+                          placeholder="123 Rizal Street, House/Apt #"
                           required
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Province *
-                        </label>
-                        <input
-                          type="text"
-                          value={state}
-                          onChange={(e) => setState(e.target.value)}
-                          className="input-field"
-                          placeholder="Metro Manila"
-                          required
-                        />
+                        <MapPin className="w-4 h-4 text-rose-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ZIP/Postal Code *
-                      </label>
-                      <input
-                        type="text"
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value)}
-                        className="input-field"
-                        placeholder="1100"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                {/* Shipping Location Selection */}
-                <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-2 md:mb-3 flex items-center gap-2">
-                    <Package className="w-5 h-5 md:w-6 md:h-6 text-gold-600" />
-                    Choose Shipping Location *
-                  </h2>
-                  <p className="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">
-                    Shipping rates apply to small pouches (4.1 × 9.5 inches) with a capacity of up to 3 pens. For bulk orders exceeding this size, our team will contact you for the adjusted shipping fees.
-                  </p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {shippingLocations.map((loc) => (
-                      <button
-                        key={loc.id}
-                        onClick={() => setShippingLocation(loc.id as 'LUZON' | 'VISAYAS' | 'MINDANAO' | 'MAXIM')}
-                        className={`p-3 rounded-lg border-2 transition-all ${shippingLocation === loc.id
-                          ? 'border-navy-900 bg-gold-50'
-                          : 'border-gray-200 hover:border-navy-700'
-                          }`}
-                      >
-                        <p className="font-semibold text-navy-900 text-sm">{loc.id.replace('_', ' & ')}</p>
-                        <p className="text-xs text-gray-500">₱{loc.fee.toLocaleString()}</p>
-                      </button>
-                    ))}
+                    {/* 2. Province & City (Inline Row with Interchanged Order & Connected Real-Time Selection) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* PROVINCE SELECTOR (Left) */}
+                      <div className={`relative ${isProvinceOpen ? 'z-[100]' : 'z-20'}`} ref={provinceDropdownRef}>
+                        <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Globe className="w-3.5 h-3.5 text-[#3C6CA8]" /> Province <span className="text-rose-500">*</span>
+                          </span>
+                          <span className="text-[10px] font-extrabold text-[#3C6CA8]">PH Locations</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsProvinceOpen(!isProvinceOpen);
+                            setIsCityOpen(false);
+                            setIsBarangayOpen(false);
+                          }}
+                          className="w-full text-sm pl-10 pr-9 py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all cursor-pointer shadow-sm text-left"
+                        >
+                          <span className="truncate">{state || 'Select Province...'}</span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProvinceOpen ? 'rotate-180 text-[#3C6CA8]' : ''}`} />
+                        </button>
+                        <Globe className="w-4 h-4 text-[#3C6CA8] absolute left-3 top-[39px] pointer-events-none" />
+
+                        {/* Province Search Popover */}
+                        {isProvinceOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                            {/* Search Widget */}
+                            <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                              <div className="relative">
+                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                  type="text"
+                                  value={provinceSearch}
+                                  onChange={(e) => setProvinceSearch(e.target.value)}
+                                  placeholder="Search province or region..."
+                                  className="w-full text-xs pl-8 pr-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            {/* Province List */}
+                            <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                              {searchProvinces(provinceSearch).map((prov) => {
+                                const isSelected = state === prov.name;
+                                return (
+                                  <button
+                                    key={prov.code}
+                                    type="button"
+                                    onClick={() => {
+                                      setState(prov.name);
+                                      setCity('');
+                                      setBarangay('');
+                                      setZipCode('');
+                                      setIsProvinceOpen(false);
+                                      setProvinceSearch('');
+                                    }}
+                                    className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-[#3C6CA8]/5 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                      isSelected ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold' : 'text-gray-800 dark:text-slate-200'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <Globe className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#3C6CA8]' : 'text-gray-400'}`} />
+                                      <div>
+                                        <p className="font-bold text-sm">{prov.name}</p>
+                                        <p className="text-[11px] text-gray-400">{prov.region}</p>
+                                      </div>
+                                    </div>
+                                    {isSelected && <Check className="w-4 h-4 text-[#3C6CA8]" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* CITY SELECTOR (Right, Connected to Province) */}
+                      <div className={`relative ${isCityOpen ? 'z-[100]' : 'z-20'}`} ref={cityDropdownRef}>
+                        <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Navigation className="w-3.5 h-3.5 text-emerald-500" /> City / Municipality <span className="text-rose-500">*</span>
+                          </span>
+                          {state && (
+                            <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+                              {getCitiesForProvince(state).length} Cities
+                            </span>
+                          )}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCityOpen(!isCityOpen);
+                            setIsProvinceOpen(false);
+                            setIsBarangayOpen(false);
+                          }}
+                          className="w-full text-sm pl-10 pr-9 py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all cursor-pointer shadow-sm text-left"
+                        >
+                          <span className="truncate">{city || (state ? 'Select City/Municipality...' : 'Select Province First')}</span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isCityOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+                        </button>
+                        <Navigation className="w-4 h-4 text-emerald-500 absolute left-3 top-[39px] pointer-events-none" />
+
+                        {/* City Search Popover */}
+                        {isCityOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                            {/* Search Widget */}
+                            <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                              <div className="relative">
+                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                  type="text"
+                                  value={citySearch}
+                                  onChange={(e) => setCitySearch(e.target.value)}
+                                  placeholder={state ? `Search cities in ${state}...` : 'Search city or municipality...'}
+                                  className="w-full text-xs pl-8 pr-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            {/* City List */}
+                            <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                              {getCitiesForProvince(state, citySearch).map((c) => {
+                                const isSelected = city === c.name;
+                                return (
+                                  <button
+                                    key={c.code}
+                                    type="button"
+                                    onClick={() => {
+                                      setCity(c.name);
+                                      setZipCode(c.zipCode || '');
+                                      setBarangay('');
+                                      setIsCityOpen(false);
+                                      setCitySearch('');
+                                    }}
+                                    className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-emerald-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                      isSelected ? 'bg-emerald-100/50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold' : 'text-gray-800 dark:text-slate-200'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <Navigation className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-500' : 'text-gray-400'}`} />
+                                      <div>
+                                        <p className="font-bold text-sm">{c.name}</p>
+                                        {c.zipCode && <p className="text-[11px] text-gray-400">ZIP: {c.zipCode}</p>}
+                                      </div>
+                                    </div>
+                                    {isSelected && <Check className="w-4 h-4 text-emerald-500" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 3. Barangay & ZIP/Postal Code (Inline Row connected to City) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* BARANGAY SELECTOR (Left, Connected to City) */}
+                      <div className={`relative ${isBarangayOpen ? 'z-[100]' : 'z-10'}`} ref={barangayDropdownRef}>
+                        <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-teal-500" /> Barangay <span className="text-rose-500">*</span>
+                          </span>
+                          {city && (
+                            <span className="text-[10px] font-extrabold text-teal-600 dark:text-teal-400">
+                              {getBarangaysForCity(city).length} Barangays
+                            </span>
+                          )}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsBarangayOpen(!isBarangayOpen);
+                            setIsProvinceOpen(false);
+                            setIsCityOpen(false);
+                          }}
+                          className="w-full text-sm pl-10 pr-9 py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all cursor-pointer shadow-sm text-left"
+                        >
+                          <span className="truncate">{barangay || (city ? 'Select Barangay...' : 'Select City First')}</span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isBarangayOpen ? 'rotate-180 text-teal-500' : ''}`} />
+                        </button>
+                        <Building2 className="w-4 h-4 text-teal-500 absolute left-3 top-[39px] pointer-events-none" />
+
+                        {/* Barangay Search Popover */}
+                        {isBarangayOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                            {/* Search Widget */}
+                            <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                              <div className="relative">
+                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                  type="text"
+                                  value={barangaySearch}
+                                  onChange={(e) => setBarangaySearch(e.target.value)}
+                                  placeholder={city ? `Search barangay in ${city}...` : 'Search barangay...'}
+                                  className="w-full text-xs pl-8 pr-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
+                                  autoFocus
+                                />
+                              </div>
+                            </div>
+                            {/* Barangay List */}
+                            <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                              {getBarangaysForCity(city || 'QC', barangaySearch).map((b) => {
+                                const isSelected = barangay === b.name;
+                                return (
+                                  <button
+                                    key={b.code}
+                                    type="button"
+                                    onClick={() => {
+                                      setBarangay(b.name);
+                                      setIsBarangayOpen(false);
+                                      setBarangaySearch('');
+                                    }}
+                                    className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-teal-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                      isSelected ? 'bg-teal-100/50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-bold' : 'text-gray-800 dark:text-slate-200'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <Building2 className={`w-4 h-4 shrink-0 ${isSelected ? 'text-teal-500' : 'text-gray-400'}`} />
+                                      <span className="font-bold text-sm">{b.name}</span>
+                                    </div>
+                                    {isSelected && <Check className="w-4 h-4 text-teal-500" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ZIP / POSTAL CODE (Right - Automated & Disabled) */}
+                      <div>
+                        <label className="block text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <FileText className="w-3.5 h-3.5 text-amber-500" /> ZIP/Postal Code <span className="text-rose-500">*</span>
+                          </span>
+                          <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400">Automated</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={zipCode}
+                            readOnly
+                            disabled
+                            className="w-full text-sm pl-10 pr-3 py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-100 dark:bg-slate-800/70 text-gray-500 dark:text-slate-400 font-bold cursor-not-allowed outline-none select-none opacity-90"
+                            placeholder="Auto-filled based on City"
+                          />
+                          <FileText className="w-4 h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   onClick={handleProceedToPayment}
                   disabled={!isDetailsValid}
-                  className={`w-full py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg transition-all transform shadow-lg ${isDetailsValid
-                    ? 'bg-navy-900 hover:bg-navy-800 text-white hover:scale-105 hover:shadow-xl border border-navy-900/20'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
+                  className={`w-full py-3.5 sm:py-4 px-4 rounded-2xl font-extrabold text-sm sm:text-base md:text-lg transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
+                    isDetailsValid
+                      ? 'bg-[#3C6CA8] hover:bg-[#325a8c] text-white shadow-[#3C6CA8]/25 border border-[#3C6CA8]/20'
+                      : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed'
+                  }`}
                 >
-                  Proceed to Payment ✨
+                  <span>Proceed to Payment</span>
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 animate-pulse" />
                 </button>
                   </>
                 )}
@@ -1210,15 +1422,20 @@ Please confirm this order. Thank you!
 
               {/* Order Summary Sidebar */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-2xl shadow-xl p-5 md:p-6 sticky top-24 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                    Order Summary
-                    <Sparkles className="w-5 h-5 text-gold-600" />
-                  </h2>
+                <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-5 md:p-6 sticky top-24 border border-slate-200 dark:border-slate-800 transition-all">
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100 dark:border-slate-800">
+                    <h2 className="text-lg md:text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                      <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <span>Order Summary</span>
+                    </h2>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
+                      {cartItems.reduce((n, i) => n + i.quantity, 0)} {cartItems.reduce((n, i) => n + i.quantity, 0) === 1 ? 'Item' : 'Items'}
+                    </span>
+                  </div>
 
-                  <div className="space-y-4 mb-6">
+                  {/* Product Profile Image & Item Details Display */}
+                  <div className="space-y-4 mb-6 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
                     {cartItems.map((item, index) => {
-                      // Determine if this item has a product-level discount
                       const line = pricing.lines[index];
                       const hasVariation = !!item.variation;
                       const originalPrice = hasVariation
@@ -1227,38 +1444,60 @@ Please confirm this order. Thank you!
                       const currentPrice = line ? line.lineSubtotal : item.price * item.quantity;
                       const savedAmount = originalPrice - currentPrice;
                       const hasProductDiscount = savedAmount > 0;
+                      const imageUrl = item.product.image_url || (item.product as any).image || (item.product as any).imageUrl;
 
                       return (
-                        <div key={index} className="pb-4 border-b border-gray-200">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-navy-900 text-sm">{item.product.name}</h4>
-                              {item.variation && (
-                                <p className="text-xs text-gold-600 mt-1">{item.variation.name}</p>
+                        <div key={index} className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {/* Product Thumbnail Display */}
+                            <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 shadow-sm relative flex items-center justify-center">
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={item.product.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <Package className="w-6 h-6 text-slate-400" />
                               )}
-                              {item.product.purity_percentage && item.product.purity_percentage > 0 ? (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  {item.product.purity_percentage}% Purity
-                                </p>
-                              ) : null}
-                            </div>
-                            <div className="text-right">
-                              <span className="font-semibold text-navy-900 text-sm">
-                                ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                              <span className="absolute bottom-0 right-0 bg-slate-900/90 text-white font-extrabold text-[10px] px-1.5 py-0.5 rounded-tl-md">
+                                x{item.quantity}
                               </span>
-                              {hasProductDiscount && savedAmount > 0 && (
-                                <div className="flex flex-col items-end">
-                                  <span className="text-xs text-gray-400 line-through">
-                                    ₱{originalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="font-bold text-gray-900 dark:text-white text-xs truncate leading-snug">{item.product.name}</h4>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                {item.variation && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300 border border-blue-100 dark:border-blue-900/40">
+                                    {item.variation.name}
                                   </span>
-                                  <span className="text-xs text-green-600 font-medium">
-                                    Save ₱{savedAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                                )}
+                                {item.product.purity_percentage && item.product.purity_percentage > 0 ? (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/40">
+                                    {item.product.purity_percentage}% Purity
                                   </span>
-                                </div>
-                              )}
+                                ) : null}
+                              </div>
                             </div>
                           </div>
-                          <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                          <div className="text-right shrink-0">
+                            <span className="font-extrabold text-gray-900 dark:text-white text-sm">
+                              ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                            </span>
+                            {hasProductDiscount && savedAmount > 0 && (
+                              <div className="flex flex-col items-end mt-0.5">
+                                <span className="text-[10px] text-gray-400 line-through">
+                                  ₱{originalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                                </span>
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                  Save ₱{savedAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
@@ -1266,14 +1505,21 @@ Please confirm this order. Thank you!
 
                   <div className="space-y-4 mb-6">
                     {/* Promo Code Input */}
-                    <div className="pt-2 pb-4 border-b border-gray-100">
-                      <p className="text-sm font-medium text-navy-900 mb-2 flex items-center gap-1">
-                        <Tag className="w-3.5 h-3.5 text-gold-600" />
-                        Have a promo code?
+                    <div className="pt-3 pb-4 border-t border-b border-gray-100 dark:border-slate-800">
+                      <p className="text-xs font-bold text-gray-800 dark:text-slate-200 mb-2 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          Have a promo code?
+                        </span>
+                        {appliedPromo && (
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            PROMO APPLIED
+                          </span>
+                        )}
                       </p>
                       {hasBundleDiscount && (
-                        <p className="text-xs text-amber-700 mb-2 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                          Bundle discount is active — promo codes can't be combined.
+                        <p className="text-xs text-amber-800 dark:text-amber-300 mb-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl p-2.5">
+                          Bundle discount is active — promo codes cannot be combined with bundles.
                         </p>
                       )}
                       <div className="flex gap-2">
@@ -1281,8 +1527,8 @@ Please confirm this order. Thank you!
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
-                          placeholder="Enter code"
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold-400 focus:border-transparent outline-none uppercase disabled:bg-gray-100"
+                          placeholder="ENTER CODE"
+                          className="flex-1 px-3.5 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold uppercase focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 outline-none bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white disabled:opacity-60 transition-all"
                           disabled={!!appliedPromo || isApplyingPromo || hasBundleDiscount}
                         />
                         {appliedPromo ? (
@@ -1292,8 +1538,9 @@ Please confirm this order. Thank you!
                               setDiscountAmount(0);
                               setPromoCode('');
                               setPromoSuccess('');
+                              fireToast('Promo code removed', 'info');
                             }}
-                            className="px-4 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                            className="px-4 py-2.5 bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all cursor-pointer"
                           >
                             Remove
                           </button>
@@ -1301,7 +1548,7 @@ Please confirm this order. Thank you!
                           <button
                             onClick={handleApplyPromoCode}
                             disabled={!promoCode || isApplyingPromo || hasBundleDiscount}
-                            className="px-4 py-2 bg-navy-900 text-white rounded-lg text-sm font-medium hover:bg-navy-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                           >
                             {isApplyingPromo ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -1312,100 +1559,215 @@ Please confirm this order. Thank you!
                         )}
                       </div>
                       {promoError && (
-                        <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
-                          <XCircle className="w-3.5 h-3.5" />
-                          {promoError}
+                        <p className="text-xs font-medium text-rose-500 mt-2 flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/40 p-2 rounded-xl">
+                          <XCircle className="w-4 h-4 shrink-0" />
+                          <span>{promoError}</span>
                         </p>
                       )}
                       {promoSuccess && (
-                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          {promoSuccess}
+                        <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 p-2 rounded-xl">
+                          <CheckCircle className="w-4 h-4 shrink-0 text-emerald-500" />
+                          <span>{promoSuccess}</span>
                         </p>
                       )}
                     </div>
 
-                    {hasItemDiscount || hasBundleDiscount || discountAmount > 0 ? (
-                      <>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Subtotal</span>
-                          <div className="flex items-center gap-2">
-                            {hasItemDiscount || hasBundleDiscount ? (
-                              <span className="text-gray-400 line-through text-sm">
-                                ₱{originalSubtotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                              </span>
-                            ) : null}
-                            <span className="font-semibold text-green-600">
-                              ₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                            </span>
-                          </div>
-                        </div>
-
-                        {hasItemDiscount && (
-                          <div className="flex justify-between items-center bg-green-50 -mx-6 px-6 py-2 border-y border-green-100">
-                            <span className="flex items-center gap-1.5 text-green-700 font-medium text-sm">
-                              <Tag className="w-4 h-4" />
-                              Discount on items
-                            </span>
-                            <span className="font-bold text-green-700 text-sm">
-                              -₱{itemDiscountSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                            </span>
-                          </div>
-                        )}
-
-                        {hasBundleDiscount && (
-                          <div className="flex justify-between items-center bg-green-50 -mx-6 px-6 py-2 border-y border-green-100">
-                            <span className="flex items-center gap-1.5 text-green-700 font-medium text-sm">
-                              <Tag className="w-4 h-4" />
-                              Bundle discount
-                            </span>
-                            <span className="font-bold text-green-700 text-sm">
-                              -₱{bundleSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                            </span>
-                          </div>
-                        )}
-
-                        {discountAmount > 0 && (
-                          <div className="flex justify-between items-center bg-green-50 -mx-6 px-6 py-2 border-y border-green-100">
-                            <span className="flex items-center gap-1.5 text-green-700 font-medium text-sm">
-                              <Tag className="w-4 h-4" />
-                              Promo ({appliedPromo?.code})
-                            </span>
-                            <span className="font-bold text-green-700 text-sm">
-                              -₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex justify-center -mx-6 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600">
-                          <p className="text-white text-sm font-bold flex items-center gap-1.5">
-                            <Sparkles className="w-4 h-4" />
-                            You saved ₱{(itemDiscountSavings + bundleSavings + discountAmount).toLocaleString('en-PH', { minimumFractionDigits: 0 })}!
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex justify-between text-gray-600">
-                        <span>Subtotal</span>
-                        <span className="font-medium">₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between text-gray-600 text-xs">
-                      <span>Shipping</span>
-                      <span className="font-medium text-gold-600">
-                        {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH', { minimumFractionDigits: 0 })}` : 'Select location'}
-                      </span>
-                    </div>
-                    <div className="border-t-2 border-gray-200 pt-3">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-navy-900">Total</span>
-                        <span className="text-2xl font-bold text-gold-600">
-                          ₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                    {/* Custom Animated Shipping Location Dropdown */}
+                    <div className="py-3 space-y-2 border-b border-gray-100 dark:border-slate-800">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-gray-800 dark:text-slate-200 flex items-center gap-1.5">
+                          <Truck className="w-4 h-4 text-[#3C6CA8]" />
+                          <span>Shipping Location</span>
+                        </label>
+                        <span className="font-black text-xs text-[#3C6CA8] px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 border border-[#3C6CA8]/20">
+                          {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH')}` : 'Select Region'}
                         </span>
                       </div>
+                      
+                      <div className="relative" ref={shippingDropdownRef}>
+                        {/* Custom Dropdown Trigger Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsShippingDropdownOpen(!isShippingDropdownOpen)}
+                          className="w-full text-xs px-3.5 py-3 border border-gray-200 dark:border-slate-700 rounded-2xl bg-gray-50/80 dark:bg-slate-800/80 hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-900 dark:text-slate-100 font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none cursor-pointer flex items-center justify-between gap-2 transition-all shadow-sm"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-6 h-6 rounded-lg bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0">
+                              {(() => {
+                                const code = shippingLocation.toUpperCase();
+                                if (code.includes('MANILA') || code.includes('NCR')) return <Building2 className="w-3.5 h-3.5" />;
+                                if (code.includes('LUZON')) return <MapPin className="w-3.5 h-3.5 text-emerald-500" />;
+                                if (code.includes('VISAYAS')) return <Navigation className="w-3.5 h-3.5 text-purple-500" />;
+                                if (code.includes('MINDANAO')) return <Globe className="w-3.5 h-3.5 text-amber-500" />;
+                                if (code.includes('MAXIM') || code.includes('EXPRESS')) return <Truck className="w-3.5 h-3.5 text-rose-500" />;
+                                return <Truck className="w-3.5 h-3.5 text-[#3C6CA8]" />;
+                              })()}
+                            </div>
+                            <span className="truncate text-xs font-extrabold">
+                              {(() => {
+                                const selectedObj = shippingLocations.find(loc => (loc.code || loc.id) === shippingLocation);
+                                return selectedObj ? selectedObj.name : '-- Select Shipping Region --';
+                              })()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isShippingDropdownOpen ? 'rotate-180 text-[#3C6CA8]' : ''}`} />
+                          </div>
+                        </button>
+
+                        {/* Custom Dropdown Popover Menu */}
+                        {isShippingDropdownOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                            <div className="px-3.5 py-1.5 border-b border-gray-100 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                              Choose Region
+                            </div>
+                            <div className="max-h-60 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50 custom-scrollbar">
+                              {shippingLocations.map((loc) => {
+                                const code = loc.code || loc.id;
+                                const isSelected = shippingLocation === code;
+
+                                const isNcr = code.includes('MANILA') || code.includes('NCR');
+                                const isLuzon = code.includes('LUZON');
+                                const isVisayas = code.includes('VISAYAS');
+                                const isMindanao = code.includes('MINDANAO');
+                                const isMaxim = code.includes('MAXIM') || code.includes('EXPRESS');
+
+                                let icon = <Truck className="w-4 h-4 text-[#3C6CA8]" />;
+                                if (isNcr) icon = <Building2 className="w-4 h-4 text-blue-500" />;
+                                else if (isLuzon) icon = <MapPin className="w-4 h-4 text-emerald-500" />;
+                                else if (isVisayas) icon = <Navigation className="w-4 h-4 text-purple-500" />;
+                                else if (isMindanao) icon = <Globe className="w-4 h-4 text-amber-500" />;
+                                else if (isMaxim) icon = <Truck className="w-4 h-4 text-rose-500" />;
+
+                                return (
+                                  <button
+                                    key={loc.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setShippingLocation(code as any);
+                                      setIsShippingDropdownOpen(false);
+                                    }}
+                                    className={`w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-[#3C6CA8]/5 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                      isSelected ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] font-black' : 'text-gray-800 dark:text-slate-200'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border ${
+                                        isSelected ? 'bg-[#3C6CA8] text-white border-[#3C6CA8]' : 'bg-gray-100 dark:bg-slate-800 text-[#3C6CA8] border-gray-200 dark:border-slate-700'
+                                      }`}>
+                                        {icon}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p className="font-extrabold text-xs leading-tight truncate">{loc.name}</p>
+                                        <p className="text-[10px] text-gray-500 dark:text-slate-400 font-medium mt-0.5">
+                                          {loc.delivery_days || 'Standard Delivery'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      <span className="font-black text-xs text-[#3C6CA8]">
+                                        ₱{loc.fee}
+                                      </span>
+                                      {isSelected && <Check className="w-4 h-4 text-[#3C6CA8]" />}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Price Breakdown */}
+                    <div className="space-y-2.5 text-xs">
+                      <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
+                        <span>Subtotal</span>
+                        <div className="flex items-center gap-2">
+                          {hasItemDiscount || hasBundleDiscount ? (
+                            <span className="text-gray-400 line-through">
+                              ₱{originalSubtotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                            </span>
+                          ) : null}
+                          <span className="font-bold text-gray-900 dark:text-white">
+                            ₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                      </div>
+
+                      {hasItemDiscount && (
+                        <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
+                          <span className="flex items-center gap-1.5 font-bold">
+                            <Tag className="w-3.5 h-3.5" />
+                            Discount on items
+                          </span>
+                          <span className="font-extrabold">
+                            -₱{itemDiscountSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                      )}
+
+                      {hasBundleDiscount && (
+                        <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
+                          <span className="flex items-center gap-1.5 font-bold">
+                            <Percent className="w-3.5 h-3.5" />
+                            Bundle discount
+                          </span>
+                          <span className="font-extrabold">
+                            -₱{bundleSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                      )}
+
+                      {discountAmount > 0 && (
+                        <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
+                          <span className="flex items-center gap-1.5 font-bold">
+                            <Tag className="w-3.5 h-3.5" />
+                            Promo ({appliedPromo?.code})
+                          </span>
+                          <span className="font-extrabold">
+                            -₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
+                        <span>Shipping Fee</span>
+                        <span className="font-bold text-gray-900 dark:text-white">
+                          {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH')}` : '₱0'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Premium Grand Total Card */}
+                    <div className="mt-4 pt-2">
+                      <div className="bg-slate-900 dark:bg-slate-800 text-white rounded-2xl p-4 shadow-lg border border-slate-700/60 relative overflow-hidden">
+                        <div className="flex justify-between items-baseline mb-1">
+                          <span className="font-bold text-sm text-slate-300 flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4 text-amber-400" /> Total
+                          </span>
+                          <span className="text-2xl font-black text-amber-400 tracking-tight">
+                            ₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                        </div>
+                        
+                        {(itemDiscountSavings + bundleSavings + discountAmount) > 0 && (
+                          <div className="mt-2.5 pt-2 border-t border-slate-700/80 flex items-center justify-between text-xs">
+                            <span className="text-emerald-400 font-bold flex items-center gap-1">
+                              <Sparkles className="w-3.5 h-3.5" /> Total Savings
+                            </span>
+                            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-black text-[11px]">
+                              ₱{(itemDiscountSavings + bundleSavings + discountAmount).toLocaleString('en-PH', { minimumFractionDigits: 0 })} SAVED
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
                       {!shippingLocation && (
-                        <p className="text-xs text-red-500 mt-1 text-right">Please select shipping location</p>
+                        <p className="text-xs text-rose-500 font-bold mt-2 text-center animate-pulse flex items-center justify-center gap-1">
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>Please select a shipping location to proceed</span>
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1424,26 +1786,26 @@ Please confirm this order. Thank you!
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 px-3 sm:px-6 lg:px-8 animate-fadeIn">
-      <div className="max-w-6xl mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-800">
+      <div className="container-global mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-800">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <span className="font-heading text-lg font-extrabold text-gray-900 dark:text-white">Checkout</span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold border border-[#3C6CA8]/20 dark:bg-[#3C6CA8]/20 dark:text-blue-300 dark:border-[#3C6CA8]/40">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="font-heading text-base sm:text-lg font-extrabold text-gray-900 dark:text-white shrink-0">Checkout</span>
+            <span className="text-[10px] sm:text-xs px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold border border-[#3C6CA8]/20 dark:bg-[#3C6CA8]/20 dark:text-blue-300 dark:border-[#3C6CA8]/40 truncate">
               Step 2 of 2: Payment & Review
             </span>
           </div>
           <button
             onClick={() => setStep('details')}
-            className="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-[#3C6CA8] transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-[#3C6CA8] transition-colors cursor-pointer shrink-0"
             aria-label="Back to Information"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Details
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Back to</span> Details
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 md:p-8 bg-white dark:bg-slate-900">
+        <div className="p-3 sm:p-6 md:p-8 bg-white dark:bg-slate-900">
           {pricesUpdatedAt && (
             <div className="mb-4 flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-800">
               <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -1455,104 +1817,84 @@ Please confirm this order. Thank you!
               </button>
             </div>
           )}
-          <button
-            onClick={() => setStep('details')}
-            className="text-gray-700 hover:text-gold-600 font-medium mb-4 md:mb-6 flex items-center gap-2 transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-sm md:text-base">Back to Details</span>
-          </button>
-
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-black to-gray-900 bg-clip-text text-transparent mb-6 md:mb-8 flex items-center gap-2">
-            Payment
-            <CreditCard className="w-6 h-6 md:w-7 md:h-7 text-gold-600" />
-          </h1>
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {/* Payment Form */}
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
-              {/* Shipping Location Selection */}
-              <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-2 md:mb-3 flex items-center gap-2">
-                  <Package className="w-5 h-5 md:w-6 md:h-6 text-gold-600" />
-                  Choose Shipping Location *
-                </h2>
-                <p className="text-xs md:text-sm text-gray-600 mb-4 md:mb-6">
-                  Shipping rates apply to small pouches (4.1 × 9.5 inches) with a capacity of up to 3 pens. For bulk orders exceeding this size, our team will contact you for the adjusted shipping fees.
-                </p>
-                <div className="grid grid-cols-1 gap-3">
-                  {shippingLocations.map((loc) => (
-                    <button
-                      key={loc.id}
-                      onClick={() => setShippingLocation(loc.id as 'LUZON' | 'VISAYAS' | 'MINDANAO' | 'MAXIM')}
-                      className={`p-4 rounded-lg border-2 transition-all flex items-center justify-between ${shippingLocation === loc.id
-                        ? 'border-navy-900 bg-gold-50'
-                        : 'border-gray-200 hover:border-navy-700'
-                        }`}
-                    >
-                      <div className="text-left">
-                        <p className="font-semibold text-navy-900">{loc.id.replace('_', ' & ')}</p>
-                        <p className="text-sm text-gray-500">₱{loc.fee.toLocaleString()}</p>
-                      </div>
-                      {shippingLocation === loc.id && (
-                        <div className="w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs">✓</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Payment Method Selection */}
-              <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                  <div className="bg-gradient-to-br from-gold-500 to-gold-600 p-2 rounded-xl">
-                    <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-black" />
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-4 sm:p-5 md:p-7 border border-gray-200 dark:border-slate-800">
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                    <div>
+                      <span className="text-sm sm:text-base md:text-lg">Payment Method</span>
+                      <p className="text-[11px] sm:text-xs text-gray-400 font-normal">Select your preferred payment channel</p>
+                    </div>
                   </div>
-                  Payment Method
+                  <span className="flex items-center gap-1 text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
+                    <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">256-Bit SSL</span> Encrypted
+                  </span>
                 </h2>
 
-                <div className="grid grid-cols-1 gap-3 mb-6">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-6">
                   {/* HitPay option (cards / e-wallets) */}
                   <div
-                    className={`rounded-lg border-2 transition-all overflow-hidden ${isHitpaySelected
-                      ? 'border-navy-900'
-                      : 'border-gray-200 hover:border-navy-700'
+                    className={`rounded-2xl border-2 transition-all overflow-hidden ${isHitpaySelected
+                      ? 'border-[#3C6CA8] bg-blue-50/20 dark:bg-slate-800/60 shadow-md ring-2 ring-[#3C6CA8]/20'
+                      : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
                       }`}
                   >
                     <button
                       type="button"
                       onClick={() => setSelectedPaymentMethod(HITPAY_METHOD_ID)}
-                      className="w-full p-4 flex items-center justify-between text-left bg-white cursor-pointer"
+                      className="w-full p-3.5 sm:p-4 md:p-5 flex flex-col justify-between gap-3 text-left cursor-pointer"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isHitpaySelected ? 'border-navy-900' : 'border-gray-300'}`}>
-                          {isHitpaySelected && <div className="w-2.5 h-2.5 rounded-full bg-navy-900" />}
+                      <div className="flex items-start gap-3">
+                        <div className={`w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isHitpaySelected ? 'border-[#3C6CA8] bg-[#3C6CA8]' : 'border-gray-300 dark:border-slate-600'}`}>
+                          {isHitpaySelected && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
-                        <div>
-                          <p className="font-semibold text-navy-900 text-sm md:text-base leading-tight">
-                            Credit/Debit Cards and e-Wallets
-                          </p>
-                          <p className="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-1.5 font-medium">
-                            <span>Secure checkout via HitPay</span>
-                            <span className="text-navy-700 font-bold bg-navy-50/80 px-2 py-0.5 rounded text-[10px] uppercase tracking-wide">
-                              (Subject to a 3% processing fee)
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base leading-tight">
+                              Credit/Debit Cards & e-Wallets
+                            </p>
+                            <span className="bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-blue-300 font-bold text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border border-[#3C6CA8]/20 shrink-0">
+                              Instant Approval
+                            </span>
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-1 font-medium">
+                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                              <Lock className="w-3 h-3" /> HitPay Gateway
+                            </span>
+                            <span className="text-slate-600 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] uppercase tracking-wide border border-slate-200 dark:border-slate-700">
+                              (3% fee)
                             </span>
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <span className="px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-gray-700">QRPH</span>
-                        <span className="px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-gray-700">GCash</span>
-                        <span className="px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-gray-700">Maya</span>
-                        <span className="px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-gray-700">Billease</span>
-                        <span className="px-2 py-1 rounded bg-white border border-gray-200 text-[10px] font-bold text-gray-700">VISA</span>
+                      <div className="flex items-center gap-1 shrink-0 flex-wrap pt-1 border-t border-gray-100/60 dark:border-slate-800/60 sm:border-t-0 sm:pt-0">
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-[9px] sm:text-[10px] font-extrabold flex items-center gap-0.5">
+                          <CheckCircle2 className="w-2.5 h-2.5" /> QRPH
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 text-[9px] sm:text-[10px] font-extrabold">
+                          GCash
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60 text-[9px] sm:text-[10px] font-extrabold">
+                          Maya
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-[9px] sm:text-[10px] font-extrabold">
+                          Billease
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-[9px] sm:text-[10px] font-extrabold">
+                          VISA/MC
+                        </span>
                       </div>
                     </button>
                     {isHitpaySelected && (
-                      <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 text-xs md:text-sm text-gray-600 text-center">
-                        You'll be redirected to HitPay to complete your purchase securely.
+                      <div className="bg-[#3C6CA8]/5 dark:bg-slate-800/80 px-5 py-3 border-t border-gray-100 dark:border-slate-800 text-xs md:text-sm text-gray-600 dark:text-slate-300 flex items-center justify-center gap-2 font-medium">
+                        <Sparkles className="w-4 h-4 text-[#3C6CA8] shrink-0" />
+                        <span>You will be redirected to HitPay's encrypted portal to complete your transaction safely.</span>
                       </div>
                     )}
                   </div>
@@ -1561,50 +1903,87 @@ Please confirm this order. Thank you!
                     <button
                       key={method.id}
                       onClick={() => setSelectedPaymentMethod(method.id)}
-                      className={`p-4 rounded-lg border-2 transition-all flex items-center justify-between ${selectedPaymentMethod === method.id
-                        ? 'border-navy-900 bg-gold-50'
-                        : 'border-gray-200 hover:border-navy-700'
+                      className={`p-4 md:p-5 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${selectedPaymentMethod === method.id
+                        ? 'border-[#3C6CA8] bg-blue-50/20 dark:bg-slate-800/60 shadow-md ring-2 ring-[#3C6CA8]/20'
+                        : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
                         }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPaymentMethod === method.id ? 'border-navy-900' : 'border-gray-300'}`}>
-                          {selectedPaymentMethod === method.id && <div className="w-2.5 h-2.5 rounded-full bg-navy-900" />}
+                      <div className="flex items-center gap-3.5">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${selectedPaymentMethod === method.id ? 'border-[#3C6CA8] bg-[#3C6CA8]' : 'border-gray-300 dark:border-slate-600'}`}>
+                          {selectedPaymentMethod === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
-                        <div className="w-10 h-10 bg-gold-100 rounded-lg flex items-center justify-center">
-                          <Wallet className="w-5 h-5 text-gold-600" />
+                        <div className="w-10 h-10 bg-[#3C6CA8]/10 text-[#3C6CA8] rounded-xl flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                          <Wallet className="w-5 h-5" />
                         </div>
                         <div className="text-left">
-                          <p className="font-semibold text-navy-900">{method.name}</p>
-                          <p className="text-sm text-gray-500">{method.account_name}</p>
+                          <p className="font-extrabold text-gray-900 dark:text-white text-sm md:text-base">{method.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Account: {method.account_name}</p>
                         </div>
                       </div>
+                      <span className="text-xs font-bold text-[#3C6CA8] bg-[#3C6CA8]/10 px-2.5 py-1 rounded-full">
+                        Manual Transfer
+                      </span>
                     </button>
                   ))}
                 </div>
 
                 {!isPaymongoSelected && paymentMethodInfo && (
-                  <div className="bg-gold-50 rounded-lg p-6 border border-navy-600">
-                    <h3 className="font-semibold text-navy-900 mb-4">Payment Details</h3>
-                    <div className="space-y-2 text-sm text-gray-700 mb-4">
+                  <div className="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700">
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-[#3C6CA8]" /> Payment Details
+                    </h3>
+                    <div className="space-y-2 text-xs md:text-sm text-gray-700 dark:text-slate-200 mb-4 font-medium">
                       <p><strong>Account Number:</strong> {paymentMethodInfo.account_number}</p>
                       <p><strong>Account Name:</strong> {paymentMethodInfo.account_name}</p>
-                      <p><strong>Amount to Pay:</strong> <span className="text-xl font-bold text-gold-600">₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span></p>
+                      <p><strong>Amount to Pay:</strong> <span className="text-lg font-extrabold text-[#3C6CA8]">₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span></p>
                     </div>
 
                     {paymentMethodInfo.qr_code_url && (
                       <div className="flex justify-center">
-                        <div className="bg-white p-4 rounded-lg">
+                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
                           <img
                             src={paymentMethodInfo.qr_code_url}
                             alt="Payment QR Code"
                             className="w-48 h-48 object-contain"
                           />
-                          <p className="text-xs text-center text-gray-500 mt-2">Scan to pay</p>
                         </div>
                       </div>
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Order Notes Section */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-5 md:p-7 border border-gray-200 dark:border-slate-800">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span>Order Notes</span>
+                      <span className="text-xs font-normal text-gray-400 block">Optional delivery or handling instructions</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800">
+                    Delivery Instructions
+                  </span>
+                </h2>
+                <div className="relative">
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Any special instructions or notes for your order (e.g., Gate code, leave with guard, preferred delivery schedule)..."
+                    className="w-full text-xs md:text-sm p-4 border border-gray-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium min-h-[110px] resize-y"
+                    maxLength={500}
+                  />
+                  <div className="flex items-center justify-between mt-2 text-[11px] text-gray-400 dark:text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <Info className="w-3.5 h-3.5 text-[#3C6CA8]" /> Notes are printed directly on your courier shipping label.
+                    </span>
+                    <span>{notes.length}/500</span>
+                  </div>
+                </div>
               </div>
 
               {/* Contact Method Selection (hidden for HitPay) */}
@@ -1688,7 +2067,7 @@ Please confirm this order. Thank you!
                         <p className="text-xs text-gray-500">
                           {(paymentProof.size / 1024 / 1024).toFixed(2)} MB
                         </p>
-                      </div>
+</div>
                       <button
                         onClick={() => setPaymentProof(null)}
                         className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -1700,23 +2079,6 @@ Please confirm this order. Thank you!
                 </div>
               )}
 
-              {/* Additional Notes */}
-              <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-                  <div className="bg-gradient-to-br from-gold-500 to-gold-600 p-2 rounded-xl">
-                    <MessageCircle className="w-5 h-5 text-black" />
-                  </div>
-                  Order Notes (Optional)
-                </h2>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="input-field"
-                  rows={4}
-                  placeholder="Any special instructions or notes for your order..."
-                />
-              </div>
-
               {(() => {
                 const canSubmit = isHitpaySelected
                   ? !!shippingLocation && !isCreatingHitpayCheckout
@@ -1725,29 +2087,29 @@ Please confirm this order. Thank you!
                   <button
                     onClick={handlePlaceOrder}
                     disabled={!canSubmit || isPlacingOrder}
-                    className={`w-full py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    className={`w-full py-3.5 sm:py-4 px-4 rounded-2xl font-extrabold text-sm sm:text-base md:text-lg shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 ${
                       canSubmit && !isPlacingOrder
-                        ? 'bg-navy-900 hover:bg-navy-800 text-white hover:shadow-xl transform hover:scale-105 border border-navy-900/20'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-[#3C6CA8] hover:bg-[#315A8E] text-white shadow-[#3C6CA8]/20 hover:shadow-xl'
+                        : 'bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-600 cursor-not-allowed'
                     }`}
                   >
                     {isCreatingHitpayCheckout ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Redirecting to HitPay...
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        <span>Redirecting to HitPay...</span>
                       </>
                     ) : isPlacingOrder ? (
                       <>
-                        <svg className="animate-spin-fast w-5 h-5" viewBox="0 0 24 24" fill="none">
+                        <svg className="animate-spin-fast w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none">
                           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25"/>
                           <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
                         </svg>
-                        Processing Order...
+                        <span>Processing Order...</span>
                       </>
                     ) : (
                       <>
-                        <ShieldCheck className="w-5 h-5 md:w-6 md:h-6" />
-                        {isHitpaySelected ? 'Pay with HitPay' : 'Complete Order'}
+                        <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span>{isHitpaySelected ? 'Pay with HitPay' : 'Complete Order'}</span>
                       </>
                     )}
                   </button>
@@ -1763,26 +2125,40 @@ Please confirm this order. Thank you!
 
             {/* Order Summary Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-xl p-5 md:p-6 sticky top-24 border-2 border-navy-700/30">
-                <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                  Final Summary
-                  <Sparkles className="w-5 h-5 text-gold-600" />
-                </h2>
+              <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-5 md:p-6 sticky top-24 border border-slate-200 dark:border-slate-800 transition-all">
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
+                  <h2 className="text-lg md:text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <span>Final Summary</span>
+                  </h2>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
+                    Step 2 Review
+                  </span>
+                </div>
 
-                {/* Customer Info */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
-                  <p className="font-semibold text-navy-900 mb-2">{fullName}</p>
-                  <p className="text-gray-600">{email}</p>
-                  <p className="text-gray-600">{phone}</p>
-                  <div className="mt-3 pt-3 border-t border-gray-200 text-gray-600">
-                    <p>{address}</p>
-                    <p>{barangay}</p>
-                    <p>{city}, {state} {zipCode}</p>
+                {/* Customer Info Card */}
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 mb-4 text-xs border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                  <p className="font-extrabold text-gray-900 dark:text-white text-sm flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> {fullName}
+                  </p>
+                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-gray-400" /> {email}
+                  </p>
+                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" /> {phone}
+                  </p>
+                  <div className="mt-2.5 pt-2.5 border-t border-slate-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 flex items-start gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-gray-800 dark:text-slate-200">{address}</p>
+                      <p>{barangay}, {city}</p>
+                      <p>{state} {zipCode}</p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Order Items */}
-                <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                {/* Order Items with Profile Thumbnails */}
+                <div className="space-y-3 mb-4 max-h-52 overflow-y-auto pr-1 custom-scrollbar">
                   {cartItems.map((item, index) => {
                     const hasVariation = !!item.variation;
                     const originalPrice = hasVariation
@@ -1791,100 +2167,115 @@ Please confirm this order. Thank you!
                     const currentPrice = item.price * item.quantity;
                     const savedAmount = originalPrice - currentPrice;
                     const hasProductDiscount = savedAmount > 0;
+                    const imageUrl = item.product.image_url || (item.product as any).image || (item.product as any).imageUrl;
 
                     return (
-                      <div key={index} className="pb-3 border-b border-gray-100 last:border-0">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1 pr-2">
-                            <p className="font-medium text-navy-900 text-xs">{item.product.name}</p>
-                            {item.variation && (
-                              <p className="text-xs text-gold-600">{item.variation.name}</p>
+                      <div key={index} className="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-11 h-11 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 relative flex items-center justify-center">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={item.product.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <Package className="w-5 h-5 text-slate-400" />
                             )}
-                            <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className="font-semibold text-navy-900 text-xs">
-                              ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                            <span className="absolute bottom-0 right-0 bg-slate-900/90 text-white font-extrabold text-[9px] px-1 py-0.2 rounded-tl">
+                              x{item.quantity}
                             </span>
-                            {hasProductDiscount && savedAmount > 0 && (
-                              <div className="flex flex-col items-end">
-                                <span className="text-xs text-gray-400 line-through">
-                                  ₱{originalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                                </span>
-                                <span className="text-xs text-green-600">
-                                  -₱{savedAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                                </span>
-                              </div>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-gray-900 dark:text-white text-xs truncate">{item.product.name}</p>
+                            {item.variation && (
+                              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">{item.variation.name}</p>
                             )}
                           </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-extrabold text-gray-900 dark:text-white text-xs">
+                            ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                          </span>
+                          {hasProductDiscount && savedAmount > 0 && (
+                            <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                              -₱{savedAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                            </p>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Pricing */}
-                <div className="space-y-3">
-                  {/* Subtotal with discount pricing */}
-                  {discountAmount > 0 ? (
-                    <>
-                      {/* Discounted Subtotal Display */}
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Subtotal</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400 line-through text-sm">
-                            ₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                          </span>
-                          <span className="font-semibold text-green-600">
-                            ₱{(totalPrice - discountAmount).toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Savings Badge */}
-                      <div className="flex justify-between items-center bg-green-50 -mx-6 px-6 py-2.5 border-y border-green-100">
-                        <span className="flex items-center gap-1 text-green-700 font-medium text-xs">
-                          <Tag className="w-3.5 h-3.5" />
-                          Saved with {appliedPromo?.code}
-                        </span>
-                        <span className="font-bold text-green-700 text-sm">
-                          -₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between text-gray-600">
-                      <span>Subtotal</span>
-                      <span className="font-medium">₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-gray-600 text-xs">
-                    <span>Shipping</span>
-                    <span className="font-medium text-gold-600">
-                      {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH', { minimumFractionDigits: 0 })} (${shippingLocation.replace('_', ' & ')})` : 'Select location'}
+                {/* Pricing Breakdown */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
+                    <span>Subtotal</span>
+                    <span className="font-bold text-gray-900 dark:text-white">
+                      ₱{totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
                     </span>
                   </div>
-                  {hitpayFee > 0 && (
-                    <div className="flex justify-between text-gray-600 text-xs bg-navy-50/50 -mx-6 px-6 py-1.5 border-y border-navy-100/50">
-                      <span className="flex items-center gap-1 text-navy-800 font-bold">
-                        <CreditCard className="w-3.5 h-3.5 text-navy-750" />
-                        HitPay Processing Fee (3%)
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
+                      <span className="flex items-center gap-1 font-bold">
+                        <Tag className="w-3.5 h-3.5 text-emerald-600" />
+                        Saved with {appliedPromo?.code}
                       </span>
-                      <span className="font-bold text-navy-800">
+                      <span className="font-extrabold">
+                        -₱{discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
+                    <span className="flex items-center gap-1">
+                      <Truck className="w-3.5 h-3.5 text-blue-600" /> Shipping
+                    </span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400">
+                      {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH')}` : 'Select location'}
+                    </span>
+                  </div>
+
+                  {hitpayFee > 0 && (
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/30">
+                      <span className="flex items-center gap-1 font-bold">
+                        <CreditCard className="w-3.5 h-3.5" />
+                        HitPay Fee (3%)
+                      </span>
+                      <span className="font-extrabold">
                         ₱{hitpayFee.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
                       </span>
                     </div>
                   )}
-                  <div className="border-t-2 border-gray-200 pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-navy-900">Total</span>
-                      <span className="text-2xl font-bold text-gold-600">
-                        ₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-                      </span>
+
+                  {/* Grand Total Card */}
+                  <div className="mt-4 pt-1">
+                    <div className="bg-slate-900 dark:bg-slate-800 text-white rounded-2xl p-4 shadow-lg border border-slate-700/60 relative overflow-hidden">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className="font-bold text-sm text-slate-300 flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-amber-400" /> Total
+                        </span>
+                        <span className="text-2xl font-black text-amber-400 tracking-tight">
+                          ₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                        </span>
+                      </div>
+
+                      {(itemDiscountSavings + bundleSavings + discountAmount) > 0 && (
+                        <div className="mt-2 pt-2 border-t border-slate-700/80 flex items-center justify-between text-xs">
+                          <span className="text-emerald-400 font-bold flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5" /> Savings
+                          </span>
+                          <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-black text-[10px]">
+                            ₱{(itemDiscountSavings + bundleSavings + discountAmount).toLocaleString('en-PH', { minimumFractionDigits: 0 })} OFF
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {!shippingLocation && (
-                      <p className="text-xs text-red-500 mt-1 text-right">Please select shipping location</p>
-                    )}
                   </div>
                 </div>
               </div>

@@ -1,0 +1,14 @@
+{"id":"coa_page_enabled","value":"true","type":"boolean","description":"Enable/disable the COA page","updated_at":"2026-03-13 06:56:11.85009+00"}
+{"id":"currency","value":"₱","type":"text","description":"Currency symbol for prices","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"currency_code","value":"PHP","type":"text","description":"Currency code for payments","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_accent_color","value":"gold-500","type":"text","description":"Hero accent color","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_badge_text","value":"Premium Peptide Solutions","type":"text","description":"Badge text in hero section","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_description","value":"Peptide Pulse is your all-in-one destination for high-quality peptides, peptide pens, and the essential accessories you need for a smooth and confident wellness routine.","type":"text","description":"Hero description","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_subtext","value":"From the Lab to You — Simplifying Science, One Dose at a Time.","type":"text","description":"Hero subtext","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_tagline","value":"Quality-tested products. Reliable performance. Trusted by our community.","type":"text","description":"Hero tagline","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_title_highlight","value":"Peptides","type":"text","description":"Hero title highlighted word","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_title_prefix","value":"Premium","type":"text","description":"Hero title prefix","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"hero_title_suffix","value":"& Essentials","type":"text","description":"Hero title suffix","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"site_description","value":"Premium Peptide Solutions","type":"text","description":"Short description of the site","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"site_logo","value":"/assets/logo.jpeg","type":"image","description":"The logo image URL for the site","updated_at":"2026-01-08 09:50:00.167372+00"}
+{"id":"site_name","value":"Peptide Pulse","type":"text","description":"The name of the website","updated_at":"2026-01-08 09:50:00.167372+00"}

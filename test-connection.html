@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f9ff;
+            border-left: 4px solid #2563eb;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #fee;
+            border-left-color: #dc2626;
+        }
+        .success {
+            background: #f0fdf4;
+            border-left-color: #16a34a;
+        }
+        h1 {
+            color: #1e40af;
+        }
+        .product {
+            background: #f8fafc;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .product h3 {
+            margin: 0 0 10px 0;
+            color: #0f172a;
+        }
+        .product p {
+            margin: 5px 0;
+            color: #475569;
+        }
+        .price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Supabase Database Connection Test</h1>
+        <p>This will check if we can connect to your Supabase database and fetch the current product prices.</p>
+        
+        <button onclick="testConnection()">Test Connection & Fetch Products</button>
+        <button onclick="location.reload()">Refresh Page</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gtnlhawdrmsfaqlitcci.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bmxoYXdkcm1zZmFxbGl0Y2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDM2NTAsImV4cCI6MjA5NjU3OTY1MH0.iu4J_7qMW4ibDY3YXE3jH8owUO2e5ZwtWsnL0gzsMDA';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result">⏳ Testing connection and fetching products...</div>';
+
+            try {
+                // Fetch all products
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('name');
+
+                if (error) throw error;
+
+                console.log('Products from database:', products);
+
+                // Filter Tirzepatide products
+                const tirzepatideProducts = products.filter(p => 
+                    p.name.toLowerCase().includes('tirzepatide')
+                );
+
+                let html = '<div class="result success">';
+                html += `<h2>✅ Connection Successful!</h2>`;
+                html += `<p><strong>Total Products in Database:</strong> ${products.length}</p>`;
+                html += `<p><strong>Tirzepatide Products Found:</strong> ${tirzepatideProducts.length}</p>`;
+                html += '</div>';
+
+                // Show all Tirzepatide products
+                if (tirzepatideProducts.length > 0) {
+                    html += '<h2>📊 Current Tirzepatide Prices in Database:</h2>';
+                    tirzepatideProducts.forEach(product => {
+                        html += `
+                            <div class="product">
+                                <h3>${product.name}</h3>
+                                <p><strong>Description:</strong> ${product.description || 'N/A'}</p>
+                                <p><strong>Category:</strong> ${product.category}</p>
+                                <p class="price">Base Price: ₱${product.base_price?.toLocaleString('en-PH') || 'N/A'}</p>
+                                ${product.discount_active ? 
+                                    `<p class="price" style="color: #dc2626;">Discount Price: ₱${product.discount_price?.toLocaleString('en-PH') || 'N/A'}</p>` 
+                                    : ''}
+                                <p><strong>Stock:</strong> ${product.stock_quantity || 0}</p>
+                                <p><strong>Available:</strong> ${product.available ? '✅ Yes' : '❌ No'}</p>
+                                <p><strong>Featured:</strong> ${product.featured ? '⭐ Yes' : 'No'}</p>
+                                <p><strong>Purity:</strong> ${product.purity_percentage}%</p>
+                                <p style="font-size: 12px; color: #64748b;"><strong>ID:</strong> ${product.id}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += '<div class="result error">⚠️ No Tirzepatide products found in database!</div>';
+                }
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h2>❌ Connection Error</h2>
+                        <p><strong>Error Message:</strong> ${error.message}</p>
+                        <p><strong>Error Details:</strong></p>
+                        <pre>${JSON.stringify(error, null, 2)}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-run on page load
+        window.addEventListener('load', () => {
+            testConnection();
+        });
+    </script>
+</body>
+</html>
+
+

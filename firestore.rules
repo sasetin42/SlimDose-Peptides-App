@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Public read collections ──────────────────────────────
+    // Products, categories, site settings, COA reports, FAQs,
+    // guides, reviews, shipping, payments — all are public-facing.
+    match /products/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /product_variations/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /categories/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /product_bundle_tiers/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /protocols/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Site settings ────────────────────────────────────────
+    match /site_settings/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── COA reports ──────────────────────────────────────────
+    match /coa_reports/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Payment methods ──────────────────────────────────────
+    match /payment_methods/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Shipping ─────────────────────────────────────────────
+    match /shipping_locations/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Promo codes & discounts ──────────────────────────────
+    match /promo_codes/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /global_discounts/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Orders (customer can read own, admin can manage) ─────
+    // For now allow all reads since order tracking is public via order ID
+    match /orders/{document} {
+      allow read, write: if true;
+    }
+
+    // ── Customers ────────────────────────────────────────────
+    match /customers/{document} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── Product reviews ──────────────────────────────────────
+    match /product_reviews/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // ── Subscribers (promo signup) ───────────────────────────
+    match /subscribers/{document} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null;
+    }
+
+    // ── Invoice verifications ────────────────────────────────
+    match /invoice_verifications/{document} {
+      allow read, write: if true;
+    }
+
+    // ── Page contents (dynamic pages) ────────────────────────
+    match /page_contents/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Restock ──────────────────────────────────────────────
+    match /restock_reminders/{document} {
+      allow read: if request.auth != null;
+      allow create: if true;
+      allow write: if request.auth != null;
+    }
+    match /restock_settings/{document} {
+      allow read, write: if request.auth != null;
+    }
+
+    // ── Guides & videos ──────────────────────────────────────
+    match /guide_topics/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /peptalk_videos/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /faqs/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Admin ────────────────────────────────────────────────
+    match /admin_users/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /audit_logs/{document} {
+      allow read: if request.auth != null;
+      allow write: if true;
+    }
+    match /admin_audit_logs/{document} {
+      allow read: if request.auth != null;
+      allow write: if true;
+    }
+
+    // ── Deny everything else ────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

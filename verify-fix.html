@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Price Fix</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin: 0 0 20px 0;
+            font-size: 32px;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .checking {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #fbbf24;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+        .warning {
+            background: #fed7aa;
+            color: #9a3412;
+            border: 2px solid #f97316;
+        }
+        .product-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .product-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 0 0 10px 0;
+        }
+        .price-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .price {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .price.correct {
+            color: #16a34a;
+        }
+        .price.incorrect {
+            color: #dc2626;
+        }
+        .expected {
+            font-size: 14px;
+            color: #64748b;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .icon {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Price Verification Tool</h1>
+        <p>This will check if your price changes are saved correctly in the database.</p>
+        
+        <button onclick="checkPrices()">🔄 Check Current Prices</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://gtnlhawdrmsfaqlitcci.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bmxoYXdkcm1zZmFxbGl0Y2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDM2NTAsImV4cCI6MjA5NjU3OTY1MH0.iu4J_7qMW4ibDY3YXE3jH8owUO2e5ZwtWsnL0gzsMDA';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const EXPECTED_PRICES = {
+            'Tirzepatide 15mg': 2499,
+            'Tirzepatide 30mg': 3499
+        };
+
+        async function checkPrices() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="status checking"><div class="icon">⏳</div>Checking database...</div>';
+
+            try {
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .ilike('name', '%tirzepatide%')
+                    .order('name');
+
+                if (error) throw error;
+
+                let allCorrect = true;
+                let html = '';
+
+                products.forEach(product => {
+                    const expectedPrice = EXPECTED_PRICES[product.name];
+                    const currentPrice = product.base_price;
+                    const isCorrect = currentPrice === expectedPrice;
+
+                    if (!isCorrect) allCorrect = false;
+
+                    html += `
+                        <div class="product-card">
+                            <div class="product-name">${product.name}</div>
+                            <div class="price-info">
+                                <div>
+                                    <div class="expected">Current Price:</div>
+                                    <div class="price ${isCorrect ? 'correct' : 'incorrect'}">
+                                        ₱${currentPrice?.toLocaleString('en-PH')}
+                                        ${isCorrect ? '✅' : '❌'}
+                                    </div>
+                                </div>
+                                ${!isCorrect ? `
+                                    <div>
+                                        <div class="expected">Expected Price:</div>
+                                        <div class="price correct">₱${expectedPrice.toLocaleString('en-PH')}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                if (allCorrect) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <div class="icon">🎉</div>
+                            <strong>SUCCESS!</strong> All prices are correct!
+                        </div>
+                        ${html}
+                        <div class="status success" style="margin-top: 20px;">
+                            <strong>Next Steps:</strong><br>
+                            1. Go to your website: <a href="http://localhost:5173" target="_blank">http://localhost:5173</a><br>
+                            2. Press Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows) to refresh<br>
+                            3. Verify the prices show correctly!
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status warning">
+                            <div class="icon">⚠️</div>
+                            <strong>PRICES NOT UPDATED YET</strong><br>
+                            The prices in the database don't match your intended prices.
+                        </div>
+                        ${html}
+                        <div class="status error" style="margin-top: 20px;">
+                            <strong>Action Required:</strong><br>
+                            1. Go to Admin Dashboard: <a href="http://localhost:5173/admin" target="_blank">http://localhost:5173/admin</a><br>
+                            2. Click "Manage Products"<br>
+                            3. Edit each product above<br>
+                            4. Update the Base Price to the expected amount<br>
+                            5. Click "Save" and wait for confirmation<br>
+                            6. Come back here and click "Check Current Prices" again
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <div class="icon">❌</div>
+                        <strong>ERROR:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            checkPrices();
+        });
+
+        // Auto-refresh every 5 seconds
+        setInterval(checkPrices, 5000);
+    </script>
+</body>
+</html>
+
+

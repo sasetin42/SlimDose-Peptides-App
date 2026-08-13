@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Real-time Diagnostic</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .status-box {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        .success { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 2px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 2px solid #bee5eb; }
+        .log {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            margin: 20px 0;
+        }
+        .log-entry {
+            padding: 5px;
+            margin: 3px 0;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .setup-steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .setup-steps ol {
+            padding-left: 20px;
+        }
+        .setup-steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Supabase Real-time Diagnostic</h1>
+        <p class="subtitle">This tool helps diagnose why real-time updates aren't working</p>
+
+        <div id="connection-status" class="status-box warning">
+            ⏳ Not connected yet. Click "Test Real-time Connection" to start.
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Products Updates</div>
+                <div class="stat-value" id="product-updates">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Variation Updates</div>
+                <div class="stat-value" id="variation-updates">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Connection Status</div>
+                <div class="stat-value" id="conn-status">❌</div>
+            </div>
+        </div>
+
+        <div>
+            <button onclick="testConnection()">🔌 Test Real-time Connection</button>
+            <button onclick="fetchAllProducts()">📊 Fetch All Products</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+        </div>
+
+        <h3>📝 Event Log</h3>
+        <div id="log" class="log">
+            <div class="log-entry">Waiting for connection test...</div>
+        </div>
+
+        <div class="setup-steps">
+            <h3>⚠️ If Real-time is NOT Working:</h3>
+            <p><strong>You need to enable Real-time in Supabase Dashboard:</strong></p>
+            <ol>
+                <li>Go to your <strong>Supabase Dashboard</strong> (supabase.com)</li>
+                <li>Select your project: <strong>peptivate</strong></li>
+                <li>Click <strong>Database</strong> in the left sidebar</li>
+                <li>Click <strong>Replication</strong> (or <strong>Publications</strong> in older versions)</li>
+                <li>Find the table: <code>products</code></li>
+                <li>Toggle the switch to <strong>ENABLE</strong> real-time</li>
+                <li>Find the table: <code>product_variations</code></li>
+                <li>Toggle the switch to <strong>ENABLE</strong> real-time</li>
+                <li>Wait 10-30 seconds for changes to take effect</li>
+                <li>Come back here and click "Test Real-time Connection" again</li>
+            </ol>
+            <p><strong>Alternative (if above doesn't work):</strong></p>
+            <ol>
+                <li>In Supabase Dashboard, go to <strong>Database → Publications</strong></li>
+                <li>Look for <code>supabase_realtime</code> publication</li>
+                <li>Add tables: <code>products</code> and <code>product_variations</code></li>
+                <li>Click <strong>Save</strong></li>
+            </ol>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Load environment variables (you'll need to fill these in)
+        const SUPABASE_URL = prompt('Enter your Supabase URL:', 'https://your-project.supabase.co');
+        const SUPABASE_ANON_KEY = prompt('Enter your Supabase Anon Key:', 'your-anon-key');
+
+        const { createClient } = supabase;
+        const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let productUpdates = 0;
+        let variationUpdates = 0;
+        let channel = null;
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<strong>[${time}]</strong> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateStatus(message, className) {
+            const status = document.getElementById('connection-status');
+            status.textContent = message;
+            status.className = `status-box ${className}`;
+        }
+
+        async function testConnection() {
+            addLog('🔌 Starting real-time connection test...');
+            updateStatus('⏳ Connecting to Supabase...', 'info');
+
+            // Close existing channel if any
+            if (channel) {
+                await client.removeChannel(channel);
+                addLog('🔄 Closed existing channel');
+            }
+
+            // Create new channel
+            const channelName = `test-channel-${Date.now()}`;
+            addLog(`📡 Creating channel: ${channelName}`);
+
+            channel = client
+                .channel(channelName)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'products'
+                    },
+                    (payload) => {
+                        productUpdates++;
+                        document.getElementById('product-updates').textContent = productUpdates;
+                        addLog(`✅ PRODUCTS table changed! Event: ${payload.eventType}`);
+                        console.log('Product change:', payload);
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'product_variations'
+                    },
+                    (payload) => {
+                        variationUpdates++;
+                        document.getElementById('variation-updates').textContent = variationUpdates;
+                        addLog(`✅ PRODUCT_VARIATIONS table changed! Event: ${payload.eventType}`);
+                        console.log('Variation change:', payload);
+                    }
+                )
+                .subscribe((status) => {
+                    addLog(`📡 Subscription status: ${status}`);
+                    
+                    if (status === 'SUBSCRIBED') {
+                        updateStatus('✅ Successfully connected! Real-time is ACTIVE. Now try updating a price in your admin dashboard.', 'success');
+                        document.getElementById('conn-status').textContent = '✅';
+                        addLog('🎉 Real-time is working! You can now test by:');
+                        addLog('   1. Go to your Admin Dashboard');
+                        addLog('   2. Edit a product price or variation');
+                        addLog('   3. Watch this page for update notifications');
+                    } else if (status === 'CHANNEL_ERROR') {
+                        updateStatus('❌ Connection FAILED! Real-time is NOT enabled. Follow the steps below.', 'error');
+                        document.getElementById('conn-status').textContent = '❌';
+                        addLog('❌ Real-time NOT enabled in Supabase. See setup steps below.');
+                    } else if (status === 'TIMED_OUT') {
+                        updateStatus('⏱️ Connection timed out. Check your network or Supabase status.', 'warning');
+                        document.getElementById('conn-status').textContent = '⚠️';
+                        addLog('⚠️ Connection timed out. Retry in a moment.');
+                    } else {
+                        addLog(`ℹ️ Status: ${status}`);
+                    }
+                });
+        }
+
+        async function fetchAllProducts() {
+            addLog('📊 Fetching all products from database...');
+            try {
+                const { data: products, error } = await client
+                    .from('products')
+                    .select('id, name, base_price')
+                    .limit(10);
+
+                if (error) throw error;
+
+                addLog(`✅ Found ${products.length} products`);
+                products.forEach(p => {
+                    addLog(`   • ${p.name}: ₱${p.base_price}`);
+                });
+
+                // Fetch variations for first product
+                if (products.length > 0) {
+                    const { data: variations } = await client
+                        .from('product_variations')
+                        .select('*')
+                        .eq('product_id', products[0].id);
+                    
+                    if (variations && variations.length > 0) {
+                        addLog(`📦 First product has ${variations.length} variations:`);
+                        variations.forEach(v => {
+                            addLog(`   • ${v.name}: ₱${v.price}`);
+                        });
+                    }
+                }
+            } catch (err) {
+                addLog(`❌ Error fetching products: ${err.message}`);
+                updateStatus(`❌ Database error: ${err.message}`, 'error');
+            }
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '<div class="log-entry">Log cleared.</div>';
+        }
+
+        // Auto-test on load
+        addLog('👋 Welcome to Real-time Diagnostic Tool');
+        addLog('ℹ️ This tool will help you verify if Supabase Real-time is working');
+        addLog('⚠️ Important: Real-time MUST be enabled in Supabase Dashboard!');
+    </script>
+</body>
+</html>
+

@@ -12,6 +12,28 @@ import {
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 
+import { demoProducts } from '../data/demoProducts';
+
+// ─── Product Image Lookup Helper ───────────────────────────────────────────
+const getProductImageFallback = (item: any): string | null => {
+  if (item?.image_url) return item.image_url;
+  if (item?.image) return item.image;
+  if (item?.product?.image_url) return item.product.image_url;
+  if (item?.product?.image) return item.product.image;
+
+  const rawName = item?.product_name || item?.name || item?.product?.name || '';
+  if (!rawName) return null;
+  const nameLower = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  const match = demoProducts.find(p => {
+    const pName = p.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const pSlug = p.slug.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return pName.includes(nameLower) || nameLower.includes(pName) || pSlug.includes(nameLower) || nameLower.includes(pSlug);
+  });
+
+  return match?.image_url || null;
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface CustomerDashboardProps {
   customer: any;
@@ -62,77 +84,7 @@ interface WishlistItem {
   inStock: boolean;
 }
 
-// ─── Demo Data ────────────────────────────────────────────────────────────────
-const DEMO_ORDERS = [
-  {
-    id: 'demo-ord-101', order_number: 'SLIM-892401',
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    order_status: 'shipped', payment_status: 'paid',
-    total_price: 6340.00, shipping_fee: 150.00,
-    payment_method: 'GCash', tracking_number: 'JT9812345678PH',
-    shipping_address: '23 Bonifacio St., Brgy. Sta. Cruz, Makati City, Metro Manila 1200',
-    order_items: [
-      { product_name: 'Tirzepatide (Lyophilized 10mg)', variation_name: '10mg Vial', quantity: 2, unit_price: 2800 },
-      { product_name: 'Bacteriostatic Water (30mL)', variation_name: 'Standard 30mL', quantity: 1, unit_price: 740 }
-    ]
-  },
-  {
-    id: 'demo-ord-102', order_number: 'SLIM-871209',
-    created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
-    order_status: 'delivered', payment_status: 'paid',
-    total_price: 3200.00, shipping_fee: 0,
-    payment_method: 'Bank Transfer', tracking_number: 'JT7654321098PH',
-    shipping_address: '23 Bonifacio St., Brgy. Sta. Cruz, Makati City, Metro Manila 1200',
-    order_items: [
-      { product_name: 'Semaglutide Research Grade (5mg)', variation_name: '5mg Vial', quantity: 1, unit_price: 3200 }
-    ]
-  },
-  {
-    id: 'demo-ord-103', order_number: 'SLIM-859033',
-    created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
-    order_status: 'delivered', payment_status: 'paid',
-    total_price: 5480.00, shipping_fee: 120.00,
-    payment_method: 'GCash', tracking_number: 'JT5544332211PH',
-    shipping_address: '23 Bonifacio St., Brgy. Sta. Cruz, Makati City, Metro Manila 1200',
-    order_items: [
-      { product_name: 'BPC-157 (5mg)', variation_name: '5mg Vial', quantity: 2, unit_price: 1800 },
-      { product_name: 'TB-500 (5mg)', variation_name: '5mg Vial', quantity: 1, unit_price: 1880 }
-    ]
-  },
-  {
-    id: 'demo-ord-104', order_number: 'SLIM-900118',
-    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-    order_status: 'confirmed', payment_status: 'paid',
-    total_price: 2800.00, shipping_fee: 150.00,
-    payment_method: 'GCash', tracking_number: null,
-    shipping_address: '23 Bonifacio St., Brgy. Sta. Cruz, Makati City, Metro Manila 1200',
-    order_items: [
-      { product_name: 'NAD+ 500mg', variation_name: '500mg', quantity: 1, unit_price: 2650 }
-    ]
-  }
-];
-
-const DEMO_WISHLIST: WishlistItem[] = [
-  { id: 'w1', name: 'Ipamorelin 5mg', variant: '5mg Vial', price: 1850, category: 'Growth Peptides', inStock: true },
-  { id: 'w2', name: 'CJC-1295 DAC 2mg', variant: '2mg Vial', price: 2100, category: 'Growth Peptides', inStock: true },
-  { id: 'w3', name: 'Epithalon 10mg', variant: '10mg Vial', price: 2450, category: 'Longevity', inStock: false },
-  { id: 'w4', name: 'PT-141 Bremelanotide 10mg', variant: '10mg Vial', price: 3200, category: 'Research Peptides', inStock: true },
-];
-
-const DEMO_NOTIFICATIONS: Notification[] = [
-  { id: 'n1', category: 'shipping', title: 'Your order has shipped!', message: 'Order #SLIM-892401 is now with J&T Express. Tracking: JT9812345678PH', time: '2 hours ago', read: false },
-  { id: 'n2', category: 'payment', title: 'Payment confirmed', message: 'Your GCash payment for #SLIM-900118 of ₱2,800 has been confirmed.', time: '1 day ago', read: false },
-  { id: 'n3', category: 'order', title: 'Order confirmed', message: 'Order #SLIM-900118 has been confirmed and is being prepared.', time: '1 day ago', read: true },
-  { id: 'n4', category: 'promo', title: 'Bundle discount available!', message: 'Buy 3 or more peptides and save 10% automatically on your order.', time: '3 days ago', read: true },
-  { id: 'n5', category: 'order', title: 'Order delivered!', message: 'Order #SLIM-871209 was delivered. We hope you\'re satisfied!', time: '14 days ago', read: true },
-  { id: 'n6', category: 'account', title: 'Welcome to SlimDose!', message: 'Your account has been created. Explore our research-grade peptide catalog.', time: '30 days ago', read: true },
-];
-
-const DEMO_TICKETS: SupportTicket[] = [
-  { id: 't1', subject: 'Order delivery delay query', category: 'Shipping', status: 'resolved', createdAt: new Date(Date.now() - 86400000 * 12).toISOString(), message: 'My order SLIM-859033 was delayed. Can you check the status?' },
-  { id: 't2', subject: 'Product reconstitution guide', category: 'Product Info', status: 'resolved', createdAt: new Date(Date.now() - 86400000 * 25).toISOString(), message: 'I need help with reconstituting BPC-157 properly.' },
-];
-
+// ─── FAQ Data ────────────────────────────────────────────────────────────────
 const FAQ_ITEMS = [
   { q: 'How do I reconstitute peptides?', a: 'Add bacteriostatic water slowly along the side of the vial. Gently swirl — do not shake. Use 1–2ml of bac water per 5mg vial for typical concentrations. Store reconstituted peptides refrigerated at 4°C and use within 30 days.' },
   { q: 'What is your shipping policy?', a: 'We ship nationwide via J&T Express. Luzon: ₱150 (2–4 days), Visayas: ₱120 (3–5 days), Mindanao: ₱90 (4–6 days). Free shipping on orders ₱5,000+. Maxim Delivery (COD) available in select areas.' },
@@ -194,8 +146,25 @@ const InputField: React.FC<{ label: string; value: string; onChange: (v: string)
 // ─── Main Component ────────────────────────────────────────────────────────────
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, onClose, onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
+  const cacheKey = `slimdose_orders_${customer?.id || customer?.email || 'guest'}`;
+
+  const [orders, setOrders] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [loadingOrders, setLoadingOrders] = useState<boolean>(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      return !cached;
+    } catch {
+      return true;
+    }
+  });
 
   // Profile state
   const [editingProfile, setEditingProfile] = useState(false);
@@ -208,6 +177,51 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   const [city, setCity] = useState(customer.shipping_city || '');
   const [provinceState, setProvinceState] = useState(customer.shipping_state || '');
   const [zipCode, setZipCode] = useState(customer.shipping_zip_code || '');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(customer.avatar_url || null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingAvatar(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${customer.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('menu-images')
+        .upload(filePath, file, { upsert: true });
+
+      let publicUrl = '';
+      if (!uploadError) {
+        const { data } = supabase.storage.from('menu-images').getPublicUrl(filePath);
+        publicUrl = data.publicUrl;
+      } else {
+        // Fallback to local Data URL preview if bucket upload is not configured
+        publicUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      setAvatarUrl(publicUrl);
+      const updated = { ...customer, avatar_url: publicUrl };
+      localStorage.setItem('slimdose_customer', JSON.stringify(updated));
+
+      // Persist in DB if available
+      await supabase.from('customers').update({ avatar_url: publicUrl }).eq('id', customer.id);
+      window.dispatchEvent(new Event('storage'));
+      fireToast('Profile image updated successfully!', 'success');
+    } catch {
+      fireToast('Failed to upload image. Please try again.', 'error');
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
 
   // Security state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -231,13 +245,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   // Notifications state
   const [notifications, setNotifications] = useState<Notification[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_notifs_${customer.id}`) || JSON.stringify(DEMO_NOTIFICATIONS)); } catch { return DEMO_NOTIFICATIONS; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_notifs_${customer.id}`) || '[]'); } catch { return []; }
   });
   const [notifFilter, setNotifFilter] = useState<string>('all');
 
   // Wishlist state
   const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_wishlist_${customer.id}`) || JSON.stringify(DEMO_WISHLIST)); } catch { return DEMO_WISHLIST; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_wishlist_${customer.id}`) || '[]'); } catch { return []; }
   });
 
   // Support state
@@ -246,7 +260,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   const [ticketCategory, setTicketCategory] = useState('General');
   const [ticketMessage, setTicketMessage] = useState('');
   const [tickets, setTickets] = useState<SupportTicket[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_tickets_${customer.id}`) || JSON.stringify(DEMO_TICKETS)); } catch { return DEMO_TICKETS; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_tickets_${customer.id}`) || '[]'); } catch { return []; }
   });
 
   // Preferences state
@@ -257,29 +271,68 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // ── Load Orders ────────────────────────────────────────────────────────────
+  // ── Load Orders (Live Supabase & Real-Time Sync) ────────────────────────────
   useEffect(() => {
     loadCustomerOrders();
-  }, [customer]);
+
+    const customerIdentifier = customer?.id || customer?.email || 'guest';
+    const channel = supabase
+      .channel(`customer_orders_${customerIdentifier}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        () => {
+          loadCustomerOrders();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [customer?.id, customer?.email]);
 
   const loadCustomerOrders = async () => {
+    if (!customer?.id && !customer?.email) {
+      setOrders([]);
+      setLoadingOrders(false);
+      return;
+    }
+
+    const filters: string[] = [];
+    if (customer.id) filters.push(`customer_id.eq.${customer.id}`);
+    if (customer.email) filters.push(`customer_email.eq.${customer.email}`);
+
+    if (filters.length === 0) {
+      setOrders([]);
+      setLoadingOrders(false);
+      return;
+    }
+
+    // Safety timeout in case Supabase hangs or takes longer than 3.5s
+    const timeoutTimer = setTimeout(() => {
+      setLoadingOrders(false);
+    }, 3500);
+
     try {
-      setLoadingOrders(true);
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .or(`customer_id.eq.${customer.id},customer_email.eq.${customer.email}`)
+        .or(filters.join(','))
         .order('created_at', { ascending: false });
+
+      clearTimeout(timeoutTimer);
 
       if (error) throw error;
 
-      if (!data || data.length === 0) {
-        setOrders(DEMO_ORDERS);
-      } else {
-        setOrders(data);
-      }
-    } catch {
-      setOrders(DEMO_ORDERS);
+      const orderData = data || [];
+      setOrders(orderData);
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(orderData));
+      } catch {}
+    } catch (err) {
+      clearTimeout(timeoutTimer);
+      console.warn('Error loading live customer orders:', err);
     } finally {
       setLoadingOrders(false);
     }
@@ -361,12 +414,69 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   });
 
   const handleDownloadReceipt = (order: any) => {
-    const content = `SLIMDOSE RECEIPT\n================\nOrder: #${order.order_number}\nDate: ${new Date(order.created_at).toLocaleDateString()}\nStatus: ${order.order_status}\nPayment: ${order.payment_status}\n\nItems:\n${(order.order_items || []).map((i: any) => `  ${i.quantity}x ${i.product_name} (${i.variation_name}) @ ₱${i.unit_price?.toLocaleString() || 'N/A'}`).join('\n')}\n\nShipping Fee: ₱${(order.shipping_fee || 0).toLocaleString()}\nTotal: ₱${(Number(order.total_price || 0) + Number(order.shipping_fee || 0)).toLocaleString()}\nPayment Method: ${order.payment_method || 'N/A'}\n\nThank you for shopping with SlimDose!`;
-    const blob = new Blob([content], { type: 'text/plain' });
+    const orderRef = getOrderRef(order);
+    const rawDate = order.created_at || order.createdAt;
+    const parsedDate = rawDate ? new Date(rawDate) : new Date();
+    const dateFormatted = !isNaN(parsedDate.getTime())
+      ? parsedDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+      : new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const itemsList = Array.isArray(order.order_items) && order.order_items.length > 0
+      ? order.order_items
+      : Array.isArray(order.items) && order.items.length > 0
+      ? order.items
+      : [];
+
+    const itemsFormatted = itemsList.length > 0
+      ? itemsList.map((i: any) => {
+          const qty = i.quantity || 1;
+          const pName = i.product_name || i.name || i.product?.name || 'Peptide Product';
+          const vName = i.variation_name || i.variation?.name ? ` (${i.variation_name || i.variation?.name})` : '';
+          const uPrice = i.unit_price ? `₱${Number(i.unit_price).toLocaleString('en-PH')}` : (i.price ? `₱${Number(i.price).toLocaleString('en-PH')}` : 'Included');
+          return `  ${qty}x ${pName}${vName} @ ${uPrice}`;
+        }).join('\n')
+      : '  1x Peptide Solution';
+
+    const subtotalNum = Number(order.total_price || 0);
+    const shippingNum = Number(order.shipping_fee || 0);
+    const grandTotalNum = subtotalNum + shippingNum;
+    const paymentChannel = order.payment_method || order.payment_method_name || 'GCash / Bank Transfer (Manual)';
+    const deliveryAddr = order.shipping_address || (customer ? `${customer.full_name}, ${customer.phone || ''}` : 'Customer Address');
+
+    const content = `================================================
+              SLIMDOSE OFFICIAL RECEIPT
+================================================
+Order Ref     : ${orderRef}
+Date          : ${dateFormatted}
+Order Status  : ${String(order.order_status || 'new').toUpperCase()}
+Payment Status: ${String(order.payment_status || 'pending').toUpperCase()}
+
+------------------------------------------------
+ORDERED ITEMS:
+------------------------------------------------
+${itemsFormatted}
+
+------------------------------------------------
+PAYMENT BREAKDOWN:
+------------------------------------------------
+Subtotal     : ₱${subtotalNum.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+Shipping Fee : ₱${shippingNum.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+Total Paid   : ₱${grandTotalNum.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+
+Payment Method : ${paymentChannel}
+Shipping Target: ${deliveryAddr}
+================================================
+     Thank you for choosing SlimDose Research!
+================================================`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `SlimDose-Receipt-${order.order_number}.txt`; a.click();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SlimDose-Receipt-${orderRef.replace('#', '')}.txt`;
+    a.click();
     URL.revokeObjectURL(url);
-    fireToast('Receipt downloaded!', 'success');
+    fireToast('Receipt downloaded successfully!', 'success');
   };
 
   // ── Address helpers ───────────────────────────────────────────────────────
@@ -399,19 +509,17 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   };
 
   // ─── Nav Items ────────────────────────────────────────────────────────────
-  const NAV_ITEMS: { id: TabId; label: string; icon: React.ReactNode; badge?: number }[] = [
+  const NAV_ITEMS: { id: TabId; label: string; icon: React.ReactNode }[] = [
     { id: 'dashboard',     label: 'Dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
     { id: 'profile',       label: 'Profile',        icon: <User className="w-4 h-4" /> },
     { id: 'orders',        label: 'Orders',         icon: <ShoppingBag className="w-4 h-4" /> },
-    { id: 'wishlist',      label: 'Wishlist',       icon: <Heart className="w-4 h-4" />, badge: wishlist.length },
+    { id: 'wishlist',      label: 'Wishlist',       icon: <Heart className="w-4 h-4" /> },
     { id: 'addresses',     label: 'Addresses',      icon: <MapPin className="w-4 h-4" /> },
-    { id: 'notifications', label: 'Notifications',  icon: <Bell className="w-4 h-4" />, badge: unreadCount },
+    { id: 'notifications', label: 'Notifications',  icon: <Bell className="w-4 h-4" /> },
     { id: 'support',       label: 'Support',        icon: <HelpCircle className="w-4 h-4" /> },
     { id: 'security',      label: 'Security',       icon: <Shield className="w-4 h-4" /> },
     { id: 'preferences',   label: 'Preferences',    icon: <Settings className="w-4 h-4" /> },
   ];
-
-  const pwStrength = getPasswordStrength(newPassword);
 
   // ─── Address Form Component ───────────────────────────────────────────────
   const AddressForm: React.FC<{ initial: Address; onSave: (a: Address) => void; onCancel: () => void }> = ({ initial, onSave, onCancel }) => {
@@ -507,38 +615,52 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
     );
   };
 
+  // Helper formatters
+  const formatOrderDate = (d: any) => {
+    if (!d) return 'Recently';
+    const parsed = new Date(d);
+    if (isNaN(parsed.getTime())) return 'Recently';
+    return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const getOrderRef = (o: any) => {
+    if (o?.order_number) return `#${o.order_number}`;
+    if (o?.id) return `#ORD-${o.id.slice(0, 8).toUpperCase()}`;
+    return '#SDP-ORDER';
+  };
+
   // ─── Tab: Dashboard ───────────────────────────────────────────────────────
   const DashboardTab = () => {
     const totalSpent = orders.reduce((s, o) => s + Number(o.total_price || 0) + Number(o.shipping_fee || 0), 0);
     const pendingOrders = orders.filter(o => ['new', 'confirmed', 'processing'].includes(o.order_status)).length;
     const recentNotifs = notifications.filter(n => !n.read).slice(0, 3);
     const stats = [
-      { label: 'Total Orders', value: orders.length, icon: <ShoppingBag className="w-5 h-5 text-[#3C6CA8]" />, bg: 'bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20' },
-      { label: 'Total Spent', value: `₱${totalSpent.toLocaleString('en-PH', { minimumFractionDigits: 0 })}`, icon: <BarChart2 className="w-5 h-5 text-emerald-600" />, bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
-      { label: 'Pending Orders', value: pendingOrders, icon: <Clock className="w-5 h-5 text-amber-600" />, bg: 'bg-amber-50 dark:bg-amber-950/30' },
-      { label: 'Saved Items', value: wishlist.length, icon: <Heart className="w-5 h-5 text-rose-500" />, bg: 'bg-rose-50 dark:bg-rose-950/30' },
+      { label: 'Total Orders', value: orders.length, icon: <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C6CA8]" />, bg: 'bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20' },
+      { label: 'Total Spent', value: `₱${totalSpent.toLocaleString('en-PH', { minimumFractionDigits: 0 })}`, icon: <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />, bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
+      { label: 'Pending Orders', value: pendingOrders, icon: <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />, bg: 'bg-amber-50 dark:bg-amber-950/30' },
+      { label: 'Saved Items', value: wishlist.length, icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" />, bg: 'bg-rose-50 dark:bg-rose-950/30' },
     ];
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Welcome */}
-        <div className="bg-gradient-to-r from-[#3C6CA8] to-[#2D5383] rounded-2xl p-5 text-white shadow-sm">
-          <p className="text-sm font-medium text-white/90">Welcome back,</p>
-          <h2 className="text-xl font-black mt-0.5 text-white">{customer.full_name || 'Customer'} 👋</h2>
-          <p className="text-xs text-white/80 mt-2">{customer.email}</p>
-          <div className="mt-4 flex gap-2 flex-wrap">
-            <button onClick={() => setActiveTab('orders')} className="px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"><ShoppingBag className="w-3 h-3" />View Orders</button>
-            <button onClick={() => setActiveTab('profile')} className="px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"><Edit3 className="w-3 h-3" />Edit Profile</button>
+        <div className="bg-gradient-to-r from-[#3C6CA8] to-[#2D5383] rounded-2xl p-4 sm:p-5 text-white shadow-xs">
+          <p className="text-xs sm:text-sm font-medium text-white/90">Welcome back,</p>
+          <h2 className="text-lg sm:text-xl font-black mt-0.5 text-white">{customer.full_name || 'Customer'} 👋</h2>
+          <p className="text-[11px] sm:text-xs text-white/80 mt-1 truncate">{customer.email}</p>
+          <div className="mt-3 sm:mt-4 flex gap-2 flex-wrap">
+            <button onClick={() => setActiveTab('orders')} className="px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"><ShoppingBag className="w-3.5 h-3.5" />View Orders</button>
+            <button onClick={() => setActiveTab('profile')} className="px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"><Edit3 className="w-3.5 h-3.5" />Edit Profile</button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {stats.map((s, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>{s.icon}</div>
-              <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{s.label}</p>
-                <p className="text-lg font-black text-gray-900 dark:text-white leading-tight">{s.value}</p>
+            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs">
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>{s.icon}</div>
+              <div className="min-w-0">
+                <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{s.label}</p>
+                <p className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight truncate">{s.value}</p>
               </div>
             </div>
           ))}
@@ -546,26 +668,52 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
         {/* Recent Orders */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-gray-900 dark:text-white text-sm">Recent Orders</h3>
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm">Recent Orders</h3>
             <button onClick={() => setActiveTab('orders')} className="text-xs text-[#3C6CA8] hover:underline font-bold flex items-center gap-1 cursor-pointer">View all <ArrowRight className="w-3 h-3" /></button>
           </div>
-          <div className="space-y-2.5">
-            {orders.slice(0, 3).map(order => (
-              <div key={order.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3.5 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0">
-                  <ShoppingBag className="w-4 h-4 text-[#3C6CA8]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">#{order.order_number}</p>
-                  <p className="text-[10px] text-gray-400">{new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <StatusBadge status={order.order_status} />
-                  <p className="text-xs font-bold text-gray-800 dark:text-slate-200 mt-1">₱{(Number(order.total_price || 0) + Number(order.shipping_fee || 0)).toLocaleString()}</p>
-                </div>
+          <div className="space-y-2">
+            {orders.length === 0 ? (
+              <div className="text-center py-6 sm:py-8 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700">
+                <ShoppingBag className="w-7 h-7 sm:w-8 sm:h-8 text-gray-300 dark:text-slate-600 mx-auto mb-2" />
+                <p className="text-xs font-bold text-gray-400">No orders placed yet</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Your recent research purchases will appear here.</p>
               </div>
-            ))}
+            ) : orders.slice(0, 3).map(order => {
+              const firstItem = Array.isArray(order.order_items) ? order.order_items[0] : (Array.isArray(order.items) ? order.items[0] : null);
+              const imgUrl = getProductImageFallback(firstItem);
+              const orderRef = getOrderRef(order);
+              const dateFormatted = formatOrderDate(order.created_at || order.createdAt);
+              const totalAmount = Number(order.total_price || 0) + Number(order.shipping_fee || 0);
+
+              return (
+                <div key={order.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-2.5 sm:p-3.5 flex items-center gap-2.5 sm:gap-3 shadow-xs">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      alt={firstItem?.product_name || 'Product'}
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-gray-200 dark:border-slate-700 shrink-0 bg-gray-50"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <ShoppingBag className="w-4 h-4 text-[#3C6CA8]" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate">{orderRef}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-400 truncate">
+                      {dateFormatted}{firstItem?.product_name ? ` · ${firstItem.product_name}` : ''}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <StatusBadge status={order.order_status || 'new'} />
+                    <p className="text-xs sm:text-sm font-extrabold text-gray-800 dark:text-slate-200 mt-0.5">
+                      ₱{totalAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -595,39 +743,71 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   // ─── Tab: Profile ─────────────────────────────────────────────────────────
   const ProfileTab = () => (
-    <div className="space-y-5">
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#3C6CA8] to-[#2D5383] flex items-center justify-center text-white text-2xl font-black shadow-md">
-            {(customer.full_name || 'U')[0].toUpperCase()}
+    <div className="space-y-4 sm:space-y-5">
+      <input
+        type="file"
+        ref={avatarInputRef}
+        onChange={handleAvatarUpload}
+        accept="image/*"
+        className="hidden"
+      />
+      
+      {/* Sleek Profile Card Header */}
+      <div className="bg-slate-50 dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 sm:gap-4 shadow-xs">
+        <div className="relative group shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#3C6CA8] to-[#2D5383] flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-md overflow-hidden ring-2 ring-[#3C6CA8]/30">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={customer.full_name} className="w-full h-full object-cover" />
+            ) : (
+              (customer.full_name || 'U')[0].toUpperCase()
+            )}
           </div>
-          <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 flex items-center justify-center shadow-sm cursor-pointer">
-            <Camera className="w-3 h-3 text-gray-500" />
+          <button
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#3C6CA8] text-white border-2 border-white dark:border-slate-900 flex items-center justify-center shadow-md cursor-pointer hover:bg-[#315A8E] hover:scale-110 transition-all"
+            title="Upload Profile Picture"
+            aria-label="Upload Profile Picture"
+          >
+            {uploadingAvatar ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3" />}
           </button>
         </div>
-        <div>
-          <h2 className="font-bold text-gray-900 dark:text-white">{customer.full_name}</h2>
-          <p className="text-xs text-gray-500 dark:text-slate-400">{customer.email}</p>
-          <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full"><BadgeCheck className="w-3 h-3" />Verified Account</span>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-extrabold text-gray-900 dark:text-white text-base sm:text-lg truncate">{customer.full_name}</h2>
+          <p className="text-xs text-gray-500 dark:text-slate-400 truncate mt-0.5">{customer.email}</p>
+          <button
+            type="button"
+            onClick={() => avatarInputRef.current?.click()}
+            className="inline-flex items-center gap-1 mt-1 text-[11px] font-bold text-[#3C6CA8] dark:text-blue-300 hover:underline cursor-pointer"
+          >
+            <Camera className="w-3 h-3" /> {avatarUrl ? 'Change Profile Image' : 'Upload Profile Image'}
+          </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2"><User className="w-4 h-4 text-[#3C6CA8]" />Personal Information</h3>
-          {!editingProfile && <button onClick={() => setEditingProfile(true)} className="text-xs text-[#3C6CA8] hover:underline font-bold flex items-center gap-1 cursor-pointer"><Edit3 className="w-3 h-3" />Edit</button>}
+      {/* Personal Info Box */}
+      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-3.5 sm:p-5 shadow-xs">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h3 className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm flex items-center gap-2">
+            <User className="w-4 h-4 text-[#3C6CA8]" />Personal Information
+          </h3>
+          {!editingProfile && (
+            <button onClick={() => setEditingProfile(true)} className="text-xs text-[#3C6CA8] hover:underline font-bold flex items-center gap-1 cursor-pointer">
+              <Edit3 className="w-3 h-3" />Edit
+            </button>
+          )}
         </div>
 
         {editingProfile ? (
-          <form onSubmit={handleSaveProfile} className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
+          <form onSubmit={handleSaveProfile} className="space-y-3.5 sm:space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <InputField label="Full Name" value={fullName} onChange={setFullName} required />
               <InputField label="Phone Number" value={phone} onChange={setPhone} required />
             </div>
             <InputField label="Email Address" value={profileEmail} onChange={() => {}} hint="Email cannot be changed here. Contact support." />
-            <div className="border-t border-gray-100 dark:border-slate-700 pt-4">
-              <p className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-3">Default Shipping Address</p>
-              <div className="grid sm:grid-cols-2 gap-3">
+            <div className="border-t border-gray-100 dark:border-slate-700 pt-3.5">
+              <p className="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2.5">Default Shipping Address</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <InputField label="Street / House No." value={address} onChange={setAddress} placeholder="e.g. 23 Rizal Ave." />
                 <InputField label="Barangay" value={barangay} onChange={setBarangay} placeholder="e.g. Brgy. San Antonio" />
                 <InputField label="City / Municipality" value={city} onChange={setCity} placeholder="e.g. Makati City" />
@@ -636,29 +816,33 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
               </div>
             </div>
             <div className="flex gap-2 pt-2">
-              <button type="submit" disabled={savingProfile} className="flex-1 py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] disabled:opacity-60 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer">
-                {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}Save Changes
+              <button type="submit" disabled={savingProfile} className="flex-1 py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] disabled:opacity-60 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                {savingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}Save Changes
               </button>
-              <button type="button" onClick={() => setEditingProfile(false)} className="px-4 py-2.5 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 rounded-xl text-sm font-bold hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer">Cancel</button>
+              <button type="button" onClick={() => setEditingProfile(false)} className="px-4 py-2.5 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 rounded-xl text-xs sm:text-sm font-bold hover:bg-gray-100 dark:hover:bg-slate-800 cursor-pointer">Cancel</button>
             </div>
           </form>
         ) : (
-          <div className="space-y-3 text-sm">
-            {[{ icon: <User className="w-4 h-4 text-gray-400" />, label: 'Name', val: customer.full_name }, { icon: <Mail className="w-4 h-4 text-gray-400" />, label: 'Email', val: customer.email }, { icon: <Phone className="w-4 h-4 text-gray-400" />, label: 'Phone', val: customer.phone || '—' }].map((row, i) => (
-              <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-slate-700 last:border-0">
+          <div className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
+            {[
+              { icon: <User className="w-4 h-4 text-gray-400" />, label: 'NAME', val: customer.full_name },
+              { icon: <Mail className="w-4 h-4 text-gray-400" />, label: 'EMAIL', val: customer.email },
+              { icon: <Phone className="w-4 h-4 text-gray-400" />, label: 'PHONE', val: customer.phone || '—' }
+            ].map((row, i) => (
+              <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-slate-700/70 last:border-0">
                 {row.icon}
-                <div className="flex-1">
-                  <p className="text-[10px] text-gray-400 font-bold uppercase">{row.label}</p>
-                  <p className="text-gray-800 dark:text-slate-200 font-medium">{row.val}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">{row.label}</p>
+                  <p className="text-gray-900 dark:text-slate-100 font-bold truncate mt-0.5">{row.val}</p>
                 </div>
               </div>
             ))}
             <div className="flex items-start gap-3 pt-2">
               <MapPin className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-              <div>
-                <p className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Default Shipping Address</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider mb-0.5">DEFAULT SHIPPING ADDRESS</p>
                 {address ? (
-                  <p className="text-gray-700 dark:text-slate-300">{address}{barangay && `, ${barangay}`}, {city}, {provinceState} {zipCode}</p>
+                  <p className="text-gray-800 dark:text-slate-200 font-medium leading-relaxed">{address}{barangay && `, ${barangay}`}, {city}, {provinceState} {zipCode}</p>
                 ) : (
                   <p className="text-gray-400 italic text-xs">No default address saved yet. Click Edit to add one.</p>
                 )}
@@ -672,15 +856,28 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   // ─── Tab: Orders ──────────────────────────────────────────────────────────
   const OrdersTab = () => (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
+    <div className="space-y-3.5">
+      <div className="space-y-2">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input value={orderSearch} onChange={e => setOrderSearch(e.target.value)} placeholder="Search by order # or product..." className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none transition-all" />
+          <input
+            value={orderSearch}
+            onChange={e => setOrderSearch(e.target.value)}
+            placeholder="Search by order # or product..."
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none transition-all"
+          />
         </div>
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth">
           {['all','confirmed','processing','shipped','delivered'].map(s => (
-            <button key={s} onClick={() => setOrderStatusFilter(s)} className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer capitalize ${orderStatusFilter === s ? 'bg-[#3C6CA8] border-[#3C6CA8] text-white' : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:border-[#3C6CA8]'}`}>
+            <button
+              key={s}
+              onClick={() => setOrderStatusFilter(s)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer capitalize shrink-0 whitespace-nowrap ${
+                orderStatusFilter === s
+                  ? 'bg-[#3C6CA8] border-[#3C6CA8] text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:border-[#3C6CA8]'
+              }`}
+            >
               {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
@@ -700,25 +897,44 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
           {filteredOrders.map(order => {
             const isExpanded = expandedOrder === order.id;
             const total = Number(order.total_price || 0) + Number(order.shipping_fee || 0);
-            const itemCount = (order.order_items || []).reduce((s: number, i: any) => s + (i.quantity || 0), 0);
+            const itemsList = Array.isArray(order.order_items) ? order.order_items : (Array.isArray(order.items) ? order.items : []);
+            const itemCount = itemsList.reduce((s: number, i: any) => s + (i.quantity || 0), 0);
+            const firstItem = itemsList[0];
+            const imgUrl = firstItem?.image_url || firstItem?.image || firstItem?.product?.image_url;
+            const orderRef = getOrderRef(order);
+            const dateFormatted = formatOrderDate(order.created_at || order.createdAt);
+
             return (
               <div key={order.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm hover:border-[#3C6CA8]/50 transition-colors">
                 {/* Order Header */}
-                <div className="p-4 flex flex-wrap items-center gap-3 justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0">
-                      <ShoppingBag className="w-4 h-4 text-[#3C6CA8]" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-900 dark:text-white text-sm">#{order.order_number}</p>
-                      <p className="text-[10px] text-gray-400">{new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · {itemCount} item{itemCount !== 1 ? 's' : ''}</p>
+                <div className="p-3 sm:p-4 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {(() => {
+                      const imgUrl = getProductImageFallback(firstItem);
+                      return imgUrl ? (
+                        <img
+                          src={imgUrl}
+                          alt={firstItem?.product_name || 'Product'}
+                          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-gray-200 dark:border-slate-700 shrink-0 bg-gray-50"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                          <ShoppingBag className="w-4 h-4 text-[#3C6CA8]" />
+                        </div>
+                      );
+                    })()}
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm truncate">{orderRef}</p>
+                      <p className="text-[10px] text-gray-400 truncate">{dateFormatted} · {itemCount} item{itemCount !== 1 ? 's' : ''}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <StatusBadge status={order.order_status} />
-                    <StatusBadge status={order.payment_status} />
-                    <span className="font-black text-gray-900 dark:text-white text-sm">₱{total.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                    <button onClick={() => setExpandedOrder(isExpanded ? null : order.id)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <div className="flex flex-wrap items-center gap-1">
+                      <StatusBadge status={order.order_status || 'new'} />
+                      {order.payment_status && <StatusBadge status={order.payment_status} />}
+                    </div>
+                    <span className="font-black text-gray-900 dark:text-white text-xs sm:text-sm">₱{total.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span>
+                    <button onClick={() => setExpandedOrder(isExpanded ? null : order.id)} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer transition-colors">
                       {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                     </button>
                   </div>
@@ -726,23 +942,30 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
                 {/* Expanded Detail */}
                 {isExpanded && (
-                  <div className="border-t border-gray-100 dark:border-slate-700 p-4 space-y-4 bg-gray-50/50 dark:bg-slate-900/50">
+                  <div className="border-t border-gray-100 dark:border-slate-700 p-3 sm:p-4 space-y-3.5 bg-gray-50/50 dark:bg-slate-900/50">
                     {/* Items */}
                     <div>
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Ordered Items</p>
                       <div className="space-y-2">
-                        {(order.order_items || []).map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center text-sm bg-white dark:bg-slate-800 rounded-xl p-2.5 border border-gray-100 dark:border-slate-700">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0"><Package className="w-3.5 h-3.5 text-[#3C6CA8]" /></div>
-                              <div>
-                                <p className="font-semibold text-gray-800 dark:text-slate-200 text-xs">{item.product_name}</p>
-                                <p className="text-[10px] text-gray-400">{item.variation_name} · Qty: {item.quantity}</p>
+                        {itemsList.map((item: any, idx: number) => {
+                          const itemImg = getProductImageFallback(item);
+                          return (
+                            <div key={idx} className="flex justify-between items-center text-sm bg-white dark:bg-slate-800 rounded-xl p-2.5 border border-gray-100 dark:border-slate-700">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {itemImg ? (
+                                  <img src={itemImg} alt={item.product_name} className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-gray-200 dark:border-slate-700 shrink-0 bg-gray-50" />
+                                ) : (
+                                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20"><Package className="w-4 h-4 text-[#3C6CA8]" /></div>
+                                )}
+                                <div className="min-w-0">
+                                  <p className="font-extrabold text-gray-800 dark:text-slate-200 text-xs sm:text-sm truncate">{item.product_name || 'Peptide Product'}</p>
+                                  <p className="text-[10px] text-gray-400">{item.variation_name ? `${item.variation_name} · ` : ''}Qty: {item.quantity}</p>
+                                </div>
                               </div>
+                              <span className="font-bold text-gray-700 dark:text-slate-300 text-xs shrink-0">{item.unit_price ? `₱${(item.unit_price * item.quantity).toLocaleString('en-PH')}` : ''}</span>
                             </div>
-                            <span className="font-bold text-gray-700 dark:text-slate-300 text-xs shrink-0">{item.unit_price ? `₱${(item.unit_price * item.quantity).toLocaleString()}` : ''}</span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -763,17 +986,47 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {order.tracking_number && (
-                        <button onClick={() => setTrackingOrder(order)} className="flex items-center gap-1.5 px-3 py-2 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-xs font-bold cursor-pointer transition-all"><Truck className="w-3.5 h-3.5" />Track Order</button>
-                      )}
-                      <button onClick={() => handleDownloadReceipt(order)} className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer transition-all"><Download className="w-3.5 h-3.5" />Receipt</button>
-                      <button onClick={() => { fireToast('Reorder added to your cart!', 'success'); }} className="flex items-center gap-1.5 px-3 py-2 border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/50 text-[#3C6CA8] dark:text-blue-300 bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 hover:bg-[#3C6CA8]/20 rounded-xl text-xs font-bold cursor-pointer transition-all"><RotateCcw className="w-3.5 h-3.5" />Reorder</button>
-                      {['new', 'confirmed'].includes(order.order_status) && (
-                        <button onClick={() => fireToast('Cancel request submitted. Our team will review within 1 hour.', 'success')} className="flex items-center gap-1.5 px-3 py-2 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 rounded-xl text-xs font-bold cursor-pointer transition-all"><XCircle className="w-3.5 h-3.5" />Cancel</button>
-                      )}
-                      {order.order_status === 'delivered' && (
-                        <button onClick={() => fireToast('Return/refund request submitted. We\'ll contact you within 24 hours.', 'success')} className="flex items-center gap-1.5 px-3 py-2 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 rounded-xl text-xs font-bold cursor-pointer transition-all"><RefreshCw className="w-3.5 h-3.5" />Return/Refund</button>
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100 dark:border-slate-800">
+                      <button
+                        onClick={() => handleDownloadReceipt(order)}
+                        className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-extrabold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Receipt</span>
+                      </button>
+
+                      <button
+                        onClick={() => { fireToast('Reorder added to your cart!', 'success'); }}
+                        className="py-2.5 px-3 border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/50 text-[#3C6CA8] dark:text-blue-300 bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 hover:bg-[#3C6CA8]/20 active:scale-95 rounded-xl text-xs font-extrabold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Reorder</span>
+                      </button>
+
+                      {['new', 'confirmed'].includes(order.order_status) ? (
+                        <button
+                          onClick={() => fireToast('Cancel request submitted. Our team will review within 1 hour.', 'success')}
+                          className="py-2.5 px-3 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 active:scale-95 rounded-xl text-xs font-extrabold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <XCircle className="w-3.5 h-3.5" />
+                          <span>Cancel</span>
+                        </button>
+                      ) : order.order_status === 'delivered' ? (
+                        <button
+                          onClick={() => fireToast('Return/refund request submitted. We\'ll contact you within 24 hours.', 'success')}
+                          className="py-2.5 px-3 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 active:scale-95 rounded-xl text-xs font-extrabold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Refund</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => fireToast('Order processing. We will update you via SMS.', 'info')}
+                          className="py-2.5 px-3 border border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 active:scale-95 rounded-xl text-xs font-extrabold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Info className="w-3.5 h-3.5" />
+                          <span>Status</span>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -993,12 +1246,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
             <input type={showNewPw ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" placeholder="Min. 8 characters" />
             <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 cursor-pointer">{showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
           </div>
-          {newPassword && (
-            <div className="space-y-1">
-              <div className="flex gap-1">{[1,2,3,4].map(i => <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= pwStrength.score ? pwStrength.color : 'bg-gray-200 dark:bg-slate-700'}`} />)}</div>
-              <p className="text-[10px] text-gray-500">{pwStrength.label && `Strength: ${pwStrength.label}`}</p>
-            </div>
-          )}
+          {newPassword && (() => {
+            const pwStrength = getPasswordStrength(newPassword);
+            return (
+              <div className="space-y-1">
+                <div className="flex gap-1">{[1,2,3,4].map(i => <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= pwStrength.score ? pwStrength.color : 'bg-gray-200 dark:bg-slate-700'}`} />)}</div>
+                <p className="text-[10px] text-gray-500">{pwStrength.label && `Strength: ${pwStrength.label}`}</p>
+              </div>
+            );
+          })()}
           <div>
             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Confirm New Password <span className="text-rose-500">*</span></label>
             <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={`w-full text-sm px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all ${confirmPassword && confirmPassword !== newPassword ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-slate-700'}`} />
@@ -1096,20 +1352,20 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
     <>
       {trackingOrder && <TrackOrderModal order={trackingOrder} onClose={() => setTrackingOrder(null)} />}
 
-      <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-        <div className="relative w-full max-w-5xl h-[85vh] sm:h-[88vh] bg-white dark:bg-slate-900 shadow-2xl rounded-3xl overflow-hidden flex flex-col border border-gray-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+        <div className="relative w-full max-w-5xl h-[92vh] sm:h-[88vh] bg-white dark:bg-slate-900 shadow-2xl rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col border border-gray-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
 
           {/* ── Sticky Header ── */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-r from-[#3C6CA8] to-[#2D5383] shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center"><ShoppingBag className="w-4 h-4 text-white" /></div>
-              <div>
-                <h3 className="font-bold text-white text-sm leading-tight">Customer Account Portal</h3>
-                <p className="text-white/80 text-[10px]">{customer.full_name}</p>
+          <div className="flex items-center justify-between px-3.5 sm:px-6 py-3 bg-gradient-to-r from-[#3C6CA8] to-[#2D5383] shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><ShoppingBag className="w-4 h-4 text-white" /></div>
+              <div className="min-w-0">
+                <h3 className="font-extrabold text-white text-xs sm:text-sm leading-tight truncate">Customer Account Portal</h3>
+                <p className="text-white/80 text-[10px] truncate">{customer.full_name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={onLogout} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-lg transition-all cursor-pointer"><LogOut className="w-3.5 h-3.5" />Logout</button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button onClick={onLogout} className="flex items-center gap-1 px-2.5 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all cursor-pointer"><LogOut className="w-3.5 h-3.5" />Logout</button>
               <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
           </div>
@@ -1123,29 +1379,30 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
                 <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center gap-3 px-4 py-2.5 mx-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer relative mb-0.5 ${activeTab === item.id ? 'bg-[#3C6CA8] text-white shadow-sm font-bold' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-200/70 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
                   {item.icon}
                   <span className="flex-1 text-left">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
-                    <span className={`text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${activeTab === item.id ? 'bg-white text-[#3C6CA8]' : 'bg-[#3C6CA8] text-white'}`}>{item.badge > 9 ? '9+' : item.badge}</span>
-                  )}
                 </button>
               ))}
             </nav>
 
             {/* ── Main Content ── */}
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24 md:pb-6 bg-white dark:bg-slate-900">
+            <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 pb-20 md:pb-6 bg-white dark:bg-slate-900">
               {renderTabContent()}
             </main>
           </div>
 
-          {/* ── Mobile Bottom Tab Bar ── */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 z-20 flex overflow-x-auto">
+          {/* ── Mobile Horizontally Scrollable Bottom Tab Bar ── */}
+          <div className="md:hidden shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 z-20 flex items-center gap-1 overflow-x-auto px-2 py-2 shadow-lg no-scrollbar">
             {NAV_ITEMS.map(item => (
-              <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex flex-col items-center gap-0.5 py-2.5 px-2 flex-1 min-w-[60px] relative transition-colors cursor-pointer ${activeTab === item.id ? 'text-[#3C6CA8]' : 'text-gray-400 dark:text-slate-500'}`}>
-                <div className="relative">
-                  {item.icon}
-                  {item.badge && item.badge > 0 && <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-[#3C6CA8] text-white text-[8px] font-black rounded-full flex items-center justify-center">{item.badge > 9 ? '9+' : item.badge}</span>}
-                </div>
-                <span className="text-[8px] font-bold leading-none">{item.label}</span>
-                {activeTab === item.id && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#3C6CA8] rounded-full" />}
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 shrink-0 rounded-xl relative transition-all duration-200 cursor-pointer ${
+                  activeTab === item.id
+                    ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 font-extrabold'
+                    : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 font-medium'
+                }`}
+              >
+                {item.icon}
+                <span className="text-[9px] tracking-tight whitespace-nowrap">{item.label}</span>
               </button>
             ))}
           </div>

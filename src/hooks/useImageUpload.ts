@@ -126,22 +126,38 @@ export const useImageUpload = (folder: string = 'menu-images') => {
       setUploadProgress(100);
 
       if (uploadResult.error) {
-        console.error('❌ Supabase Storage upload error:', uploadResult.error);
-        console.error('❌ Error details:', {
-          message: uploadResult.error.message,
-          statusCode: uploadResult.error.statusCode,
-          error: uploadResult.error
-        });
+        console.warn('⚠️ Supabase/Firebase Storage upload error:', uploadResult.error);
+
+        // Fallback to Base64 Data URL if storage bucket permissions or unauthorized errors occur
+        const errMsg = String(uploadResult.error?.message || uploadResult.error || '').toLowerCase();
+        const errCode = String((uploadResult.error as any)?.code || '').toLowerCase();
+        const isAuthOrPermissionError = 
+          errMsg.includes('unauthorized') || 
+          errMsg.includes('permission') || 
+          errMsg.includes('storage/') ||
+          errMsg.includes('403') ||
+          errMsg.includes('row-level security') ||
+          errCode.includes('unauthorized');
+
+        if (isAuthOrPermissionError || !uploadResult.data) {
+          console.warn('⚠️ Storage permission error detected. Falling back to local Data URL...');
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (e) => reject(e);
+            reader.readAsDataURL(file);
+          });
+          setUploadProgress(100);
+          return dataUrl;
+        }
 
         // Provide helpful error message
-        if (uploadResult.error.message?.includes('Bucket not found') || uploadResult.error.message?.includes('not found')) {
+        if (errMsg.includes('bucket not found') || errMsg.includes('not found')) {
           throw new Error(`Storage bucket "${folder}" not found!\n\nPlease run the appropriate migration file in Supabase SQL Editor.`);
-        } else if (uploadResult.error.message?.includes('new row violates row-level security') || uploadResult.error.message?.includes('row-level security')) {
-          throw new Error('Storage policy error!\n\nPlease run CREATE_STORAGE_BUCKET.sql to set up policies.');
-        } else if (uploadResult.error.message?.includes('mime type') || uploadResult.error.message?.includes('invalid mime')) {
+        } else if (errMsg.includes('mime type') || errMsg.includes('invalid mime')) {
           throw new Error('This file type is not allowed by storage. Please upload a JPG, PNG, WebP, GIF, HEIC, or HEIF image.');
         } else {
-          throw new Error(`Upload failed: ${uploadResult.error.message || 'Unknown error'}`);
+          throw new Error(`Upload failed: ${uploadResult.error?.message || String(uploadResult.error)}`);
         }
       }
 
@@ -168,21 +184,19 @@ export const useImageUpload = (folder: string = 'menu-images') => {
   };
 
   const deleteImage = async (imageUrl: string): Promise<void> => {
+    if (!imageUrl || imageUrl.startsWith('data:')) return;
     try {
       // Extract file path from URL
       const urlParts = imageUrl.split('/');
-      const fileName = urlParts[urlParts.length - 1];
+      const fileName = urlParts[urlParts.length - 1]?.split('?')[0];
 
-      const { error } = await supabase.storage
-        .from(folder)
-        .remove([fileName]);
-
-      if (error) {
-        throw error;
+      if (fileName) {
+        await supabase.storage
+          .from(folder)
+          .remove([fileName]);
       }
     } catch (error) {
-      console.error('Error deleting image:', error);
-      throw error;
+      console.warn('Image delete skipped:', error);
     }
   };
 

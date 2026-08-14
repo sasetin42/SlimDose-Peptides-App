@@ -69,7 +69,7 @@ const FAQ: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const telegramUrl = `https://t.me/slimdosedvo`;
+  const telegramUrl = `https://t.me/slimdose_mnl`;
 
   if (loading) {
     return (

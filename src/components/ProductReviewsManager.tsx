@@ -130,15 +130,15 @@ export default function ProductReviewsManager() {
   return (
     <div className="space-y-6 text-left">
       {/* Header card with action buttons */}
-      <div className="bg-white rounded-2xl shadow p-4 border border-slate-150 flex justify-between items-center">
-        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-          <MessageSquare className="w-4 h-4 text-blue-600" />
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow p-4 border border-gray-200 dark:border-slate-800 flex justify-between items-center">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+          <MessageSquare className="w-4 h-4 text-[#3C6CA8] dark:text-[#6A9BE0]" />
           Testimonials & Reviews Panel
         </h3>
 
         <button
           onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-750 text-white rounded-xl text-xs font-semibold shadow transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-4 py-2 bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#274873] text-white rounded-xl text-xs font-bold shadow transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Manual Review
@@ -302,7 +302,7 @@ export default function ProductReviewsManager() {
                   )}
 
                   {r.is_verified_purchase && (
-                    <span className="px-2 py-0.5 bg-blue-50 text-blue-700 font-bold rounded-full border border-blue-200">
+                    <span className="px-2.5 py-0.5 bg-[#3C6CA8]/15 text-[#3C6CA8] font-extrabold rounded-full border border-[#3C6CA8]/30 dark:bg-[#3C6CA8]/25 dark:text-[#94BBE9] dark:border-[#3C6CA8]/50">
                       Verified Purchase
                     </span>
                   )}

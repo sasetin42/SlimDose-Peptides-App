@@ -145,7 +145,7 @@ export default function SmartGuide() {
     return url;
   };
 
-  const telegramUrl = `https://t.me/slimdosedvo`;
+  const telegramUrl = `https://t.me/slimdose_mnl`;
 
   if (loading) {
     return (
@@ -600,17 +600,17 @@ export default function SmartGuide() {
               </div>
             )}
 
-            {/* Telegram Medical Support Banner */}
+            {/* Telegram Customer Order Support Banner */}
             <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 shadow-md border border-blue-800/40 relative overflow-hidden">
               <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider mb-2">
                 <ShieldCheck className="w-4 h-4" />
-                <span>Medical Consultation Support</span>
+                <span>Customer Order Support</span>
               </div>
               <h4 className="text-base font-black text-white text-[#FFFFFF] mb-2 leading-snug">
-                Need Help with Reconstitution or Dosing?
+                Have a Question About Your Order?
               </h4>
               <p className="text-xs text-blue-100/90 leading-relaxed mb-4">
-                Our support team is available on Telegram to answer questions regarding Tirzepatide reconstitution sets, insulin pen pushers, and cold ice pack delivery.
+                Our support team is available on Telegram to assist with questions about your order, set inclusions and delivery.
               </p>
               <a
                 href={telegramUrl}
@@ -619,60 +619,126 @@ export default function SmartGuide() {
                 className="w-full py-3 px-4 rounded-2xl bg-[#3C6CA8] hover:bg-[#325a8c] text-white font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md"
               >
                 <MessageCircle className="w-4.5 h-4.5 text-amber-300" />
-                <span>Chat on Telegram (@slimdosedvo)</span>
+                <span>Chat on Telegram</span>
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Video Playback Modal Overlay */}
+      {/* Video Playback Modal Overlay - Compact 2-Column Design */}
       {selectedVideo && (
         <div
-          className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+          className="fixed inset-0 z-[10000] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
           onClick={() => setSelectedVideo(null)}
         >
           <div
-            className="relative w-full max-w-4xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-slate-800"
+            className="relative w-full max-w-5xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-slate-800 my-auto max-h-[92vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-6 py-4 bg-slate-950 text-white border-b border-slate-800">
-              <div className="flex items-center gap-2 min-w-0">
-                <VideoIcon className="w-4 h-4 text-[#3C6CA8]" />
-                <h3 className="font-bold text-sm sm:text-base truncate">{selectedVideo.title}</h3>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-slate-950 text-white border-b border-slate-800 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="p-1.5 bg-[#3C6CA8]/20 rounded-lg text-[#3C6CA8]">
+                  <VideoIcon className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-white truncate leading-tight">
+                    {selectedVideo.title}
+                  </h3>
+                  <p className="text-[11px] text-slate-400">PepTalk Educational Tutorial</p>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedVideo(null)}
-                className="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Video Player */}
-            <div className="relative pb-[56.25%] h-0 bg-black">
-              {selectedVideo.video_url.includes('youtube.com') || selectedVideo.video_url.includes('youtu.be') ? (
-                <iframe
-                  src={getYoutubeEmbedUrl(selectedVideo.video_url)}
-                  title={selectedVideo.title}
-                  className="absolute inset-0 w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={selectedVideo.video_url}
-                  controls
-                  autoPlay
-                  className="absolute inset-0 w-full h-full"
-                />
-              )}
-            </div>
+            {/* Modal Body - 2-Column Responsive Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 overflow-y-auto flex-1 min-h-0 divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
+              
+              {/* LEFT COLUMN: Video Player (7 Cols) */}
+              <div className="lg:col-span-7 bg-black flex flex-col justify-center relative min-h-[260px] sm:min-h-[360px]">
+                <div className="relative pb-[56.25%] h-0 w-full bg-black">
+                  {selectedVideo.video_url.includes('youtube.com') || selectedVideo.video_url.includes('youtu.be') ? (
+                    <iframe
+                      src={getYoutubeEmbedUrl(selectedVideo.video_url)}
+                      title={selectedVideo.title}
+                      className="absolute inset-0 w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={selectedVideo.video_url}
+                      controls
+                      autoPlay
+                      crossOrigin="anonymous"
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  )}
+                </div>
+              </div>
 
-            <div className="p-5 bg-slate-950 text-white text-xs sm:text-sm leading-relaxed text-left border-t border-slate-800">
-              <p className="font-bold text-slate-400 mb-1">Tutorial Details</p>
-              <p className="text-slate-300">{selectedVideo.description}</p>
+              {/* RIGHT COLUMN: Tutorial Details & Metadata (5 Cols) */}
+              <div className="lg:col-span-5 p-5 sm:p-6 bg-slate-900 text-white flex flex-col justify-between space-y-5 overflow-y-auto">
+                <div className="space-y-4">
+                  {/* Category & Date Metadata Badges */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#3C6CA8]/20 text-[#3C6CA8] rounded-full border border-[#3C6CA8]/30">
+                      {selectedVideo.category || 'Educational Guide'}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      {new Date(selectedVideo.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+
+                  {/* Title & Section Header */}
+                  <div>
+                    <h4 className="text-base font-bold text-white leading-snug mb-1">
+                      {selectedVideo.title}
+                    </h4>
+                    <p className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+                      Tutorial Description & Instructions
+                    </p>
+                  </div>
+
+                  {/* Tutorial Description Content */}
+                  <div className="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 text-xs sm:text-sm text-slate-300 leading-relaxed max-h-60 overflow-y-auto">
+                    {selectedVideo.description}
+                  </div>
+                </div>
+
+                {/* Quick Actions & External Links */}
+                <div className="pt-3 border-t border-slate-800 space-y-2">
+                  <a
+                    href={selectedVideo.video_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#3C6CA8] hover:bg-[#325a8c] text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    Open Source Video Link
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedVideo.video_url);
+                      alert('Video link copied to clipboard!');
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold rounded-xl transition-all cursor-pointer border border-slate-700"
+                  >
+                    Share Video Tutorial Link
+                  </button>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>

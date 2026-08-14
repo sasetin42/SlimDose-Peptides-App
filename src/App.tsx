@@ -17,6 +17,7 @@ import SubNav from './components/SubNav';
 import Menu from './components/Menu';
 import Cart from './components/Cart';
 import Checkout from './components/Checkout';
+import Success from './components/Success';
 import Footer from './components/Footer';
 import AdminDashboard from './components/AdminDashboard';
 import COA from './components/COA';
@@ -31,6 +32,7 @@ import { ToastProvider } from './components/ToastNotification';
 import VerificationGateway from './components/VerificationGateway';
 import { useMenu } from './hooks/useMenu';
 import { DynamicPage } from './components/DynamicPage';
+import ImportantNoticeModal from './components/ImportantNoticeModal';
 
 function MainApp() {
   const cart = useCart();
@@ -221,6 +223,7 @@ function SubPageLayout() {
 function App() {
   return (
     <VerificationGateway>
+      <ImportantNoticeModal />
       <ToastProvider>
         <Router>
           <ScrollToTop />
@@ -232,6 +235,7 @@ function App() {
             <Route element={<SubPageLayout />}>
               <Route path="/coa" element={<COA />} />
               <Route path="/checkout" element={<CheckoutPageRoute />} />
+              <Route path="/success" element={<Success />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calculator" element={<PeptideCalculator />} />
               <Route path="/track-order" element={<OrderTracking />} />

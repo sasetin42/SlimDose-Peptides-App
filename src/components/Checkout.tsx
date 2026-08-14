@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ShieldCheck, Package, CreditCard, Sparkles, Heart, Copy, Check, MessageCircle, Tag, XCircle, CheckCircle, CheckCircle2, Upload, X, FileImage, Loader2, Info, Wallet, User, Mail, Phone, MapPin, Building2, Navigation, Globe, FileText, Truck, Percent, ShoppingBag, ChevronDown, Search, Lock, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ShieldCheck, Package, CreditCard, Sparkles, Heart, Copy, Check, MessageCircle, Tag, XCircle, CheckCircle, CheckCircle2, Upload, X, FileImage, Loader2, Info, Wallet, User, Mail, Phone, MapPin, Building2, Navigation, Globe, FileText, Truck, Percent, ShoppingBag, ChevronDown, Search, Lock, MessageSquare, QrCode } from 'lucide-react';
 import { PH_PROVINCES, searchProvinces, getCitiesForProvince, getBarangaysForCity } from '../lib/philippineLocations';
 
 const HITPAY_METHOD_ID = 'hitpay';
@@ -358,6 +358,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
     shippingLocation !== '';
 
   const handleProceedToPayment = () => {
+    if (!customer) {
+      fireToast('Account Required: Please log in or create a SlimDose account to complete your checkout.', 'warning', 5000);
+      window.dispatchEvent(new CustomEvent('openCustomerAuth'));
+      return;
+    }
     if (isDetailsValid) {
       setStep('payment');
     }
@@ -642,7 +647,7 @@ ${paymentMethod ? `Account: ${paymentMethod.account_number}` : ''}
 ${paymentProofUrl ? 'Screenshot attached to order.' : 'Pending'}
 
 📱 CONTACT METHOD
-Telegram: https://t.me/slimdosedvo
+Telegram: https://t.me/slimdose_mnl
 
 📋 ORDER ID: ${orderData.order_number || orderData.id}
 
@@ -663,7 +668,7 @@ Please confirm this order. Thank you!
       // Open contact method based on selection
       // Using m.me link with Page ID to open Messenger directly
       const contactUrl = contactMethod === 'messenger'
-        ? `https://t.me/slimdosedvo`
+        ? `https://t.me/slimdose_mnl`
         : null;
 
       if (contactUrl) {
@@ -684,15 +689,17 @@ Please confirm this order. Thank you!
         }, 500);
       }
 
-      // Generate reference number
-      const ref = orderData?.order_number || `ORD-${new Date().getFullYear()}-${(orderData?.id || Date.now().toString()).toString().slice(0, 8).toUpperCase()}`;
-      setOrderRef(ref);
+      // Cache order details for fallback
+      try {
+        localStorage.setItem('slimdose_last_order', JSON.stringify(orderData));
+      } catch (err) {
+        console.warn('Failed to cache order:', err);
+      }
 
-      fireToast('Order placed successfully! 🎉', 'success', 6000);
+      fireToast('Order submitted successfully! 🎉', 'success', 6000);
 
-      // Show confirmation
-      setStep('confirmation');
       onOrderSuccess?.();
+      window.location.href = `/success?order_id=${orderData.id}`;
     } catch (error) {
       console.error('❌ Error placing order:', error);
       fireToast(`Failed to place order: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`, 'error');
@@ -727,7 +734,7 @@ Please confirm this order. Thank you!
 
   const handleOpenContact = () => {
     const contactUrl = contactMethod === 'messenger'
-      ? `https://t.me/slimdosedvo`
+      ? `https://t.me/slimdose_mnl`
       : null;
 
     if (contactUrl) {
@@ -744,13 +751,13 @@ Please confirm this order. Thank you!
     const isManualPayment = placedOrder?.payment_method_name && placedOrder.payment_method_name !== 'PayMongo' && placedOrder.payment_method_name !== 'HitPay';
 
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 animate-fadeIn">
-        <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-800">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-4 sm:py-8 px-2.5 sm:px-6 lg:px-8 animate-fadeIn">
+        <div className="max-w-3xl mx-auto bg-white dark:bg-slate-900 shadow-xl rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-800">
           {/* Dedicated Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-10">
             <div className="flex items-center gap-2">
-              <span className="font-heading text-lg font-bold text-gray-900 dark:text-white">Order Confirmed</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
+              <span className="font-heading text-base sm:text-lg font-bold text-gray-900 dark:text-white">Order Confirmed</span>
+              <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
                 Done
               </span>
             </div>
@@ -764,11 +771,11 @@ Please confirm this order. Thank you!
           </div>
 
           {/* Content */}
-          <div className="p-5 md:p-8 bg-gradient-to-br from-white via-gray-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 text-center">
+          <div className="p-3.5 sm:p-8 bg-gradient-to-br from-white via-gray-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 text-center">
             {/* Animated success icon */}
-            <div className="relative w-28 h-28 mx-auto mb-6">
-              <div className="w-28 h-28 rounded-full flex items-center justify-center shadow-xl" style={{ background: 'linear-gradient(135deg, #3C6CA8, #264874)' }}>
-                <svg viewBox="0 0 52 52" className="w-14 h-14" fill="none">
+            <div className="relative w-16 h-16 sm:w-28 sm:h-28 mx-auto mb-3 sm:mb-6">
+              <div className="w-16 h-16 sm:w-28 sm:h-28 rounded-full flex items-center justify-center shadow-md sm:shadow-xl" style={{ background: 'linear-gradient(135deg, #3C6CA8, #264874)' }}>
+                <svg viewBox="0 0 52 52" className="w-8 h-8 sm:w-14 sm:h-14" fill="none">
                   <circle cx="26" cy="26" r="24" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
                   <path
                     className="animate-check-draw"
@@ -784,7 +791,7 @@ Please confirm this order. Thank you!
               {['#3C6CA8','#264874','#94B3D6','#6691C2','#E2EBF5'].map((c, i) => (
                 <span
                   key={i}
-                  className="animate-confetti absolute w-2.5 h-2.5 rounded-full"
+                  className="animate-confetti absolute w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full"
                   style={{
                     backgroundColor: c,
                     top: `${[10,5,15,0,8][i]}%`,
@@ -795,37 +802,37 @@ Please confirm this order. Thank you!
               ))}
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 flex items-center justify-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-bold mb-1.5 sm:mb-2 flex items-center justify-center gap-1.5 flex-wrap">
               <span style={{ color: '#3C6CA8' }}>Order Placed!</span>
-              <Sparkles className="w-7 h-7" style={{ color: '#3C6CA8' }} />
+              <Sparkles className="w-5 h-5 sm:w-7 sm:h-7" style={{ color: '#3C6CA8' }} />
             </h1>
 
             {/* Reference number */}
             {orderRef && (
-              <div className="inline-flex items-center gap-2 bg-navy-50 border border-navy-200 rounded-full px-4 py-1.5 mb-4">
-                <span className="text-xs font-semibold text-navy-600 uppercase tracking-wider">Ref:</span>
-                <span className="font-mono text-sm font-bold" style={{ color: '#3C6CA8' }}>{orderRef}</span>
+              <div className="inline-flex items-center gap-1.5 bg-navy-50 border border-navy-200 rounded-full px-3 py-1 mb-3 sm:mb-4">
+                <span className="text-[10px] sm:text-xs font-semibold text-navy-600 uppercase tracking-wider">Ref:</span>
+                <span className="font-mono text-xs sm:text-sm font-bold" style={{ color: '#3C6CA8' }}>{orderRef}</span>
               </div>
             )}
 
-            <p className="text-gray-600 mb-6 text-base md:text-lg leading-relaxed">
+            <p className="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-base md:text-lg leading-relaxed">
               Copy the order message below and send it via Telegram along with your payment screenshot.
             </p>
 
             {isManualPayment && (
-              <div className="bg-slate-50 dark:bg-slate-900/40 border border-gray-200 dark:border-slate-800/80 rounded-2xl p-5 mb-6 text-left space-y-4">
-                <h3 className="font-bold text-navy-900 dark:text-white flex items-center gap-2 text-sm sm:text-base">
-                  <FileImage className="w-5 h-5 text-blue-600" />
-                  Upload Proof of Payment (Receipt)
+              <div className="bg-slate-50 dark:bg-slate-900/40 border border-gray-200 dark:border-slate-800/80 rounded-xl sm:rounded-2xl p-3 sm:p-5 mb-4 sm:mb-6 text-left space-y-3 sm:space-y-4">
+                <h3 className="font-bold text-navy-900 dark:text-white flex items-center gap-1.5 text-xs sm:text-base">
+                  <FileImage className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 shrink-0" />
+                  <span>Upload Proof of Payment (Receipt)</span>
                 </h3>
                 
                 {invoiceUploaded ? (
-                  <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 dark:border-emerald-900/50 p-4 rounded-xl text-center space-y-2 animate-fadeIn">
-                    <p className="text-emerald-800 dark:text-emerald-400 font-bold text-sm flex items-center justify-center gap-1.5">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 dark:border-emerald-900/50 p-3 sm:p-4 rounded-xl text-center space-y-1.5 animate-fadeIn">
+                    <p className="text-emerald-800 dark:text-emerald-400 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 shrink-0" />
                       Receipt Submitted Successfully
                     </p>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-300 font-semibold leading-relaxed">
+                    <p className="text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-300 font-semibold leading-relaxed">
                       Invoice has been sent successfully. A SlimDose administrator will contact you shortly through text message.
                     </p>
                     {uploadedProofUrl && (
@@ -1838,89 +1845,30 @@ Please confirm this order. Thank you!
                 </h2>
 
                 <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-6">
-                  {/* HitPay option (cards / e-wallets) */}
-                  <div
-                    className={`rounded-2xl border-2 transition-all overflow-hidden ${isHitpaySelected
-                      ? 'border-[#3C6CA8] bg-blue-50/20 dark:bg-slate-800/60 shadow-md ring-2 ring-[#3C6CA8]/20'
-                      : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
-                      }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPaymentMethod(HITPAY_METHOD_ID)}
-                      className="w-full p-3.5 sm:p-4 md:p-5 flex flex-col justify-between gap-3 text-left cursor-pointer"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${isHitpaySelected ? 'border-[#3C6CA8] bg-[#3C6CA8]' : 'border-gray-300 dark:border-slate-600'}`}>
-                          {isHitpaySelected && <div className="w-2 h-2 rounded-full bg-white" />}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                            <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base leading-tight">
-                              Credit/Debit Cards & e-Wallets
-                            </p>
-                            <span className="bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-blue-300 font-bold text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full border border-[#3C6CA8]/20 shrink-0">
-                              Instant Approval
-                            </span>
-                          </div>
-                          <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-1 font-medium">
-                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                              <Lock className="w-3 h-3" /> HitPay Gateway
-                            </span>
-                            <span className="text-slate-600 dark:text-slate-300 font-bold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] uppercase tracking-wide border border-slate-200 dark:border-slate-700">
-                              (3% fee)
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0 flex-wrap pt-1 border-t border-gray-100/60 dark:border-slate-800/60 sm:border-t-0 sm:pt-0">
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-[9px] sm:text-[10px] font-extrabold flex items-center gap-0.5">
-                          <CheckCircle2 className="w-2.5 h-2.5" /> QRPH
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 text-[9px] sm:text-[10px] font-extrabold">
-                          GCash
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60 text-[9px] sm:text-[10px] font-extrabold">
-                          Maya
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-[9px] sm:text-[10px] font-extrabold">
-                          Billease
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-[9px] sm:text-[10px] font-extrabold">
-                          VISA/MC
-                        </span>
-                      </div>
-                    </button>
-                    {isHitpaySelected && (
-                      <div className="bg-[#3C6CA8]/5 dark:bg-slate-800/80 px-5 py-3 border-t border-gray-100 dark:border-slate-800 text-xs md:text-sm text-gray-600 dark:text-slate-300 flex items-center justify-center gap-2 font-medium">
-                        <Sparkles className="w-4 h-4 text-[#3C6CA8] shrink-0" />
-                        <span>You will be redirected to HitPay's encrypted portal to complete your transaction safely.</span>
-                      </div>
-                    )}
-                  </div>
+
 
                   {paymentMethods.map((method) => (
                     <button
                       key={method.id}
                       onClick={() => setSelectedPaymentMethod(method.id)}
-                      className={`p-4 md:p-5 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${selectedPaymentMethod === method.id
+                      className={`p-2.5 sm:p-4 md:p-5 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${selectedPaymentMethod === method.id
                         ? 'border-[#3C6CA8] bg-blue-50/20 dark:bg-slate-800/60 shadow-md ring-2 ring-[#3C6CA8]/20'
                         : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
                         }`}
                     >
-                      <div className="flex items-center gap-3.5">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${selectedPaymentMethod === method.id ? 'border-[#3C6CA8] bg-[#3C6CA8]' : 'border-gray-300 dark:border-slate-600'}`}>
-                          {selectedPaymentMethod === method.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                      <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                        <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${selectedPaymentMethod === method.id ? 'border-[#3C6CA8] bg-[#3C6CA8]' : 'border-gray-300 dark:border-slate-600'}`}>
+                          {selectedPaymentMethod === method.id && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white" />}
                         </div>
-                        <div className="w-10 h-10 bg-[#3C6CA8]/10 text-[#3C6CA8] rounded-xl flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
-                          <Wallet className="w-5 h-5" />
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#3C6CA8]/10 text-[#3C6CA8] rounded-xl flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                          <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <div className="text-left">
-                          <p className="font-extrabold text-gray-900 dark:text-white text-sm md:text-base">{method.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Account: {method.account_name}</p>
+                        <div className="text-left min-w-0">
+                          <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm md:text-base leading-tight truncate">{method.name}</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-slate-400 font-medium truncate">Account: {method.account_name}</p>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-[#3C6CA8] bg-[#3C6CA8]/10 px-2.5 py-1 rounded-full">
+                      <span className="text-[9px] sm:text-xs font-bold text-[#3C6CA8] bg-[#3C6CA8]/10 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shrink-0 ml-1.5">
                         Manual Transfer
                       </span>
                     </button>
@@ -1928,44 +1876,151 @@ Please confirm this order. Thank you!
                 </div>
 
                 {!isPaymongoSelected && paymentMethodInfo && (
-                  <div className="bg-slate-50 dark:bg-slate-800/70 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700">
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                      <Wallet className="w-4 h-4 text-[#3C6CA8]" /> Payment Details
-                    </h3>
-                    <div className="space-y-2 text-xs md:text-sm text-gray-700 dark:text-slate-200 mb-4 font-medium">
-                      <p><strong>Account Number:</strong> {paymentMethodInfo.account_number}</p>
-                      <p><strong>Account Name:</strong> {paymentMethodInfo.account_name}</p>
-                      <p><strong>Amount to Pay:</strong> <span className="text-lg font-extrabold text-[#3C6CA8]">₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span></p>
+                  <div className="bg-slate-50/80 dark:bg-slate-900/60 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-gray-200/80 dark:border-slate-800 space-y-2.5 sm:space-y-4 shadow-xs sm:shadow-sm">
+                    <div className="flex items-center justify-between gap-2 border-b border-gray-200/60 dark:border-slate-800 pb-2.5 flex-wrap">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] shrink-0" />
+                        <h3 className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm uppercase tracking-wide truncate">
+                          Payment Instructions — {paymentMethodInfo.name}
+                        </h3>
+                      </div>
+                      <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
+                        Manual Verification
+                      </span>
                     </div>
 
-                    {paymentMethodInfo.qr_code_url && (
-                      <div className="flex justify-center">
-                        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-                          <img
-                            src={paymentMethodInfo.qr_code_url}
-                            alt="Payment QR Code"
-                            className="w-48 h-48 object-contain"
-                          />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-4 items-center">
+                      {/* Left: Account Details Summary */}
+                      <div className="space-y-2 text-xs sm:text-sm text-gray-700 dark:text-slate-200">
+                        <div className="p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/80">
+                          <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-slate-400 block mb-0.5">Account Number</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white text-xs sm:text-base tracking-wider">{paymentMethodInfo.account_number}</span>
+                        </div>
+
+                        <div className="p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/80">
+                          <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-slate-400 block mb-0.5">Account Name</span>
+                          <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{paymentMethodInfo.account_name}</span>
+                        </div>
+
+                        <div className="p-2 sm:p-3 bg-blue-50/70 dark:bg-blue-950/40 rounded-xl border border-blue-200/80 dark:border-blue-800/60 flex items-center justify-between">
+                          <div>
+                            <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-[#3C6CA8] dark:text-blue-300 block mb-0.5">Amount to Pay</span>
+                            <span className="text-lg sm:text-2xl font-black text-[#3C6CA8] dark:text-blue-300">₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}</span>
+                          </div>
+                          <span className="text-[9px] sm:text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-white/80 dark:bg-slate-800 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-lg border border-blue-200 dark:border-blue-700">
+                            Exact Amount
+                          </span>
                         </div>
                       </div>
-                    )}
+
+                      {/* Right: Enlarged High-Visibility QR Code (Compact on mobile) */}
+                      {paymentMethodInfo.qr_code_url && (
+                        <div className="flex flex-col items-center justify-center p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xs border border-gray-200/80 dark:border-slate-700">
+                          <div className="relative group p-1.5 sm:p-2 bg-white rounded-lg sm:rounded-xl">
+                            <img
+                              src={paymentMethodInfo.qr_code_url}
+                              alt="Payment QR Code"
+                              className="w-36 h-36 sm:w-52 sm:h-52 md:w-64 md:h-64 object-contain rounded-md sm:rounded-lg transition-transform duration-300 group-hover:scale-105"
+                            />
+                          </div>
+                          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1">
+                            <QrCode className="w-3 h-3 text-[#3C6CA8]" /> Scan QR with banking / e-Wallet app
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Upload Payment Receipt & Reference (Placed directly below Payment Instructions & QR Code) */}
+                    <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-gray-200/80 dark:border-slate-800 mt-3 sm:mt-4">
+                      <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                        <h4 className="text-xs sm:text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 min-w-0">
+                          <FileImage className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] shrink-0" />
+                          <span className="truncate">Upload Payment Receipt & Reference *</span>
+                        </h4>
+                        <span className="text-[9px] sm:text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 shrink-0">
+                          Required for Admin Approval
+                        </span>
+                      </div>
+                      <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400 mb-2.5 font-normal leading-snug">
+                        After scanning the QR code or sending payment, upload your payment screenshot/receipt file below. Our store administrator will verify the receipt to approve your order.
+                      </p>
+
+                      {!paymentProof ? (
+                        <label className="flex flex-col items-center justify-center w-full h-24 sm:h-30 border-2 border-[#3C6CA8]/30 border-dashed rounded-xl sm:rounded-2xl cursor-pointer bg-blue-50/40 dark:bg-slate-800/40 hover:bg-blue-50 dark:hover:bg-slate-800 transition-all group">
+                          <div className="flex flex-col items-center justify-center text-center px-3 py-2">
+                            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </div>
+                            <p className="text-[11px] sm:text-xs text-gray-700 dark:text-slate-200 font-semibold leading-tight">
+                              <span className="text-[#3C6CA8] underline">Click to choose file</span> or drag & drop payment receipt
+                            </p>
+                            <p className="text-[9px] sm:text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">
+                              Accepts PNG, JPG, JPEG screenshots (Up to 10MB)
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setPaymentProof(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      ) : (
+                        <div className="relative bg-blue-50/40 dark:bg-slate-800/60 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#3C6CA8]/30 flex items-center gap-2.5">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl border border-gray-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+                            {paymentProof.type.startsWith('image/') ? (
+                              <img
+                                src={URL.createObjectURL(paymentProof)}
+                                alt="Payment receipt preview"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <FileImage className="w-4 h-4 text-[#3C6CA8]" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                              <p className="text-[11px] sm:text-xs font-bold text-gray-900 dark:text-white truncate">
+                                {paymentProof.name}
+                              </p>
+                            </div>
+                            <p className="text-[9px] sm:text-[10px] text-gray-500 dark:text-slate-400 font-medium leading-tight">
+                              {(paymentProof.size / 1024 / 1024).toFixed(2)} MB • Ready for admin verification
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPaymentProof(null)}
+                            className="p-1 hover:bg-rose-100 text-rose-500 dark:hover:bg-rose-950/60 rounded-lg transition-colors shrink-0"
+                            title="Remove file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Order Notes Section */}
-              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-5 md:p-7 border border-gray-200 dark:border-slate-800">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
-                      <MessageSquare className="w-5 h-5" />
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs p-3.5 sm:p-5 border border-gray-200 dark:border-slate-800">
+                <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
+                      <MessageSquare className="w-4 h-4" />
                     </div>
-                    <div>
-                      <span>Order Notes</span>
-                      <span className="text-xs font-normal text-gray-400 block">Optional delivery or handling instructions</span>
+                    <div className="min-w-0">
+                      <span className="font-extrabold text-xs sm:text-sm md:text-base block truncate">Order Notes</span>
+                      <span className="text-[10px] sm:text-xs font-normal text-gray-400 block truncate">Optional delivery or handling instructions</span>
                     </div>
                   </div>
-                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800">
+                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 shrink-0">
                     Delivery Instructions
                   </span>
                 </h2>
@@ -1974,108 +2029,50 @@ Please confirm this order. Thank you!
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any special instructions or notes for your order (e.g., Gate code, leave with guard, preferred delivery schedule)..."
-                    className="w-full text-xs md:text-sm p-4 border border-gray-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium min-h-[110px] resize-y"
+                    className="w-full text-xs sm:text-sm p-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium min-h-[80px] sm:min-h-[100px] resize-y"
                     maxLength={500}
                   />
-                  <div className="flex items-center justify-between mt-2 text-[11px] text-gray-400 dark:text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Info className="w-3.5 h-3.5 text-[#3C6CA8]" /> Notes are printed directly on your courier shipping label.
+                  <div className="flex flex-wrap items-center justify-between mt-1.5 text-[10px] sm:text-[11px] text-gray-400 dark:text-slate-500 gap-1">
+                    <span className="flex items-center gap-1 min-w-0 truncate">
+                      <Info className="w-3.5 h-3.5 text-[#3C6CA8] shrink-0" /> <span className="truncate">Notes are printed directly on your courier shipping label.</span>
                     </span>
-                    <span>{notes.length}/500</span>
+                    <span className="shrink-0 font-mono">{notes.length}/500</span>
                   </div>
                 </div>
               </div>
 
-              {/* Contact Method Selection (hidden for HitPay) */}
+              {/* Preferred Contact Method Selection */}
               {!isHitpaySelected && (
-                <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 md:mb-6 flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-gold-600" />
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs p-3.5 sm:p-5 border border-gray-200 dark:border-slate-800">
+                  <h2 className="text-sm sm:text-base md:text-lg font-extrabold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-[#3C6CA8]" />
                     Preferred Contact Method *
                   </h2>
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 gap-2.5">
                     <button
                       onClick={() => setContactMethod('messenger')}
-                      className={`p-4 rounded-lg border-2 transition-all flex items-center justify-between ${contactMethod === 'messenger'
-                        ? 'border-navy-900 bg-gold-50'
-                        : 'border-gray-200 hover:border-navy-700'
-                        }`}
+                      className={`p-3 sm:p-4 rounded-xl border-2 transition-all flex items-center justify-between cursor-pointer ${
+                        contactMethod === 'messenger'
+                          ? 'border-[#3C6CA8] bg-blue-50/40 dark:bg-slate-800/80 shadow-xs'
+                          : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <MessageCircle className="w-6 h-6 text-gold-600" />
+                        <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                          <MessageCircle className="w-4 h-4" />
+                        </div>
                         <div className="text-left">
-                          <p className="font-semibold text-navy-900">Telegram</p>
-                          <p className="text-sm text-gray-500">@slimdosedvo</p>
+                          <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm">Telegram</p>
+                          <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">@slimdose_mnl</p>
                         </div>
                       </div>
                       {contactMethod === 'messenger' && (
-                        <div className="w-6 h-6 bg-gold-600 rounded-full flex items-center justify-center">
-                          <span className="text-black text-xs font-bold">✓</span>
+                        <div className="w-5 h-5 bg-[#3C6CA8] rounded-full flex items-center justify-center text-white shrink-0 shadow-xs">
+                          <span className="text-xs font-extrabold">✓</span>
                         </div>
                       )}
                     </button>
                   </div>
-                </div>
-              )}
-
-              {/* Payment Proof Upload (hidden for HitPay) */}
-              {!isHitpaySelected && (
-                <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border-2 border-navy-700/30">
-                  <h2 className="text-lg md:text-xl font-bold text-navy-900 mb-4 flex items-center gap-2">
-                    <FileImage className="w-5 h-5 text-gold-600" />
-                    Upload Payment Proof *
-                  </h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Please upload a screenshot of your payment receipt (GCash, Bank Transfer, etc.).
-                  </p>
-
-                  {!paymentProof ? (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 text-blue-500 mb-2" />
-                        <p className="text-sm text-gray-500"><span className="font-semibold">Click to upload</span> payment screenshot</p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG or JPEG (MAX. 10MB)</p>
-                      </div>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setPaymentProof(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </label>
-                  ) : (
-                    <div className="relative bg-white p-4 rounded-lg border border-gray-200 flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
-                        {paymentProof.type.startsWith('image/') ? (
-                          <img
-                            src={URL.createObjectURL(paymentProof)}
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <FileImage className="w-6 h-6 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {paymentProof.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {(paymentProof.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-</div>
-                      <button
-                        onClick={() => setPaymentProof(null)}
-                        className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                      >
-                        <X className="w-5 h-5 text-gray-500" />
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -2124,41 +2121,41 @@ Please confirm this order. Thank you!
             </div>
 
             {/* Order Summary Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-5 md:p-6 sticky top-24 border border-slate-200 dark:border-slate-800 transition-all">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100 dark:border-slate-800">
-                  <h2 className="text-lg md:text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="lg:col-span-1 lg:self-start lg:sticky lg:top-28">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-xs sm:shadow-xl p-3.5 sm:p-5 md:p-6 border border-slate-200 dark:border-slate-800 transition-all duration-300">
+                <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-gray-100 dark:border-slate-800">
+                  <h2 className="text-sm sm:text-base md:text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                    <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
                     <span>Final Summary</span>
                   </h2>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
+                  <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50">
                     Step 2 Review
                   </span>
                 </div>
 
                 {/* Customer Info Card */}
-                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 mb-4 text-xs border border-slate-200/80 dark:border-slate-700/60 space-y-1">
-                  <p className="font-extrabold text-gray-900 dark:text-white text-sm flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> {fullName}
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 mb-3 sm:mb-4 text-xs border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                  <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                    <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" /> <span className="truncate">{fullName}</span>
                   </p>
-                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-gray-400" /> {email}
+                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5 truncate">
+                    <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" /> <span className="truncate">{email}</span>
                   </p>
-                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-gray-400" /> {phone}
+                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5 truncate">
+                    <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" /> <span className="truncate">{phone}</span>
                   </p>
-                  <div className="mt-2.5 pt-2.5 border-t border-slate-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 flex items-start gap-1.5">
+                  <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 flex items-start gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-gray-800 dark:text-slate-200">{address}</p>
-                      <p>{barangay}, {city}</p>
-                      <p>{state} {zipCode}</p>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-800 dark:text-slate-200 leading-tight">{address}</p>
+                      <p className="text-[11px] leading-tight text-gray-500 dark:text-slate-400">{barangay}, {city}</p>
+                      <p className="text-[11px] leading-tight text-gray-500 dark:text-slate-400">{state} {zipCode}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Order Items with Profile Thumbnails */}
-                <div className="space-y-3 mb-4 max-h-52 overflow-y-auto pr-1 custom-scrollbar">
+                <div className="space-y-2 mb-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                   {cartItems.map((item, index) => {
                     const hasVariation = !!item.variation;
                     const originalPrice = hasVariation
@@ -2170,9 +2167,9 @@ Please confirm this order. Thank you!
                     const imageUrl = item.product.image_url || (item.product as any).image || (item.product as any).imageUrl;
 
                     return (
-                      <div key={index} className="p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-11 h-11 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 relative flex items-center justify-center">
+                      <div key={index} className="p-2 sm:p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0 relative flex items-center justify-center">
                             {imageUrl ? (
                               <img
                                 src={imageUrl}
@@ -2183,21 +2180,21 @@ Please confirm this order. Thank you!
                                 }}
                               />
                             ) : (
-                              <Package className="w-5 h-5 text-slate-400" />
+                              <Package className="w-4 h-4 text-slate-400" />
                             )}
-                            <span className="absolute bottom-0 right-0 bg-slate-900/90 text-white font-extrabold text-[9px] px-1 py-0.2 rounded-tl">
+                            <span className="absolute bottom-0 right-0 bg-slate-900/90 text-white font-extrabold text-[8px] sm:text-[9px] px-1 py-0.2 rounded-tl">
                               x{item.quantity}
                             </span>
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-bold text-gray-900 dark:text-white text-xs truncate">{item.product.name}</p>
                             {item.variation && (
-                              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">{item.variation.name}</p>
+                              <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 truncate">{item.variation.name}</p>
                             )}
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="font-extrabold text-gray-900 dark:text-white text-xs">
+                          <span className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm">
                             ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
                           </span>
                           {hasProductDiscount && savedAmount > 0 && (
@@ -2212,7 +2209,7 @@ Please confirm this order. Thank you!
                 </div>
 
                 {/* Pricing Breakdown */}
-                <div className="space-y-2 text-xs">
+                <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
                     <span>Subtotal</span>
                     <span className="font-bold text-gray-900 dark:text-white">
@@ -2221,7 +2218,7 @@ Please confirm this order. Thank you!
                   </div>
 
                   {discountAmount > 0 && (
-                    <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
+                    <div className="flex justify-between items-center p-1.5 sm:p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30">
                       <span className="flex items-center gap-1 font-bold">
                         <Tag className="w-3.5 h-3.5 text-emerald-600" />
                         Saved with {appliedPromo?.code}
@@ -2242,7 +2239,7 @@ Please confirm this order. Thank you!
                   </div>
 
                   {hitpayFee > 0 && (
-                    <div className="flex justify-between items-center p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/30">
+                    <div className="flex justify-between items-center p-1.5 sm:p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/30">
                       <span className="flex items-center gap-1 font-bold">
                         <CreditCard className="w-3.5 h-3.5" />
                         HitPay Fee (3%)
@@ -2254,13 +2251,13 @@ Please confirm this order. Thank you!
                   )}
 
                   {/* Grand Total Card */}
-                  <div className="mt-4 pt-1">
-                    <div className="bg-slate-900 dark:bg-slate-800 text-white rounded-2xl p-4 shadow-lg border border-slate-700/60 relative overflow-hidden">
-                      <div className="flex justify-between items-baseline mb-1">
-                        <span className="font-bold text-sm text-slate-300 flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-amber-400" /> Total
+                  <div className="mt-3 pt-1">
+                    <div className="bg-slate-900 dark:bg-slate-800 text-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-md border border-slate-700/60 relative overflow-hidden">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-xs sm:text-sm text-slate-300 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" /> Total
                         </span>
-                        <span className="text-2xl font-black text-amber-400 tracking-tight">
+                        <span className="text-xl sm:text-2xl font-black text-amber-400 tracking-tight">
                           ₱{finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
                         </span>
                       </div>

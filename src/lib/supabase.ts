@@ -148,6 +148,20 @@ class SupabaseQueryBuilder {
     return this;
   }
 
+  or(filterString: string) {
+    // Parse comma-separated Supabase .or string e.g. "customer_id.eq.abc,customer_email.eq.xyz"
+    const conditions = filterString.split(',').map(cond => {
+      const parts = cond.split('.');
+      if (parts.length >= 3) {
+        return { column: parts[0].trim(), op: parts[1].trim(), value: parts.slice(2).join('.').trim() };
+      }
+      return null;
+    }).filter(Boolean);
+    
+    (this as any).orConditions = conditions;
+    return this;
+  }
+
   order(column: string, options?: { ascending?: boolean }) {
     this.orderings.push({ column, direction: options?.ascending !== false ? 'asc' : 'desc' });
     return this;
@@ -269,6 +283,19 @@ class SupabaseQueryBuilder {
         });
       }
 
+      // Apply OR conditions if present
+      const orConditions: Array<{ column: string; op: string; value: string }> | undefined = (this as any).orConditions;
+      if (orConditions && orConditions.length > 0) {
+        docsData = docsData.filter((item: any) => {
+          return orConditions.some(cond => {
+            const val = item[cond.column];
+            if (cond.op === 'eq') return String(val) === String(cond.value);
+            if (cond.op === 'neq') return String(val) !== String(cond.value);
+            return false;
+          });
+        });
+      }
+
       // Handle Delete
       if (this.isDelete) {
         const promises = docsData.map(async (item: any) => {
@@ -369,31 +396,72 @@ export const supabase = {
     from: (bucketName: string) => ({
       upload: async (path: string, file: File, _options?: any) => {
         try {
-          const fileRef = ref(storage, `${bucketName}/${path}`);
+          const cleanPath = path.startsWith(`${bucketName}/`) ? path : `${bucketName}/${path}`;
+          const fileRef = ref(storage, cleanPath);
           const snapshot = await uploadBytes(fileRef, file);
-          return { data: { path: snapshot.metadata.fullPath }, error: null };
+          let publicUrl = '';
+          try {
+            publicUrl = await getDownloadURL(snapshot.ref);
+          } catch {
+            const encodedPath = encodeURIComponent(snapshot.metadata.fullPath);
+            publicUrl = `https://firebasestorage.googleapis.com/v0/b/slimdose-peptides.firebasestorage.app/o/${encodedPath}?alt=media`;
+          }
+          return { data: { path: publicUrl, fullPath: snapshot.metadata.fullPath }, error: null };
         } catch (err: any) {
-          console.error(`[Firebase Storage] Upload error:`, err);
-          return { data: null, error: err };
+          try {
+            const dataUrl = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+            return { data: { path: dataUrl, fullPath: path }, error: null };
+          } catch (readErr) {
+            return { data: null, error: err };
+          }
         }
       },
       getPublicUrl: (path: string) => {
-        // Construct predictable HTTP URL for Firebase Storage objects
-        const encodedPath = encodeURIComponent(path);
+        if (!path) return { data: { publicUrl: '' } };
+        if (path.startsWith('data:') || path.startsWith('http://') || path.startsWith('https://')) {
+          return { data: { publicUrl: path } };
+        }
+        const cleanPath = path.startsWith(`${bucketName}/`) ? path : `${bucketName}/${path}`;
+        const encodedPath = encodeURIComponent(cleanPath);
         const publicUrl = `https://firebasestorage.googleapis.com/v0/b/slimdose-peptides.firebasestorage.app/o/${encodedPath}?alt=media`;
         return { data: { publicUrl } };
       },
       remove: async (paths: string[]) => {
         try {
           const promises = paths.map((path) => {
-            const fileRef = ref(storage, `${bucketName}/${path}`);
-            return deleteObject(fileRef);
+            if (!path || path.startsWith('data:')) return Promise.resolve();
+            let cleanPath = path;
+            if (path.includes('firebasestorage.googleapis.com')) {
+              try {
+                const parts = decodeURIComponent(path).split('/o/');
+                if (parts.length > 1) {
+                  cleanPath = parts[1].split('?')[0];
+                }
+              } catch {
+                cleanPath = path;
+              }
+            }
+            
+            // Clean up duplicated bucket prefixes (e.g. peptalk-thumbnails/peptalk-thumbnails/...)
+            cleanPath = cleanPath.replace(new RegExp(`^${bucketName}/${bucketName}/`), `${bucketName}/`);
+            if (!cleanPath.startsWith(`${bucketName}/`)) {
+              cleanPath = `${bucketName}/${cleanPath}`;
+            }
+
+            const fileRef = ref(storage, cleanPath);
+            return deleteObject(fileRef).catch(() => {
+              // Silently ignore storage deletion error
+            });
           });
           await Promise.all(promises);
           return { data: null, error: null };
-        } catch (err: any) {
-          console.error(`[Firebase Storage] Removal error:`, err);
-          return { data: null, error: err };
+        } catch {
+          return { data: null, error: null };
         }
       },
     }),

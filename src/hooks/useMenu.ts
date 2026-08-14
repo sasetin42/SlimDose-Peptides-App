@@ -33,13 +33,20 @@ export function useMenu() {
   useEffect(() => {
     fetchProducts();
 
-    // Supabase realtime for updates
+    // Supabase realtime for updates (products, variations, orders)
     const channelId = `products-realtime-${Date.now()}`;
     const productsChannel = supabase
       .channel(channelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variations' }, () => fetchProducts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => fetchProducts())
       .subscribe();
+
+    const handleOrderConfirmed = () => {
+      fetchProducts();
+    };
+
+    window.addEventListener('orderConfirmed', handleOrderConfirmed);
 
     let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const handleFocus = () => {
@@ -58,6 +65,7 @@ export function useMenu() {
 
     return () => {
       supabase.removeChannel(productsChannel);
+      window.removeEventListener('orderConfirmed', handleOrderConfirmed);
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
       if (focusTimeout) clearTimeout(focusTimeout);
@@ -94,10 +102,42 @@ export function useMenu() {
           variationsByProduct.set(v.product_id, list);
         }
 
-        const productsWithVariations = data.map(product => ({
-          ...product,
-          variations: variationsByProduct.get(product.id) || [],
-        }));
+        // Fetch live completed orders to aggregate real sales count per product
+        const salesCountMap = new Map<string, number>();
+        try {
+          const { data: completedOrders } = await supabase
+            .from('orders')
+            .select('order_items, order_status')
+            .in('order_status', ['confirmed', 'processing', 'shipped', 'delivered']);
+
+          for (const orderRow of completedOrders || []) {
+            const items = Array.isArray(orderRow.order_items) ? orderRow.order_items : [];
+            for (const item of items) {
+              const pId = item.product_id;
+              const pName = (item.product_name || item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+              const qty = Number(item.quantity ?? 1);
+
+              if (pId) {
+                salesCountMap.set(pId, (salesCountMap.get(pId) || 0) + qty);
+              }
+              if (pName) {
+                salesCountMap.set(`name:${pName}`, (salesCountMap.get(`name:${pName}`) || 0) + qty);
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to compute live order sales counts:', err);
+        }
+
+        const productsWithVariations = data.map(product => {
+          const pNameKey = `name:${(product.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+          const liveSales = (salesCountMap.get(product.id) || 0) + (salesCountMap.get(pNameKey) || 0);
+          return {
+            ...product,
+            sales_count: liveSales > 0 ? liveSales : undefined,
+            variations: variationsByProduct.get(product.id) || [],
+          };
+        });
 
         setProducts(productsWithVariations);
         try {

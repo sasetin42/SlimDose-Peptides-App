@@ -7,13 +7,17 @@ interface ImageUploadProps {
   onImageChange: (imageUrl: string | undefined) => void;
   className?: string;
   folder?: string;
+  showUrlInput?: boolean;
+  compact?: boolean;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ 
   currentImage, 
   onImageChange, 
   className = '',
-  folder = 'menu-images'
+  folder = 'menu-images',
+  showUrlInput = true,
+  compact = false
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadImage, deleteImage, uploading, uploadProgress } = useImageUpload(folder);
@@ -39,12 +43,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     if (currentImage) {
       try {
         await deleteImage(currentImage);
-        onImageChange(undefined);
       } catch (error) {
-        console.error('Error removing image:', error);
-        // Still remove from UI even if deletion fails
-        onImageChange(undefined);
+        console.warn('Error removing image from storage:', error);
       }
+      onImageChange('');
     }
   };
 
@@ -52,8 +54,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     fileInputRef.current?.click();
   };
 
+  const isCompactMode = compact || !showUrlInput;
+
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
       {currentImage ? (
         <div className="relative">
           <img
@@ -82,25 +86,33 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       ) : (
         <div
           onClick={triggerFileSelect}
-          className="w-full max-w-2xl border-2 border-dashed border-sky-300 rounded-2xl p-12 flex flex-col items-center justify-center cursor-pointer hover:border-sky-400 hover:bg-sky-50/50 transition-all duration-300 bg-gradient-to-br from-sky-50/30 to-blue-50/30"
+          className={`w-full max-w-2xl border-2 border-dashed border-sky-300 rounded-xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/50 transition-all duration-200 bg-gradient-to-br from-sky-50/30 to-blue-50/30 text-center ${
+            isCompactMode ? 'p-4 space-y-1' : 'p-10 space-y-2'
+          }`}
         >
           {uploading ? (
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Uploading... {uploadProgress}%</p>
-              <div className="w-32 bg-gray-200 rounded-full h-2 mt-2">
+            <div className="text-center py-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sky-600 mx-auto mb-1"></div>
+              <p className="text-xs text-gray-600">Uploading... {uploadProgress}%</p>
+              <div className="w-28 bg-gray-200 rounded-full h-1.5 mx-auto mt-1.5">
                 <div 
-                  className="bg-sky-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-sky-600 h-1.5 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
             </div>
+          ) : isCompactMode ? (
+            <div className="space-y-1">
+              <ImageIcon className="h-7 w-7 text-sky-500 mx-auto stroke-[1.75]" />
+              <p className="text-xs font-bold text-gray-800">Click to select thumbnail image</p>
+              <p className="text-[10px] text-gray-500">Supports JPG, PNG, WebP (Max 10MB)</p>
+            </div>
           ) : (
             <>
-              <ImageIcon className="h-16 w-16 text-sky-400 mb-4" />
-              <p className="text-lg font-medium text-gray-700 mb-2">Click to upload product image</p>
-              <p className="text-sm text-gray-500 mb-1">or drag and drop</p>
-              <p className="text-xs text-gray-400">All image formats (JPG, PNG, WebP, GIF, BMP, TIFF, SVG, HEIC) - max 10MB</p>
+              <ImageIcon className="h-14 w-14 text-sky-400 mx-auto mb-2" />
+              <p className="text-base font-medium text-gray-700 mb-1">Click to upload product image</p>
+              <p className="text-xs text-gray-500 mb-1">or drag and drop</p>
+              <p className="text-[11px] text-gray-400">All image formats (JPG, PNG, WebP, GIF, BMP, TIFF, SVG, HEIC) - max 10MB</p>
             </>
           )}
         </div>
@@ -115,7 +127,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         disabled={uploading}
       />
 
-      {!currentImage && (
+      {!currentImage && !isCompactMode && (
         <div className="flex items-center gap-3 flex-wrap">
           <button
             type="button"
@@ -126,22 +138,24 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             <Upload className="h-5 w-5" />
             <span>Choose File</span>
           </button>
-          <span className="text-sm text-gray-500">or enter URL below</span>
+          {showUrlInput && <span className="text-sm text-gray-500">or enter URL below</span>}
         </div>
       )}
 
       {/* URL Input as fallback */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Or enter image URL</label>
-        <input
-          type="url"
-          value={currentImage || ''}
-          onChange={(e) => onImageChange(e.target.value || undefined)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-          placeholder="https://example.com/image.jpg"
-          disabled={uploading}
-        />
-      </div>
+      {showUrlInput && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Or enter image URL</label>
+          <input
+            type="url"
+            value={currentImage ?? ''}
+            onChange={(e) => onImageChange(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+            placeholder="https://example.com/image.jpg"
+            disabled={uploading}
+          />
+        </div>
+      )}
     </div>
   );
 };

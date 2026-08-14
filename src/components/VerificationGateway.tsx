@@ -520,12 +520,7 @@ const VerificationGateway: FC<VerificationGatewayProps> = ({
                       }
                       delay={0.65}
                     >
-                      I confirm I am a{' '}
-                      <span className="text-gray-900 font-semibold">
-                        qualified researcher
-                      </span>{' '}
-                      purchasing for in vitro / laboratory research only —
-                      not for human or veterinary use.
+                      I confirm that I understand that peptides are intended for scientific and research use only.
                     </CheckboxRow>
                   </div>
 

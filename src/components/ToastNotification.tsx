@@ -36,24 +36,24 @@ const ICONS: Record<ToastType, React.ReactNode> = {
 
 const STYLES: Record<ToastType, { wrap: string; icon: string; bar: string }> = {
   success: {
-    wrap: 'bg-white border border-green-200 shadow-lg',
-    icon: 'text-green-500',
-    bar:  'bg-green-400',
+    wrap: 'bg-white dark:bg-slate-900 border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/50 shadow-lg',
+    icon: 'text-[#3C6CA8] dark:text-[#6A9BE0]',
+    bar:  'bg-[#3C6CA8]',
   },
   error: {
-    wrap: 'bg-white border border-red-200 shadow-lg',
+    wrap: 'bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/50 shadow-lg',
     icon: 'text-red-500',
     bar:  'bg-red-400',
   },
   warning: {
-    wrap: 'bg-white border border-amber-200 shadow-lg',
+    wrap: 'bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/50 shadow-lg',
     icon: 'text-amber-500',
     bar:  'bg-amber-400',
   },
   info: {
-    wrap: 'bg-white border border-brand-200 shadow-lg',
-    icon: 'text-brand-500',
-    bar:  'bg-brand-400',
+    wrap: 'bg-white dark:bg-slate-900 border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/50 shadow-lg',
+    icon: 'text-[#3C6CA8] dark:text-[#6A9BE0]',
+    bar:  'bg-[#3C6CA8]',
   },
 };
 

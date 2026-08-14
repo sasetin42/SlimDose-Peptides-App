@@ -39,6 +39,19 @@ const PopupManager: React.FC = () => {
   const [delaySeconds, setDelaySeconds] = useState(5);
   const [closeOnOutsideClick, setCloseOnOutsideClick] = useState(true);
 
+  // Important Notice Modal states
+  const [noticeTitle, setNoticeTitle] = useState('Important Notice');
+  const [noticeSubtitle, setNoticeSubtitle] = useState('Please read carefully before continuing');
+  const [noticeP1, setNoticeP1] = useState('');
+  const [noticeP2, setNoticeP2] = useState('');
+  const [noticeConsult, setNoticeConsult] = useState('');
+  const [noticeWarningPill, setNoticeWarningPill] = useState('');
+  const [noticeOrderDays, setNoticeOrderDays] = useState('');
+  const [noticeCutoffTime, setNoticeCutoffTime] = useState('');
+  const [noticeCourier, setNoticeCourier] = useState('');
+  const [noticeWeekendOrders, setNoticeWeekendOrders] = useState('');
+  const [noticeAgreeBtn, setNoticeAgreeBtn] = useState('');
+
   const [isSaving, setIsSaving] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
 
@@ -65,6 +78,19 @@ const PopupManager: React.FC = () => {
     setPageFilter(siteSettings.popup_page_filter ?? 'all');
     setDelaySeconds(Number(siteSettings.popup_delay_seconds ?? '5'));
     setCloseOnOutsideClick((siteSettings.popup_close_on_outside_click ?? 'true') === 'true');
+
+    // Important Notice Modal values
+    setNoticeTitle(siteSettings.notice_title ?? 'Important Notice');
+    setNoticeSubtitle(siteSettings.notice_subtitle ?? 'Please read carefully before continuing');
+    setNoticeP1(siteSettings.notice_disclaimer_p1 ?? 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.');
+    setNoticeP2(siteSettings.notice_disclaimer_p2 ?? 'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.');
+    setNoticeConsult(siteSettings.notice_consult_text ?? 'Always consult a licensed healthcare professional for health-related decisions.');
+    setNoticeWarningPill(siteSettings.notice_warning_pill ?? '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS');
+    setNoticeOrderDays(siteSettings.notice_order_days ?? 'Monday - Friday');
+    setNoticeCutoffTime(siteSettings.notice_cutoff_time ?? '5:00 PM Daily');
+    setNoticeCourier(siteSettings.notice_courier ?? 'Next Day via J&T');
+    setNoticeWeekendOrders(siteSettings.notice_weekend_orders ?? 'Processed Mondays');
+    setNoticeAgreeBtn(siteSettings.notice_agree_button_text ?? 'I Understand & Agree');
   }, [siteSettings]);
 
   const handleFile = async (file: File) => {
@@ -98,7 +124,18 @@ const PopupManager: React.FC = () => {
         popup_display_behavior: displayBehavior,
         popup_page_filter: pageFilter,
         popup_delay_seconds: String(delaySeconds),
-        popup_close_on_outside_click: closeOnOutsideClick ? 'true' : 'false'
+        popup_close_on_outside_click: closeOnOutsideClick ? 'true' : 'false',
+        notice_title: noticeTitle,
+        notice_subtitle: noticeSubtitle,
+        notice_disclaimer_p1: noticeP1,
+        notice_disclaimer_p2: noticeP2,
+        notice_consult_text: noticeConsult,
+        notice_warning_pill: noticeWarningPill,
+        notice_order_days: noticeOrderDays,
+        notice_cutoff_time: noticeCutoffTime,
+        notice_courier: noticeCourier,
+        notice_weekend_orders: noticeWeekendOrders,
+        notice_agree_button_text: noticeAgreeBtn,
       });
       setSavedToast(true);
       setTimeout(() => setSavedToast(false), 2200);
@@ -386,6 +423,152 @@ const PopupManager: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Important Notice Entry Modal Settings Section */}
+        <div className="mt-8 border-t border-gray-100 pt-6 space-y-5">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-600" />
+            <h3 className="text-base font-bold text-gray-900 uppercase tracking-wide">
+              Important Notice Entry Modal Customization
+            </h3>
+          </div>
+          <p className="text-xs text-gray-500">
+            Edit the disclaimers, warning banner, policy cards, and action text shown on the site-wide entry notice pop-up.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-amber-50/30 p-5 rounded-2xl border border-amber-200/50">
+            {/* Left Column: Titles & Disclaimers */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Notice Header Title</label>
+                <input
+                  type="text"
+                  value={noticeTitle}
+                  onChange={(e) => setNoticeTitle(e.target.value)}
+                  placeholder="Important Notice"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm outline-none bg-white focus:ring-2 focus:ring-amber-500/30"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Notice Header Subtitle</label>
+                <input
+                  type="text"
+                  value={noticeSubtitle}
+                  onChange={(e) => setNoticeSubtitle(e.target.value)}
+                  placeholder="Please read carefully before continuing"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm outline-none bg-white focus:ring-2 focus:ring-amber-500/30"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Disclaimer Paragraph 1</label>
+                <textarea
+                  rows={2}
+                  value={noticeP1}
+                  onChange={(e) => setNoticeP1(e.target.value)}
+                  placeholder="Sold strictly for research purposes only..."
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs outline-none bg-white focus:ring-2 focus:ring-amber-500/30 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Disclaimer Paragraph 2</label>
+                <textarea
+                  rows={2}
+                  value={noticeP2}
+                  onChange={(e) => setNoticeP2(e.target.value)}
+                  placeholder="Improper handling or use may carry risks..."
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs outline-none bg-white focus:ring-2 focus:ring-amber-500/30 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Healthcare Consult Text</label>
+                <input
+                  type="text"
+                  value={noticeConsult}
+                  onChange={(e) => setNoticeConsult(e.target.value)}
+                  placeholder="Always consult a licensed healthcare professional..."
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs outline-none bg-white focus:ring-2 focus:ring-amber-500/30"
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Red Pill & Policy Cards */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-rose-700 uppercase mb-1">Red Warning Pill Text</label>
+                <input
+                  type="text"
+                  value={noticeWarningPill}
+                  onChange={(e) => setNoticeWarningPill(e.target.value)}
+                  placeholder="✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS"
+                  className="w-full px-4 py-2 border border-rose-200 rounded-xl text-xs font-bold text-rose-800 outline-none bg-white focus:ring-2 focus:ring-rose-400/30"
+                />
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-amber-200/80 space-y-2">
+                <span className="text-xs font-extrabold text-amber-900 uppercase block">Policy Card Details</span>
+                
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Order Days</label>
+                  <input
+                    type="text"
+                    value={noticeOrderDays}
+                    onChange={(e) => setNoticeOrderDays(e.target.value)}
+                    placeholder="Monday - Friday"
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Cut-off Time</label>
+                  <input
+                    type="text"
+                    value={noticeCutoffTime}
+                    onChange={(e) => setNoticeCutoffTime(e.target.value)}
+                    placeholder="5:00 PM Daily"
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Courier</label>
+                  <input
+                    type="text"
+                    value={noticeCourier}
+                    onChange={(e) => setNoticeCourier(e.target.value)}
+                    placeholder="Next Day via J&T"
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Weekend Orders</label>
+                  <input
+                    type="text"
+                    value={noticeWeekendOrders}
+                    onChange={(e) => setNoticeWeekendOrders(e.target.value)}
+                    placeholder="Processed Mondays"
+                    className="w-full px-3 py-1.5 border border-gray-200 rounded-lg text-xs outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Agree Button Text</label>
+                <input
+                  type="text"
+                  value={noticeAgreeBtn}
+                  onChange={(e) => setNoticeAgreeBtn(e.target.value)}
+                  placeholder="I Understand & Agree"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-xs font-bold text-[#3C6CA8] outline-none bg-white focus:ring-2 focus:ring-[#3C6CA8]/30"
+                />
+              </div>
             </div>
           </div>
         </div>

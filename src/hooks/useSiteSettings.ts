@@ -48,7 +48,18 @@ export const useSiteSettings = () => {
         popup_display_behavior: settingsData.find(s => s.id === 'popup_display_behavior')?.value || 'once_visitor',
         popup_page_filter: settingsData.find(s => s.id === 'popup_page_filter')?.value || 'all',
         popup_delay_seconds: settingsData.find(s => s.id === 'popup_delay_seconds')?.value || '5',
-        popup_close_on_outside_click: settingsData.find(s => s.id === 'popup_close_on_outside_click')?.value || 'true'
+        popup_close_on_outside_click: settingsData.find(s => s.id === 'popup_close_on_outside_click')?.value || 'true',
+        notice_title: settingsData.find(s => s.id === 'notice_title')?.value || 'Important Notice',
+        notice_subtitle: settingsData.find(s => s.id === 'notice_subtitle')?.value || 'Please read carefully before continuing',
+        notice_disclaimer_p1: settingsData.find(s => s.id === 'notice_disclaimer_p1')?.value || 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.',
+        notice_disclaimer_p2: settingsData.find(s => s.id === 'notice_disclaimer_p2')?.value || 'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.',
+        notice_consult_text: settingsData.find(s => s.id === 'notice_consult_text')?.value || 'Always consult a licensed healthcare professional for health-related decisions.',
+        notice_warning_pill: settingsData.find(s => s.id === 'notice_warning_pill')?.value || '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS',
+        notice_order_days: settingsData.find(s => s.id === 'notice_order_days')?.value || 'Monday - Friday',
+        notice_cutoff_time: settingsData.find(s => s.id === 'notice_cutoff_time')?.value || '5:00 PM Daily',
+        notice_courier: settingsData.find(s => s.id === 'notice_courier')?.value || 'Next Day via J&T',
+        notice_weekend_orders: settingsData.find(s => s.id === 'notice_weekend_orders')?.value || 'Processed Mondays',
+        notice_agree_button_text: settingsData.find(s => s.id === 'notice_agree_button_text')?.value || 'I Understand & Agree'
       };
 
       setSiteSettings(settings);

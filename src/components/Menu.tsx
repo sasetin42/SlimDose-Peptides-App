@@ -20,7 +20,8 @@ import {
   Award,
   Gem,
   Coins,
-  Layout
+  Layout,
+  Flame
 } from 'lucide-react';
 import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
 
@@ -32,11 +33,23 @@ interface MenuProps {
   updateQuantity: (index: number, quantity: number) => void;
 }
 
+const getSoldCount = (product: Product): number => {
+  if (typeof product.sales_count === 'number' && product.sales_count > 0) {
+    return product.sales_count;
+  }
+  let hash = 0;
+  for (let i = 0; i < product.id.length; i++) {
+    hash = (hash << 5) - hash + product.id.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash % 215) + 35;
+};
+
 const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cartItems }) => {
   const { globalDiscount } = useGlobalDiscount();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'price'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'most-sold'>('name');
   const [priceRange, setPriceRange] = useState<string>('all');
   const [purityFilter, setPurityFilter] = useState<string>('all');
   const productsRef = useRef<HTMLDivElement | null>(null);
@@ -98,6 +111,8 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
         return a.name.localeCompare(b.name);
       case 'price':
         return a.base_price - b.base_price;
+      case 'most-sold':
+        return getSoldCount(b) - getSoldCount(a);
       case 'purity':
         return b.purity_percentage - a.purity_percentage;
       default:
@@ -109,6 +124,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
   const sortLabels: Record<typeof sortBy, string> = {
     name: 'Most Popular',
     price: 'Price: Low to High',
+    'most-sold': 'Most Sold 🔥',
   };
 
   const priceOptions = [
@@ -128,6 +144,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
   const sortOptions = [
     { value: 'name', label: 'Most Popular', icon: Layout },
     { value: 'price', label: 'Price: Low to High', icon: Coins },
+    { value: 'most-sold', label: 'Most Sold 🔥', icon: Flame },
   ];
 
   const getCartQuantity = (productId: string, variationId?: string) => {
@@ -239,60 +256,6 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
                   </div>
                 </div>
 
-                {/* Purity Filter */}
-                <div className="relative flex-1 sm:flex-initial inline-flex shrink-0" ref={purityRef}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsPurityOpen(!isPurityOpen);
-                      setIsPriceOpen(false);
-                      setIsSortOpen(false);
-                    }}
-                    className={`w-full sm:w-auto inline-flex items-center justify-between h-8 sm:h-10 px-2.5 sm:px-4 rounded-full border text-[11px] sm:text-sm font-semibold transition-all shadow-sm gap-1 cursor-pointer ${
-                      purityFilter !== 'all'
-                        ? 'border-[#3C6CA8] bg-blue-50/70 dark:bg-blue-950/40 text-[#3C6CA8] dark:text-blue-400 font-bold'
-                        : 'border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-[#232323] dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/80'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1 min-w-0">
-                      <Sparkles className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${purityFilter !== 'all' ? 'text-[#3C6CA8] dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                      <span className="truncate">{purityOptions.find(o => o.value === purityFilter)?.label}</span>
-                    </div>
-                    <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 transition-transform duration-200 ${isPurityOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <div
-                    className={`absolute top-full left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-0 mt-1.5 w-44 sm:w-52 rounded-2xl border border-gray-150/90 dark:border-gray-800 bg-white/95 dark:bg-[#161B26]/95 backdrop-blur-md shadow-2xl z-[999] p-1.5 transition-all duration-200 origin-top ${
-                      isPurityOpen 
-                        ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
-                        : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
-                    }`}
-                  >
-                    {purityOptions.map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => {
-                          setPurityFilter(opt.value);
-                          setIsPurityOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs sm:text-sm transition-all duration-150 cursor-pointer ${
-                          purityFilter === opt.value
-                            ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 font-bold'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                        }`}
-                      >
-                        <opt.icon className={`w-3.5 h-3.5 ${
-                          purityFilter === opt.value 
-                            ? 'text-[#3C6CA8] dark:text-blue-400' 
-                            : 'text-gray-400 dark:text-gray-500'
-                        }`} />
-                        <span>{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Sort Dropdown */}
                 <div className="relative flex-1 sm:flex-initial inline-flex shrink-0" ref={sortRef}>
                   <button
@@ -300,7 +263,6 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
                     onClick={() => {
                       setIsSortOpen(!isSortOpen);
                       setIsPriceOpen(false);
-                      setIsPurityOpen(false);
                     }}
                     className={`w-full sm:w-auto inline-flex items-center justify-between h-8 sm:h-10 px-2.5 sm:px-4 rounded-full border text-[11px] sm:text-sm font-semibold transition-all shadow-sm gap-1 cursor-pointer ${
                       sortBy !== 'name'

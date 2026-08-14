@@ -36,7 +36,20 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
 
   const [customer, setCustomer] = useState<any>(() => {
     const saved = localStorage.getItem('slimdose_customer');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.full_name?.includes('Demo') || parsed.email?.includes('biotech-research.org')) {
+          localStorage.removeItem('slimdose_customer');
+          return null;
+        }
+        return parsed;
+      } catch {
+        localStorage.removeItem('slimdose_customer');
+        return null;
+      }
+    }
+    return null;
   });
   const [isCustomerAuthOpen, setIsCustomerAuthOpen] = useState(false);
   const [isCustomerDashboardOpen, setIsCustomerDashboardOpen] = useState(false);
@@ -328,7 +341,11 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
                   title={`My Account (${customer.full_name})`}
                   aria-label="My Account"
                 >
-                  <UserIcon className="w-3.5 h-3.5 text-[#3C6CA8] dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                  {customer.avatar_url ? (
+                    <img src={customer.avatar_url} alt="" className="w-4 h-4 rounded-full object-cover ring-1 ring-[#3C6CA8]" />
+                  ) : (
+                    <UserIcon className="w-3.5 h-3.5 text-[#3C6CA8] dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                  )}
                   <span className="max-w-[130px] truncate">
                     {(() => {
                       const parts = customer.full_name.trim().split(' ');
@@ -355,7 +372,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
               <button
                 id="header-cart-btn"
                 onClick={onCartClick}
-                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-[#3C6CA8] to-blue-600 hover:from-blue-600 hover:to-[#2A5288] transition-all shadow-md hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer group ml-0.5"
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-[#3C6CA8] hover:bg-[#315A8E] transition-all shadow-md hover:shadow-lg hover:shadow-blue-500/20 cursor-pointer group ml-0.5"
                 aria-label={`Shopping cart, ${cartItemsCount} items`}
               >
                 <ShoppingCart className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />

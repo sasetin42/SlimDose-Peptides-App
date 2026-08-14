@@ -55,7 +55,7 @@ const AdminDashboard: React.FC = () => {
   const { categories } = useCategories();
   const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'payments' | 'inventory' | 'orders' | 'shipping' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents'>('dashboard');
 
-  // Check for existing admin session on mount
+  // Check for existing admin session on mount & sync deep-link URL hash
   useEffect(() => {
     const sessionRaw = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
     if (sessionRaw) {
@@ -69,6 +69,21 @@ const AdminDashboard: React.FC = () => {
         console.warn('Invalid admin session data:', e);
       }
     }
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      setCurrentView(hash as any);
+    }
+
+    const handleHashChange = () => {
+      const newHash = window.location.hash.replace('#', '');
+      if (newHash) {
+        setCurrentView(newHash as any);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -1369,6 +1384,12 @@ const AdminDashboard: React.FC = () => {
   };
 
   const renderProductsListView = () => {
+    const sortedProducts = [...products].sort((a, b) => {
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return timeB - timeA;
+    });
+
     return (
       <div className="w-full max-w-[1400px] mx-auto px-6 py-8">
         {/* Top bar */}
@@ -1426,7 +1447,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Mobile Card View */}
         <div className="md:hidden space-y-3">
-          {products.map((product) => {
+          {sortedProducts.map((product) => {
             const isSelected = selectedProducts.has(product.id);
             const hasSizes = !!(product.variations && product.variations.length > 0);
             return (
@@ -1540,7 +1561,7 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {products.map((product) => {
+                {sortedProducts.map((product) => {
                   const isSelected = selectedProducts.has(product.id);
                   const hasSizes = !!(product.variations && product.variations.length > 0);
                   return (
@@ -2217,32 +2238,59 @@ const AdminDashboard: React.FC = () => {
     );
   }
 
-  const menuItems = [
-    { label: 'Dashboard Overview', view: 'dashboard', icon: LayoutDashboard },
-    { label: 'Add New Product', view: 'add', icon: Plus, action: handleAddProduct },
-    { label: 'Manage Products', view: 'products', icon: Package },
-    { label: 'Manage Categories', view: 'categories', icon: FolderOpen },
-    { label: 'Payment Methods', view: 'payments', icon: CreditCard },
-    { label: 'Peptide Inventory', view: 'inventory', icon: Warehouse },
-    { label: 'Customer CRM', view: 'crm', icon: Users },
-    { label: 'Product Reviews', view: 'reviews', icon: Star },
-    { label: 'Invoice Verifications', view: 'verifications', icon: FileCheck },
-    { label: 'Peptalk Videos', view: 'peptalk-videos', icon: Video },
-    { label: 'Restock Reminders', view: 'restock-reminders', icon: Mail },
-    { label: 'Orders Management', view: 'orders', icon: ShoppingCart },
-    { label: 'Sales Analytics', view: 'analytics', icon: BarChart3 },
-    { label: 'Shipping Locations', view: 'shipping', icon: MapPin },
-    { label: 'Lab Results (COA)', view: 'coa', icon: Shield },
-    { label: 'Manage FAQ', view: 'faq', icon: HelpCircle },
-    { label: 'Promo Codes', view: 'promo-codes', icon: Tag },
-    { label: 'Global Discount', view: 'global-discount', icon: Sparkles },
-    { label: 'Peptalk', view: 'guides', icon: BookOpen },
-    { label: 'Popup', view: 'popup', icon: MessageSquare },
-    { label: 'Page Contents', view: 'page-contents', icon: FileText },
-    { label: 'Site Settings', view: 'settings', icon: Settings },
+  const menuCategories = [
+    {
+      title: 'Overview',
+      items: [
+        { label: 'Dashboard Overview', view: 'dashboard', icon: LayoutDashboard },
+        { label: 'Sales Analytics', view: 'analytics', icon: BarChart3 },
+      ]
+    },
+    {
+      title: 'Catalog & Inventory',
+      items: [
+        { label: 'Manage Products', view: 'products', icon: Package },
+        { label: 'Add New Product', view: 'add', icon: Plus, action: handleAddProduct },
+        { label: 'Manage Categories', view: 'categories', icon: FolderOpen },
+        { label: 'Peptide Inventory', view: 'inventory', icon: Warehouse },
+        { label: 'Lab Results (COA)', view: 'coa', icon: Shield },
+      ]
+    },
+    {
+      title: 'Orders & Customers',
+      items: [
+        { label: 'Orders Management', view: 'orders', icon: ShoppingCart },
+        { label: 'Invoice Verifications', view: 'verifications', icon: FileCheck },
+        { label: 'Customer CRM', view: 'crm', icon: Users },
+        { label: 'Restock Reminders', view: 'restock-reminders', icon: Mail },
+        { label: 'Payment Methods', view: 'payments', icon: CreditCard },
+        { label: 'Shipping Locations', view: 'shipping', icon: MapPin },
+      ]
+    },
+    {
+      title: 'Marketing & Content',
+      items: [
+        { label: 'Product Reviews', view: 'reviews', icon: Star },
+        { label: 'Peptalk Videos', view: 'peptalk-videos', icon: Video },
+        { label: 'Peptalk Articles', view: 'guides', icon: BookOpen },
+        { label: 'Promo Codes', view: 'promo-codes', icon: Tag },
+        { label: 'Global Discount', view: 'global-discount', icon: Sparkles },
+        { label: 'Manage FAQ', view: 'faq', icon: HelpCircle },
+        { label: 'Popup Banners', view: 'popup', icon: MessageSquare },
+        { label: 'Page Contents', view: 'page-contents', icon: FileText },
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { label: 'Site Settings', view: 'settings', icon: Settings },
+      ]
+    }
   ];
 
-  const isItemActive = (item: typeof menuItems[0]) => {
+  const allMenuItems = menuCategories.flatMap(c => c.items);
+
+  const isItemActive = (item: typeof allMenuItems[0]) => {
     if (item.view === currentView) return true;
     if (item.view === 'products' && (currentView === 'add' || currentView === 'edit')) return true;
     return false;
@@ -2289,9 +2337,9 @@ const AdminDashboard: React.FC = () => {
       case 'global-discount':
         return 'Global Discount';
       case 'guides':
-        return 'Peptalk';
+        return 'Peptalk Articles';
       case 'popup':
-        return 'Popup';
+        return 'Popup Banners';
       case 'page-contents':
         return 'Page Contents';
       case 'settings':
@@ -2309,29 +2357,30 @@ const AdminDashboard: React.FC = () => {
         {isMobileMenuOpen && (
           <div
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+            className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-md lg:hidden transition-opacity duration-300"
           />
         )}
 
         {/* Left Sidebar (Responsive Drawer on Mobile, Fixed on Desktop) */}
-        <aside className={`w-72 bg-slate-900 text-slate-300 flex flex-col fixed top-0 bottom-0 left-0 z-50 border-r border-slate-800 transition-transform duration-300 ease-in-out ${
+        <aside className={`w-72 bg-slate-900 text-slate-300 flex flex-col fixed top-0 bottom-0 left-0 z-50 border-r border-slate-800/80 shadow-2xl lg:shadow-none transition-transform duration-300 ease-in-out ${
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
           {/* Sidebar Header */}
-          <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-3">
+          <div className="p-5 border-b border-slate-800/80 flex items-center justify-between gap-3 bg-slate-950/30">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-700 shrink-0">
+              <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner shrink-0 bg-white p-0.5">
                 <img
                   src="/assets/logo.jpeg"
                   alt="SlimDose Peptides"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="min-w-0">
-                <h1 className="text-sm font-bold text-white truncate">
+                <h1 className="text-sm font-bold text-white tracking-wide truncate">
                   SlimDose Peptides
                 </h1>
-                <p className="text-xs text-slate-400 truncate">
+                <p className="text-[11px] font-medium text-blue-400 truncate flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Admin Console
                 </p>
               </div>
@@ -2339,7 +2388,7 @@ const AdminDashboard: React.FC = () => {
             {/* Close Button for Mobile Drawer */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               title="Close Menu"
             >
               <X className="w-5 h-5" />
@@ -2347,52 +2396,66 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-800">
+          <nav className="flex-1 overflow-y-auto px-3.5 py-4 space-y-5 custom-scrollbar">
             {(() => {
               const isStaff = adminSession?.role === 'content_editor' || adminSession?.role === 'order_manager';
-              const filteredMenuItems = menuItems.filter(item => {
-                if (isStaff) {
-                  const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
-                  if (disallowed.includes(item.view)) return false;
-                }
-                return true;
-              });
+              const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
 
-              return filteredMenuItems.map((item) => {
-                const Icon = item.icon;
-                const active = isItemActive(item);
+              return menuCategories.map((category) => {
+                const filteredItems = category.items.filter(item => {
+                  if (isStaff && disallowed.includes(item.view)) return false;
+                  return true;
+                });
+
+                if (filteredItems.length === 0) return null;
+
                 return (
-                  <button
-                    key={item.label}
-                    onClick={() => {
-                      if (item.action) {
-                        handleViewChange(item.view, item.action);
-                      } else if (item.view) {
-                        handleViewChange(item.view);
-                      }
-                    }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-semibold transition-all group relative ${
-                      active
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/10'
-                        : 'hover:bg-slate-800/60 hover:text-slate-100'
-                    }`}
-                  >
-                    {/* Left Active indicator bar */}
-                    {active && (
-                      <span className="absolute left-0 top-3 bottom-3 w-1 bg-white rounded-r" />
-                    )}
-                    <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${active ? 'text-white' : 'text-slate-400'}`} />
-                    <span className="truncate">{item.label}</span>
-                  </button>
+                  <div key={category.title} className="space-y-1">
+                    <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                      {category.title}
+                    </div>
+
+                    <div className="space-y-1">
+                      {filteredItems.map((item) => {
+                        const Icon = item.icon;
+                        const active = isItemActive(item);
+                        const hashHref = `#${item.view}`;
+                        return (
+                          <a
+                            key={item.label}
+                            href={hashHref}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.hash = item.view;
+                              if (item.action) {
+                                handleViewChange(item.view, item.action);
+                              } else if (item.view) {
+                                handleViewChange(item.view);
+                              }
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left text-xs font-medium transition-all group relative cursor-pointer ${
+                              active
+                                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/25 ring-1 ring-blue-400/30'
+                                : 'hover:bg-slate-800/70 hover:text-slate-100 text-slate-400'
+                            }`}
+                          >
+                            <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                            <span className="truncate">{item.label}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               });
             })()}
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-slate-800 bg-slate-950/40">
+          <div className="p-4 border-t border-slate-800/80 bg-slate-950/60 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs shrink-0">
                 {adminSession?.name ? adminSession.name[0].toUpperCase() : 'A'}
               </div>
               <div className="min-w-0">
@@ -2411,13 +2474,13 @@ const AdminDashboard: React.FC = () => {
                 href="/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-grow text-center py-2 rounded-lg border border-slate-800 bg-slate-900 text-[10px] font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition-all"
+                className="flex-grow text-center py-2 px-3 rounded-lg border border-slate-800 bg-slate-900/90 text-[11px] font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all shadow-xs"
               >
                 View Site ↗
               </a>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-505 text-rose-500 hover:text-white transition-all flex items-center justify-center shrink-0"
+                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center shrink-0 border border-rose-500/20"
                 title="Logout"
               >
                 <LogOut className="w-3.5 h-3.5" />

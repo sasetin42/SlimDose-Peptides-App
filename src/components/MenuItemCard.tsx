@@ -1,29 +1,39 @@
-import React, { useState, useRef } from 'react';
-import { ShoppingCart, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Flame } from 'lucide-react';
 import type { Product, ProductVariation, GlobalDiscount } from '../types';
 import { resolveProductPricing } from '../utils/pricing';
 
 interface MenuItemCardProps {
   product: Product;
-  onAddToCart: (product: Product, variation?: ProductVariation, quantity?: number) => void;
+  onAddToCart?: (product: Product, variation?: ProductVariation, quantity?: number) => void;
   cartQuantity?: number;
   onUpdateQuantity?: (index: number, quantity: number) => void;
   onProductClick?: (product: Product) => void;
   globalDiscount?: GlobalDiscount | null;
 }
 
+const getSoldCount = (product: Product): number => {
+  if (typeof product.sales_count === 'number' && product.sales_count > 0) {
+    return product.sales_count;
+  }
+  // Deterministic seed based on product id for high-contrast presentation
+  let hash = 0;
+  for (let i = 0; i < product.id.length; i++) {
+    hash = (hash << 5) - hash + product.id.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash % 215) + 35;
+};
+
 const MenuItemCard: React.FC<MenuItemCardProps> = ({
   product,
   cartQuantity = 0,
   onProductClick,
-  onAddToCart,
   globalDiscount,
 }) => {
   const [imageError, setImageError] = useState(false);
-  const [addedAnim, setAddedAnim] = useState(false);
-  const [flyActive, setFlyActive] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const flyDotRef = useRef<HTMLSpanElement>(null);
+
+  const soldCount = getSoldCount(product);
 
   const firstAvailableVariation = product.variations && product.variations.length > 0
     ? (product.variations.find(v => v.stock_quantity > 0) || product.variations[0])
@@ -43,48 +53,11 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
   const handleClick = () => onProductClick?.(product);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isUnavailable) return;
-
-    // Launch flying dot toward cart icon
-    if (cardRef.current) {
-      const cartBtn = document.getElementById('header-cart-btn');
-      if (cartBtn && flyDotRef.current) {
-        const cardRect = cardRef.current.getBoundingClientRect();
-        const cartRect = cartBtn.getBoundingClientRect();
-        const dx = cartRect.left + cartRect.width / 2 - (cardRect.left + cardRect.width / 2);
-        const dy = cartRect.top + cartRect.height / 2 - (cardRect.top + cardRect.height / 2);
-        if (flyDotRef.current) {
-          flyDotRef.current.style.setProperty('--fly-end', `translate(${dx}px, ${dy}px)`);
-        }
-        setFlyActive(true);
-        setTimeout(() => setFlyActive(false), 700);
-      }
-    }
-
-    // Button animation
-    setAddedAnim(true);
-    setTimeout(() => setAddedAnim(false), 1200);
-
-    onAddToCart(product, firstAvailableVariation, 1);
-  };
-
   return (
     <div
-      ref={cardRef}
       onClick={handleClick}
       className="relative bg-white dark:bg-[#161B26] rounded-2xl shadow-soft hover:shadow-[0_16px_40px_rgba(60,108,168,0.14)] flex flex-col group cursor-pointer overflow-hidden border border-gray-200/80 dark:border-slate-800/80 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-[#3C6CA8]/40 active:scale-[0.985] h-full"
     >
-      {/* Flying dot animation */}
-      {flyActive && (
-        <span
-          ref={flyDotRef}
-          className="animate-fly-to-cart pointer-events-none absolute z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full"
-          style={{ backgroundColor: '#3C6CA8' }}
-        />
-      )}
-
       {/* Product Image Container */}
       <div className="relative aspect-square overflow-hidden bg-gradient-to-tr from-gray-50 via-white to-blue-50/30 dark:from-slate-900 dark:to-slate-850">
         <img
@@ -134,12 +107,19 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
       {/* Product Details Area */}
       <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between text-left">
         <div>
-          {/* Category Tag if available */}
-          {product.category && (
-            <p className="text-[10px] uppercase font-bold tracking-wider text-[#3C6CA8] dark:text-blue-400 mb-0.5 truncate">
-              {product.category}
-            </p>
-          )}
+          {/* Category Tag & Sold Details Pill */}
+          <div className="flex items-center justify-between gap-1 mb-1 flex-wrap">
+            {product.category ? (
+              <p className="text-[10px] uppercase font-bold tracking-wider text-[#3C6CA8] dark:text-blue-400 truncate">
+                {product.category}
+              </p>
+            ) : <span />}
+            
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold bg-[#3C6CA8] text-white border border-[#3C6CA8] shadow-xs shrink-0">
+              <Flame className="w-2.5 h-2.5 text-amber-300 fill-amber-300 animate-pulse shrink-0" />
+              <span>{soldCount} sold</span>
+            </div>
+          </div>
 
           {/* Product Title */}
           <h3 className="font-bold text-[#232323] dark:text-gray-100 text-[13px] sm:text-[15px] leading-snug w-full truncate group-hover:text-[#3C6CA8] transition-colors mb-1" title={product.name}>
@@ -162,37 +142,9 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           </div>
 
           {/* Description */}
-          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-tight mb-2">
+          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-tight">
             {product.description}
           </p>
-        </div>
-
-        {/* Add to Cart Button */}
-        <div className="pt-1.5 mt-auto">
-          <button
-            id={`atc-${product.id}`}
-            onClick={handleAddToCart}
-            disabled={isUnavailable}
-            className={`w-full py-2 sm:py-2.5 px-3 rounded-full text-white text-[11px] sm:text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 relative overflow-hidden shadow-sm hover:shadow-md cursor-pointer ${
-              isUnavailable
-                ? 'opacity-50 cursor-not-allowed bg-gray-300 dark:bg-gray-700'
-                : addedAnim
-                  ? 'bg-emerald-600 scale-95'
-                  : 'bg-[#3C6CA8] hover:bg-[#315A8E] active:scale-95'
-            }`}
-          >
-            {addedAnim ? (
-              <>
-                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Added!</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-3.5 h-3.5" />
-                <span>Add to Cart</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
     </div>

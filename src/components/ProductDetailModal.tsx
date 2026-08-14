@@ -22,11 +22,14 @@ import {
   Lightbulb,
   CreditCard,
   Copy,
+  QrCode,
+  CheckCircle2,
 } from 'lucide-react';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier, Protocol } from '../types';
 import { resolveProductPricing, pickBundleTier } from '../utils/pricing';
 import { getCompoundDetails, getMockCoas, getReferences } from '../data/biotechData';
 import { motion, AnimatePresence } from 'framer-motion';
+import { fireToast } from './ToastNotification';
 import { ProductPeptideCalculator } from './ProductPeptideCalculator';
 import { ProductReviews } from './ProductReviews';
 
@@ -56,20 +59,20 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
 
   return (
     <div className="mt-6 w-full">
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-4 gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
         <div>
-          <span className="text-xs font-semibold tracking-wider text-blue-600 dark:text-blue-400 uppercase">Independent Verification</span>
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">Certificate of Analysis</h3>
+          <span className="text-[10px] sm:text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#3C6CA8] uppercase">Independent Verification</span>
+          <h3 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5">Certificate of Analysis</h3>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
-            <ShieldCheck className="w-3.5 h-3.5" /> Third Party Tested
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
+            <ShieldCheck className="w-3 h-3" /> Third Party Tested
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800">
-            <Atom className="w-3.5 h-3.5" /> Research Grade
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 shrink-0">
+            <Atom className="w-3 h-3" /> Research Grade
           </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800">
-            <Shield className="w-3.5 h-3.5" /> High Purity Verified
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800 shrink-0">
+            <Shield className="w-3 h-3" /> High Purity Verified
           </span>
         </div>
       </div>
@@ -112,7 +115,7 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
                       cx="28"
                       cy="28"
                       r={radius}
-                      stroke="rgba(59,130,246,0.1)"
+                      stroke="rgba(60,108,168,0.15)"
                       strokeWidth="3.5"
                       fill="transparent"
                     />
@@ -120,7 +123,7 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
                       cx="28"
                       cy="28"
                       r={radius}
-                      stroke="#3B82F6"
+                      stroke="#3C6CA8"
                       strokeWidth="3.5"
                       fill="transparent"
                       strokeDasharray={circumference}
@@ -162,7 +165,7 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
               <div className="grid grid-cols-2 gap-2 mt-auto">
                 <button
                   onClick={() => onQuickView(rec.coaUrl)}
-                  className="flex items-center justify-center gap-1.5 py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-blue-600 transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[#3C6CA8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
                 >
                   <Microscope className="w-3.5 h-3.5" /> Quick View
                 </button>
@@ -170,7 +173,7 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
                   href={rec.coaUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-xs font-semibold text-white transition-colors"
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#3C6CA8] hover:bg-[#315A8E] rounded-xl text-xs font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
                 >
                   <Download className="w-3.5 h-3.5" /> Download
                 </a>
@@ -220,11 +223,11 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
     <div className="mt-8 w-full flex flex-col items-center">
       <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-800 pb-4 w-full gap-2">
         <div className="text-left">
-          <span className="text-xs font-bold tracking-wider text-blue-600 dark:text-blue-400 uppercase">Chemical Profile &amp; Specifications</span>
+          <span className="text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#3C6CA8] uppercase">Chemical Profile &amp; Specifications</span>
           <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-0.5">Compound Information</h3>
         </div>
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800">
-          <Atom className="w-3.5 h-3.5 text-blue-500" /> Lab Verified Data
+          <Atom className="w-3.5 h-3.5 text-[#3C6CA8]" /> Lab Verified Data
         </span>
       </div>
 
@@ -237,13 +240,13 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex-shrink-0 cursor-pointer ${
+              className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                 isActive
-                  ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-md scale-[1.02]'
+                  ? 'bg-[#3C6CA8] text-white shadow-md scale-[1.02]'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
               {tab.label}
             </button>
           );
@@ -514,68 +517,65 @@ const ImportantResearchNoticeSection: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="mt-8 w-full">
+    <div className="mt-4 w-full">
       <motion.div
-        className="relative rounded-3xl border border-amber-500/30 dark:border-amber-500/20 bg-amber-500/5 dark:bg-amber-950/5 backdrop-blur-md p-4 sm:p-6 overflow-hidden shadow-sm text-left"
+        className="relative rounded-2xl border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/20 bg-[#3C6CA8]/5 dark:bg-[#3C6CA8]/10 p-3 sm:p-4 overflow-hidden shadow-xs text-left"
         initial={{ opacity: 0, scale: 0.98 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
       >
-        <div>
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/40 dark:border-amber-800/40">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold tracking-wider uppercase bg-[#3C6CA8]/15 text-[#3C6CA8] dark:bg-[#3C6CA8]/30 dark:text-blue-200 border border-[#3C6CA8]/30">
                 Warning
               </span>
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200/40 dark:border-blue-800/40">
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold tracking-wider uppercase bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-blue-300 border border-[#3C6CA8]/20">
                 Research Use Only
               </span>
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200/40 dark:border-purple-800/40">
+              <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold tracking-wider uppercase bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-blue-300 border border-[#3C6CA8]/20">
                 Compliance Verified
               </span>
             </div>
-
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-              Important Safety &amp; Compliance Notice
-            </h3>
-
-            <p className="text-xs sm:text-sm text-gray-700 dark:text-slate-300 leading-relaxed font-semibold">
-              This product is sold exclusively for laboratory and in vitro research use only. Not for human or veterinary administration.
-            </p>
-
-            {/* Read More Dropdown Toggle */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => setExpanded(!expanded)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 transition-colors cursor-pointer"
-              >
-                <span>{expanded ? 'Show Less' : 'Read More Details'}</span>
-                <span className="text-[10px]">{expanded ? '▲' : '▼'}</span>
-              </button>
-            </div>
-
-            {expanded && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-xs text-gray-600 dark:text-slate-400 leading-relaxed space-y-2 border-t border-amber-200/40 dark:border-slate-800 pt-3 mt-2"
-              >
-                <p>
-                  • Any research concerning this chemical should only be conducted by qualified scientists in suitable, certified laboratory environments utilizing proper safety equipment (chemical goggles, gloves, lab coats, and certified biosafety cabinets).
-                </p>
-                <p>
-                  • Slimdose Peptides makes no warranties, express or implied, as to the applicability of this compound for any specific biological purpose.
-                </p>
-                <p>
-                  • By placing an order, the buyer acknowledges the hazards associated with handling these materials and accepts all responsibility for the safe containment, study, and disposal of this compound.
-                </p>
-              </motion.div>
-            )}
+            
+            <button
+              type="button"
+              onClick={() => setExpanded(!expanded)}
+              className="inline-flex items-center gap-1 text-[11px] font-extrabold text-[#3C6CA8] dark:text-blue-400 hover:text-[#315A8E] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] rounded"
+            >
+              <span>{expanded ? 'Show Less' : 'Read More Details'}</span>
+              <span className="text-[9px]">{expanded ? '▲' : '▼'}</span>
+            </button>
           </div>
+
+          <h3 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white leading-tight">
+            Important Safety &amp; Compliance Notice
+          </h3>
+
+          <p className="text-[11px] sm:text-xs text-gray-700 dark:text-slate-300 leading-snug font-medium">
+            This product is sold exclusively for laboratory and in vitro research use only. Not for human or veterinary administration.
+          </p>
+
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-[11px] text-gray-600 dark:text-slate-400 leading-relaxed space-y-1.5 border-t border-[#3C6CA8]/20 dark:border-slate-800 pt-2.5 mt-1.5"
+            >
+              <p>
+                • Any research concerning this chemical should only be conducted by qualified scientists in suitable, certified laboratory environments utilizing proper safety equipment (chemical goggles, gloves, lab coats, and certified biosafety cabinets).
+              </p>
+              <p>
+                • Slimdose Peptides makes no warranties, express or implied, as to the applicability of this compound for any specific biological purpose.
+              </p>
+              <p>
+                • By placing an order, the buyer acknowledges the hazards associated with handling these materials and accepts all responsibility for the safe containment, study, and disposal of this compound.
+              </p>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </div>
@@ -658,10 +658,33 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   });
   const decrementQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
 
+  const [addedSuccess, setAddedSuccess] = useState(false);
+
   const handleAddToCart = () => {
     const priceToUse = pricing.hasGlobalDiscount ? unitPrice : undefined;
+    
+    // Call props callback
     onAddToCart(product, selectedVariation, quantity, priceToUse);
-    if (!asPage) onClose();
+    
+    // Dispatch global custom event for cart listeners
+    window.dispatchEvent(
+      new CustomEvent('addToCart', {
+        detail: { product, variation: selectedVariation, quantity, priceOverride: priceToUse }
+      })
+    );
+
+    // Show visual confirmation animation on button
+    setAddedSuccess(true);
+    setTimeout(() => setAddedSuccess(false), 2000);
+
+    // Trigger toast notification confirmation
+    fireToast(`Added ${quantity}x ${product.name}${selectedVariation ? ` (${selectedVariation.name})` : ''} to your cart! 🛒`, 'success', 4000);
+
+    if (!asPage) {
+      setTimeout(() => {
+        onClose();
+      }, 500);
+    }
   };
 
   const sortedTiers = (bundleTiers ?? [])
@@ -695,12 +718,12 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08)_0,transparent_70%)] pointer-events-none" />
       
       {/* Floating Badges */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 shadow-sm">
-        <Atom className="w-3 h-3 text-blue-500 animate-spin-slow" /> Research Grade
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wide uppercase bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-[#3C6CA8] dark:text-blue-300 border border-[#3C6CA8]/30 dark:border-blue-800/50 shadow-sm">
+        <Atom className="w-2.5 h-2.5 text-[#3C6CA8] animate-spin-slow" /> Research Grade
       </div>
 
       {hasDiscount && (
-        <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-red-500 text-white shadow-md">
+        <div className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase bg-red-500 text-white shadow-md">
           {discountPercent}% OFF
         </div>
       )}
@@ -746,18 +769,13 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap justify-center sm:justify-end min-w-0">
-          <span className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-[10px] font-bold inline-flex items-center gap-1 shadow-2xs">
-            <CreditCard className="w-3 h-3 text-[#3C6CA8]" /> Credit Cards
-          </span>
           <span className="px-2.5 py-1 rounded-xl bg-blue-50/90 text-[#3C6CA8] border border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60 text-[10px] font-bold inline-flex items-center gap-1 shadow-2xs">
-            <Zap className="w-3 h-3 text-blue-500 animate-pulse" /> Installment
+            <QrCode className="w-3.5 h-3.5 text-[#3C6CA8] dark:text-blue-400" /> QR Scan Payment
           </span>
           <div className="flex items-center gap-1">
-            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[9px] font-black bg-white dark:bg-slate-950 shadow-2xs">VISA</span>
-            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[9px] font-black bg-white dark:bg-slate-950 shadow-2xs">MC</span>
-            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-blue-700 dark:text-blue-300 text-[9px] font-bold bg-white dark:bg-slate-950 shadow-2xs">GCash</span>
-            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold bg-white dark:bg-slate-950 shadow-2xs">Maya</span>
-            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 text-[9px] font-black bg-white dark:bg-slate-950 shadow-2xs">Billease</span>
+            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-blue-700 dark:text-blue-300 text-[9.5px] font-extrabold bg-white dark:bg-slate-950 shadow-2xs">GCash</span>
+            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-rose-700 dark:text-rose-400 text-[9.5px] font-extrabold bg-white dark:bg-slate-950 shadow-2xs">CIMB</span>
+            <span className="px-2 py-0.5 rounded-md border border-slate-200/80 dark:border-slate-700 text-blue-900 dark:text-blue-200 text-[9.5px] font-extrabold bg-white dark:bg-slate-950 shadow-2xs">BDO</span>
           </div>
         </div>
       </div>
@@ -768,8 +786,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     <div className="w-full flex flex-col text-left space-y-4">
       <div>
         {product.category && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/40 text-[#3C6CA8] dark:text-blue-300 text-[11px] font-bold uppercase tracking-wider mb-2 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3C6CA8] dark:bg-blue-400 animate-pulse" />
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 dark:bg-blue-950/40 border border-[#3C6CA8]/30 dark:border-blue-800/40 text-[#3C6CA8] dark:text-blue-300 text-[8px] font-extrabold uppercase tracking-wider mb-2 shadow-2xs">
+            <span className="w-1 h-1 rounded-full bg-[#3C6CA8] dark:bg-blue-400 animate-pulse" />
             {product.category}
           </div>
         )}
@@ -802,7 +820,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       <button 
         type="button"
         onClick={() => setDosingOpen(true)}
-        className="w-full group relative overflow-hidden rounded-2xl border border-blue-200/80 dark:border-slate-800 bg-gradient-to-r from-blue-50/90 via-slate-50/60 to-blue-50/80 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-blue-950/50 p-3 sm:p-4 text-left shadow-sm hover:shadow-md hover:border-[#3C6CA8] transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        className="w-full group relative overflow-hidden rounded-2xl border border-blue-200/80 dark:border-slate-800 bg-gradient-to-r from-blue-50/90 via-slate-50/60 to-blue-50/80 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-blue-950/50 p-3 sm:p-4 text-left shadow-sm hover:shadow-md hover:border-[#3C6CA8] transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
       >
         <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 dark:bg-blue-400/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center border border-[#3C6CA8]/20 group-hover:scale-110 transition-transform mt-0.5 sm:mt-0">
@@ -833,7 +851,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       {product.linked_peptalk_id && (
         <a
           href={`/peptalk/${product.linked_peptalk_id}`}
-          className="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:hover:bg-blue-950/50 dark:text-blue-300 py-2 rounded-xl font-bold text-[11px] tracking-wide transition-all duration-200 flex items-center justify-center gap-1.5 border border-blue-100 dark:border-blue-900/40 text-center shadow-2xs"
+          className="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:hover:bg-blue-950/50 dark:text-blue-300 py-2 rounded-xl font-bold text-[11px] tracking-wide transition-all duration-200 flex items-center justify-center gap-1.5 border border-blue-100 dark:border-blue-900/40 text-center shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
         >
           <BookOpen className="w-3.5 h-3.5" />
           View Protocol / Guide
@@ -883,12 +901,12 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
       {/* Inclusions (if set product - Ultra-Compact) */}
       {product.inclusions && product.inclusions.length > 0 && (
-        <div className="rounded-xl bg-gradient-to-br from-amber-50/40 via-orange-50/20 to-amber-50/30 dark:from-slate-900/80 dark:via-amber-950/10 dark:to-slate-900 border border-amber-200/50 dark:border-slate-800 p-2.5 sm:p-3 text-left shadow-2xs">
-          <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-amber-200/40 dark:border-slate-800">
-            <p className="text-[11px] font-extrabold tracking-wider text-amber-900 dark:text-amber-300 uppercase flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5 text-amber-500" /> Set Includes
+        <div className="rounded-xl bg-[#3C6CA8]/5 dark:bg-slate-900/80 border border-[#3C6CA8]/30 dark:border-[#3C6CA8]/40 p-2.5 sm:p-3 text-left shadow-2xs">
+          <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[#3C6CA8]/20 dark:border-slate-800">
+            <p className="text-[11px] font-extrabold tracking-wider text-[#3C6CA8] dark:text-[#6A9BE0] uppercase flex items-center gap-1">
+              <Zap className="w-3.5 h-3.5 text-[#3C6CA8]" /> Set Includes
             </p>
-            <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+            <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-[#3C6CA8]/15 text-[#3C6CA8] dark:text-[#94BBE9] border border-[#3C6CA8]/30">
               {product.inclusions.length} Items Included
             </span>
           </div>
@@ -896,9 +914,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             {product.inclusions.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 p-1.5 px-2 rounded-lg bg-white/70 dark:bg-slate-900/50 border border-amber-100/60 dark:border-slate-800/60 shadow-2xs"
+                className="flex items-center gap-2 p-1.5 px-2 rounded-lg bg-white/80 dark:bg-slate-900/50 border border-[#3C6CA8]/20 dark:border-slate-800/60 shadow-2xs"
               >
-                <div className="flex-shrink-0 w-4 h-4 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-[9px] border border-emerald-500/20">
+                <div className="flex-shrink-0 w-4 h-4 rounded bg-[#3C6CA8]/15 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center font-bold text-[9px] border border-[#3C6CA8]/30">
                   ✓
                 </div>
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate" title={item}>
@@ -923,10 +941,10 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                   key={variation.id}
                   onClick={() => !outOfStock && setSelectedVariation(variation)}
                   disabled={outOfStock}
-                  className={`px-5 py-2 rounded-full border text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-5 py-2 rounded-full border text-sm font-semibold transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                     isSelected
-                      ? 'bg-brand-500 text-white border-brand-500 shadow-[0_0_15px_rgba(59,130,246,0.55)] scale-105'
-                      : 'bg-white dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border-charcoal-200 dark:border-slate-800 hover:border-brand-400 hover:text-brand-600'
+                      ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-[0_0_15px_rgba(60,108,168,0.4)] scale-105'
+                      : 'bg-white dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border-charcoal-200 dark:border-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8]'
                   } ${outOfStock ? 'opacity-40 cursor-not-allowed line-through' : ''}`}
                 >
                   {variation.name}
@@ -945,7 +963,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             <button
               onClick={decrementQuantity}
               aria-label="Decrease quantity"
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[#232323] dark:text-slate-350 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer shadow-2xs"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[#232323] dark:text-slate-350 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
             >
               <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
@@ -953,7 +971,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             <button
               onClick={incrementQuantity}
               aria-label="Increase quantity"
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[#232323] dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer shadow-2xs"
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-[#232323] dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-colors cursor-pointer shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
             >
               <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </button>
@@ -1010,14 +1028,14 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                     key={i}
                     type="button"
                     onClick={() => setQuantity(card.qty)}
-                    className={`relative rounded-2xl border transition-all duration-300 p-2 text-left cursor-pointer flex flex-col justify-between min-h-[92px] sm:min-h-[102px] group ${
+                    className={`relative rounded-2xl border transition-all duration-300 p-2 text-left cursor-pointer flex flex-col justify-between min-h-[92px] sm:min-h-[102px] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                       isSelected
                         ? 'border-[#3C6CA8] bg-gradient-to-b from-blue-50/90 to-blue-100/40 dark:from-slate-800/90 dark:to-blue-950/40 shadow-md ring-2 ring-[#3C6CA8]/40 scale-[1.02]'
                         : 'border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 hover:border-[#3C6CA8]/60 hover:bg-blue-50/30'
                     }`}
                   >
                     {card.mostPopular && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wider uppercase bg-gradient-to-r from-blue-600 to-[#3C6CA8] text-white shadow-sm whitespace-nowrap z-10">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wider uppercase bg-gradient-to-r from-[#3C6CA8] to-[#2A5288] text-white shadow-sm whitespace-nowrap z-10">
                         Popular
                       </span>
                     )}
@@ -1065,7 +1083,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         {coaUrl ? (
           <button
             onClick={() => setCoaPreviewImage(coaUrl)}
-            className="px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 text-[#232323] dark:text-white text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8] transition-all duration-200 inline-flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm hover:shadow-md active:scale-95"
+            className="px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 text-[#232323] dark:text-white text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8] transition-all duration-200 inline-flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm hover:shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
           >
             <FileText className="w-4 h-4 text-[#3C6CA8]" />
             COA
@@ -1082,10 +1100,23 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          className={`flex-1 py-3 px-6 rounded-2xl text-white text-xs sm:text-sm font-extrabold tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-[#3C6CA8] via-blue-600 to-[#2A5288] hover:from-[#315A8E] hover:to-[#214373] text-white`}
+          className={`flex-1 py-3 px-6 rounded-2xl text-white text-xs sm:text-sm font-extrabold tracking-wide transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+            addedSuccess
+              ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 shadow-emerald-500/30 scale-105'
+              : 'bg-[#3C6CA8] hover:bg-[#315A8E]'
+          }`}
         >
-          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-          {!isOutOfStock && <ShoppingCart className="w-4 h-4" />}
+          {isOutOfStock ? (
+            'Out of Stock'
+          ) : addedSuccess ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 text-white animate-bounce" /> Added to Cart!
+            </>
+          ) : (
+            <>
+              Add to Cart <ShoppingCart className="w-4 h-4" />
+            </>
+          )}
         </button>
       </div>
 
@@ -1106,9 +1137,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       <CompoundInformationSection
         product={product}
         protocols={protocols}
-      />
-      <SourcesReferencesSection
-        category={product.category}
       />
     </>
   );
@@ -1143,10 +1171,10 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             </div>
           </div>
 
-          {/* Biotech sections underneath */}
+          {/* Product Reviews placed above Peptide Dosage Calculator */}
           <div className="w-full space-y-8">
-            {biotechSectionsCommon}
             <ProductReviews productId={product.id} productName={product.name} />
+            {biotechSectionsCommon}
           </div>
         </div>
 
@@ -1194,7 +1222,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 rounded-full text-charcoal-400 hover:text-brand-600 hover:bg-cream-100 transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 rounded-full text-charcoal-400 hover:text-[#3C6CA8] hover:bg-cream-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
         >
           <X className="w-5 h-5" />
         </button>
@@ -1217,9 +1245,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           </div>
 
           <div className="mt-8 border-t border-charcoal-200 dark:border-slate-800 pt-8 space-y-8">
+            <ProductReviews productId={product.id} productName={product.name} />
             {biotechSectionsCommon}
             <ImportantResearchNoticeSection />
-            <ProductReviews productId={product.id} productName={product.name} />
           </div>
         </div>
 
@@ -1245,10 +1273,10 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                       key={variation.id}
                       onClick={() => !outOfStock && setSelectedVariation(variation)}
                       disabled={outOfStock}
-                      className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all duration-200 flex-shrink-0 cursor-pointer ${
+                      className={`px-3 py-2 rounded-lg border text-xs font-semibold transition-all duration-200 flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                         isSelected
-                          ? 'bg-brand-500 text-white border-brand-500 shadow-[0_0_10px_rgba(59,130,246,0.35)]'
-                          : 'bg-white dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border-charcoal-200 dark:border-slate-800 hover:border-brand-400'
+                          ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-[0_0_10px_rgba(60,108,168,0.35)]'
+                          : 'bg-white dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border-charcoal-200 dark:border-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8]'
                       } ${outOfStock ? 'opacity-40 cursor-not-allowed line-through' : ''}`}
                     >
                       {variation.name}
@@ -1262,14 +1290,14 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className={`flex-1 ml-auto py-2.5 rounded-full text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[7rem] cursor-pointer ${
-                product.pre_order_enabled
-                  ? 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-blue-500/20'
-                  : 'bg-brand-500 hover:bg-brand-600 shadow-md hover:shadow-brand-500/20'
+              className={`flex-1 ml-auto py-2.5 px-5 rounded-full text-white text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[7rem] cursor-pointer shadow-md hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                addedSuccess
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-500/20'
+                  : 'bg-[#3C6CA8] hover:bg-[#315A8E] shadow-blue-500/20'
               }`}
             >
-              {isOutOfStock ? 'Unavailable' : 'Add to Cart'}
-              {!isOutOfStock && <ShoppingCart className="w-4 h-4" />}
+              {isOutOfStock ? 'Unavailable' : addedSuccess ? 'Added!' : 'Add to Cart'}
+              {!isOutOfStock && !addedSuccess && <ShoppingCart className="w-4 h-4" />}
             </button>
           </div>
         </div>
@@ -1284,7 +1312,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setCoaPreviewImage(null)}
-              className="absolute -top-12 right-0 bg-white hover:bg-gray-150 text-charcoal-800 rounded-full p-2.5 transition-all shadow-lg z-10 cursor-pointer"
+              className="absolute -top-12 right-0 bg-white hover:bg-gray-150 text-charcoal-800 rounded-full p-2.5 transition-all shadow-lg z-10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
               aria-label="Close preview"
             >
               <X className="w-5 h-5" />
@@ -1336,7 +1364,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
               </div>
               <button
                 onClick={() => setDosingOpen(false)}
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
                 aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
@@ -1435,7 +1463,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
               </span>
               <button
                 onClick={() => setDosingOpen(false)}
-                className="px-6 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] text-white text-xs font-bold transition-all shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
               >
                 Close Guide
               </button>

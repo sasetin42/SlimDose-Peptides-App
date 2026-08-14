@@ -23,6 +23,7 @@ export interface Product {
   stock_quantity: number;
   stock_manila?: number;
   stock_davao?: number;
+  sales_count?: number;
   available: boolean;
   featured: boolean;
 
@@ -154,6 +155,18 @@ export interface SiteSettings {
   popup_page_filter?: string;
   popup_delay_seconds?: string;
   popup_close_on_outside_click?: string;
+  // Important Notice Modal Settings
+  notice_title?: string;
+  notice_subtitle?: string;
+  notice_disclaimer_p1?: string;
+  notice_disclaimer_p2?: string;
+  notice_consult_text?: string;
+  notice_warning_pill?: string;
+  notice_order_days?: string;
+  notice_cutoff_time?: string;
+  notice_courier?: string;
+  notice_weekend_orders?: string;
+  notice_agree_button_text?: string;
 }
 
 // Cart Types

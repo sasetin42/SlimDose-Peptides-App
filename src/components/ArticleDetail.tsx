@@ -377,9 +377,9 @@ export default function ArticleDetail() {
                                         <button
                                             onClick={() => handleAddToCart(product)}
                                             disabled={addedToCart.has(product.id)}
-                                            className={`w-full py-3 font-semibold text-sm flex items-center justify-center gap-2 transition-all ${addedToCart.has(product.id)
-                                                ? 'bg-green-500 text-white'
-                                                : 'bg-navy-900 text-white hover:bg-navy-800'
+                                            className={`w-full py-3 font-semibold text-sm flex items-center justify-center gap-2 transition-all rounded-xl ${addedToCart.has(product.id)
+                                                ? 'bg-emerald-600 text-white'
+                                                : 'bg-[#3C6CA8] text-white hover:bg-[#315A8E]'
                                                 }`}
                                         >
                                             <ShoppingCart className="w-4 h-4" />

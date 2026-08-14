@@ -21,6 +21,7 @@ export const demoProducts: Product[] = [
     storage_conditions: 'Store at -20°C. Keep away from light.',
     inclusions: ['Research vial', 'Certificate of Analysis', 'Bacteriostatic Water 2mL'],
     stock_quantity: 48,
+    sales_count: 248,
     available: true,
     featured: true,
     image_url: 'https://images.pexels.com/photos/5863391/pexels-photo-5863391.jpeg?auto=compress&cs=tinysrgb&w=600',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Product, ProductVariation } from '../types';
 import { demoProducts } from '../data/demoProducts';
@@ -29,6 +29,7 @@ export function useMenu() {
   });
   const [error, setError] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const lastFetchRef = useRef<number>(0);
 
   useEffect(() => {
     fetchProducts();
@@ -51,13 +52,17 @@ export function useMenu() {
     let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const handleFocus = () => {
       if (window.location.pathname === '/admin') return;
+      const now = Date.now();
+      if (now - lastFetchRef.current < 30_000) return; // skip if fetched < 30s ago
       if (focusTimeout) clearTimeout(focusTimeout);
-      focusTimeout = setTimeout(fetchProducts, 1000);
+      focusTimeout = setTimeout(fetchProducts, 2000); // increase from 1s to 2s
     };
     const handleVisibility = () => {
       if (document.hidden || window.location.pathname === '/admin') return;
+      const now = Date.now();
+      if (now - lastFetchRef.current < 30_000) return;
       if (focusTimeout) clearTimeout(focusTimeout);
-      focusTimeout = setTimeout(fetchProducts, 1000);
+      focusTimeout = setTimeout(fetchProducts, 2000);
     };
 
     window.addEventListener('focus', handleFocus);
@@ -72,6 +77,39 @@ export function useMenu() {
     };
   }, []);
 
+  const fetchOrderCounts = async (currentProducts: Product[]) => {
+    try {
+      const salesCountMap = new Map<string, number>();
+      const { data: allOrders } = await supabase
+        .from('orders')
+        .select('order_items, order_status');
+
+      const completedOrders = (allOrders || []).filter(o => !['cancelled', 'declined', 'failed', 'refunded'].includes(o.order_status));
+
+      for (const orderRow of completedOrders) {
+        const items = Array.isArray(orderRow.order_items) ? orderRow.order_items : [];
+        for (const item of items) {
+          const pId = item.product_id;
+          const pName = (item.product_name || item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const qty = Number(item.quantity ?? 1);
+          if (pId) salesCountMap.set(pId, (salesCountMap.get(pId) || 0) + qty);
+          if (pName) salesCountMap.set(`name:${pName}`, (salesCountMap.get(`name:${pName}`) || 0) + qty);
+        }
+      }
+
+      const updated = currentProducts.map(product => {
+        const pNameKey = `name:${(product.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+        const liveSales = (salesCountMap.get(product.id) || 0) + (salesCountMap.get(pNameKey) || 0);
+        return { ...product, sales_count: liveSales || 0 };
+      });
+      
+      setProducts(updated);
+      try { localStorage.setItem('slimdose_products_cache', JSON.stringify(updated)); } catch {}
+    } catch (err) {
+      console.warn('Failed to compute live order sales counts:', err);
+    }
+  };
+
   const fetchProducts = async () => {
     const hasData = products && products.length > 0;
     try {
@@ -82,7 +120,7 @@ export function useMenu() {
       // Fetch directly from Supabase as the primary source of truth
       const { data, error: sbError } = await supabase
         .from('products')
-        .select('id, name, slug, description, category, base_price, discount_price, discount_start_date, discount_end_date, discount_active, purity_percentage, molecular_weight, cas_number, sequence, storage_conditions, inclusions, stock_quantity, available, featured, image_url, safety_sheet_url, coa_url, created_at, updated_at')
+        .select('*')
         .order('featured', { ascending: false })
         .order('name', { ascending: true });
 
@@ -102,51 +140,21 @@ export function useMenu() {
           variationsByProduct.set(v.product_id, list);
         }
 
-        // Fetch live completed orders to aggregate real sales count per product
-        const salesCountMap = new Map<string, number>();
-        try {
-          const { data: completedOrders } = await supabase
-            .from('orders')
-            .select('order_items, order_status')
-            .in('order_status', ['confirmed', 'processing', 'shipped', 'delivered']);
-
-          for (const orderRow of completedOrders || []) {
-            const items = Array.isArray(orderRow.order_items) ? orderRow.order_items : [];
-            for (const item of items) {
-              const pId = item.product_id;
-              const pName = (item.product_name || item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-              const qty = Number(item.quantity ?? 1);
-
-              if (pId) {
-                salesCountMap.set(pId, (salesCountMap.get(pId) || 0) + qty);
-              }
-              if (pName) {
-                salesCountMap.set(`name:${pName}`, (salesCountMap.get(`name:${pName}`) || 0) + qty);
-              }
-            }
-          }
-        } catch (err) {
-          console.warn('Failed to compute live order sales counts:', err);
-        }
-
-        const productsWithVariations = data.map(product => {
-          const pNameKey = `name:${(product.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
-          const liveSales = (salesCountMap.get(product.id) || 0) + (salesCountMap.get(pNameKey) || 0);
-          return {
-            ...product,
-            sales_count: liveSales > 0 ? liveSales : undefined,
-            variations: variationsByProduct.get(product.id) || [],
-          };
-        });
+        const productsWithVariations = data.map(product => ({
+          ...product,
+          sales_count: product.sales_count ?? 0,
+          variations: variationsByProduct.get(product.id) || [],
+        }));
 
         setProducts(productsWithVariations);
-        try {
-          localStorage.setItem('slimdose_products_cache', JSON.stringify(productsWithVariations));
-        } catch (e) {
-          console.warn('Failed to save products cache:', e);
-        }
+        try { localStorage.setItem('slimdose_products_cache', JSON.stringify(productsWithVariations)); } catch {}
         setIsDemoMode(false);
         setError(null);
+        setLoading(false);
+        lastFetchRef.current = Date.now();
+
+        setTimeout(() => fetchOrderCounts(productsWithVariations), 0);
+
         return;
       }
 
@@ -187,30 +195,48 @@ export function useMenu() {
         const urlString = String(updates.image_url).trim();
         imageUrlValue = urlString === '' ? null : urlString;
       }
-      const updatePayload: any = { ...updates, image_url: imageUrlValue };
+      
+      const { id: _id, created_at, updated_at, variations, sales_count, ...cleanUpdates } = updates as any;
+      const updatePayload: any = { 
+        ...cleanUpdates, 
+        image_url: imageUrlValue,
+        updated_at: new Date().toISOString()
+      };
 
-      // Check if id is a valid UUID — demo products have slug-style IDs like "demo-semaglutide-5mg"
-      const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      const isValidUUID = UUID_REGEX.test(id);
-
-      if (!isValidUUID) {
-        // This is a demo product — insert as a new real product instead of updating
-        console.log('📦 Demo product detected, inserting as new product:', id);
-        const { id: _oldId, created_at, updated_at, variations, ...insertFields } = updatePayload;
-        const { data, error } = await supabase.from('products').insert([insertFields]).select('*, image_url').single();
+      // Only if ID is explicitly a demo product prefix like "demo-*" do we insert into DB if not existing
+      if (typeof id === 'string' && id.startsWith('demo-')) {
+        console.log('📦 Converting demo product to persistent product:', id);
+        const { data, error } = await supabase.from('products').insert([updatePayload]).select('*, image_url').single();
         if (error) throw new Error(error.message);
-        mirrorProductCreate(insertFields);
-        // Replace the demo product in state with the real one
-        if (data) setProducts(products.map(p => p.id === id ? { ...data, variations: p.variations || [] } : p));
+        mirrorProductCreate(updatePayload);
+        if (data) {
+          setProducts(prev => prev.map(p => p.id === id ? { ...data, variations: p.variations || [] } : p));
+        }
         return { success: true, data };
       }
 
-      const { data, error } = await supabase.from('products').update(updatePayload).eq('id', id).select('*, image_url').single();
+      // Standard update for existing product
+      const { data, error } = await supabase
+        .from('products')
+        .update(updatePayload)
+        .eq('id', id)
+        .select('*, image_url')
+        .single();
+
       if (error) throw new Error(error.message);
       mirrorProductUpdate(id, updatePayload);
-      if (data) setProducts(products.map(p => p.id === id ? { ...data, variations: p.variations } : p));
-      return { success: true, data };
+
+      const updatedProduct = data || { id, ...updatePayload };
+      setProducts(prev => {
+        const next = prev.map(p => (p.id === id ? { ...p, ...updatedProduct, variations: p.variations } : p));
+        try { localStorage.setItem('slimdose_products_cache', JSON.stringify(next)); } catch {}
+        return next;
+      });
+      window.dispatchEvent(new Event('storage'));
+
+      return { success: true, data: updatedProduct };
     } catch (err) {
+      console.error('Failed to update product:', err);
       return { success: false, error: err instanceof Error ? err.message : 'Failed to update product' };
     }
   };

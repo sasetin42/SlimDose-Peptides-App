@@ -175,14 +175,14 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
                 id="customer-name"
                 type="text"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                autoComplete="name" onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="e.g. Jane Doe"
                 className="w-full min-h-[44px] text-xs px-3.5 py-2.5 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 outline-none"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase mb-1" id="rating-label">Rating</label>
+              <label htmlFor="review-text" className="block text-xs font-bold text-gray-700 dark:text-slate-300 uppercase mb-1" id="rating-label">Rating</label>
               <div className="flex items-center gap-1 py-1" role="group" aria-labelledby="rating-label">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -298,84 +298,134 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
         </div>
       </div>
 
-      {/* Filter and Sort Pills Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          <Filter className="w-3.5 h-3.5 text-gray-500 dark:text-slate-400 shrink-0 mr-0.5" />
-          <button
-            type="button"
-            onClick={() => setActiveFilter('all')}
-            className={`min-h-[36px] px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3C6CA8] ${
-              activeFilter === 'all'
-                ? 'bg-[#3C6CA8] text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
-            }`}
-          >
-            All Reviews ({reviews.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('5star')}
-            className={`min-h-[36px] px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#3C6CA8] ${
-              activeFilter === '5star'
-                ? 'bg-[#3C6CA8] text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
-            }`}
-          >
-            <span>5 Stars</span>
-            <span className="text-[10px] opacity-85">({stats.distribution[5] || 0})</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('4star')}
-            className={`min-h-[36px] px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[#3C6CA8] ${
-              activeFilter === '4star'
-                ? 'bg-[#3C6CA8] text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
-            }`}
-          >
-            <span>4 Stars</span>
-            <span className="text-[10px] opacity-85">({stats.distribution[4] || 0})</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveFilter('verified')}
-            className={`min-h-[36px] px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3C6CA8] ${
-              activeFilter === 'verified'
-                ? 'bg-[#3C6CA8] text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
-            }`}
-          >
-            Verified Purchases
-          </button>
-
+      {/* Filter and Sort Section — 3 Columns on Mobile */}
+      <div className="mb-5 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700 dark:text-slate-300">
+            <Filter className="w-3.5 h-3.5 text-[#3C6CA8]" />
+            <span>Filter Reviews</span>
+          </div>
           {activeFilter !== 'all' && (
             <button
               type="button"
               onClick={() => setActiveFilter('all')}
-              className="min-h-[36px] px-2.5 py-1.5 rounded-full text-xs font-bold bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-slate-100 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors flex items-center gap-1 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]"
+              className="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
             >
-              <X className="w-3 h-3" /> Clear
+              <X className="w-3 h-3" /> Reset Filter
             </button>
           )}
         </div>
 
-        {/* Sort Selector */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto text-xs text-gray-600 dark:text-slate-300 font-semibold">
-          <ArrowUpDown className="w-3.5 h-3.5 text-[#3C6CA8] dark:text-[#6A9BE0] shrink-0" />
-          <label htmlFor="review-sort" className="text-[11px] font-bold">Sort:</label>
-          <select
-            id="review-sort"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="min-h-[36px] bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-lg px-2.5 py-1 border border-gray-200 dark:border-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-[#3C6CA8]"
+        {/* 3-Column Selection Grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2">
+          {/* All Reviews */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter('all')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === 'all'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
           >
-            <option value="newest">Newest First</option>
-            <option value="highest">Highest Rating</option>
-            <option value="lowest">Lowest Rating</option>
-            <option value="most_helpful">Most Helpful</option>
-          </select>
+            <span className="truncate w-full">All Reviews</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">({reviews.length})</span>
+          </button>
+
+          {/* 5 Stars */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter('5star')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === '5star'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
+          >
+            <span className="inline-flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 5 Stars</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">({stats.distribution[5] || 0})</span>
+          </button>
+
+          {/* 4 Stars */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter('4star')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === '4star'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
+          >
+            <span className="inline-flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 4 Stars</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">({stats.distribution[4] || 0})</span>
+          </button>
+
+          {/* 3 Stars */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter('3star')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === '3star'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
+          >
+            <span className="inline-flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 3 Stars</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">({stats.distribution[3] || 0})</span>
+          </button>
+
+          {/* 2 & 1 Stars */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter(activeFilter === '2star' ? '1star' : '2star')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === '2star' || activeFilter === '1star'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
+          >
+            <span className="inline-flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> &le; 2 Stars</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">({(stats.distribution[2] || 0) + (stats.distribution[1] || 0)})</span>
+          </button>
+
+          {/* Verified Purchases */}
+          <button
+            type="button"
+            onClick={() => setActiveFilter('verified')}
+            className={`min-h-[42px] sm:min-h-[40px] p-1.5 sm:p-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+              activeFilter === 'verified'
+                ? 'bg-[#3C6CA8] text-white shadow-sm ring-2 ring-[#3C6CA8]/30 font-black'
+                : 'bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-gray-200/80 dark:border-slate-700'
+            }`}
+          >
+            <span className="inline-flex items-center gap-0.5"><ShieldCheck className="w-2.5 h-2.5 text-emerald-500" /> Verified</span>
+            <span className="text-[9.5px] opacity-75 font-semibold">
+              ({reviews.filter((r) => r.is_verified_purchase).length})
+            </span>
+          </button>
+        </div>
+
+        {/* Sort and Count Sub-bar */}
+        <div className="flex items-center justify-between pt-1 text-xs text-gray-600 dark:text-slate-300">
+          <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400">
+            Showing <strong className="text-gray-900 dark:text-white">{filteredAndSortedReviews.length}</strong> of {reviews.length} reviews
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            <ArrowUpDown className="w-3.5 h-3.5 text-[#3C6CA8] shrink-0" />
+            <label htmlFor="review-sort" className="text-[11px] font-bold">Sort:</label>
+            <select
+              id="review-sort"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="bg-slate-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100 text-xs font-bold rounded-lg px-2 py-1 border border-gray-200 dark:border-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-[#3C6CA8]"
+            >
+              <option value="newest">Newest First</option>
+              <option value="highest">Highest Rating</option>
+              <option value="lowest">Lowest Rating</option>
+              <option value="most_helpful">Most Helpful</option>
+            </select>
+          </div>
         </div>
       </div>
 

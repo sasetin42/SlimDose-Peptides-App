@@ -267,25 +267,49 @@ const COA: React.FC = () => {
         </div>
       </div>
 
-      {/* Image Modal - Mobile Optimized */}
+      {/* Document / Image Modal - Mobile Optimized */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-2 md:p-4"
+          className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 md:p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative w-full max-w-5xl">
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-10 md:-top-12 right-0 bg-white/95 hover:bg-white text-gray-800 rounded-full p-2 md:p-2.5 transition-all shadow-lg"
-            >
-              <X className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-            <img
-              src={selectedImage}
-              alt="Certificate of Analysis"
-              className="w-full h-auto rounded-2xl md:rounded-3xl shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            />
+          <div className="relative w-full max-w-5xl max-h-[90vh] bg-slate-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 bg-slate-850 flex items-center justify-between border-b border-slate-700">
+              <span className="text-xs font-bold text-slate-200">Certificate of Analysis Document</span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={selectedImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download</span>
+                </a>
+                <button
+                  onClick={() => setSelectedImage(null)}
+                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-3 overflow-auto flex-1 flex items-center justify-center min-h-[400px]">
+              {selectedImage.toLowerCase().endsWith('.pdf') || selectedImage.includes('.pdf?') ? (
+                <iframe
+                  src={`${selectedImage}#toolbar=1`}
+                  title="COA Document PDF"
+                  className="w-full h-[650px] rounded-2xl border-0 bg-white"
+                />
+              ) : (
+                <img
+                  src={selectedImage}
+                  alt="Certificate of Analysis"
+                  className="max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl"
+                />
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -12,10 +12,21 @@ interface TrackingOrder {
     order_number: string | null;
     order_status: string;
     payment_status: string;
+    payment_method_name?: string | null;
+    customer_name?: string | null;
+    customer_email?: string | null;
+    customer_phone?: string | null;
+    shipping_address?: string | null;
+    shipping_barangay?: string | null;
+    shipping_city?: string | null;
+    shipping_state?: string | null;
+    shipping_zip_code?: string | null;
+    shipping_location?: string | null;
     tracking_number: string | null;
     tracking_courier: string | null;
     shipping_provider: string | null;
     shipping_note: string | null;
+    notes?: string | null;
     total_price: number;
     shipping_fee: number;
     items: TrackingOrderItem[];
@@ -42,9 +53,52 @@ const OrderTracking: React.FC = () => {
         }
     }, []);
 
+    // Realtime live subscription for the active order
+    useEffect(() => {
+        if (!order?.id) return;
+        const channelId = `order-tracking-live-${order.id}-${Date.now()}`;
+        const channel = supabase
+            .channel(channelId)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload: any) => {
+                if (payload.new && (payload.new.id === order.id || payload.new.order_number === order.order_number)) {
+                    const rawData = payload.new;
+                    const itemsList = Array.isArray(rawData.order_items)
+                        ? rawData.order_items.map((i: any) => ({
+                            product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
+                            quantity: i.quantity || 1,
+                        }))
+                        : Array.isArray(rawData.items)
+                        ? rawData.items.map((i: any) => ({
+                            product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
+                            quantity: i.quantity || 1,
+                        }))
+                        : order.items;
+
+                    setOrder(prev => prev ? ({
+                        ...prev,
+                        order_status: rawData.order_status || prev.order_status,
+                        payment_status: rawData.payment_status || prev.payment_status,
+                        tracking_number: rawData.tracking_number !== undefined ? rawData.tracking_number : prev.tracking_number,
+                        tracking_courier: rawData.tracking_courier || rawData.courier_name || prev.tracking_courier,
+                        shipping_provider: rawData.shipping_provider || prev.shipping_provider,
+                        shipping_note: rawData.shipping_note || prev.shipping_note,
+                        items: itemsList,
+                    }) : null);
+                }
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [order?.id, order?.order_number]);
+
     const fetchOrder = async (queryStr: string) => {
-        const query = queryStr.trim();
-        if (!query) return;
+        const rawQuery = queryStr.trim();
+        if (!rawQuery) return;
+        
+        // Strip common prefixes for clean lookup
+        const query = rawQuery.replace(/^ORD-/i, '');
 
         setLoading(true);
         setError(null);
@@ -58,7 +112,7 @@ const OrderTracking: React.FC = () => {
             const { data: byId } = await supabase
                 .from('orders')
                 .select('*')
-                .eq('id', query)
+                .eq('id', rawQuery)
                 .maybeSingle();
 
             if (byId) {
@@ -68,17 +122,17 @@ const OrderTracking: React.FC = () => {
                 const { data: byNum } = await supabase
                     .from('orders')
                     .select('*')
-                    .eq('order_number', query)
+                    .or(`order_number.eq.${query},order_number.eq.${rawQuery}`)
                     .maybeSingle();
 
                 if (byNum) {
                     rawData = byNum;
                 } else {
-                    // 3. Try flexible search across id, order_number, tracking_number
+                    // 3. Try flexible search across id, order_number, tracking_number (with both clean query and raw query)
                     const { data: byFlex } = await supabase
                         .from('orders')
                         .select('*')
-                        .or(`id.ilike.%${query}%,order_number.ilike.%${query}%,tracking_number.ilike.%${query}%`)
+                        .or(`id.ilike.%${query}%,id.ilike.%${rawQuery}%,order_number.ilike.%${query}%,order_number.ilike.%${rawQuery}%,tracking_number.ilike.%${rawQuery}%`)
                         .order('created_at', { ascending: false })
                         .limit(1);
 
@@ -88,7 +142,7 @@ const OrderTracking: React.FC = () => {
                         // 4. Try RPC function fallback if available
                         try {
                             const { data: rpcData } = await supabase.rpc('get_order_details', {
-                                order_id_input: query
+                                order_id_input: rawQuery
                             });
                             if (rpcData) rawData = rpcData;
                         } catch {
@@ -116,10 +170,21 @@ const OrderTracking: React.FC = () => {
                     order_number: rawData.order_number || null,
                     order_status: rawData.order_status || 'new',
                     payment_status: rawData.payment_status || 'pending',
+                    payment_method_name: rawData.payment_method_name || null,
+                    customer_name: rawData.customer_name || null,
+                    customer_email: rawData.customer_email || null,
+                    customer_phone: rawData.customer_phone || null,
+                    shipping_address: rawData.shipping_address || null,
+                    shipping_barangay: rawData.shipping_barangay || null,
+                    shipping_city: rawData.shipping_city || null,
+                    shipping_state: rawData.shipping_state || null,
+                    shipping_zip_code: rawData.shipping_zip_code || null,
+                    shipping_location: rawData.shipping_location || null,
                     tracking_number: rawData.tracking_number || null,
                     tracking_courier: rawData.tracking_courier || rawData.courier_name || null,
                     shipping_provider: rawData.shipping_provider || null,
                     shipping_note: rawData.shipping_note || null,
+                    notes: rawData.notes || null,
                     total_price: Number(rawData.total_price || 0),
                     shipping_fee: Number(rawData.shipping_fee || 0),
                     items: itemsList,
@@ -140,6 +205,46 @@ const OrderTracking: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Realtime subscription for order updates
+    useEffect(() => {
+        if (!order?.id) return;
+
+        const channel = supabase
+            .channel(`order-tracking-${order.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'orders',
+                    filter: `id=eq.${order.id}`
+                },
+                (payload) => {
+                    const rawData = payload.new as any;
+                    // Silently update order state when a change happens
+                    setOrder(prevOrder => {
+                        if (!prevOrder) return prevOrder;
+                        return {
+                            ...prevOrder,
+                            order_status: rawData.order_status || prevOrder.order_status,
+                            payment_status: rawData.payment_status || prevOrder.payment_status,
+                            tracking_number: rawData.tracking_number !== undefined ? rawData.tracking_number : prevOrder.tracking_number,
+                            tracking_courier: rawData.tracking_courier !== undefined ? rawData.tracking_courier : prevOrder.tracking_courier,
+                            courier_name: rawData.courier_name !== undefined ? rawData.courier_name : prevOrder.courier_name,
+                            courier_code: rawData.courier_code !== undefined ? rawData.courier_code : prevOrder.courier_code,
+                            tracking_url_template: rawData.tracking_url_template !== undefined ? rawData.tracking_url_template : prevOrder.tracking_url_template,
+                            shipping_note: rawData.shipping_note !== undefined ? rawData.shipping_note : prevOrder.shipping_note,
+                        };
+                    });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [order?.id]);
 
     const handleTrack = async (e?: React.FormEvent, searchVal?: string) => {
         if (e) e.preventDefault();
@@ -196,8 +301,7 @@ const OrderTracking: React.FC = () => {
                     <form onSubmit={(e) => handleTrack(e)} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
-                            <input
-                                type="text"
+                            <input id="ordertracking-input-1" name="input_1" type="text"
                                 value={orderId}
                                 onChange={(e) => setOrderId(e.target.value)}
                                 placeholder="Enter Order ID or Number (e.g., SDP-10492)..."
@@ -251,8 +355,12 @@ const OrderTracking: React.FC = () => {
                             <div className="bg-gradient-to-r from-slate-900 via-[#294E7A] to-slate-900 p-4 sm:p-6 md:p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
                                 <div>
                                     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                                        <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-200 bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
-                                            Current Order Status
+                                        <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-blue-200 bg-white/10 px-2 py-0.5 rounded-full border border-white/20 flex items-center gap-1">
+                                            <span className="relative flex h-2 w-2">
+                                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-300 opacity-75"></span>
+                                              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400"></span>
+                                            </span>
+                                            LIVE STATUS
                                         </span>
                                         <span className="text-[10px] sm:text-xs text-emerald-400 font-bold flex items-center gap-1">
                                             <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Verified
@@ -277,36 +385,57 @@ const OrderTracking: React.FC = () => {
                             </div>
 
                             <div className="p-4 sm:p-6 md:p-8">
-                                 {/* Interactive Timeline Progress */}
+                                 {/* Interactive Timeline Progress - Solid Filled Complete Steps */}
                                 {order.order_status !== 'cancelled' ? (
-                                    <div className="mb-5 sm:mb-8">
+                                    <div className="mb-6 sm:mb-8 bg-slate-50/80 dark:bg-slate-950/40 p-4 sm:p-6 rounded-2xl border border-gray-200/80 dark:border-slate-800">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                                <Sparkles className="w-3.5 h-3.5 text-[#3C6CA8]" /> Delivery Timeline
+                                            </span>
+                                            <span className="text-[11px] sm:text-xs font-bold text-[#3C6CA8] dark:text-blue-400">
+                                                Step {Math.max(1, currentStep + 1)} of 5 ({Math.round(((currentStep + 1) / 5) * 100)}%)
+                                            </span>
+                                        </div>
+
                                         <div className="relative">
-                                            <div className="absolute top-3.5 sm:top-4.5 left-0 w-full h-[1px] bg-gray-200 dark:bg-slate-800 -translate-y-1/2" />
+                                            {/* Background Track */}
+                                            <div className="absolute top-4 sm:top-5 left-4 right-4 h-1.5 bg-gray-200 dark:bg-slate-800 rounded-full -translate-y-1/2" />
+                                            {/* Solid Progress Fill */}
                                             <div
-                                                className="absolute top-3.5 sm:top-4.5 left-0 h-[1px] bg-gradient-to-r from-[#3C6CA8] to-emerald-500 -translate-y-1/2 transition-all duration-500"
-                                                style={{ width: `${Math.min(100, Math.max(0, currentStep * 25))}%` }}
+                                                className="absolute top-4 sm:top-5 left-4 h-1.5 bg-[#3C6CA8] rounded-full -translate-y-1/2 transition-all duration-500 shadow-sm"
+                                                style={{ width: `calc(${Math.min(100, Math.max(0, (currentStep / 4) * 100))}% * (100% - 2rem) / 100)` }}
                                             />
 
                                             <div className="relative flex justify-between">
                                                 {[
-                                                    { title: 'Placed', icon: Clock },
-                                                    { title: 'Confirmed', icon: ShieldCheck },
-                                                    { title: 'Processing', icon: Package },
-                                                    { title: 'Shipped', icon: Truck },
-                                                    { title: 'Delivered', icon: CheckCircle }
+                                                    { title: 'Placed', subtitle: 'Order received', icon: Clock },
+                                                    { title: 'Confirmed', subtitle: 'Payment verified', icon: ShieldCheck },
+                                                    { title: 'Processing', subtitle: 'Cold-chain packed', icon: Package },
+                                                    { title: 'Shipped', subtitle: 'In transit with rider', icon: Truck },
+                                                    { title: 'Delivered', subtitle: 'Successfully received', icon: CheckCircle }
                                                 ].map((step, index) => {
                                                     const isCompleted = index <= currentStep;
                                                     const isCurrent = index === currentStep;
                                                     const StepIcon = step.icon;
 
                                                     return (
-                                                        <div key={step.title} className="flex flex-col items-center gap-1">
-                                                            <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl flex items-center justify-center border-[1px] transition-all duration-300 bg-white dark:bg-slate-900 ${isCompleted ? 'border-[#3C6CA8] text-[#3C6CA8] dark:text-blue-400 shadow-xs' : 'border-gray-200 dark:border-slate-800 text-gray-300 dark:text-slate-700'
-                                                                } ${isCurrent ? 'ring-2 sm:ring-4 ring-[#3C6CA8]/20 scale-105 border-[#3C6CA8]' : ''}`}>
-                                                                <StepIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                                        <div key={step.title} className="flex flex-col items-center text-center max-w-[70px] sm:max-w-[100px]">
+                                                            {/* Step Node Icon */}
+                                                            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                                                                isCompleted
+                                                                    ? 'bg-[#3C6CA8] text-white shadow-md shadow-[#3C6CA8]/25 ring-2 ring-[#3C6CA8]/30'
+                                                                    : 'bg-white dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-800 text-gray-300 dark:text-slate-700'
+                                                            } ${isCurrent ? 'scale-110 ring-4 ring-[#3C6CA8]/25 animate-pulse' : ''}`}>
+                                                                <StepIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                                                             </div>
-                                                            <span className={`text-[10px] sm:text-xs font-bold ${isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-600'
-                                                                }`}>{step.title}</span>
+                                                            <span className={`text-[10px] sm:text-xs font-black mt-2 ${
+                                                                isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-slate-600'
+                                                            }`}>
+                                                                {step.title}
+                                                            </span>
+                                                            <span className="text-[9px] text-gray-400 dark:text-slate-500 hidden sm:block leading-tight font-medium mt-0.5">
+                                                                {step.subtitle}
+                                                            </span>
                                                         </div>
                                                     );
                                                 })}
@@ -323,13 +452,65 @@ const OrderTracking: React.FC = () => {
                                     </div>
                                 )}
 
-                                {/* Tracking & Summary Grid */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                                    {/* Courier Tracking Box */}
-                                    <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-slate-700">
-                                        <h3 className="font-extrabold text-xs sm:text-sm text-gray-900 dark:text-white mb-3 flex items-center justify-between">
+                                {/* Information Details Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+                                    {/* Customer & Delivery Address Card */}
+                                    <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-slate-700 space-y-3">
+                                        <h3 className="font-extrabold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center justify-between border-b border-gray-200/80 dark:border-slate-700/80 pb-2">
                                             <span className="flex items-center gap-1.5">
-                                                <Truck className="w-4 h-4 text-[#3C6CA8]" /> Courier Tracking Info
+                                                <MapPin className="w-4 h-4 text-rose-500" /> Delivery Details
+                                            </span>
+                                            {order.shipping_location && (
+                                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-300">
+                                                    {order.shipping_location.replace(/_/g, ' ')}
+                                                </span>
+                                            )}
+                                        </h3>
+
+                                        {order.customer_name && (
+                                            <div>
+                                                <span className="text-[10px] uppercase font-bold text-gray-400 block">Recipient</span>
+                                                <span className="font-extrabold text-xs sm:text-sm text-gray-900 dark:text-white">
+                                                    {order.customer_name}
+                                                </span>
+                                                {order.customer_phone && (
+                                                    <span className="text-xs text-gray-500 dark:text-slate-400 ml-2">
+                                                        ({order.customer_phone})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {order.shipping_address ? (
+                                            <div>
+                                                <span className="text-[10px] uppercase font-bold text-gray-400 block">Delivery Address</span>
+                                                <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug mt-0.5">
+                                                    {order.shipping_address}
+                                                    {order.shipping_barangay ? `, ${order.shipping_barangay}` : ''}
+                                                    {order.shipping_city ? `, ${order.shipping_city}` : ''}
+                                                    {order.shipping_state ? `, ${order.shipping_state}` : ''}
+                                                    {order.shipping_zip_code ? ` ${order.shipping_zip_code}` : ''}
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-gray-400 italic">Address provided upon courier hand-off</p>
+                                        )}
+
+                                        {order.notes && (
+                                            <div className="pt-2 border-t border-gray-200/60 dark:border-slate-700/60">
+                                                <span className="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-400 block">Delivery Notes</span>
+                                                <p className="text-xs text-gray-700 dark:text-slate-300 font-medium">
+                                                    {order.notes}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Courier Tracking Box */}
+                                    <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-slate-700 space-y-3">
+                                        <h3 className="font-extrabold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center justify-between border-b border-gray-200/80 dark:border-slate-700/80 pb-2">
+                                            <span className="flex items-center gap-1.5">
+                                                <Truck className="w-4 h-4 text-[#3C6CA8]" /> Courier Dispatch
                                             </span>
                                             <span className="text-[9px] sm:text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-md">
                                                 Cold-Chain Insulated
@@ -380,36 +561,54 @@ const OrderTracking: React.FC = () => {
                                             </div>
                                         )}
                                     </div>
+                                </div>
 
-                                    {/* Order Summary & Notes */}
-                                    <div className="space-y-3 sm:space-y-4">
-                                        {order.shipping_note && (
-                                            <div className="bg-blue-50 dark:bg-slate-800/80 rounded-xl p-3.5 sm:p-4 border border-blue-200 dark:border-slate-700">
-                                                <h3 className="font-bold text-[#3C6CA8] dark:text-blue-300 mb-1 flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-wider">
-                                                    <Package className="w-3.5 h-3.5" /> Special Shipping Note
-                                                </h3>
-                                                <p className="text-gray-800 dark:text-slate-200 text-xs leading-relaxed font-medium">
-                                                    {order.shipping_note}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200 dark:border-slate-800">
-                                            <h3 className="font-extrabold text-gray-900 dark:text-white mb-2.5 text-[10px] sm:text-xs uppercase tracking-wider border-b border-gray-100 dark:border-slate-800 pb-1.5 flex items-center justify-between">
-                                                <span>Package Items</span>
-                                                <span className="text-gray-400 font-medium">{(order.items || []).length} Products</span>
+                                {/* Order Summary & Financials */}
+                                <div className="space-y-3 sm:space-y-4">
+                                    {order.shipping_note && (
+                                        <div className="bg-blue-50 dark:bg-slate-800/80 rounded-xl p-3.5 sm:p-4 border border-blue-200 dark:border-slate-700">
+                                            <h3 className="font-bold text-[#3C6CA8] dark:text-blue-300 mb-1 flex items-center gap-1.5 text-[10px] sm:text-xs uppercase tracking-wider">
+                                                <Package className="w-3.5 h-3.5" /> Special Shipping Note
                                             </h3>
-                                            <div className="space-y-1.5 mb-3">
-                                                {(order.items || []).map((item, idx) => (
-                                                    <div key={idx} className="flex justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
-                                                        <span>{item.quantity}x {item.product_name}</span>
-                                                    </div>
-                                                ))}
+                                            <p className="text-gray-800 dark:text-slate-200 text-xs leading-relaxed font-medium">
+                                                {order.shipping_note}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 dark:border-slate-800">
+                                        <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3 mb-3 flex-wrap gap-2">
+                                            <h3 className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2">
+                                                <Package className="w-4 h-4 text-[#3C6CA8]" /> Ordered Package Items
+                                            </h3>
+                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
+                                                {(order.items || []).length} Product Line{(order.items || []).length === 1 ? '' : 's'}
+                                            </span>
+                                        </div>
+
+                                        <div className="divide-y divide-gray-100 dark:divide-slate-800 mb-4">
+                                            {(order.items || []).map((item, idx) => (
+                                                <div key={idx} className="py-2.5 flex justify-between items-center text-xs sm:text-sm">
+                                                    <span className="font-bold text-gray-800 dark:text-slate-200">{item.quantity}x {item.product_name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="bg-slate-50 dark:bg-slate-800/40 rounded-xl p-3 sm:p-4 space-y-2 border border-slate-200/70 dark:border-slate-700/60">
+                                            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                                                <span>Subtotal</span>
+                                                <span className="font-bold text-slate-900 dark:text-white">₱{Number(order.total_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                                             </div>
-                                            <div className="flex justify-between items-center pt-2.5 border-t border-gray-100 dark:border-slate-800 font-black text-sm sm:text-base text-gray-900 dark:text-white">
+                                            <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                                                <span>Shipping Fee ({order.shipping_location || 'Standard'})</span>
+                                                <span className="font-bold text-blue-600 dark:text-blue-400">
+                                                    {Number(order.shipping_fee || 0) === 0 ? '₱0.00 (Customer Pays Rider)' : `₱${Number(order.shipping_fee).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700 font-black text-base sm:text-lg text-gray-900 dark:text-white">
                                                 <span>Total Amount</span>
                                                 <span className="text-[#3C6CA8] dark:text-blue-400">
-                                                    ₱{(Number(order.total_price || 0) + Number(order.shipping_fee || 0)).toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                                                    ₱{(Number(order.total_price || 0) + Number(order.shipping_fee || 0)).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                                                 </span>
                                             </div>
                                         </div>

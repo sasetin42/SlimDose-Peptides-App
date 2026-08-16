@@ -1,10 +1,13 @@
 import React from 'react';
 import { MessageCircle, Heart, HelpCircle, Calculator, FileText, Truck, ShieldCheck, Lock, Award, ArrowUpRight } from 'lucide-react';
 import { useCOAPageSetting } from '../hooks/useCOAPageSetting';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const { coaPageEnabled } = useCOAPageSetting();
+  const { siteSettings } = useSiteSettings();
+  const communityTelegramUrl = siteSettings?.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl';
 
   return (
     <footer className="bg-white dark:bg-[#161B26] border-t border-gray-200/80 dark:border-slate-800/80 transition-colors pt-12 pb-8">
@@ -113,7 +116,7 @@ const Footer: React.FC = () => {
               Connect with fellow researchers, get instant updates, and direct support.
             </p>
             <a
-              href="https://t.me/+fGtShIUkbB84YzZl"
+              href={communityTelegramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full px-3.5 py-2 rounded-xl bg-sky-500/10 dark:bg-sky-500/20 text-[#0088cc] dark:text-sky-400 hover:bg-[#0088cc] hover:text-white dark:hover:bg-[#0088cc] dark:hover:text-white font-medium text-xs transition-all shadow-xs border border-sky-200/50 dark:border-sky-800/50 group"

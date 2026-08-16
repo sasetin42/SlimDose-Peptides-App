@@ -20,14 +20,41 @@ export interface PaymentMethod {
 
 const LOCAL_STORAGE_KEY = 'slimdose_payment_methods';
 
+export const defaultPaymentMethods: PaymentMethod[] = [
+  {
+    id: 'gcash',
+    name: 'GCash',
+    account_number: '0977 813 2630',
+    account_name: 'SlimDose PH',
+    qr_code_url: '',
+    active: true,
+    sort_order: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'bank-transfer',
+    name: 'Security Bank / BDO',
+    account_number: '0000-1234-5678',
+    account_name: 'SlimDose Biochemicals',
+    qr_code_url: '',
+    active: true,
+    sort_order: 2,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+];
+
 export const usePaymentMethods = () => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return defaultPaymentMethods;
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,10 +83,14 @@ export const usePaymentMethods = () => {
         if (saved) {
           const parsed: PaymentMethod[] = JSON.parse(saved);
           const activeOnly = parsed.filter(m => m.active);
-          setPaymentMethods(activeOnly);
-          setLoading(false);
-          return;
+          if (activeOnly.length > 0) {
+            setPaymentMethods(activeOnly);
+            setLoading(false);
+            return;
+          }
         }
+        setPaymentMethods(defaultPaymentMethods);
+        return;
       }
 
       const merged = data || [];
@@ -323,6 +354,22 @@ export const usePaymentMethods = () => {
 
   useEffect(() => {
     fetchPaymentMethods();
+
+    // Subscribe to realtime database changes for payment methods
+    const channel = supabase
+      .channel('public_payment_methods_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'payment_methods' },
+        () => {
+          fetchPaymentMethods();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {

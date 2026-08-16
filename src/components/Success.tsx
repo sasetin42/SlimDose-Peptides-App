@@ -108,6 +108,8 @@ export default function Success() {
     );
   }
 
+  const trackingQuery = order?.id || order?.order_number || '';
+  const trackingUrl = `/track-order?id=${encodeURIComponent(trackingQuery)}`;
   const refNumber = order?.order_number || (order?.id ? `ORD-${order.id.slice(0, 8).toUpperCase()}` : 'ORD-SUCCESS');
   const itemsList: any[] = Array.isArray(order?.order_items) ? order.order_items : [];
   const customerName = order?.customer_name || 'Valued Client';
@@ -156,13 +158,20 @@ export default function Success() {
             Your order has been received and registered into the SlimDose system.
           </p>
 
-          {/* Reference Badge */}
-          <div className="mt-3.5 sm:mt-6 inline-flex items-center gap-2 sm:gap-3 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700">
+          {/* Reference Badge & Direct Live Tracking Link */}
+          <div className="mt-3.5 sm:mt-6 inline-flex items-center gap-2 sm:gap-3 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs hover:border-[#3C6CA8]/50 transition-all">
             <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Order Ref:</span>
-            <span className="font-mono font-extrabold text-[#3C6CA8] dark:text-blue-400 text-xs sm:text-base">{refNumber}</span>
+            <a
+              href={trackingUrl}
+              className="font-mono font-extrabold text-[#3C6CA8] hover:text-[#2a4d77] dark:text-blue-400 dark:hover:text-blue-300 text-xs sm:text-base underline decoration-dotted underline-offset-2 hover:decoration-solid flex items-center gap-1.5 transition-all group"
+              title="Click to track this order in real time"
+            >
+              <span>{refNumber}</span>
+              <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            </a>
             <button
               onClick={handleCopyOrderRef}
-              className="p-1 text-slate-400 hover:text-[#3C6CA8] transition-colors cursor-pointer"
+              className="p-1 text-slate-400 hover:text-[#3C6CA8] transition-colors cursor-pointer ml-1"
               title="Copy Order Reference"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -171,43 +180,38 @@ export default function Success() {
         </div>
 
         {/* CRITICAL NOTICE: Admin Approval & Notification Protocol */}
-        <div className="bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-7 shadow-xs">
-          <div className="flex items-start gap-2.5 sm:gap-4">
-            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-800 mt-0.5">
-              <Clock className="w-4 h-4 sm:w-6 sm:h-6 animate-pulse" />
+        <div className="bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs">
+          <div className="space-y-1.5 sm:space-y-2 min-w-0">
+            <div className="flex items-center justify-between flex-wrap gap-1.5">
+              <h3 className="text-sm sm:text-lg font-extrabold text-amber-900 dark:text-amber-200 leading-tight">
+                Transaction Pending Admin Approval
+              </h3>
+              <span className="text-[9px] sm:text-[10px] font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shrink-0">
+                Verification In Progress
+              </span>
             </div>
-            <div className="space-y-1.5 sm:space-y-2 min-w-0 flex-1">
-              <div className="flex items-center justify-between flex-wrap gap-1.5">
-                <h3 className="text-xs sm:text-lg font-extrabold text-amber-900 dark:text-amber-200 leading-tight">
-                  Transaction Pending Admin Approval
-                </h3>
-                <span className="text-[9px] sm:text-[10px] font-extrabold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full border border-amber-300 dark:border-amber-700 shrink-0">
-                  Verification In Progress
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-sm text-amber-800/90 dark:text-amber-300/90 leading-snug sm:leading-relaxed font-normal">
-                Please note that your transaction is subject to manual verification and approval by our SlimDose Store Administrator. Once your payment receipt is verified, you will receive an automatic confirmation update:
-              </p>
+            <p className="text-[11px] sm:text-sm text-amber-800/90 dark:text-amber-300/90 leading-snug sm:leading-relaxed font-normal">
+              Please note that your transaction is subject to manual verification and approval by our SlimDose Store Administrator. Once your payment receipt is verified, you will receive an automatic confirmation update:
+            </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1 sm:pt-2">
-                <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                    <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Email Notification</span>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate block">{customerEmail || 'your email address'}</span>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1 sm:pt-2">
+              <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Email Notification</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate block">{customerEmail || 'your email address'}</span>
+                </div>
+              </div>
 
-                <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Account & SMS Update</span>
-                    <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block truncate">Track live in your store account</span>
-                  </div>
+              <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Account & SMS Update</span>
+                  <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block truncate">Track live in your store account</span>
                 </div>
               </div>
             </div>
@@ -220,7 +224,7 @@ export default function Success() {
           {/* Customer & Shipping Summary */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-sm sm:shadow-xl border border-gray-200/80 dark:border-slate-800 p-3.5 sm:p-6 space-y-3 sm:space-y-4">
-              <h2 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5 sm:pb-3">
+              <h2 className="text-sm sm:text-lg font-bold text-slate-900 dark:white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2.5 sm:pb-3">
                 <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#3C6CA8]" />
                 Customer & Shipping Information
               </h2>
@@ -325,15 +329,35 @@ export default function Success() {
                   <span className="font-bold text-slate-900 dark:text-white">₱{Number(order?.total_price || 0).toLocaleString('en-PH')}</span>
                 </div>
 
-                <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
-                  <span>Shipping Fee</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">₱{Number(order?.shipping_fee || 0).toLocaleString('en-PH')}</span>
+                <div className="flex justify-between items-start text-slate-600 dark:text-slate-400 gap-2">
+                  <div className="min-w-0">
+                    <span className="block">Shipping Fee</span>
+                    {order?.shipping_location && (
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 block truncate">
+                        {order.shipping_location.replace(/_/g, ' ')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    {Number(order?.shipping_fee || 0) === 0 ? (
+                      <div className="flex flex-col items-end">
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">₱0.00</span>
+                        <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
+                          {order?.shipping_note || 'Customer Pays Rider'}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-bold text-blue-600 dark:text-blue-400">
+                        ₱{Number(order?.shipping_fee || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="pt-2 sm:pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-baseline">
                   <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Total Paid</span>
                   <span className="text-xl sm:text-2xl font-black text-[#3C6CA8] dark:text-blue-400">
-                    ₱{grandTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                    ₱{grandTotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
@@ -342,7 +366,7 @@ export default function Success() {
             {/* Quick Actions */}
             <div className="space-y-2 sm:space-y-3">
               <a
-                href="/track-order"
+                href={trackingUrl}
                 className="w-full py-3 px-4 bg-[#3C6CA8] hover:bg-[#315A8E] text-white font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4" />

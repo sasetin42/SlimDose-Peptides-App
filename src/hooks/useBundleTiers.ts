@@ -3,12 +3,23 @@ import { supabase } from '../lib/supabase';
 import type { ProductBundleTier } from '../types';
 import type { BundleTiersMap } from '../utils/pricing';
 
+const BUNDLE_TIERS_CACHE_KEY = 'slimdose_bundle_tiers_cache';
+
+const getInitialTiersMap = (): BundleTiersMap => {
+  try {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem(BUNDLE_TIERS_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+    }
+  } catch {}
+  return {};
+};
+
 export function useBundleTiers(productIds?: string[]) {
-  const [tiersByProduct, setTiersByProduct] = useState<BundleTiersMap>({});
-  const [loading, setLoading] = useState(true);
+  const [tiersByProduct, setTiersByProduct] = useState<BundleTiersMap>(() => getInitialTiersMap());
+  const [loading, setLoading] = useState(() => Object.keys(getInitialTiersMap()).length === 0);
 
   const fetchTiers = useCallback(async (ids?: string[]) => {
-    setLoading(true);
     let query = supabase
       .from('product_bundle_tiers')
       .select('*')
@@ -22,14 +33,21 @@ export function useBundleTiers(productIds?: string[]) {
     const { data, error } = await query;
     if (error) {
       console.error('Failed to load bundle tiers:', error);
-      setTiersByProduct({});
     } else {
       const map: BundleTiersMap = {};
       (data as ProductBundleTier[]).forEach((tier) => {
         if (!map[tier.product_id]) map[tier.product_id] = [];
         map[tier.product_id].push(tier);
       });
-      setTiersByProduct(map);
+      setTiersByProduct(prev => {
+        const next = { ...prev, ...map };
+        try {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(BUNDLE_TIERS_CACHE_KEY, JSON.stringify(next));
+          }
+        } catch {}
+        return next;
+      });
     }
     setLoading(false);
   }, []);

@@ -93,12 +93,11 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {/* Syringe Type */}
             <div>
-              <label className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
+              <label htmlFor="productpeptidecalculator-syringe-type" className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
                 <Syringe className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#3C6CA8] dark:text-[#6A9BE0] shrink-0" />
                 <span className="truncate">Syringe Type</span>
               </label>
-              <select
-                value={selectedSyringe.id}
+              <select id="productpeptidecalculator-syringe-type" name="syringe_type" value={selectedSyringe.id}
                 onChange={(e) => {
                   const s = SYRINGE_OPTIONS.find(o => o.id === e.target.value);
                   if (s) setSelectedSyringe(s);
@@ -112,13 +111,12 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
 
             {/* Vial Strength */}
             <div>
-              <label className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
+              <label htmlFor="productpeptidecalculator-vial-strength" className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
                 <FlaskConical className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="truncate">Vial Strength</span>
               </label>
               <div className="relative">
-                <input
-                  type="number"
+                <input id="productpeptidecalculator-vial-strength" name="vial_strength" type="number"
                   value={vialQuantityMg}
                   onChange={e => setVialQuantityMg(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="e.g. 10"
@@ -135,14 +133,13 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {/* Desired Dose */}
             <div>
-              <label className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
+              <label htmlFor="productpeptidecalculator-desired-dose" className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
                 <Syringe className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span className="truncate">Desired Dose</span>
               </label>
               <div className="flex gap-0.5 sm:gap-1">
                 <div className="relative flex-1 min-w-0">
-                  <input
-                    type="number"
+                  <input id="productpeptidecalculator-desired-dose" name="desired_dose" type="number"
                     value={desiredDoseMg}
                     onChange={e => setDesiredDoseMg(e.target.value === '' ? '' : Number(e.target.value))}
                     placeholder={selectedUnit === 'mg' ? '0.25' : '250'}
@@ -173,13 +170,12 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
 
             {/* Bacteriostatic Water */}
             <div>
-              <label className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
+              <label htmlFor="productpeptidecalculator-bac-water" className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-1 truncate">
                 <Droplets className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#3C6CA8] dark:text-[#6A9BE0] shrink-0" />
                 <span className="truncate">Bac. Water</span>
               </label>
               <div className="relative">
-                <input
-                  type="number"
+                <input id="productpeptidecalculator-bac-water" name="bac_water" type="number"
                   value={waterAddedMl}
                   onChange={e => setWaterAddedMl(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="e.g. 2"

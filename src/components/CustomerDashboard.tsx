@@ -87,10 +87,9 @@ interface WishlistItem {
 // ─── FAQ Data ────────────────────────────────────────────────────────────────
 const FAQ_ITEMS = [
   { q: 'How do I reconstitute peptides?', a: 'Add bacteriostatic water slowly along the side of the vial. Gently swirl — do not shake. Use 1–2ml of bac water per 5mg vial for typical concentrations. Store reconstituted peptides refrigerated at 4°C and use within 30 days.' },
-  { q: 'What is your shipping policy?', a: 'We ship nationwide via J&T Express. Luzon: ₱150 (2–4 days), Visayas: ₱120 (3–5 days), Mindanao: ₱90 (4–6 days). Free shipping on orders ₱5,000+. Maxim Delivery (COD) available in select areas.' },
+  { q: 'What is your shipping policy?', a: 'We ship nationwide via J&T Express. Luzon: ₱120 (2–4 days), Visayas: ₱150 (3–5 days), Mindanao: ₱90 (4–6 days). Free shipping on orders ₱5,000+. Maxim Delivery (COD) available in select areas.' },
   { q: 'Can I cancel or return an order?', a: 'Orders can be cancelled within 1 hour of placement if not yet confirmed. Once shipped, returns are accepted only for defective or incorrect items within 7 days of delivery. Contact support with your order number and photos of the issue.' },
   { q: 'How do I track my order?', a: 'Once your order ships, you\'ll receive a J&T tracking number via email and in your account portal under Order History. You can also track via the J&T Express website using your tracking number.' },
-  { q: 'Are your products laboratory tested?', a: 'Yes. All SlimDose products undergo independent HPLC and Mass Spectrometry testing. Certificate of Analysis (COA) documents are available on each product page and can be downloaded from your order history.' },
 ];
 
 // ─── Helper Components ────────────────────────────────────────────────────────
@@ -130,9 +129,8 @@ const ToggleSwitch: React.FC<{ enabled: boolean; onChange: () => void; label: st
 
 const InputField: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; required?: boolean; hint?: string }> = ({ label, value, onChange, type = 'text', placeholder, required, hint }) => (
   <div>
-    <label className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{label}{required && <span className="text-rose-500 ml-0.5">*</span>}</label>
-    <input
-      type={type}
+    <label htmlFor="customerdashboard-label-required" className="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">{label}{required && <span className="text-rose-500 ml-0.5">*</span>}</label>
+    <input id="customerdashboard-label-required" name="label_required" type={type}
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
@@ -543,12 +541,12 @@ Shipping Target: ${deliveryAddr}
           <InputField label="ZIP Code" value={form.zip} onChange={v => u('zip', v)} />
         </div>
         <div className="flex gap-4 pt-1">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isDefaultShipping} onChange={e => u('isDefaultShipping', e.target.checked)} className="rounded text-[#3C6CA8]" />
+          <label htmlFor="customerdashboard-u-isdefaultshipping-e-target-c" className="flex items-center gap-2 cursor-pointer">
+            <input id="customerdashboard-checkbox-2" name="checkbox_2" type="checkbox" checked={form.isDefaultShipping} onChange={e => u('isDefaultShipping', e.target.checked)} className="rounded text-[#3C6CA8]" />
             <span className="text-xs text-gray-600 dark:text-slate-400">Default Shipping</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.isDefaultBilling} onChange={e => u('isDefaultBilling', e.target.checked)} className="rounded text-[#3C6CA8]" />
+            <input id="customerdashboard-u-isdefaultshipping-e-target-c" name="u_isdefaultshipping_e_target_c" type="checkbox" checked={form.isDefaultBilling} onChange={e => u('isDefaultBilling', e.target.checked)} className="rounded text-[#3C6CA8]" />
             <span className="text-xs text-gray-600 dark:text-slate-400">Default Billing</span>
           </label>
         </div>
@@ -655,15 +653,29 @@ Shipping Target: ${deliveryAddr}
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-          {stats.map((s, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs">
-              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>{s.icon}</div>
-              <div className="min-w-0">
-                <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{s.label}</p>
-                <p className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight truncate">{s.value}</p>
+          {stats.map((s, i) => {
+            const isClickable = s.label === 'Saved Items' || s.label === 'Total Orders' || s.label === 'Pending Orders';
+            const handleClick = () => {
+              if (s.label === 'Saved Items') setActiveTab('wishlist');
+              else if (s.label === 'Total Orders' || s.label === 'Pending Orders') setActiveTab('orders');
+            };
+            return (
+              <div
+                key={i}
+                onClick={isClickable ? handleClick : undefined}
+                className={`bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3 shadow-xs transition-all ${
+                  isClickable ? 'cursor-pointer hover:border-[#3C6CA8] hover:shadow-sm' : ''
+                }`}
+              >
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}>{s.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider truncate">{s.label}</p>
+                  <p className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight truncate">{s.value}</p>
+                </div>
+                {isClickable && <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600 shrink-0" />}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Recent Orders */}
@@ -744,13 +756,11 @@ Shipping Target: ${deliveryAddr}
   // ─── Tab: Profile ─────────────────────────────────────────────────────────
   const ProfileTab = () => (
     <div className="space-y-4 sm:space-y-5">
-      <input
-        type="file"
+      <input id="customerdashboard-file-upload" name="file_upload" type="file"
         ref={avatarInputRef}
         onChange={handleAvatarUpload}
         accept="image/*"
-        className="hidden"
-      />
+        className="hidden"/>
       
       {/* Sleek Profile Card Header */}
       <div className="bg-slate-50 dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 rounded-2xl p-3.5 sm:p-4 flex items-center gap-3.5 sm:gap-4 shadow-xs">
@@ -860,8 +870,7 @@ Shipping Target: ${deliveryAddr}
       <div className="space-y-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            value={orderSearch}
+          <input id="customerdashboard-input-4" name="input_4" value={orderSearch}
             onChange={e => setOrderSearch(e.target.value)}
             placeholder="Search by order # or product..."
             className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none transition-all"
@@ -1193,14 +1202,14 @@ Shipping Target: ${deliveryAddr}
         <form onSubmit={handleSubmitTicket} className="space-y-3">
           <InputField label="Subject" value={ticketSubject} onChange={setTicketSubject} required placeholder="e.g. Issue with my order" />
           <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
-            <select value={ticketCategory} onChange={e => setTicketCategory(e.target.value)} className="w-full text-sm px-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all">
+            <label htmlFor="customerdashboard-category" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
+            <select id="customerdashboard-category" name="category" value={ticketCategory} onChange={e => setTicketCategory(e.target.value)} className="w-full text-sm px-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all">
               {['General','Order Issue','Shipping','Product Info','Returns','Payment','Account'].map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Message <span className="text-rose-500">*</span></label>
-            <textarea value={ticketMessage} onChange={e => setTicketMessage(e.target.value)} rows={4} placeholder="Describe your issue in detail..." required className="w-full text-sm px-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 resize-none transition-all" />
+            <label htmlFor="customerdashboard-message" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Message <span className="text-rose-500">*</span></label>
+            <textarea id="customerdashboard-message" name="message" value={ticketMessage} onChange={e => setTicketMessage(e.target.value)} rows={4} placeholder="Describe your issue in detail..." required className="w-full text-sm px-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 resize-none transition-all" />
           </div>
           <button type="submit" className="w-full py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"><Send className="w-4 h-4" />Submit Ticket</button>
         </form>
@@ -1237,13 +1246,13 @@ Shipping Target: ${deliveryAddr}
         <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-[#3C6CA8]" />Change Password</h3>
         <form onSubmit={handlePasswordChange} className="space-y-3">
           <div className="relative">
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Current Password <span className="text-rose-500">*</span></label>
-            <input type={showCurrentPw ? 'text' : 'password'} value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" />
+            <label htmlFor="customerdashboard-current-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Current Password <span className="text-rose-500">*</span></label>
+            <input id="customerdashboard-current-password" name="current_password" type={showCurrentPw ? 'text' : 'password'} value={currentPassword} autoComplete="current-password" onChange={(e) => setCurrentPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" />
             <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 cursor-pointer">{showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
           </div>
           <div className="relative">
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password <span className="text-rose-500">*</span></label>
-            <input type={showNewPw ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" placeholder="Min. 8 characters" />
+            <label htmlFor="customerdashboard-new-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password <span className="text-rose-500">*</span></label>
+            <input id="customerdashboard-new-password" name="new_password" type={showNewPw ? 'text' : 'password'} value={newPassword} autoComplete="new-password" onChange={(e) => setNewPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" placeholder="Min. 8 characters" />
             <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 cursor-pointer">{showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
           </div>
           {newPassword && (() => {
@@ -1256,8 +1265,8 @@ Shipping Target: ${deliveryAddr}
             );
           })()}
           <div>
-            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Confirm New Password <span className="text-rose-500">*</span></label>
-            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={`w-full text-sm px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all ${confirmPassword && confirmPassword !== newPassword ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-slate-700'}`} />
+            <label htmlFor="customerdashboard-confirm-new-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Confirm New Password <span className="text-rose-500">*</span></label>
+            <input id="customerdashboard-confirm-new-password" name="confirm_new_password" type="password" value={confirmPassword} autoComplete="new-password" onChange={(e) => setConfirmPassword(e.target.value)} className={`w-full text-sm px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all ${confirmPassword && confirmPassword !== newPassword ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-slate-700'}`} />
             {confirmPassword && confirmPassword !== newPassword && <p className="text-[10px] text-rose-500 mt-1">Passwords don't match.</p>}
           </div>
           <button type="submit" className="w-full py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"><Lock className="w-4 h-4" />Update Password</button>

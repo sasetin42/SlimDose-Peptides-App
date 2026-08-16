@@ -26,6 +26,7 @@ export default defineSchema({
     id: v.string(),
     name: v.optional(v.string()),
     fee: v.optional(v.string()),
+    note: v.optional(v.string()),
     is_active: v.optional(v.boolean()),
     order_index: v.optional(v.number()),
     created_at: v.optional(v.string()),

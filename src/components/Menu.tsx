@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MenuItemCard from './MenuItemCard';
 import Hero from './Hero';
@@ -21,9 +21,10 @@ import {
   Gem,
   Coins,
   Layout,
-  Flame
+  Flame,
 } from 'lucide-react';
 import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
+import { useBundleTiers } from '../hooks/useBundleTiers';
 
 interface MenuProps {
   menuItems: Product[];
@@ -33,20 +34,10 @@ interface MenuProps {
   updateQuantity: (index: number, quantity: number) => void;
 }
 
-const getSoldCount = (product: Product): number => {
-  if (typeof product.sales_count === 'number' && product.sales_count > 0) {
-    return product.sales_count;
-  }
-  let hash = 0;
-  for (let i = 0; i < product.id.length; i++) {
-    hash = (hash << 5) - hash + product.id.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash % 215) + 35;
-};
-
 const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cartItems }) => {
   const { globalDiscount } = useGlobalDiscount();
+  const productIds = useMemo(() => menuItems.map((p) => p.id), [menuItems]);
+  const { tiersByProduct } = useBundleTiers(productIds);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'most-sold'>('name');
@@ -112,7 +103,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
       case 'price':
         return a.base_price - b.base_price;
       case 'most-sold':
-        return getSoldCount(b) - getSoldCount(a);
+        return Number(b.sales_count || 0) - Number(a.sales_count || 0);
       case 'purity':
         return b.purity_percentage - a.purity_percentage;
       default:
@@ -158,7 +149,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
 
   const handleProductClick = (product: Product) => {
     if (product.slug) {
-      navigate(`/${product.slug}`);
+      navigate(`/${product.slug}`, { state: { product } });
     }
   };
 
@@ -173,6 +164,30 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
 
         {/* ═══ PRODUCT CATALOG CONTAINER ═══ */}
         <div className="container-global relative z-30 pt-0 sm:pt-1" ref={productsRef}>
+
+          {/* Global Discount Announcement Card */}
+          {globalDiscount && (
+            <div className="mb-4 sm:mb-5 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-amber-950/40 border border-amber-400/40 dark:border-amber-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in duration-300">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-xs sm:text-sm font-black text-amber-950 dark:text-amber-200">
+                      {globalDiscount.name || 'Storewide Global Sale'}
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white uppercase tracking-wider shadow-2xs">
+                      {globalDiscount.discount_type === 'percentage' ? `${globalDiscount.discount_value}% OFF` : `₱${globalDiscount.discount_value} OFF`}
+                    </span>
+                  </div>
+                  <p className="text-[11px] sm:text-xs text-amber-900/80 dark:text-amber-300/80 font-medium">
+                    Storewide discount automatically applied to all eligible products. (Product bundle discounts are paused during this promotion).
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Header & Controls Bar — Unified Inline Layout with elevated z-index for filter dropdowns */}
           <div className="mt-1 mb-3 sm:mt-2 sm:mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-4 border-b border-gray-200/60 pb-2 sm:pb-4 relative z-40">
@@ -191,8 +206,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
               {/* Search Input */}
               <div className="relative min-w-[200px] lg:w-[240px] xl:w-[280px]">
                 <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
+                <input id="menu-search-products" name="search_products" type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -263,6 +277,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
                     onClick={() => {
                       setIsSortOpen(!isSortOpen);
                       setIsPriceOpen(false);
+                      setIsPurityOpen(false);
                     }}
                     className={`w-full sm:w-auto inline-flex items-center justify-between h-8 sm:h-10 px-2.5 sm:px-4 rounded-full border text-[11px] sm:text-sm font-semibold transition-all shadow-sm gap-1 cursor-pointer ${
                       sortBy !== 'name'
@@ -271,8 +286,8 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
                     }`}
                   >
                     <div className="flex items-center gap-1 min-w-0">
-                      <SlidersHorizontal className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${sortBy !== 'name' ? 'text-[#3C6CA8] dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
-                      <span className="truncate">{sortLabels[sortBy]}</span>
+                      <Layout className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 ${sortBy !== 'name' ? 'text-[#3C6CA8] dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                      <span className="truncate">{sortOptions.find(o => o.value === sortBy)?.label}</span>
                     </div>
                     <ChevronDown className={`w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -361,6 +376,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
                   onProductClick={handleProductClick}
                   onAddToCart={addToCart}
                   globalDiscount={globalDiscount}
+                  bundleTiers={tiersByProduct[product.id]}
                 />
               ))}
             </div>

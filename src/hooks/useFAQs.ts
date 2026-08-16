@@ -20,7 +20,7 @@ export interface FAQCategory {
     order_index: number;
 }
 
-const defaultFAQs: FAQItem[] = [
+export const defaultFAQs: FAQItem[] = [
     // Product & Usage
     {
         id: '1',
@@ -201,6 +201,31 @@ export const useFAQsAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const seedDefaultFAQs = async () => {
+        try {
+            setLoading(true);
+            for (const item of defaultFAQs) {
+                await supabase.from('faqs').upsert({
+                    id: item.id,
+                    question: item.question,
+                    answer: item.answer,
+                    category: item.category,
+                    order_index: item.order_index,
+                    is_active: item.is_active,
+                    created_at: item.created_at || new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+            }
+            await fetchAllFAQs();
+            return true;
+        } catch (seedErr) {
+            console.error('Error seeding default FAQs:', seedErr);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchAllFAQs = async () => {
         try {
             setLoading(true);
@@ -210,13 +235,30 @@ export const useFAQsAdmin = () => {
                 .order('order_index', { ascending: true });
 
             if (fetchError) {
-                console.warn('FAQs table not found:', fetchError.message);
-                setFaqs([]);
+                console.warn('FAQs table error, using defaults:', fetchError.message);
+                setFaqs(defaultFAQs);
+            } else if (!data || data.length === 0) {
+                // Auto seed or show defaults so admin is never blank
+                setFaqs(defaultFAQs);
+                // Attempt background sync to database
+                for (const item of defaultFAQs) {
+                    supabase.from('faqs').upsert({
+                        id: item.id,
+                        question: item.question,
+                        answer: item.answer,
+                        category: item.category,
+                        order_index: item.order_index,
+                        is_active: item.is_active,
+                        created_at: item.created_at || new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    }).catch(() => {});
+                }
             } else {
-                setFaqs(data || []);
+                setFaqs(data);
             }
         } catch (err) {
             console.error('Error fetching FAQs:', err);
+            setFaqs(defaultFAQs);
             setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setLoading(false);
@@ -226,7 +268,11 @@ export const useFAQsAdmin = () => {
     const addFAQ = async (faq: Omit<FAQItem, 'id' | 'created_at' | 'updated_at'>) => {
         const { data, error } = await supabase
             .from('faqs')
-            .insert([faq])
+            .insert([{
+                ...faq,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }])
             .select()
             .single();
 
@@ -265,5 +311,5 @@ export const useFAQsAdmin = () => {
         fetchAllFAQs();
     }, []);
 
-    return { faqs, loading, error, addFAQ, updateFAQ, deleteFAQ, refetch: fetchAllFAQs };
+    return { faqs, loading, error, addFAQ, updateFAQ, deleteFAQ, refetch: fetchAllFAQs, seedDefaultFAQs };
 };

@@ -41,11 +41,23 @@
   --gray-900: #F3F4F6;
 }
 
-/* Global premium transitions for background and colors */
-body, header, footer, nav, div, section, p, h1, h2, h3, h4, h5, h6, select, input, textarea, button, a {
-  transition-property: color, background-color, border-color, box-shadow;
-  transition-duration: 300ms;
+/* Opt-in theme transition — apply only to elements that change color on dark mode toggle */
+.transition-theme {
+  transition-property: color, background-color, border-color;
+  transition-duration: 250ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure no layout-triggering transitions on scroll-heavy containers */
+.no-transition {
+  transition: none !important;
+}
+
+/* GPU layer hints for animated elements */
+.animate-page-in,
+.animate-fadeIn,
+.animate-slideIn {
+  will-change: opacity, transform;
 }
 
 /* Dark mode overrides for background and text colors */
@@ -174,17 +186,23 @@ h6 {
   letter-spacing: -0.02em;
 }
 
-/* Global Font Weight 800 (font-extrabold / font-black) -> 700 Override */
+/* Global Font Weight (bold, extrabold, black, 700, 800, 900) -> 600 Override */
+.font-bold,
+[class*="font-bold"],
+.font-extrabold,
+[class*="font-extrabold"],
 .font-black,
 [class*="font-black"],
-.font-extrabold,
-[class*="font-extrabold"] {
-  font-weight: 700 !important;
+b,
+strong {
+  font-weight: 600 !important;
 }
 
 @layer utilities {
-  .font-extrabold {
-    font-weight: 700 !important;
+  .font-bold,
+  .font-extrabold,
+  .font-black {
+    font-weight: 600 !important;
   }
 }
 
@@ -426,8 +444,22 @@ h6 {
   max-width: 1400px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .container-global {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-global {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 /* Responsive Product Catalog Grid */
@@ -454,5 +486,70 @@ h6 {
   .catalog-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 24px;
+  }
+}
+
+/* ==========================================================================
+   Print Optimization for Clinical & Laboratory Protocol Summary Sheets
+   ========================================================================== */
+@media print {
+  @page {
+    margin: 10mm;
+    size: portrait;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide normal site elements */
+  body > *:not(#root),
+  header,
+  footer,
+  nav,
+  .no-print,
+  button:not(.printable-summary-sheet button),
+  input:not(.printable-summary-sheet input),
+  .fixed:not(.fixed:has(.printable-summary-sheet)) {
+    display: none !important;
+  }
+
+  /* When modal or sheet is present, show only printable summary sheet */
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-summary-sheet,
+  .printable-summary-sheet * {
+    visibility: visible;
+  }
+
+  .printable-summary-sheet {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    border: 1px solid #94a3b8 !important;
+    border-radius: 6px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Force print background colors and SVGs */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

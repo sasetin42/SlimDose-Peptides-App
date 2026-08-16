@@ -1,18 +1,61 @@
-import React, { useState } from 'react';
-import { Home, Layout } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Layout,
+  Home,
+  MessageCircle,
+  Shield,
+  Search,
+  Save,
+  RotateCcw,
+  Upload,
+  ExternalLink,
+  CheckCircle2,
+  AlertCircle,
+  Smartphone,
+  Monitor,
+  Sparkles,
+  Phone,
+  Mail,
+  Instagram,
+  Loader2,
+  Trash2,
+  Clock
+} from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { useImageUpload } from '../hooks/useImageUpload';
+import { fireToast } from './ToastNotification';
+
+type SettingsTab = 'general' | 'community' | 'homepage' | 'notice' | 'seo';
 
 const SiteSettingsManager: React.FC = () => {
-  const { siteSettings, loading, updateSiteSettings } = useSiteSettings();
-  const { uploadImage, uploading } = useImageUpload();
+  const { siteSettings, loading, updateSiteSettings, refetch } = useSiteSettings();
+  const { uploadImage, uploading } = useImageUpload('site-assets');
 
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [isSaving, setIsSaving] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>('');
+
+  // Main Form Data State
   const [formData, setFormData] = useState({
+    // General & Branding
     site_name: '',
     site_description: '',
-    currency: '',
-    currency_code: '',
-    // Hero Fields
+    currency: 'PHP',
+    currency_code: 'PHP',
+    operating_hours: 'Monday - Friday: 9:00 AM - 6:00 PM PHT',
+    support_email: 'support@slimdose.ph',
+    support_phone: '+63 977 813 2630',
+    contact_phone: '+63 977 813 2630',
+    contact_whatsapp: '+63 977 813 2630',
+    contact_inquiry_text: 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
+    // Social & Community Links
+    community_telegram_url: '',
+    support_telegram_url: '',
+    instagram_url: '',
+    facebook_url: '',
+    // Homepage Hero
     hero_badge_text: '',
     hero_title_prefix: '',
     hero_title_highlight: '',
@@ -20,34 +63,82 @@ const SiteSettingsManager: React.FC = () => {
     hero_subtext: '',
     hero_tagline: '',
     hero_description: '',
-    hero_accent_color: 'gold-500'
+    hero_accent_color: '#3C6CA8',
+    // Important Notice Modal
+    notice_title: '',
+    notice_subtitle: '',
+    notice_disclaimer_p1: '',
+    notice_disclaimer_p2: '',
+    notice_consult_text: '',
+    notice_warning_pill: '',
+    notice_order_days: '',
+    notice_cutoff_time: '',
+    notice_courier: '',
+    notice_weekend_orders: '',
+    notice_agree_button_text: '',
+    // SEO & Meta
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: ''
   });
 
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>('');
-  const [isSaving, setIsSaving] = useState(false);
+  // Track initial state to detect unsaved changes
+  const [initialData, setInitialData] = useState<typeof formData | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (siteSettings) {
-      setFormData({
-        site_name: siteSettings.site_name,
-        site_description: siteSettings.site_description,
-        currency: siteSettings.currency,
-        currency_code: siteSettings.currency_code,
-        hero_badge_text: siteSettings.hero_badge_text || '',
-        hero_title_prefix: siteSettings.hero_title_prefix || '',
-        hero_title_highlight: siteSettings.hero_title_highlight || '',
-        hero_title_suffix: siteSettings.hero_title_suffix || '',
-        hero_subtext: siteSettings.hero_subtext || '',
-        hero_tagline: siteSettings.hero_tagline || '',
-        hero_description: siteSettings.hero_description || '',
-        hero_accent_color: siteSettings.hero_accent_color || 'gold-500'
-      });
-      setLogoPreview(siteSettings.site_logo);
+      const synced = {
+        site_name: siteSettings.site_name || 'SlimDose Peptides',
+        site_description: siteSettings.site_description || '',
+        currency: siteSettings.currency || 'PHP',
+        currency_code: siteSettings.currency_code || 'PHP',
+        operating_hours: siteSettings.operating_hours || 'Monday - Friday: 9:00 AM - 6:00 PM PHT',
+        support_email: siteSettings.support_email || 'support@slimdose.ph',
+        support_phone: siteSettings.support_phone || '+63 977 813 2630',
+        contact_phone: siteSettings.contact_phone || '+63 977 813 2630',
+        contact_whatsapp: siteSettings.contact_whatsapp || '+63 977 813 2630',
+        contact_inquiry_text: siteSettings.contact_inquiry_text || 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
+        community_telegram_url: siteSettings.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl',
+        support_telegram_url: siteSettings.support_telegram_url || 'https://t.me/slimdose_mnl',
+        instagram_url: siteSettings.instagram_url || '',
+        facebook_url: siteSettings.facebook_url || '',
+        hero_badge_text: siteSettings.hero_badge_text || 'Premium Peptide Solutions',
+        hero_title_prefix: siteSettings.hero_title_prefix || 'Premium',
+        hero_title_highlight: siteSettings.hero_title_highlight || 'Peptides',
+        hero_title_suffix: siteSettings.hero_title_suffix || '& Essentials',
+        hero_subtext: siteSettings.hero_subtext || 'From the Lab to You — Simplifying Science, One Dose at a Time.',
+        hero_tagline: siteSettings.hero_tagline || 'Quality-tested products. Reliable performance. Trusted by our community.',
+        hero_description: siteSettings.hero_description || 'SlimDose Peptides is your all-in-one destination for high-quality peptides, peptide pens, and the essential accessories you need for a smooth and confident wellness routine.',
+        hero_accent_color: siteSettings.hero_accent_color || '#3C6CA8',
+        notice_title: siteSettings.notice_title || 'Important Notice',
+        notice_subtitle: siteSettings.notice_subtitle || 'Please read carefully before continuing',
+        notice_disclaimer_p1: siteSettings.notice_disclaimer_p1 || 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.',
+        notice_disclaimer_p2: siteSettings.notice_disclaimer_p2 || 'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.',
+        notice_consult_text: siteSettings.notice_consult_text || 'Always consult a licensed healthcare professional for health-related decisions.',
+        notice_warning_pill: siteSettings.notice_warning_pill || '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS',
+        notice_order_days: siteSettings.notice_order_days || 'Monday - Friday',
+        notice_cutoff_time: siteSettings.notice_cutoff_time || '5:00 PM Daily',
+        notice_courier: siteSettings.notice_courier || 'Next Day via J&T',
+        notice_weekend_orders: siteSettings.notice_weekend_orders || 'Processed Mondays',
+        notice_agree_button_text: siteSettings.notice_agree_button_text || 'I Understand & Agree',
+        meta_title: siteSettings.meta_title || 'SlimDose Peptides — High Purity Research Solutions',
+        meta_description: siteSettings.meta_description || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
+        meta_keywords: siteSettings.meta_keywords || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested'
+      };
+
+      setFormData(synced);
+      setInitialData(synced);
+      setLogoPreview(siteSettings.site_logo || '/assets/logo.jpeg');
     }
   }, [siteSettings]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const hasUnsavedChanges = useMemo(() => {
+    if (!initialData) return !!logoFile;
+    const isFieldsChanged = JSON.stringify(formData) !== JSON.stringify(initialData);
+    return isFieldsChanged || !!logoFile;
+  }, [formData, initialData, logoFile]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -58,13 +149,24 @@ const SiteSettingsManager: React.FC = () => {
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        fireToast('Logo file must be smaller than 5MB', 'error');
+        return;
+      }
       setLogoFile(file);
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setLogoPreview(e.target?.result as string);
+      reader.onload = (uploadEvent) => {
+        setLogoPreview(uploadEvent.target?.result as string);
       };
       reader.readAsDataURL(file);
+      fireToast('Logo preview loaded', 'info');
     }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoPreview('/assets/logo.jpeg');
+    fireToast('Logo reset to default', 'info');
   };
 
   const handleSave = async () => {
@@ -73,9 +175,10 @@ const SiteSettingsManager: React.FC = () => {
       let logoUrl = logoPreview;
 
       if (logoFile) {
-        // useImageUpload uses the folder defined at hook level (default 'menu-images')
         const uploadedUrl = await uploadImage(logoFile);
-        logoUrl = uploadedUrl;
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl;
+        }
       }
 
       await updateSiteSettings({
@@ -84,17 +187,19 @@ const SiteSettingsManager: React.FC = () => {
       });
 
       setLogoFile(null);
-      alert('Settings saved successfully!');
-    } catch (error) {
+      setInitialData(formData);
+      await refetch();
+      fireToast('Site settings updated & synchronized live! 🎉', 'success');
+    } catch (error: any) {
       console.error('Error saving site settings:', error);
-      alert('Failed to save settings.');
+      fireToast(`Failed to save settings: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleResetDefaults = () => {
-    if (confirm('Are you sure you want to reset the homepage content to defaults?')) {
+  const handleResetHomepageDefaults = () => {
+    if (window.confirm('Reset homepage hero copy to default values?')) {
       setFormData(prev => ({
         ...prev,
         hero_badge_text: 'Premium Peptide Solutions',
@@ -104,198 +209,969 @@ const SiteSettingsManager: React.FC = () => {
         hero_subtext: 'From the Lab to You — Simplifying Science, One Dose at a Time.',
         hero_tagline: 'Quality-tested products. Reliable performance. Trusted by our community.',
         hero_description: 'SlimDose Peptides is your all-in-one destination for high-quality peptides, peptide pens, and the essential accessories you need for a smooth and confident wellness routine.',
+        hero_accent_color: '#3C6CA8'
       }));
+      fireToast('Homepage defaults restored in form', 'info');
+    }
+  };
+
+  const handleResetNoticeDefaults = () => {
+    if (window.confirm('Reset research notice disclaimer to default terms?')) {
+      setFormData(prev => ({
+        ...prev,
+        notice_title: 'Important Notice',
+        notice_subtitle: 'Please read carefully before continuing',
+        notice_disclaimer_p1: 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.',
+        notice_disclaimer_p2: 'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.',
+        notice_consult_text: 'Always consult a licensed healthcare professional for health-related decisions.',
+        notice_warning_pill: '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS',
+        notice_order_days: 'Monday - Friday',
+        notice_cutoff_time: '5:00 PM Daily',
+        notice_courier: 'Next Day via J&T',
+        notice_weekend_orders: 'Processed Mondays',
+        notice_agree_button_text: 'I Understand & Agree'
+      }));
+      fireToast('Notice defaults restored in form', 'info');
     }
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading settings...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-3">
+        <Loader2 className="w-8 h-8 text-[#3C6CA8] animate-spin" />
+        <p className="text-xs font-semibold text-slate-500">Loading site configuration &amp; assets...</p>
+      </div>
+    );
   }
 
-  return (
-    <div className="space-y-8 pb-12">
-      {/* General Site Settings Card */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <Layout className="w-5 h-5 text-gray-500" />
-          General Site Settings
-        </h2>
+  const tabs = [
+    { id: 'general', label: 'General & Branding', icon: Layout },
+    { id: 'community', label: 'Channels & Support', icon: MessageCircle },
+    { id: 'homepage', label: 'Homepage Hero & Copy', icon: Home },
+    { id: 'notice', label: 'Research Notice Modal', icon: Shield },
+    { id: 'seo', label: 'SEO & Metadata', icon: Search },
+  ];
 
-        <div className="space-y-6">
-          {/* Logo & Name Row */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="shrink-0">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Site Logo</label>
-              <div className="flex items-center gap-4">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
-                  <img src={logoPreview || '/assets/logo.jpeg'} alt="Logo" className="w-full h-full object-cover" />
-                </div>
-                <label className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
-                  Change
-                  <input type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
-                </label>
-              </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
-                <input
-                  type="text"
-                  name="site_name"
-                  value={formData.site_name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Site Description</label>
-                <textarea
-                  name="site_description"
-                  value={formData.site_description}
-                  onChange={handleInputChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow"
-                />
-              </div>
-            </div>
+  return (
+    <div className="space-y-4 sm:space-y-6 text-left max-w-5xl mx-auto pb-24 font-inter">
+      {/* ── Top Header Banner ── */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#3C6CA8]/10 border border-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] shrink-0 shadow-2xs">
+            <Layout className="w-5 h-5" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Currency Symbol</label>
-              <input type="text" name="currency" value={formData.currency} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                Site Settings &amp; Store Configuration
+              </h1>
+              {hasUnsavedChanges && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse">
+                  <AlertCircle className="w-3 h-3" /> Unsaved Changes
+                </span>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Currency Code</label>
-              <input type="text" name="currency_code" value={formData.currency_code} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
-            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Manage store branding, telegram community links, homepage hero copy, and research notices.
+            </p>
           </div>
-          <div className="flex justify-end">
-            <button onClick={handleSave} disabled={isSaving || uploading} className="bg-navy-900 text-white px-4 py-2 rounded-lg hover:bg-navy-800 transition-colors disabled:opacity-50">
-              {isSaving ? 'Saving...' : 'Save General Settings'}
-            </button>
-          </div>
+        </div>
+
+        {/* Header Action Button */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving || uploading}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Saving Changes...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-3.5 h-3.5" />
+                <span>Save Settings</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Homepage Content Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-orange-50 rounded-lg">
-              <Home className="w-6 h-6 text-orange-600" />
+      {/* ── Segmented Tab Navigation ── */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar scroll-smooth">
+        {tabs.map((t) => {
+          const Icon = t.icon;
+          const isActive = activeTab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id as SettingsTab)}
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 border ${
+                isActive
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs dark:bg-white dark:text-slate-900 dark:border-white'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400 dark:text-[#3C6CA8]' : 'text-slate-400'}`} />
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── TAB 1: General & Branding ── */}
+      {activeTab === 'general' && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Layout className="w-4 h-4 text-[#3C6CA8]" />
+                  Store Identity &amp; Branding
+                </h2>
+                <p className="text-xs text-slate-400">Core store identity, logo graphics, and currency parameters.</p>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-[#3C6CA8] rounded-full border border-blue-100 dark:border-blue-900/50">
+                Active Brand
+              </span>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Homepage Content</h2>
-              <p className="text-sm text-gray-500 mt-1">Customize the landing page text.</p>
+
+            {/* Logo Upload Row */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-700/60">
+              <div className="relative group shrink-0">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center p-2">
+                  <img
+                    src={logoPreview || '/assets/logo.jpeg'}
+                    alt="Brand Logo Preview"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/logo.jpeg';
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-black text-slate-900 dark:text-white">Store Logo Mark</span>
+                  <span className="text-[10px] font-bold text-slate-400">(PNG, SVG, or JPG · Max 5MB)</span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  This logo renders across the storefront navbar header, invoice receipts, order summaries, and email templates.
+                </p>
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
+                  <label htmlFor="sitesettingsmanager-upload-new-logo-logopreview-as" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-700 cursor-pointer transition-all shadow-2xs">
+                    <Upload className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                    <span>Upload New Logo</span>
+                    <input id="sitesettingsmanager-file-upload" name="file_upload" type="file" accept="image/*" onChange={handleLogoChange} className="hidden"/>
+                  </label>
+                  {logoPreview !== '/assets/logo.jpeg' && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveLogo}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Reset</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-upload-new-logo-logopreview-as" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Store / Business Name *
+                </label>
+                <input id="sitesettingsmanager-upload-new-logo-logopreview-as" type="text"
+                  name="site_name"
+                  value={formData.site_name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. SlimDose Peptides"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-operating-hours-support-schedu" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Operating Hours / Support Schedule
+                </label>
+                <input id="sitesettingsmanager-operating-hours-support-schedu" type="text"
+                  name="operating_hours"
+                  value={formData.operating_hours}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Mon - Fri: 9:00 AM - 6:00 PM"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none" autoComplete="off" />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label htmlFor="sitesettingsmanager-store-motto-amp-short-descript" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Store Motto &amp; Short Description
+                </label>
+                <textarea id="sitesettingsmanager-store-motto-amp-short-descript" name="site_description"
+                  value={formData.site_description}
+                  onChange={handleInputChange}
+                  rows={2}
+                  placeholder="Brief description displayed in browser previews, social embeds, and footer..."
+                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none resize-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-currency-symbol" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Currency Symbol
+                </label>
+                <div className="relative">
+                  <input id="sitesettingsmanager-currency-symbol" type="text"
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleInputChange}
+                    placeholder="₱"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none" autoComplete="off" />
+                  <span className="absolute right-3 top-2.5 text-[11px] font-mono text-slate-400">Prefix</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-iso-currency-code" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  ISO Currency Code
+                </label>
+                <div className="relative">
+                  <input id="sitesettingsmanager-iso-currency-code" type="text"
+                    name="currency_code"
+                    value={formData.currency_code}
+                    onChange={handleInputChange}
+                    placeholder="PHP"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none font-mono" autoComplete="off" />
+                  <span className="absolute right-3 top-2.5 text-[11px] font-mono text-slate-400">ISO-4217</span>
+                </div>
+              </div>
             </div>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
         </div>
+      )}
 
-        <div className="p-6 space-y-6">
-          {/* Badge Text */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Badge Text</label>
-            <input
-              type="text"
-              name="hero_badge_text"
-              value={formData.hero_badge_text}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
-              placeholder="e.g. Premium Peptide Solutions"
-            />
-          </div>
-
-          {/* Title Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Title Prefix</label>
-              <input
-                type="text"
-                name="hero_title_prefix"
-                value={formData.hero_title_prefix}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-gray-900 transition-all"
-                placeholder="e.g. Premium"
-              />
+      {/* ── TAB 2: Channels & Support ── */}
+      {activeTab === 'community' && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          {/* Community Channels & Social Links */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4 text-sky-500" />
+                  Community Channels &amp; Direct Support Links
+                </h2>
+                <p className="text-xs text-slate-400">Manage links that sync with the navbar, mobile drawer, footer, and order tracking.</p>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Highlight (Color)</label>
-              <input
-                type="text"
-                name="hero_title_highlight"
-                value={formData.hero_title_highlight}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-theme-secondary font-medium focus:ring-2 focus:ring-gray-900 transition-all"
-                placeholder="e.g. Peptides"
-              />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {/* Telegram Group */}
+              <div className="p-4 rounded-xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/70 dark:border-sky-900/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="sitesettingsmanager-community-telegram-url" className="text-xs font-black text-sky-900 dark:text-sky-300 flex items-center gap-1.5 cursor-pointer">
+                    <MessageCircle className="w-4 h-4 text-sky-500" />
+                    <span>Community Telegram Discussions</span>
+                  </label>
+                  {formData.community_telegram_url && (
+                    <a
+                      href={formData.community_telegram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5"
+                    >
+                      <span>Test Link</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+                <input
+                  id="sitesettingsmanager-community-telegram-url"
+                  type="url"
+                  name="community_telegram_url"
+                  value={formData.community_telegram_url}
+                  onChange={handleInputChange}
+                  placeholder="https://t.me/+fGtShIUkbB84YzZl"
+                  className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-sky-300 dark:border-sky-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/30 outline-none"
+                  autoComplete="off"
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Updates header Community button, mobile menu links, and about page.
+                </p>
+              </div>
+
+              {/* Support Telegram Chat */}
+              <div className="p-4 rounded-xl bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200/70 dark:border-sky-900/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="sitesettingsmanager-support-telegram-url" className="text-xs font-black text-sky-900 dark:text-sky-300 flex items-center gap-1.5 cursor-pointer">
+                    <Phone className="w-4 h-4 text-sky-500" />
+                    <span>Support Telegram Chat (Direct)</span>
+                  </label>
+                  {formData.support_telegram_url && (
+                    <a
+                      href={formData.support_telegram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5"
+                    >
+                      <span>Test Chat</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+                <input
+                  id="sitesettingsmanager-support-telegram-url"
+                  type="url"
+                  name="support_telegram_url"
+                  value={formData.support_telegram_url}
+                  onChange={handleInputChange}
+                  placeholder="https://t.me/slimdose_mnl"
+                  className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-sky-300 dark:border-sky-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/30 outline-none"
+                  autoComplete="off"
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Direct contact handle for payment confirmation, shipping queries, and support.
+                </p>
+              </div>
+
+              {/* Instagram URL */}
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-instagram-profile-handle-url" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Instagram Profile Handle / URL
+                </label>
+                <div className="relative">
+                  <Instagram className="w-4 h-4 text-pink-500 absolute left-3 top-2.5" />
+                  <input
+                    id="sitesettingsmanager-instagram-profile-handle-url"
+                    type="text"
+                    name="instagram_url"
+                    value={formData.instagram_url}
+                    onChange={handleInputChange}
+                    placeholder="https://instagram.com/slimdose"
+                    className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              {/* Facebook URL */}
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-facebook-page-url" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Facebook Page / URL
+                </label>
+                <div className="relative">
+                  <ExternalLink className="w-4 h-4 text-blue-600 absolute left-3 top-2.5" />
+                  <input
+                    id="sitesettingsmanager-facebook-page-url"
+                    type="text"
+                    name="facebook_url"
+                    value={formData.facebook_url}
+                    onChange={handleInputChange}
+                    placeholder="https://facebook.com/slimdose"
+                    className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Title Suffix</label>
-              <input
-                type="text"
-                name="hero_title_suffix"
-                value={formData.hero_title_suffix}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-gray-900 transition-all"
-                placeholder="e.g. & Essentials"
-              />
+          </div>
+
+          {/* Contact Page & Hotline Information (Live Preview + Editor) */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                  Contact Details &amp; Operational Information
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Customize the inquiry notice, email, hotline, WhatsApp, and operating hours shown on the Contact page.
+                </p>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-900/50">
+                Contact Section
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Form Inputs (Left Column - 7 cols) */}
+              <div className="lg:col-span-7 space-y-4">
+                {/* Inquiry Text Note */}
+                <div className="space-y-1">
+                  <label htmlFor="sitesettingsmanager-contact-inquiry-text" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Contact Inquiries Note / Description
+                  </label>
+                  <textarea
+                    id="sitesettingsmanager-contact-inquiry-text"
+                    name="contact_inquiry_text"
+                    rows={3}
+                    value={formData.contact_inquiry_text}
+                    onChange={handleInputChange}
+                    placeholder="For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team."
+                    className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                  />
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                    Introductory message shown above the contact cards on /contact.
+                  </p>
+                </div>
+
+                {/* Email Support */}
+                <div className="space-y-1">
+                  <label htmlFor="sitesettingsmanager-official-support-email" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Email Support
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-blue-500 absolute left-3 top-2.5" />
+                    <input
+                      id="sitesettingsmanager-official-support-email"
+                      type="email"
+                      name="support_email"
+                      autoComplete="email"
+                      value={formData.support_email}
+                      onChange={handleInputChange}
+                      placeholder="support@slimdose.ph"
+                      className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Hotline Phone & WhatsApp */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label htmlFor="sitesettingsmanager-support-phone" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Hotline &amp; Phone Display
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-emerald-500 absolute left-3 top-2.5" />
+                      <input
+                        id="sitesettingsmanager-support-phone"
+                        type="text"
+                        name="support_phone"
+                        autoComplete="tel"
+                        value={formData.support_phone}
+                        onChange={handleInputChange}
+                        placeholder="+63 977 813 2630"
+                        className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label htmlFor="sitesettingsmanager-contact-whatsapp" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      WhatsApp Direct Number
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-emerald-600 absolute left-3 top-2.5" />
+                      <input
+                        id="sitesettingsmanager-contact-whatsapp"
+                        type="text"
+                        name="contact_whatsapp"
+                        value={formData.contact_whatsapp}
+                        onChange={handleInputChange}
+                        placeholder="+63 977 813 2630"
+                        className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Operational Hours */}
+                <div className="space-y-1">
+                  <label htmlFor="sitesettingsmanager-operating-hours" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Operational Hours
+                  </label>
+                  <div className="relative">
+                    <Clock className="w-4 h-4 text-purple-500 absolute left-3 top-2.5" />
+                    <input
+                      id="sitesettingsmanager-operating-hours"
+                      type="text"
+                      name="operating_hours"
+                      value={formData.operating_hours}
+                      onChange={handleInputChange}
+                      placeholder="Monday - Friday: 9:00 AM - 6:00 PM PHT"
+                      className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Preview Card (Right Column - 5 cols) */}
+              <div className="lg:col-span-5 flex flex-col justify-center">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 p-4 sm:p-5 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-2">
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      Live Contact Card Preview
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">/contact</span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {formData.contact_inquiry_text || 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.'}
+                  </p>
+
+                  <div className="space-y-3 pt-1">
+                    {/* Email Support Preview */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">EMAIL SUPPORT</span>
+                        <span className="block text-xs font-bold text-blue-600 dark:text-blue-400 truncate">
+                          {formData.support_email || 'support@slimdose.ph'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Hotline & WhatsApp Preview */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">HOTLINE &amp; WHATSAPP</span>
+                        <span className="block text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                          {formData.support_phone || '+63 977 813 2630'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Operational Hours Preview */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/70 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">OPERATIONAL HOURS</span>
+                        <span className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                          {formData.operating_hours || 'Monday - Friday: 9:00 AM - 6:00 PM PHT'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 3: Homepage Hero Copy ── */}
+      {activeTab === 'homepage' && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          {/* Live Realtime Hero Preview Card */}
+          <div className="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white rounded-2xl shadow-md p-4 sm:p-6 border border-slate-800 relative overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-black uppercase tracking-wider text-slate-300">Realtime Hero Banner Preview</span>
+              </div>
+              <div className="flex items-center gap-1 bg-slate-800/80 p-1 rounded-lg border border-slate-700/60">
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('desktop')}
+                  className={`p-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                    previewDevice === 'desktop' ? 'bg-[#3C6CA8] text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Desktop View"
+                >
+                  <Monitor className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDevice('mobile')}
+                  className={`p-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                    previewDevice === 'mobile' ? 'bg-[#3C6CA8] text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Mobile View"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className={`mx-auto text-center transition-all ${previewDevice === 'mobile' ? 'max-w-xs' : 'max-w-2xl'} py-2`}>
+              {formData.hero_badge_text && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold bg-[#3C6CA8]/30 text-[#94BBE9] border border-[#3C6CA8]/50 mb-3 shadow-xs">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>{formData.hero_badge_text}</span>
+                </div>
+              )}
+
+              <h2 className="text-lg sm:text-2xl font-black tracking-tight leading-snug">
+                <span>{formData.hero_title_prefix} </span>
+                <span className="text-[#94BBE9] underline decoration-[#3C6CA8] decoration-2 underline-offset-4">
+                  {formData.hero_title_highlight}
+                </span>
+                <span> {formData.hero_title_suffix}</span>
+              </h2>
+
+              {formData.hero_subtext && (
+                <p className="text-xs text-slate-300 font-semibold mt-1.5">
+                  {formData.hero_subtext}
+                </p>
+              )}
+
+              {formData.hero_tagline && (
+                <p className="text-[11px] text-amber-300/90 font-medium mt-1">
+                  {formData.hero_tagline}
+                </p>
+              )}
+
+              {formData.hero_description && (
+                <p className="text-xs text-slate-400 mt-2.5 line-clamp-2 leading-relaxed">
+                  {formData.hero_description}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Subtext */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Subtext (Next to Title)</label>
-            <input
-              type="text"
-              name="hero_subtext"
-              value={formData.hero_subtext}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-gray-900 transition-all"
-              placeholder="e.g. — Trusted Quality for Your Journey."
-            />
+          {/* Edit Form */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Homepage Headline &amp; Descriptions</h3>
+                <p className="text-xs text-slate-400">Configure text displayed at the top of the storefront index.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleResetHomepageDefaults}
+                className="text-[11px] font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset to Defaults</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-3 space-y-1">
+                <label htmlFor="sitesettingsmanager-badge-pill-text-above-headline" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Badge Pill Text (Above Headline)
+                </label>
+                <input id="sitesettingsmanager-badge-pill-text-above-headline" type="text"
+                  name="hero_badge_text"
+                  value={formData.hero_badge_text}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Premium Peptide Solutions"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-title-prefix" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Title Prefix
+                </label>
+                <input id="sitesettingsmanager-title-prefix" type="text"
+                  name="hero_title_prefix"
+                  value={formData.hero_title_prefix}
+                  onChange={handleInputChange}
+                  placeholder="Premium"
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-highlight-word-colored" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Highlight Word (Colored)
+                </label>
+                <input id="sitesettingsmanager-highlight-word-colored" type="text"
+                  name="hero_title_highlight"
+                  value={formData.hero_title_highlight}
+                  onChange={handleInputChange}
+                  placeholder="Peptides"
+                  className="w-full px-3.5 py-2 text-xs font-bold text-[#3C6CA8] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-title-suffix" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Title Suffix
+                </label>
+                <input id="sitesettingsmanager-title-suffix" type="text"
+                  name="hero_title_suffix"
+                  value={formData.hero_title_suffix}
+                  onChange={handleInputChange}
+                  placeholder="& Essentials"
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="md:col-span-3 space-y-1">
+                <label htmlFor="sitesettingsmanager-subtext-subtitle-below-headlin" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Subtext (Subtitle Below Headline)
+                </label>
+                <input id="sitesettingsmanager-subtext-subtitle-below-headlin" type="text"
+                  name="hero_subtext"
+                  value={formData.hero_subtext}
+                  onChange={handleInputChange}
+                  placeholder="From the Lab to You — Simplifying Science, One Dose at a Time."
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="md:col-span-3 space-y-1">
+                <label htmlFor="sitesettingsmanager-hero-tagline-value-proposition" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Hero Tagline / Value Proposition
+                </label>
+                <input id="sitesettingsmanager-hero-tagline-value-proposition" type="text"
+                  name="hero_tagline"
+                  value={formData.hero_tagline}
+                  onChange={handleInputChange}
+                  placeholder="Quality-tested products. Reliable performance. Trusted by our community."
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="md:col-span-3 space-y-1">
+                <label htmlFor="sitesettingsmanager-main-description-paragraph" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Main Description Paragraph
+                </label>
+                <textarea id="sitesettingsmanager-main-description-paragraph" name="hero_description"
+                  value={formData.hero_description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="SlimDose Peptides is your all-in-one destination..."
+                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none" autoComplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 4: Research Disclaimer & Notices ── */}
+      {activeTab === 'notice' && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-amber-500" />
+                  Research Notice &amp; Compliance Modal
+                </h2>
+                <p className="text-xs text-slate-400">Controls the regulatory disclaimer and shipping rules modal displayed to visitors.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleResetNoticeDefaults}
+                className="text-[11px] font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset Defaults</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-notice-modal-title" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Notice Modal Title
+                </label>
+                <input id="sitesettingsmanager-notice-modal-title" type="text"
+                  name="notice_title"
+                  value={formData.notice_title}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-notice-subtitle" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Notice Subtitle
+                </label>
+                <input id="sitesettingsmanager-notice-subtitle" type="text"
+                  name="notice_subtitle"
+                  value={formData.notice_subtitle}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label htmlFor="sitesettingsmanager-warning-pill-text-red-banner" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Warning Pill Text (Red Banner)
+                </label>
+                <input id="sitesettingsmanager-warning-pill-text-red-banner" type="text"
+                  name="notice_warning_pill"
+                  value={formData.notice_warning_pill}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-bold text-rose-600 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 focus:ring-2 focus:ring-rose-500/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label htmlFor="sitesettingsmanager-disclaimer-paragraph-1-researc" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Disclaimer Paragraph 1 (Research Statement)
+                </label>
+                <textarea id="sitesettingsmanager-disclaimer-paragraph-1-researc" name="notice_disclaimer_p1"
+                  value={formData.notice_disclaimer_p1}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none" autoComplete="off" />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label htmlFor="sitesettingsmanager-disclaimer-paragraph-2-handlin" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Disclaimer Paragraph 2 (Handling Statement)
+                </label>
+                <textarea id="sitesettingsmanager-disclaimer-paragraph-2-handlin" name="notice_disclaimer_p2"
+                  value={formData.notice_disclaimer_p2}
+                  onChange={handleInputChange}
+                  rows={2}
+                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-order-processing-days" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Order Processing Days
+                </label>
+                <input id="sitesettingsmanager-order-processing-days" type="text"
+                  name="notice_order_days"
+                  value={formData.notice_order_days}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-daily-cutoff-time" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Daily Cutoff Time
+                </label>
+                <input id="sitesettingsmanager-daily-cutoff-time" type="text"
+                  name="notice_cutoff_time"
+                  value={formData.notice_cutoff_time}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-primary-courier-partner" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Primary Courier Partner
+                </label>
+                <input id="sitesettingsmanager-primary-courier-partner" type="text"
+                  name="notice_courier"
+                  value={formData.notice_courier}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-acceptance-button-label" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Acceptance Button Label
+                </label>
+                <input id="sitesettingsmanager-acceptance-button-label" type="text"
+                  name="notice_agree_button_text"
+                  value={formData.notice_agree_button_text}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 5: SEO & Metadata ── */}
+      {activeTab === 'seo' && (
+        <div className="space-y-5 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Search className="w-4 h-4 text-indigo-500" />
+                  SEO &amp; Search Engine Optimization
+                </h2>
+                <p className="text-xs text-slate-400">Configure browser meta tags, search index titles, and social share previews.</p>
+              </div>
+            </div>
+
+            {/* Google Search Snippet Simulation */}
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Google Search Result Preview
+              </span>
+              <div className="pt-1">
+                <span className="text-xs text-slate-600 dark:text-slate-400 block truncate">
+                  https://slimdose.ph › research
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-blue-700 dark:text-blue-400 hover:underline cursor-pointer truncate">
+                  {formData.meta_title || 'SlimDose Peptides — High Purity Research Solutions'}
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 mt-0.5 leading-snug">
+                  {formData.meta_description || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-global-meta-title-tag" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Global Meta Title Tag
+                </label>
+                <input id="sitesettingsmanager-global-meta-title-tag" type="text"
+                  name="meta_title"
+                  value={formData.meta_title}
+                  onChange={handleInputChange}
+                  placeholder="SlimDose Peptides — High Purity Research Solutions"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-meta-description-tag" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Meta Description Tag
+                </label>
+                <textarea id="sitesettingsmanager-meta-description-tag" name="meta_description"
+                  value={formData.meta_description}
+                  onChange={handleInputChange}
+                  rows={2}
+                  placeholder="Premium research peptides with third-party COA verification..."
+                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none" autoComplete="off" />
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="sitesettingsmanager-search-engine-keywords-comma-s" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Search Engine Keywords (Comma Separated)
+                </label>
+                <input id="sitesettingsmanager-search-engine-keywords-comma-s" type="text"
+                  name="meta_keywords"
+                  value={formData.meta_keywords}
+                  onChange={handleInputChange}
+                  placeholder="peptides, slimdose, research chemicals, peptide calculator, laboratory tested"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none" autoComplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Sticky Bottom Action Bar ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 sm:p-4 shadow-lg">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            {hasUnsavedChanges ? (
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 truncate">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span className="truncate">You have unsaved changes in site settings</span>
+              </span>
+            ) : (
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 truncate">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span className="truncate">All settings synchronized live</span>
+              </span>
+            )}
           </div>
 
-          {/* Hero Tagline */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Hero Tagline</label>
-            <textarea
-              name="hero_tagline"
-              value={formData.hero_tagline}
-              onChange={handleInputChange}
-              rows={2}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-gray-900 transition-all resize-none"
-              placeholder="e.g. Quality-tested products. Reliable performance..."
-            />
-          </div>
-
-          {/* Main Description */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Main Description</label>
-            <textarea
-              name="hero_description"
-              value={formData.hero_description}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-gray-900 transition-all resize-none"
-              placeholder="e.g. Explore our carefully curated selection..."
-            />
-          </div>
-
-          {/* Reset Link */}
-          <div className="flex justify-end pt-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={handleResetDefaults}
-              className="text-sm text-red-500 hover:text-red-700 font-medium underline underline-offset-2 transition-colors"
+              onClick={handleSave}
+              disabled={isSaving || uploading}
+              className="px-5 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs sm:text-sm font-black transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
-              Reset Homepage Defaults
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save All Changes</span>
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -1,7 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { useCart } from './hooks/useCart';
+import Header from './components/Header';
+import SubNav from './components/SubNav';
+import Menu from './components/Menu';
+import Cart from './components/Cart';
+import Footer from './components/Footer';
+import PromoSignup from './components/PromoSignup';
+import { ToastProvider } from './components/ToastNotification';
+import VerificationGateway from './components/VerificationGateway';
+import { MenuProvider, useMenuContext } from './contexts/MenuContext';
+import ImportantNoticeModal from './components/ImportantNoticeModal';
+import ProductPageSkeleton from './components/ProductPageSkeleton';
 
-// Component to ensure page view resets to top on route change
+// Lazy-loaded routes — only downloaded when the user navigates to them
+const Checkout = lazy(() => import('./components/Checkout'));
+const Success = lazy(() => import('./components/Success'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const COA = lazy(() => import('./components/COA'));
+const FAQ = lazy(() => import('./components/FAQ'));
+const PeptideCalculator = lazy(() => import('./components/PeptideCalculator'));
+const OrderTracking = lazy(() => import('./components/OrderTracking'));
+const SmartGuide = lazy(() => import('./components/SmartGuide'));
+const ArticleDetail = lazy(() => import('./components/ArticleDetail'));
+const ProductPage = lazy(() => import('./components/ProductPage'));
+const DynamicPage = lazy(() => import('./components/DynamicPage'));
+
+// Resets scroll position to top on every route change
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -11,32 +36,11 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-import { useCart } from './hooks/useCart';
-import Header from './components/Header';
-import SubNav from './components/SubNav';
-import Menu from './components/Menu';
-import Cart from './components/Cart';
-import Checkout from './components/Checkout';
-import Success from './components/Success';
-import Footer from './components/Footer';
-import AdminDashboard from './components/AdminDashboard';
-import COA from './components/COA';
-import FAQ from './components/FAQ';
-import PeptideCalculator from './components/PeptideCalculator';
-import OrderTracking from './components/OrderTracking';
-import SmartGuide from './components/SmartGuide';
-import ArticleDetail from './components/ArticleDetail';
-import ProductPage from './components/ProductPage';
-import PromoSignup from './components/PromoSignup';
-import { ToastProvider } from './components/ToastNotification';
-import VerificationGateway from './components/VerificationGateway';
-import { useMenu } from './hooks/useMenu';
-import { DynamicPage } from './components/DynamicPage';
-import ImportantNoticeModal from './components/ImportantNoticeModal';
 
 function MainApp() {
+
   const cart = useCart();
-  const { menuItems, loading: menuLoading } = useMenu();
+  const { menuItems, loading: menuLoading } = useMenuContext();
   const [currentView, setCurrentView] = React.useState<'menu' | 'cart' | 'checkout'>('menu');
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
   const [hitpayNotice, setHitpayNotice] = React.useState<
@@ -87,7 +91,7 @@ function MainApp() {
 
   const handleViewChange = React.useCallback((view: 'menu' | 'cart' | 'checkout') => {
     setCurrentView(view);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
   const handleCartClick = React.useCallback(() => handleViewChange('cart'), [handleViewChange]);
@@ -137,7 +141,7 @@ function MainApp() {
       )}
 
       <main className="flex-grow animate-page-in">
-        {currentView === 'menu' && (
+        <div style={{ display: currentView === 'menu' ? 'block' : 'none' }}>
           <Menu
             menuItems={filteredProducts}
             loading={menuLoading}
@@ -145,11 +149,12 @@ function MainApp() {
             cartItems={cart.cartItems}
             updateQuantity={cart.updateQuantity}
           />
-        )}
+        </div>
 
-        {currentView === 'cart' && (
+        <div style={{ display: currentView === 'cart' ? 'block' : 'none' }}>
           <Cart
             cartItems={cart.cartItems}
+            hydrated={cart.hydrated}
             updateQuantity={cart.updateQuantity}
             removeFromCart={cart.removeFromCart}
             clearCart={cart.clearCart}
@@ -160,7 +165,7 @@ function MainApp() {
             onContinueShopping={() => handleViewChange('menu')}
             onCheckout={() => { window.location.href = '/checkout'; }}
           />
-        )}
+        </div>
 
         {currentView === 'checkout' && (
           <Checkout
@@ -220,40 +225,58 @@ function SubPageLayout() {
   );
 }
 
+const PageSkeleton = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 rounded-full border-2 border-[#3C6CA8] border-t-transparent animate-spin" />
+      <p className="text-sm text-gray-400">Loading...</p>
+    </div>
+  </div>
+);
+
 function App() {
   return (
     <VerificationGateway>
       <ImportantNoticeModal />
       <ToastProvider>
-        <Router>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<MainApp />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            
-            {/* Standard Pages Layout */}
-            <Route element={<SubPageLayout />}>
-              <Route path="/coa" element={<COA />} />
-              <Route path="/checkout" element={<CheckoutPageRoute />} />
-              <Route path="/success" element={<Success />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/calculator" element={<PeptideCalculator />} />
-              <Route path="/track-order" element={<OrderTracking />} />
-              <Route path="/peptalk" element={<SmartGuide />} />
-              <Route path="/peptalk/:id" element={<ArticleDetail />} />
-              <Route path="/about" element={<DynamicPage pageId="about" />} />
-              <Route path="/contact" element={<DynamicPage pageId="contact" />} />
-              <Route path="/shipping-policy" element={<DynamicPage pageId="shipping_policy" />} />
-              <Route path="/privacy-policy" element={<DynamicPage pageId="privacy_policy" />} />
-              <Route path="/terms" element={<DynamicPage pageId="terms_conditions" />} />
-              {/* Catch-all product slug — must stay LAST */}
-              <Route path="/:slug" element={<ProductPage />} />
-            </Route>
-          </Routes>
-        </Router>
+        <MenuProvider>
+          <Router>
+            <ScrollToTop />
+            <Suspense fallback={<PageSkeleton />}>
+              <Routes>
+                <Route path="/" element={<MainApp />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+
+                {/* Standard Pages Layout */}
+                <Route element={<SubPageLayout />}>
+                  <Route path="/coa" element={<COA />} />
+                  <Route path="/checkout" element={<CheckoutPageRoute />} />
+                  <Route path="/success" element={<Success />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/calculator" element={<PeptideCalculator />} />
+                  <Route path="/track-order" element={<OrderTracking />} />
+                  <Route path="/peptalk" element={<SmartGuide />} />
+                  <Route path="/peptalk/:id" element={<ArticleDetail />} />
+                  <Route path="/about" element={<DynamicPage pageId="about" />} />
+                  <Route path="/contact" element={<DynamicPage pageId="contact" />} />
+                  <Route path="/shipping-policy" element={<DynamicPage pageId="shipping_policy" />} />
+                  <Route path="/privacy-policy" element={<DynamicPage pageId="privacy_policy" />} />
+                  <Route path="/terms" element={<DynamicPage pageId="terms_conditions" />} />
+                  {/* Catch-all product slug — must stay LAST */}
+                  <Route path="/:slug" element={
+                    <Suspense fallback={<ProductPageSkeleton />}>
+                      <ProductPage />
+                    </Suspense>
+                  } />
+                </Route>
+              </Routes>
+            </Suspense>
+          </Router>
+        </MenuProvider>
       </ToastProvider>
     </VerificationGateway>
   );
 }
 
 export default App;
+

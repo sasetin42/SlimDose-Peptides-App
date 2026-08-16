@@ -42,9 +42,9 @@ const COAManager: React.FC<COAManagerProps> = ({ onBack }) => {
     quantity: '',
     task_number: '',
     verification_key: '',
-    image_url: '/coa/',
+    image_url: '',
     featured: false,
-    manufacturer: 'peptalk.ph',
+    manufacturer: 'SlimDose Peptides',
     laboratory: 'Janoshik + Chromate',
   });
 
@@ -237,10 +237,10 @@ const COAManager: React.FC<COAManagerProps> = ({ onBack }) => {
       quantity: '',
       task_number: '',
       verification_key: '',
-      image_url: '/coa/',
+      image_url: '',
       featured: false,
       manufacturer: 'SlimDose Peptides',
-      laboratory: 'Janoshik Analytical',
+      laboratory: 'Janoshik + Chromate',
     });
   };
 
@@ -253,313 +253,337 @@ const COAManager: React.FC<COAManagerProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="space-y-6 p-14">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Go Back"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-600" />
-            </button>
-          )}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Shield className="w-7 h-7 text-gold-600" />
-              COA Lab Reports
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Manage certificates of analysis and lab test reports
-            </p>
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950 font-inter">
+      {/* Top Header Bar */}
+      <div className="bg-white dark:bg-slate-900 shadow-xs border-b border-slate-200/80 dark:border-slate-800">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3.5 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-[#3C6CA8] dark:hover:text-[#6A9BE0] transition-colors shrink-0 cursor-pointer font-bold text-xs sm:text-sm px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                  title="Go Back"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Dashboard</span>
+                </button>
+              )}
+              {onBack && <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 hidden sm:block" />}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] dark:text-[#94BBE9]">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                  <h1 className="text-base sm:text-xl font-extrabold text-[#232323] dark:text-white tracking-tight truncate">
+                    COA Lab Reports
+                  </h1>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
+                    Manage certificates of analysis and third-party laboratory reports
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              {/* COA Page Toggle */}
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-2xs">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">Show Page:</span>
+                <label htmlFor="coamanager-togglecoapage-e-target-checked" className="relative inline-flex items-center cursor-pointer">
+                  <input id="coamanager-checkbox-2" name="checkbox_2" type="checkbox"
+                    checked={coaPageEnabled}
+                    onChange={(e) => toggleCOAPage(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-300 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#3C6CA8]"></div>
+                </label>
+                <span className={`text-[10px] font-extrabold ${coaPageEnabled ? 'text-[#3C6CA8] dark:text-[#94BBE9]' : 'text-slate-400'}`}>
+                  {coaPageEnabled ? 'ON' : 'OFF'}
+                </span>
+              </div>
+
+              <button
+                onClick={handleAdd}
+                className="flex items-center justify-center gap-1.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white px-3.5 sm:px-4 py-2 rounded-xl font-extrabold text-xs sm:text-sm transition-all shadow-sm hover:shadow-md cursor-pointer active:scale-95 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add COA Report</span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* COA Page Toggle */}
-          <div className="flex items-center gap-2 bg-white border border-navy-700/30 rounded-lg px-3 py-2 shadow-sm">
-            <span className="text-xs font-medium text-gray-700">Show COA Page:</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={coaPageEnabled}
-                onChange={(e) => toggleCOAPage(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gold-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-600"></div>
-            </label>
-            <span className={`text-xs font-semibold ${coaPageEnabled ? 'text-gold-600' : 'text-gray-400'}`}>
-              {coaPageEnabled ? 'ON' : 'OFF'}
-            </span>
-          </div>
-          <button
-            onClick={handleAdd}
-            className="flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-black px-4 py-2 rounded-lg font-medium transition-all shadow-md"
-          >
-            <Plus className="w-5 h-5" />
-            Add COA Report
-          </button>
         </div>
       </div>
 
-      {/* Add/Edit Form */}
-      {(isAdding || editingId) && (
-        <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-3xl p-6 border-2 border-sky-200 shadow-cute">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-sky-500" />
-            {editingId ? 'Edit COA Report' : 'Add New COA Report'}
-          </h3>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.product_name}
-                  onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
-                  className="input-field"
-                  placeholder="e.g., Tirzepatide 15mg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Batch Number
-                </label>
-                <input
-                  type="text"
-                  value={formData.batch}
-                  onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                  className="input-field"
-                  placeholder="Unknown"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Test Date *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={formData.test_date}
-                  onChange={(e) => setFormData({ ...formData, test_date: e.target.value })}
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Purity (%) *
-                </label>
-                <input
-                  type="number"
-                  step="0.001"
-                  required
-                  value={formData.purity_percentage}
-                  onChange={(e) => setFormData({ ...formData, purity_percentage: parseFloat(e.target.value) })}
-                  className="input-field"
-                  placeholder="99.658"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Quantity *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                  className="input-field"
-                  placeholder="e.g., 16.80 mg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Task Number *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.task_number}
-                  onChange={(e) => setFormData({ ...formData, task_number: e.target.value })}
-                  className="input-field"
-                  placeholder="#68396"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Verification Key *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.verification_key}
-                  onChange={(e) => setFormData({ ...formData, verification_key: e.target.value })}
-                  className="input-field"
-                  placeholder="9AUYT3EZV9Y9"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  COA Report Image *
-                </label>
-                <ImageUpload
-                  currentImage={formData.image_url}
-                  onImageChange={(url) => setFormData({ ...formData, image_url: url || '' })}
-                  folder="coa-images"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Manufacturer
-                </label>
-                <input
-                  type="text"
-                  value={formData.manufacturer}
-                  onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-                  className="input-field"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Laboratory
-                </label>
-                <input
-                  type="text"
-                  value={formData.laboratory}
-                  onChange={(e) => setFormData({ ...formData, laboratory: e.target.value })}
-                  className="input-field"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="featured"
-                checked={formData.featured}
-                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                className="w-4 h-4 text-sky-500 rounded focus:ring-sky-400"
-              />
-              <label htmlFor="featured" className="text-sm font-medium text-gray-700">
-                Featured Report (show prominently)
-              </label>
-            </div>
-
-            <div className="flex gap-3 pt-2">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-8 space-y-5">
+        {/* Add/Edit Form */}
+        {(isAdding || editingId) && (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base sm:text-lg font-extrabold text-[#232323] dark:text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#3C6CA8]" />
+                {editingId ? 'Edit COA Report' : 'Add New COA Report'}
+              </h3>
               <button
-                type="submit"
-                className="flex items-center gap-2 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-3 rounded-2xl font-medium transition-all shadow-lg"
-              >
-                <Save className="w-5 h-5" />
-                {editingId ? 'Update Report' : 'Add Report'}
-              </button>
-              <button
-                type="button"
                 onClick={handleCancel}
-                className="flex items-center gap-2 bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 px-6 py-3 rounded-2xl font-medium transition-all"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
-                <X className="w-5 h-5" />
-                Cancel
+                <X className="w-4 h-4" />
               </button>
             </div>
-          </form>
-        </div>
-      )}
 
-      {/* COA Reports List */}
-      <div className="space-y-4">
-        {coaReports.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-3xl border-2 border-sky-100">
-            <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No COA reports yet. Add your first lab report!</p>
-          </div>
-        ) : (
-          coaReports.map((report) => (
-            <div
-              key={report.id}
-              className="bg-white rounded-3xl p-6 border-2 border-sky-100 hover:border-sky-200 shadow-md hover:shadow-lg transition-all"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-lg font-bold text-gray-800">
-                      {report.product_name}
-                    </h3>
-                    {report.featured && (
-                      <span className="bg-gradient-to-r from-sky-100 to-blue-100 text-sky-700 px-3 py-1 rounded-full text-xs font-bold border border-sky-300">
-                        ⭐ FEATURED
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Purity:</span>
-                      <p className="font-bold text-green-600">{report.purity_percentage}%</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Quantity:</span>
-                      <p className="font-bold text-sky-600">{report.quantity}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Task Number:</span>
-                      <p className="font-mono text-gray-800">{report.task_number}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Test Date:</span>
-                      <p className="text-gray-800">{new Date(report.test_date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-3 text-sm">
-                    <a
-                      href={`https://www.janoshik.com/verify/?key=${report.verification_key}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Verify on Janoshik
-                    </a>
-                    <span className="text-gray-400">•</span>
-                    <span className="text-gray-600">Lab: {report.laboratory}</span>
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                  <label htmlFor="coamanager-togglecoapage-e-target-checked" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Product Name *
+                  </label>
+                  <input id="coamanager-togglecoapage-e-target-checked" name="togglecoapage_e_target_checked" type="text"
+                    required
+                    value={formData.product_name}
+                    onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="e.g., Tirzepatide 15mg"
+                  />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEdit(report)}
-                    className="p-2 text-sky-600 hover:bg-sky-50 rounded-xl transition-all"
-                    title="Edit"
-                  >
-                    <Edit2 className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(report.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                <div>
+                  <label htmlFor="coamanager-batch-number" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Batch Number
+                  </label>
+                  <input id="coamanager-batch-number" name="batch_number" type="text"
+                    value={formData.batch}
+                    onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="Unknown"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-test-date" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Test Date *
+                  </label>
+                  <input id="coamanager-test-date" name="test_date" type="date"
+                    required
+                    value={formData.test_date}
+                    onChange={(e) => setFormData({ ...formData, test_date: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-purity" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Purity (%) *
+                  </label>
+                  <input id="coamanager-purity" name="purity" type="number"
+                    step="0.001"
+                    required
+                    value={formData.purity_percentage}
+                    onChange={(e) => setFormData({ ...formData, purity_percentage: parseFloat(e.target.value) })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="99.658"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-quantity" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Quantity *
+                  </label>
+                  <input id="coamanager-quantity" name="quantity" type="text"
+                    required
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="e.g., 16.80 mg"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-task-number" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Task Number *
+                  </label>
+                  <input id="coamanager-task-number" name="task_number" type="text"
+                    required
+                    value={formData.task_number}
+                    onChange={(e) => setFormData({ ...formData, task_number: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="#68396"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-verification-key" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Verification Key *
+                  </label>
+                  <input id="coamanager-verification-key" name="verification_key" type="text"
+                    required
+                    value={formData.verification_key}
+                    onChange={(e) => setFormData({ ...formData, verification_key: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                    placeholder="9AUYT3EZV9Y9"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-manufacturer" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Manufacturer
+                  </label>
+                  <input id="coamanager-manufacturer" name="manufacturer" type="text"
+                    value={formData.manufacturer}
+                    onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="coamanager-laboratory" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Laboratory
+                  </label>
+                  <input id="coamanager-laboratory" name="laboratory" type="text"
+                    value={formData.laboratory}
+                    onChange={(e) => setFormData({ ...formData, laboratory: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-950 text-[#232323] dark:text-white focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8]"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 md:col-span-3">
+                  <span className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    COA Report Image *
+                  </span>
+                  <ImageUpload
+                    currentImage={formData.image_url}
+                    onImageChange={(url) => setFormData({ ...formData, image_url: url || '' })}
+                    folder="coa-images"
+                  />
                 </div>
               </div>
-            </div>
-          ))
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                  className="w-4 h-4 text-[#3C6CA8] rounded border-slate-300 focus:ring-[#3C6CA8] cursor-pointer"
+                />
+                <label htmlFor="featured" className="text-xs sm:text-sm font-bold text-[#232323] dark:text-white cursor-pointer">
+                  Featured Report (show prominently on COA index)
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all shadow-sm cursor-pointer active:scale-95"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>{editingId ? 'Update Report' : 'Save Report'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="flex items-center gap-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </form>
+          </div>
         )}
+
+        {/* COA Reports List */}
+        <div className="space-y-3">
+          {coaReports.length === 0 ? (
+            <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] dark:text-[#94BBE9] mx-auto mb-3">
+                <Shield className="w-7 h-7" />
+              </div>
+              <h3 className="text-sm font-extrabold text-[#232323] dark:text-white mb-1">No COA reports yet</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Add your first third-party verified laboratory report!</p>
+              <button
+                onClick={handleAdd}
+                className="bg-[#3C6CA8] hover:bg-[#315A8E] text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm"
+              >
+                Add First Report
+              </button>
+            </div>
+          ) : (
+            coaReports.map((report) => (
+              <div
+                key={report.id}
+                className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 hover:border-[#3C6CA8]/50 transition-all shadow-2xs text-left group"
+              >
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-extrabold text-[#232323] dark:text-white truncate">
+                        {report.product_name}
+                      </h3>
+                      {report.featured && (
+                        <span className="bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-[#94BBE9] border border-[#3C6CA8]/30 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase">
+                          ★ Featured
+                        </span>
+                      )}
+                      <span className="text-[10px] font-mono text-slate-400">
+                        Batch: {report.batch}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs mb-2">
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Purity</span>
+                        <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm">{report.purity_percentage}%</p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Quantity</span>
+                        <p className="font-bold text-[#3C6CA8] dark:text-[#94BBE9] text-xs sm:text-sm">{report.quantity}</p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Task Number</span>
+                        <p className="font-mono font-bold text-[#232323] dark:text-white text-xs truncate">{report.task_number}</p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Test Date</span>
+                        <p className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{new Date(report.test_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-xs flex-wrap">
+                      <a
+                        href={`https://www.janoshik.com/verify/?key=${report.verification_key}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[#3C6CA8] dark:text-[#94BBE9] hover:underline font-bold text-[11px]"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        Verify on Janoshik
+                      </a>
+                      <span className="text-slate-300 dark:text-slate-700">•</span>
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px]">Lab: <strong className="text-slate-700 dark:text-slate-300">{report.laboratory}</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-800 shrink-0">
+                    <button
+                      onClick={() => handleEdit(report)}
+                      className="p-2 text-[#3C6CA8] hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl transition-all border border-slate-200 dark:border-slate-700 cursor-pointer"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(report.id)}
+                      className="p-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all border border-rose-200 dark:border-rose-900/40 cursor-pointer"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

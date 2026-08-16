@@ -25,7 +25,10 @@ import ProductReviewsManager from './ProductReviewsManager';
 import InvoiceVerificationsManager from './InvoiceVerificationsManager';
 import PeptalkVideosManager from './PeptalkVideosManager';
 import RestockRemindersManager from './RestockRemindersManager';
-import { BarChart3, LayoutDashboard, Lock } from 'lucide-react';
+import ProductModal from './ProductModal';
+import { BarChart3, LayoutDashboard, Lock, DollarSign, AlertTriangle, CheckCircle2, Edit2, ExternalLink, Copy, Check, MessageCircle } from 'lucide-react';
+import { useSiteSettings } from '../hooks/useSiteSettings';
+import { fireToast } from './ToastNotification';
 
 
 interface AdminSession {
@@ -86,10 +89,62 @@ const AdminDashboard: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [managingVariationsProductId, setManagingVariationsProductId] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [managingVariationsProductId, setManagingVariationsProductId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { siteSettings, updateSiteSettings } = useSiteSettings();
+  const [telegramLinkInput, setTelegramLinkInput] = useState('');
+  const [isEditingTelegram, setIsEditingTelegram] = useState(false);
+  const [isSavingTelegram, setIsSavingTelegram] = useState(false);
+  const [copiedTelegram, setCopiedTelegram] = useState(false);
+
+  useEffect(() => {
+    if (siteSettings?.community_telegram_url) {
+      setTelegramLinkInput(siteSettings.community_telegram_url);
+    }
+  }, [siteSettings?.community_telegram_url]);
+
+  const handleSaveTelegramLink = async () => {
+    if (!telegramLinkInput.trim()) {
+      fireToast('Please enter a valid Telegram link', 'error');
+      return;
+    }
+    try {
+      setIsSavingTelegram(true);
+      await updateSiteSettings({
+        community_telegram_url: telegramLinkInput.trim()
+      });
+      // Also sync page_contents for community
+      try {
+        await supabase.from('page_contents').upsert({
+          page_id: 'community',
+          content: {
+            telegram_group: telegramLinkInput.trim(),
+            community_telegram_url: telegramLinkInput.trim(),
+            updated_at: new Date().toISOString()
+          }
+        });
+      } catch {}
+
+      setIsEditingTelegram(false);
+      fireToast('Community Telegram Discussion Link updated successfully! 💬', 'success');
+    } catch (err) {
+      console.error('Error saving telegram link:', err);
+      fireToast('Failed to update Telegram link', 'error');
+    } finally {
+      setIsSavingTelegram(false);
+    }
+  };
+
+  const handleCopyTelegramLink = () => {
+    const link = telegramLinkInput || siteSettings?.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl';
+    navigator.clipboard.writeText(link);
+    setCopiedTelegram(true);
+    fireToast('Telegram link copied to clipboard! 📋', 'success');
+    setTimeout(() => setCopiedTelegram(false), 2000);
+  };
 
   // Password Interceptor & Audit Logs States
   const [pendingViewChange, setPendingViewChange] = useState<typeof currentView | null>(null);
@@ -324,43 +379,17 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleAddProduct = () => {
-    setCurrentView('add');
+    setEditingProduct(null);
+    setIsProductModalOpen(true);
     setSelectedProducts(new Set());
     setManagingVariationsProductId(null);
-    const defaultCategory = categories.length > 0 ? categories[0].id : 'research';
-    setFormData({
-      name: '',
-      description: '',
-      base_price: 0,
-      category: defaultCategory,
-      featured: false,
-      available: true,
-      purity_percentage: 99.0,
-      molecular_weight: '',
-      cas_number: '',
-      storage_conditions: 'Store at -20°C',
-      stock_quantity: 0,
-      stock_manila: 0,
-      stock_davao: 0,
-      image_url: null,
-      safety_sheet_url: null,
-      discount_active: false,
-      inclusions: null,
-      dosing_guide: '',
-      dosage_chart_url: '',
-      usage_notes: '',
-      linked_peptalk_id: null
-    });
   };
 
   const handleEditProduct = (product: Product) => {
-    handleViewChange('edit', () => {
-      setEditingProduct(product);
-      setFormData(product);
-      setCurrentView('edit');
-      setSelectedProducts(new Set());
-      setManagingVariationsProductId(null);
-    });
+    setEditingProduct(product);
+    setIsProductModalOpen(true);
+    setSelectedProducts(new Set());
+    setManagingVariationsProductId(null);
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -495,6 +524,7 @@ const AdminDashboard: React.FC = () => {
           'description',
           'category',
           'base_price',
+          'raw_price',
           'discount_price',
           'discount_active',
           'purity_percentage',
@@ -727,9 +757,8 @@ const AdminDashboard: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Product Name *</label>
-                <input
-                  type="text"
+                <label htmlFor="admindashboard-product-name" className="block text-xs font-semibold text-slate-600 mb-1.5">Product Name *</label>
+                <input id="admindashboard-product-name" name="product_name" type="text"
                   value={formData.name || ''}
                   onChange={(e) => {
                     const newName = e.target.value;
@@ -748,11 +777,10 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">URL Slug</label>
+                <label htmlFor="admindashboard-url-slug" className="block text-xs font-semibold text-slate-600 mb-1.5">URL Slug</label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-400">/</span>
-                  <input
-                    type="text"
+                  <input id="admindashboard-url-slug" name="url_slug" type="text"
                     value={formData.slug || ''}
                     onChange={(e) =>
                       setFormData({ ...formData, slug: slugify(e.target.value) })
@@ -767,9 +795,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Description *</label>
-                <textarea
-                  value={formData.description || ''}
+                <label htmlFor="admindashboard-description" className="block text-xs font-semibold text-slate-600 mb-1.5">Description *</label>
+                <textarea id="admindashboard-description" name="description" value={formData.description || ''}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
                   placeholder="Detailed product description..."
@@ -778,9 +805,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Category *</label>
-                <select
-                  value={formData.category || ''}
+                <label htmlFor="admindashboard-category" className="block text-xs font-semibold text-slate-600 mb-1.5">Category *</label>
+                <select id="admindashboard-category" name="category" value={formData.category || ''}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800 bg-white"
                 >
@@ -791,9 +817,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Base Price (₱) *</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-base-price" className="block text-xs font-semibold text-slate-600 mb-1.5">Base Price (₱) *</label>
+                <input id="admindashboard-base-price" name="base_price" type="number"
                   step="1"
                   value={formData.base_price || ''}
                   onChange={(e) => setFormData({ ...formData, base_price: Number(e.target.value) })}
@@ -809,9 +834,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Raw Price (₱)</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-raw-price" className="block text-xs font-semibold text-slate-600 mb-1.5">Raw Price (₱)</label>
+                <input id="admindashboard-raw-price" name="raw_price" type="number"
                   step="1"
                   value={formData.raw_price ?? ''}
                   onChange={(e) => setFormData({ ...formData, raw_price: Number(e.target.value) })}
@@ -838,9 +862,8 @@ const AdminDashboard: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Purity (%)</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-purity" className="block text-xs font-semibold text-slate-650 mb-1.5">Purity (%)</label>
+                <input id="admindashboard-purity" name="purity" type="number"
                   step="0.1"
                   value={formData.purity_percentage || ''}
                   onChange={(e) => setFormData({ ...formData, purity_percentage: Number(e.target.value) })}
@@ -850,9 +873,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Molecular Weight</label>
-                <input
-                  type="text"
+                <label htmlFor="admindashboard-molecular-weight" className="block text-xs font-semibold text-slate-650 mb-1.5">Molecular Weight</label>
+                <input id="admindashboard-molecular-weight" name="molecular_weight" type="text"
                   value={formData.molecular_weight || ''}
                   onChange={(e) => setFormData({ ...formData, molecular_weight: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -861,9 +883,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">CAS Number</label>
-                <input
-                  type="text"
+                <label htmlFor="admindashboard-cas-number" className="block text-xs font-semibold text-slate-650 mb-1.5">CAS Number</label>
+                <input id="admindashboard-cas-number" name="cas_number" type="text"
                   value={formData.cas_number || ''}
                   onChange={(e) => setFormData({ ...formData, cas_number: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -872,9 +893,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Storage Conditions</label>
-                <input
-                  type="text"
+                <label htmlFor="admindashboard-storage-conditions" className="block text-xs font-semibold text-slate-650 mb-1.5">Storage Conditions</label>
+                <input id="admindashboard-storage-conditions" name="storage_conditions" type="text"
                   value={formData.storage_conditions || ''}
                   onChange={(e) => setFormData({ ...formData, storage_conditions: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -883,9 +903,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-655 mb-1.5">Sequence</label>
-                <input
-                  type="text"
+                <label htmlFor="admindashboard-sequence" className="block text-xs font-semibold text-slate-655 mb-1.5">Sequence</label>
+                <input id="admindashboard-sequence" name="sequence" type="text"
                   value={formData.sequence || ''}
                   onChange={(e) => setFormData({ ...formData, sequence: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -902,9 +921,8 @@ const AdminDashboard: React.FC = () => {
                 <span className="text-base">📦</span>
                 Complete Set Inclusions
               </h3>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
+              <label htmlFor="admindashboard-if-e-target-checked-setformdat" className="flex items-center gap-2 cursor-pointer">
+                <input id="admindashboard-checkbox-2" name="checkbox_2" type="checkbox"
                   checked={formData.inclusions !== null && formData.inclusions !== undefined}
                   onChange={(e) => {
                     if (!e.target.checked) {
@@ -920,11 +938,10 @@ const AdminDashboard: React.FC = () => {
             </div>
             {formData.inclusions !== null && formData.inclusions !== undefined ? (
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                <label htmlFor="admindashboard-if-e-target-checked-setformdat" className="block text-xs font-semibold text-slate-600 mb-1.5">
                   What's included in this set? (One item per line)
                 </label>
-                <textarea
-                  value={formData.inclusions?.join('\n') || ''}
+                <textarea id="admindashboard-if-e-target-checked-setformdat" name="if_e_target_checked_setformdat" value={formData.inclusions?.join('\n') || ''}
                   onChange={(e) => {
                     const items = e.target.value.split('\n').filter(item => item.trim() !== '');
                     setFormData({ ...formData, inclusions: items.length > 0 ? items : null });
@@ -959,9 +976,8 @@ const AdminDashboard: React.FC = () => {
                 <span className="text-base">🔄</span>
                 Pre-Order Configuration
               </h3>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
+              <label htmlFor="admindashboard-setformdata-formdata-pre-order" className="flex items-center gap-2 cursor-pointer">
+                <input id="admindashboard-checkbox-4" name="checkbox_4" type="checkbox"
                   checked={formData.pre_order_enabled || false}
                   onChange={(e) => setFormData({ ...formData, pre_order_enabled: e.target.checked })}
                   className="w-4 h-4 text-blue-605 rounded border-slate-300 focus:ring-blue-500"
@@ -972,9 +988,8 @@ const AdminDashboard: React.FC = () => {
             {formData.pre_order_enabled && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-650 mb-1.5">Estimated Arrival</label>
-                  <input
-                    type="text"
+                  <label htmlFor="admindashboard-setformdata-formdata-pre-order" className="block text-xs font-semibold text-slate-650 mb-1.5">Estimated Arrival</label>
+                  <input id="admindashboard-setformdata-formdata-pre-order" name="setformdata_formdata_pre_order" type="text"
                     value={formData.pre_order_est_arrival || ''}
                     onChange={(e) => setFormData({ ...formData, pre_order_est_arrival: e.target.value || null })}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -982,18 +997,16 @@ const AdminDashboard: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-650 mb-1.5">Restock Date</label>
-                  <input
-                    type="date"
+                  <label htmlFor="admindashboard-restock-date" className="block text-xs font-semibold text-slate-650 mb-1.5">Restock Date</label>
+                  <input id="admindashboard-restock-date" name="restock_date" type="date"
                     value={formData.pre_order_restock_date || ''}
                     onChange={(e) => setFormData({ ...formData, pre_order_restock_date: e.target.value || null })}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-655 mb-1.5">Max Pre-Order Quantity</label>
-                  <input
-                    type="number"
+                  <label htmlFor="admindashboard-max-pre-order-quantity" className="block text-xs font-semibold text-slate-655 mb-1.5">Max Pre-Order Quantity</label>
+                  <input id="admindashboard-max-pre-order-quantity" name="max_pre_order_quantity" type="number"
                     min={1}
                     value={formData.pre_order_max_qty || 10}
                     onChange={(e) => setFormData({ ...formData, pre_order_max_qty: Number(e.target.value) || 10 })}
@@ -1002,9 +1015,8 @@ const AdminDashboard: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-655 mb-1.5">Pre-Order Note</label>
-                  <input
-                    type="text"
+                  <label htmlFor="admindashboard-pre-order-note" className="block text-xs font-semibold text-slate-655 mb-1.5">Pre-Order Note</label>
+                  <input id="admindashboard-pre-order-note" name="pre_order_note" type="text"
                     value={formData.pre_order_note || ''}
                     onChange={(e) => setFormData({ ...formData, pre_order_note: e.target.value || null })}
                     className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -1028,9 +1040,8 @@ const AdminDashboard: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Manila Stock</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-manila-stock" className="block text-xs font-semibold text-slate-650 mb-1.5">Manila Stock</label>
+                <input id="admindashboard-manila-stock" name="manila_stock" type="number"
                   value={formData.stock_manila ?? 0}
                   onChange={(e) => {
                     const manila = Number(e.target.value);
@@ -1046,9 +1057,8 @@ const AdminDashboard: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Davao Stock</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-davao-stock" className="block text-xs font-semibold text-slate-650 mb-1.5">Davao Stock</label>
+                <input id="admindashboard-davao-stock" name="davao_stock" type="number"
                   value={formData.stock_davao ?? 0}
                   onChange={(e) => {
                     const davao = Number(e.target.value);
@@ -1064,20 +1074,17 @@ const AdminDashboard: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Total Stock (Auto)</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-total-stock-auto" className="block text-xs font-semibold text-slate-650 mb-1.5">Total Stock (Auto)</label>
+                <input id="admindashboard-total-stock-auto" name="total_stock_auto" type="number"
                   value={(formData.stock_manila ?? 0) + (formData.stock_davao ?? 0)}
                   disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-gray-50 text-gray-500 text-sm cursor-not-allowed"
-                />
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-gray-50 text-gray-500 text-sm cursor-not-allowed" autoComplete="off" />
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
+              <label htmlFor="admindashboard-setformdata-formdata-featured-" className="flex items-center gap-2 cursor-pointer">
+                <input id="admindashboard-checkbox-6" name="checkbox_6" type="checkbox"
                   checked={formData.featured || false}
                   onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                   className="w-4 h-4 text-blue-655 rounded border-slate-300 focus:ring-blue-500"
@@ -1086,8 +1093,7 @@ const AdminDashboard: React.FC = () => {
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
+                <input id="admindashboard-setformdata-formdata-featured-" name="setformdata_formdata_featured_" type="checkbox"
                   checked={formData.available ?? true}
                   onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
                   className="w-4 h-4 text-emerald-650 rounded border-slate-300 focus:ring-emerald-500"
@@ -1105,9 +1111,8 @@ const AdminDashboard: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-650 mb-1.5">Discount Price (₱)</label>
-                <input
-                  type="number"
+                <label htmlFor="admindashboard-discount-price" className="block text-xs font-semibold text-slate-650 mb-1.5">Discount Price (₱)</label>
+                <input id="admindashboard-discount-price" name="discount_price" type="number"
                   step="1"
                   value={formData.discount_price || ''}
                   onChange={(e) => setFormData({ ...formData, discount_price: Number(e.target.value) || null })}
@@ -1117,9 +1122,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="flex items-center pt-0 md:pt-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
+                <label htmlFor="admindashboard-enable-discount-checkbox" className="flex items-center gap-2 cursor-pointer">
+                  <input id="admindashboard-enable-discount-checkbox" name="discount_active" type="checkbox"
                     checked={formData.discount_active || false}
                     onChange={(e) => setFormData({ ...formData, discount_active: e.target.checked })}
                     className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
@@ -1162,28 +1166,23 @@ const AdminDashboard: React.FC = () => {
               Certificate of Analysis (COA)
             </h3>
             <p className="text-xs text-slate-404 mb-3">
-              Paste the COA URL (PDF or image link). Renders inline on the product page and as a "View COA" button beside Add to Cart.
+              Upload a COA PDF file or lab test report image, or provide a direct URL. Renders inline on the product page and as a "View COA" button beside Add to Cart.
             </p>
-            <input
-              type="url"
-              value={formData.coa_url || ''}
-              onChange={(e) => {
-                const trimmed = e.target.value.trim();
-                setFormData({ ...formData, coa_url: trimmed === '' ? null : trimmed });
+            <ImageUpload
+              currentImage={formData.coa_url || undefined}
+              onImageChange={(coaUrl) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  coa_url: coaUrl ? coaUrl.trim() : null,
+                }));
               }}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-              placeholder="https://example.com/coa.pdf"
+              folder="coa-images"
+              accept="image/*,.pdf,application/pdf"
+              title="Click to upload COA document or lab image"
+              subtitle="Supports PDF documents & all image formats (JPG, PNG, WebP) - max 10MB"
+              urlPlaceholder="https://example.com/coa.pdf"
+              urlLabel="Or enter direct COA URL (PDF or Image link)"
             />
-            {formData.coa_url && (
-              <a
-                href={formData.coa_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-2 text-xs font-semibold text-blue-650 hover:underline"
-              >
-                Open COA link ↗
-              </a>
-            )}
           </div>
 
           {/* Dosing Guide & Peptide Calculator */}
@@ -1194,9 +1193,8 @@ const AdminDashboard: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Dosing Instructions (Text)</label>
-                <textarea
-                  value={formData.dosing_guide || ''}
+                <label htmlFor="admindash-dosing-instructions" className="block text-xs font-semibold text-slate-600 mb-1.5">Dosing Instructions (Text)</label>
+                <textarea id="admindash-dosing-instructions" name="dosing_guide" value={formData.dosing_guide || ''}
                   onChange={(e) => setFormData({ ...formData, dosing_guide: e.target.value })}
                   rows={4}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -1205,9 +1203,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Dosage Reference Chart Image URL</label>
-                <input
-                  type="url"
+                <label htmlFor="admindashboard-dosage-reference-chart-image-u" className="block text-xs font-semibold text-slate-600 mb-1.5">Dosage Reference Chart Image URL</label>
+                <input id="admindashboard-dosage-reference-chart-image-u" name="dosage_reference_chart_image_u" type="url"
                   value={formData.dosage_chart_url || ''}
                   onChange={(e) => setFormData({ ...formData, dosage_chart_url: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -1216,9 +1213,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Linked PepTalk Protocol Video</label>
-                <select
-                  value={formData.linked_peptalk_id || ''}
+                <label htmlFor="admindashboard-linked-peptalk-protocol-video" className="block text-xs font-semibold text-slate-600 mb-1.5">Linked PepTalk Protocol Video</label>
+                <select id="admindashboard-linked-peptalk-protocol-video" name="linked_peptalk_protocol_video" value={formData.linked_peptalk_id || ''}
                   onChange={(e) => setFormData({ ...formData, linked_peptalk_id: e.target.value || null })}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
                 >
@@ -1230,9 +1226,8 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Important Usage Notes</label>
-                <textarea
-                  value={formData.usage_notes || ''}
+                <label htmlFor="admindashboard-important-usage-notes" className="block text-xs font-semibold text-slate-600 mb-1.5">Important Usage Notes</label>
+                <textarea id="admindashboard-important-usage-notes" name="important_usage_notes" value={formData.usage_notes || ''}
                   onChange={(e) => setFormData({ ...formData, usage_notes: e.target.value })}
                   rows={3}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
@@ -1260,9 +1255,8 @@ const AdminDashboard: React.FC = () => {
                 <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl p-3">
                   <div className="flex-1 grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Min quantity</label>
-                      <input
-                        type="number"
+                      <label htmlFor="admindashboard-min-quantity" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Min quantity</label>
+                      <input id="admindashboard-min-quantity" name="min_quantity" type="number"
                         min={2}
                         value={tier.min_quantity}
                         onChange={(e) => {
@@ -1273,9 +1267,8 @@ const AdminDashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Discount %</label>
-                      <input
-                        type="number"
+                      <label htmlFor="admindashboard-discount" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Discount %</label>
+                      <input id="admindashboard-discount" name="discount" type="number"
                         min={0.1}
                         max={100}
                         step="0.1"
@@ -1289,9 +1282,8 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-650 cursor-pointer">
-                      <input
-                        type="checkbox"
+                    <label htmlFor="admindashboard-setbundletiers-bundletiers-map" className="flex items-center gap-1.5 text-xs font-semibold text-slate-650 cursor-pointer">
+                      <input id="admindashboard-checkbox-10" name="checkbox_10" type="checkbox"
                         checked={tier.active}
                         onChange={(e) =>
                           setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, active: e.target.checked } : t)))
@@ -1301,8 +1293,7 @@ const AdminDashboard: React.FC = () => {
                       Active
                     </label>
                     <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-650 cursor-pointer">
-                      <input
-                        type="checkbox"
+                      <input id="admindashboard-setbundletiers-bundletiers-map" name="setbundletiers_bundletiers_map" type="checkbox"
                         checked={tier.most_popular}
                         onChange={(e) =>
                           setBundleTiers(bundleTiers.map((t, i) => ({
@@ -1447,6 +1438,23 @@ const AdminDashboard: React.FC = () => {
 
         {/* Mobile Card View */}
         <div className="md:hidden space-y-3">
+          {sortedProducts.length > 0 && (
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+              <label htmlFor="admindashboard-mobile-select-all" className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                <input id="admindashboard-mobile-select-all" name="mobile_select_all" type="checkbox"
+                  checked={selectedProducts.size === sortedProducts.length && sortedProducts.length> 0}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded text-[#3C6CA8] focus:ring-[#3C6CA8] accent-[#3C6CA8] cursor-pointer"
+                />
+                <span>Select All Products ({sortedProducts.length})</span>
+              </label>
+              {selectedProducts.size > 0 && (
+                <span className="text-xs font-bold text-[#3C6CA8]">
+                  {selectedProducts.size} Selected
+                </span>
+              )}
+            </div>
+          )}
           {sortedProducts.map((product) => {
             const isSelected = selectedProducts.has(product.id);
             const hasSizes = !!(product.variations && product.variations.length > 0);
@@ -1460,8 +1468,7 @@ const AdminDashboard: React.FC = () => {
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                    <input
-                      type="checkbox"
+                    <input id="admindashboard-checkbox-14" name="checkbox_14" type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleSelectProduct(product.id)}
                       className="mt-1 w-4 h-4 rounded cursor-pointer shrink-0"
@@ -1542,9 +1549,8 @@ const AdminDashboard: React.FC = () => {
               <thead className="bg-slate-50 border-b border-slate-150">
                 <tr>
                   <th className="px-3 py-3 text-center w-10">
-                    <input
-                      type="checkbox"
-                      checked={selectedProducts.size === products.length && products.length > 0}
+                    <input id="admindashboard-checkbox-16" name="checkbox_16" type="checkbox"
+                      checked={selectedProducts.size === products.length && products.length> 0}
                       onChange={toggleSelectAll}
                       className="w-4 h-4 rounded cursor-pointer"
                       title="Select All"
@@ -1571,8 +1577,7 @@ const AdminDashboard: React.FC = () => {
                       style={isSelected ? { backgroundColor: '#F0F7FF' } : undefined}
                     >
                       <td className="px-3 py-3 text-center">
-                        <input
-                          type="checkbox"
+                        <input id="admindashboard-checkbox-18" name="checkbox_18" type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelectProduct(product.id)}
                           className="w-4 h-4 rounded cursor-pointer"
@@ -1692,154 +1697,475 @@ const AdminDashboard: React.FC = () => {
   };
 
   const renderDashboardOverview = () => {
+    const totalProdCount = products.length;
+    const availCount = products.filter(p => p.available).length;
+    const featCount = products.filter(p => p.featured).length;
+    const manilaStock = products.reduce((sum, p) => sum + (Number(p.stock_manila) || 0), 0);
+    const davaoStock = products.reduce((sum, p) => sum + (Number(p.stock_davao) || 0), 0);
+    const totalStock = manilaStock + davaoStock;
+    const inventoryValuation = products.reduce((sum, p) => sum + ((Number(p.base_price) || 0) * (Number(p.stock_quantity) || 0)), 0);
+    const lowStockItems = products.filter(p => (Number(p.stock_quantity) || 0) <= 5);
+
+    const categoryDistribution = categories.map((cat, idx) => {
+      const count = products.filter(p => p.category === cat.id).length;
+      const pct = totalProdCount > 0 ? (count / totalProdCount) * 100 : 0;
+      const colors = [
+        'bg-[#3C6CA8]',
+        'bg-emerald-500',
+        'bg-amber-500',
+        'bg-indigo-500',
+        'bg-purple-500',
+        'bg-rose-500',
+        'bg-cyan-500'
+      ];
+      return {
+        ...cat,
+        count,
+        pct,
+        colorClass: colors[idx % colors.length]
+      };
+    });
+
     return (
-      <div className="w-full max-w-[1400px] mx-auto px-2 sm:px-6 py-4 sm:py-8">
-        {/* KPI Cards Grid */}
-        <div className="mb-6 sm:mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            
-            {/* KPI: Total Products */}
-            <button
-              onClick={() => setCurrentView('products')}
-              className="group relative bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-left flex flex-col justify-between h-32 overflow-hidden cursor-pointer"
-            >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500 rounded-t-2xl" />
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-450">Total Products</p>
-                  <p className="text-3xl font-extrabold text-slate-800 mt-2">{totalProducts}</p>
-                </div>
-                <div className="p-3 bg-blue-50 text-blue-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                  <Package className="h-5 w-5" />
-                </div>
+      <div className="w-full max-w-[1440px] mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 font-inter">
+        {/* ─── Top Executive Header ────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 border border-[#3C6CA8]/25 text-[#3C6CA8] dark:text-[#94BBE9] flex items-center justify-center shrink-0 shadow-inner">
+              <LayoutDashboard className="w-6 h-6" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-[#232323] dark:text-white tracking-tight">
+                  Dashboard Overview
+                </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  LIVE SYNC
+                </span>
               </div>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                Real-time executive monitor for catalog products, warehouse inventory, discounts, and store operations
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+              title="Refresh all data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-[#3C6CA8] ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span>{isRefreshing ? 'Syncing...' : 'Sync Live'}</span>
             </button>
 
-            {/* KPI: Available */}
             <button
-              onClick={() => setCurrentView('products')}
-              className="group relative bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-left flex flex-col justify-between h-32 overflow-hidden cursor-pointer"
+              onClick={() => setCurrentView('orders')}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-2xs"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-emerald-500 rounded-t-2xl" />
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-455">Available</p>
-                  <p className="text-3xl font-extrabold text-emerald-600 mt-2">{availableProducts}</p>
-                </div>
-                <div className="p-3 bg-emerald-50 text-emerald-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-              </div>
+              <ShoppingCart className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Orders</span>
             </button>
 
-            {/* KPI: Featured */}
             <button
-              onClick={() => setCurrentView('products')}
-              className="group relative bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-left flex flex-col justify-between h-32 overflow-hidden cursor-pointer"
+              onClick={() => setCurrentView('promo-codes')}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all cursor-pointer shadow-2xs"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-amber-500 rounded-t-2xl" />
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-455">Featured</p>
-                  <p className="text-3xl font-extrabold text-amber-600 mt-2">{featuredProducts}</p>
-                </div>
-                <div className="p-3 bg-amber-50 text-amber-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-              </div>
+              <Tag className="w-3.5 h-3.5 text-amber-500" />
+              <span>Promo Codes</span>
             </button>
 
-            {/* KPI: Categories */}
             <button
-              onClick={() => setCurrentView('categories')}
-              className="group relative bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-left flex flex-col justify-between h-32 overflow-hidden cursor-pointer"
+              onClick={handleAddProduct}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-black text-xs text-white bg-[#3C6CA8] hover:bg-[#315A8E] shadow-md shadow-[#3C6CA8]/20 transition-all cursor-pointer active:scale-95"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-500 rounded-t-2xl" />
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-455">Categories</p>
-                  <p className="text-3xl font-extrabold text-indigo-600 mt-2">{categories.length}</p>
-                </div>
-                <div className="p-3 bg-indigo-50 text-indigo-500 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                  <Users className="h-5 w-5" />
-                </div>
-              </div>
+              <Plus className="w-4 h-4" />
+              <span>Add Product</span>
             </button>
           </div>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left: System Status Placeholder */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm flex flex-col justify-between min-h-[300px]">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 mb-1 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-500" />
-                System Status & Alerts
-              </h3>
-              <p className="text-xs text-slate-400">Real-time status of your store environment</p>
+        {/* ─── 6 KPI Executive Metric Cards ─────────────────────────────────── */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          {/* Total Catalog */}
+          <button
+            onClick={() => setCurrentView('products')}
+            className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left hover:border-[#3C6CA8] transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Total Products</span>
+              <Package className="w-4 h-4 text-[#3C6CA8]" />
             </div>
+            <p className="text-2xl font-black text-[#232323] dark:text-white mt-1.5">{totalProdCount}</p>
+            <span className="text-[10px] font-bold text-slate-400 block mt-0.5">Catalog items</span>
+          </button>
 
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="relative w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 text-slate-400">
-                <RefreshCw className="w-8 h-8 animate-spin" style={{ animationDuration: '8s' }} />
-                <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full animate-ping" />
-                <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+          {/* Available / Active */}
+          <button
+            onClick={() => setCurrentView('products')}
+            className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left hover:border-emerald-500 transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Storefront Active</span>
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
+            </div>
+            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1.5">
+              <span>{availCount}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            </p>
+            <span className="text-[10px] font-bold text-emerald-600/80 block mt-0.5">
+              {totalProdCount > 0 ? `${Math.round((availCount / totalProdCount) * 100)}% of catalog` : '0%'}
+            </span>
+          </button>
+
+          {/* Warehouse Stock Units */}
+          <button
+            onClick={() => setCurrentView('inventory')}
+            className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left hover:border-blue-500 transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Stock Units</span>
+              <Warehouse className="w-4 h-4 text-blue-600" />
+            </div>
+            <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1.5">{totalStock.toLocaleString()}</p>
+            <span className="text-[10px] font-bold text-slate-400 block mt-0.5 truncate">
+              Mnl: {manilaStock} | Dav: {davaoStock}
+            </span>
+          </button>
+
+          {/* Inventory Valuation */}
+          <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left">
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Inventory Value</span>
+              <DollarSign className="w-4 h-4 text-emerald-500" />
+            </div>
+            <p className="text-2xl font-black text-[#232323] dark:text-white mt-1.5 truncate">
+              ₱{Math.round(inventoryValuation).toLocaleString()}
+            </p>
+            <span className="text-[10px] font-bold text-slate-400 block mt-0.5">Retail inventory value</span>
+          </div>
+
+          {/* Featured Deals */}
+          <button
+            onClick={() => setCurrentView('products')}
+            className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left hover:border-amber-500 transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Featured Deals</span>
+              <Sparkles className="w-4 h-4 text-amber-500" />
+            </div>
+            <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1.5">{featCount}</p>
+            <span className="text-[10px] font-bold text-slate-400 block mt-0.5">Homepage highlights</span>
+          </button>
+
+          {/* Categories */}
+          <button
+            onClick={() => setCurrentView('categories')}
+            className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs text-left hover:border-indigo-500 transition-all cursor-pointer group"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400">Categories</span>
+              <FolderOpen className="w-4 h-4 text-indigo-500" />
+            </div>
+            <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1.5">{categories.length}</p>
+            <span className="text-[10px] font-bold text-slate-400 block mt-0.5">Product lines</span>
+          </button>
+        </div>
+
+        {/* ─── Two Main Columns Grid ────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* LEFT: Warehouse Stock Allocation & Low Stock Alerts */}
+          <div className="space-y-6">
+            {/* Warehouse Allocation Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Warehouse className="w-5 h-5 text-[#3C6CA8]" />
+                  <h3 className="text-sm font-black text-[#232323] dark:text-white">Warehouse Inventory Distribution</h3>
+                </div>
+                <button
+                  onClick={() => setCurrentView('inventory')}
+                  className="text-xs font-extrabold text-[#3C6CA8] hover:underline cursor-pointer"
+                >
+                  Manage Stock ↗
+                </button>
               </div>
-              <h4 className="text-sm font-bold text-slate-700 mb-1">All Systems Operational</h4>
-              <p className="text-xs text-slate-400 max-w-[280px]">
-                Database connection, Firebase synchronization, and pricing APIs are fully operational.
-              </p>
+
+              {/* Warehouse Progress Allocation */}
+              <div className="space-y-3 pt-1">
+                <div>
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#3C6CA8]" /> Manila Warehouse
+                    </span>
+                    <span>{manilaStock} units ({totalStock > 0 ? Math.round((manilaStock / totalStock) * 100) : 0}%)</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#3C6CA8] rounded-full transition-all"
+                      style={{ width: `${totalStock > 0 ? (manilaStock / totalStock) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" /> Davao Warehouse
+                    </span>
+                    <span>{davaoStock} units ({totalStock > 0 ? Math.round((davaoStock / totalStock) * 100) : 0}%)</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all"
+                      style={{ width: `${totalStock > 0 ? (davaoStock / totalStock) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Low Stock Watchlist */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Stock Watchlist (≤ 5 units)
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-400">{lowStockItems.length} items</span>
+                </div>
+
+                {lowStockItems.length === 0 ? (
+                  <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 rounded-xl flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                      All products have healthy inventory levels (&gt; 5 units).
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                    {lowStockItems.slice(0, 4).map(item => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/60 dark:border-slate-700 text-xs"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className="font-extrabold text-[#232323] dark:text-white block truncate">{item.name}</span>
+                          <span className="text-[10px] text-slate-400">Mnl: {item.stock_manila || 0} • Dav: {item.stock_davao || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                            (item.stock_quantity || 0) === 0
+                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                              : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                          }`}>
+                            {(item.stock_quantity || 0) === 0 ? 'Out of Stock' : `${item.stock_quantity} left`}
+                          </span>
+                          <button
+                            onClick={() => handleEditProduct(item)}
+                            className="text-[11px] font-bold text-[#3C6CA8] hover:underline cursor-pointer"
+                          >
+                            Restock
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs font-semibold text-slate-500">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
-                Online & Active
-              </span>
-              <span>Last updated: Just now</span>
+            {/* System Status Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-[#3C6CA8]" />
+                <h3 className="text-sm font-black text-[#232323] dark:text-white">Store Environment & Live Sync</h3>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/60 dark:border-slate-700">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Database</span>
+                  <span className="font-extrabold text-emerald-600 flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Connected
+                  </span>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/60 dark:border-slate-700">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Realtime Stream</span>
+                  <span className="font-extrabold text-emerald-600 flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Active 0ms
+                  </span>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-200/60 dark:border-slate-700 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Convex Mirror</span>
+                  <span className="font-extrabold text-emerald-600 flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Synced
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Community Telegram Discussions Link Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-sky-200/80 dark:border-sky-900/60 shadow-2xs space-y-3.5 bg-gradient-to-br from-white to-sky-50/40 dark:from-slate-900 dark:to-sky-950/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center shadow-xs">
+                    <MessageCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                      Community Telegram Discussions
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200">
+                        Live Global Link
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Active link across navbar, mobile drawer, about page, and footer
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setIsEditingTelegram(!isEditingTelegram)}
+                    className="px-2.5 py-1 text-xs font-bold text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>{isEditingTelegram ? 'Cancel' : 'Edit Link'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {isEditingTelegram ? (
+                <div className="space-y-2.5 pt-1">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input id="admindashboard-input-19" name="input_19" type="url"
+                      value={telegramLinkInput}
+                      onChange={(e) => setTelegramLinkInput(e.target.value)}
+                      placeholder="https://t.me/+fGtShIUkbB84YzZl or https://t.me/yourgroup"
+                      className="flex-1 px-3.5 py-2 bg-white dark:bg-slate-800 border border-sky-300 dark:border-sky-700 rounded-xl text-xs font-mono text-slate-800 dark:text-white focus:ring-2 focus:ring-sky-500 outline-none"
+                    />
+                    <div className="flex gap-1.5 shrink-0">
+                      <button
+                        onClick={handleSaveTelegramLink}
+                        disabled={isSavingTelegram}
+                        className="px-4 py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        {isSavingTelegram ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Check className="w-3.5 h-3.5" />
+                        )}
+                        <span>Save Link</span>
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                    💡 Clicking Save will immediately update the Telegram link across the entire store without requiring a page refresh.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-white/80 dark:bg-slate-800/80 border border-sky-200/60 dark:border-sky-800/60 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                    <span className="font-mono text-sky-800 dark:text-sky-300 font-semibold truncate text-[11px] sm:text-xs">
+                      {siteSettings?.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={handleCopyTelegramLink}
+                      className="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                      title="Copy Telegram Link"
+                    >
+                      {copiedTelegram ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedTelegram ? 'Copied' : 'Copy'}</span>
+                    </button>
+                    <a
+                      href={siteSettings?.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-[11px] font-bold transition-all shadow-2xs flex items-center gap-1"
+                    >
+                      <span>Test Link</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right: Categories Overview Re-styled */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-150/60 shadow-sm">
-            <h3 className="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-indigo-500" />
-              Categories Overview
-            </h3>
-            <div className="space-y-4">
-              {categoryCounts.map((category, index) => {
-                const progressColors = [
-                  'bg-blue-500',
-                  'bg-emerald-500',
-                  'bg-amber-500',
-                  'bg-indigo-500',
-                  'bg-purple-500',
-                  'bg-pink-500'
-                ];
-                const bgColors = [
-                  'text-blue-600 bg-blue-50 border-blue-100',
-                  'text-emerald-600 bg-emerald-50 border-emerald-100',
-                  'text-amber-600 bg-amber-50 border-amber-100',
-                  'text-indigo-600 bg-indigo-50 border-indigo-100',
-                  'text-purple-600 bg-purple-50 border-purple-100',
-                  'text-pink-600 bg-pink-50 border-pink-100'
-                ];
-                const pct = totalProducts > 0 ? (category.count / totalProducts) * 100 : 0;
-                return (
-                  <div key={category.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-600">{category.name}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${bgColors[index % bgColors.length]}`}>
-                        {category.count} {category.count === 1 ? 'product' : 'products'}
+          {/* RIGHT: Category Breakdown & Quick Command Grid */}
+          <div className="space-y-6">
+            {/* Category Breakdown Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-[#3C6CA8]" />
+                  <h3 className="text-sm font-black text-[#232323] dark:text-white">Categories & Product Share</h3>
+                </div>
+                <button
+                  onClick={() => setCurrentView('categories')}
+                  className="text-xs font-extrabold text-[#3C6CA8] hover:underline cursor-pointer"
+                >
+                  Manage Categories ↗
+                </button>
+              </div>
+
+              <div className="space-y-3.5">
+                {categoryDistribution.map((category) => (
+                  <div key={category.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <span>{category.icon || '🔬'}</span>
+                        <span>{category.name}</span>
+                      </span>
+                      <span className="font-mono font-bold text-slate-500 dark:text-slate-400">
+                        {category.count} {category.count === 1 ? 'product' : 'products'} ({category.pct.toFixed(0)}%)
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${progressColors[index % progressColors.length]}`} style={{ width: `${pct}%` }} />
+                    <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${category.colorClass} rounded-full transition-all`}
+                        style={{ width: `${category.pct}%` }}
+                      />
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Operations Command Grid */}
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-3.5">
+              <h3 className="text-sm font-black text-[#232323] dark:text-white">Quick Access Operations</h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {[
+                  { label: 'Products', view: 'products', icon: Package, color: 'text-[#3C6CA8] bg-blue-50 dark:bg-slate-800' },
+                  { label: 'Orders', view: 'orders', icon: ShoppingCart, color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40' },
+                  { label: 'Promo Codes', view: 'promo-codes', icon: Tag, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/40' },
+                  { label: 'Global Deals', view: 'global-discount', icon: Sparkles, color: 'text-purple-600 bg-purple-50 dark:bg-purple-950/40' },
+                  { label: 'COA Lab Tests', view: 'coa', icon: Shield, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40' },
+                  { label: 'Shipping Matrix', view: 'shipping', icon: MapPin, color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/40' },
+                  { label: 'Customer FAQ', view: 'faq', icon: HelpCircle, color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/40' },
+                  { label: 'Analytics', view: 'analytics', icon: BarChart3, color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/40' },
+                ].map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => setCurrentView(item.view as any)}
+                      className="p-3 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 hover:border-[#3C6CA8] hover:shadow-2xs transition-all flex flex-col items-center text-center cursor-pointer group"
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${item.color} group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-[11px] font-extrabold text-[#232323] dark:text-white truncate w-full">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -1852,12 +2178,11 @@ const AdminDashboard: React.FC = () => {
       case 'dashboard':
         return renderDashboardOverview();
       case 'products':
-        return renderProductsListView();
       case 'add':
       case 'edit':
-        return renderFormView();
+        return renderProductsListView();
       case 'categories':
-        return <CategoryManager onBack={() => setCurrentView('dashboard')} />;
+        return <CategoryManager onBack={() => setCurrentView('dashboard')} adminEmail={adminSession?.email || 'admin@slimdose.ph'} adminRole={adminSession?.role || 'admin'} />;
       case 'payments':
         return <PaymentMethodManager onBack={() => setCurrentView('dashboard')} adminEmail={adminSession?.email || 'admin@slimdose.ph'} adminRole={adminSession?.role || 'admin'} />;
       case 'inventory':
@@ -1882,7 +2207,7 @@ const AdminDashboard: React.FC = () => {
         return <FAQManager onBack={() => setCurrentView('dashboard')} />;
       case 'promo-codes':
         return (
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
             <button
               onClick={() => setCurrentView('dashboard')}
               className="mb-4 text-slate-650 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
@@ -1895,7 +2220,7 @@ const AdminDashboard: React.FC = () => {
         );
       case 'global-discount':
         return (
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
             <button
               onClick={() => setCurrentView('dashboard')}
               className="mb-4 text-slate-650 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
@@ -1908,7 +2233,7 @@ const AdminDashboard: React.FC = () => {
         );
       case 'guides':
         return (
-          <div className="max-w-6xl mx-auto px-4 py-6">
+          <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
             <button
               onClick={() => setCurrentView('dashboard')}
               className="mb-4 text-slate-650 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
@@ -1923,10 +2248,10 @@ const AdminDashboard: React.FC = () => {
         return <SalesAnalyticsManager onBack={() => setCurrentView('dashboard')} />;
       case 'popup':
         return (
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <button
               onClick={() => setCurrentView('dashboard')}
-              className="mb-4 text-slate-655 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
+              className="mb-4 text-slate-650 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Dashboard
@@ -1946,13 +2271,13 @@ const AdminDashboard: React.FC = () => {
         );
       case 'settings':
         return (
-          <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <button
               onClick={() => setCurrentView('dashboard')}
-              className="mb-4 text-slate-655 hover:text-blue-600 transition-colors flex items-center gap-2 text-xs font-semibold"
+              className="mb-4 text-slate-600 dark:text-slate-400 hover:text-[#3C6CA8] dark:hover:text-[#6A9BE0] transition-colors flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
+              <span>Back to Dashboard</span>
             </button>
             <SiteSettingsManager />
           </div>
@@ -2159,14 +2484,13 @@ const AdminDashboard: React.FC = () => {
               <form onSubmit={handleLogin} className="space-y-4">
                 {/* Email Field */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="admindashboard-admin-email-login" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" /> Email Address
                   </label>
                   <div className="relative">
-                    <input
-                      type="email"
+                    <input id="admindashboard-admin-email-login" name="admin_email" type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email" onChange={(e) => setEmail(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:ring-2 focus:ring-[#3C6CA8]/40 focus:border-[#3C6CA8] transition-all outline-none pl-11"
                       placeholder="admin@slimdose.ph"
                       required
@@ -2177,14 +2501,13 @@ const AdminDashboard: React.FC = () => {
 
                 {/* Password Field */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <label htmlFor="admindashboard-password" className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5 text-[#3C6CA8]" /> Password
                   </label>
                   <div className="relative">
-                    <input
-                      type="password"
+                    <input id="admindashboard-password" name="password" type="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password" onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 text-sm focus:ring-2 focus:ring-[#3C6CA8]/40 focus:border-[#3C6CA8] transition-all outline-none pl-11"
                       placeholder="••••••••••••"
                       required
@@ -2250,7 +2573,6 @@ const AdminDashboard: React.FC = () => {
       title: 'Catalog & Inventory',
       items: [
         { label: 'Manage Products', view: 'products', icon: Package },
-        { label: 'Add New Product', view: 'add', icon: Plus, action: handleAddProduct },
         { label: 'Manage Categories', view: 'categories', icon: FolderOpen },
         { label: 'Peptide Inventory', view: 'inventory', icon: Warehouse },
         { label: 'Lab Results (COA)', view: 'coa', icon: Shield },
@@ -2436,7 +2758,7 @@ const AdminDashboard: React.FC = () => {
                             }}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-left text-xs font-medium transition-all group relative cursor-pointer ${
                               active
-                                ? 'bg-blue-600 text-white font-semibold shadow-lg shadow-blue-600/25 ring-1 ring-blue-400/30'
+                                ? 'bg-[#3C6CA8] text-white font-semibold shadow-md shadow-[#3C6CA8]/30 ring-1 ring-[#3C6CA8]/40'
                                 : 'hover:bg-slate-800/70 hover:text-slate-100 text-slate-400'
                             }`}
                           >
@@ -2522,6 +2844,24 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Product Create/Edit Modal with Beautiful Tabs */}
+      <ProductModal
+        isOpen={isProductModalOpen}
+        onClose={() => {
+          setIsProductModalOpen(false);
+          setEditingProduct(null);
+        }}
+        product={editingProduct}
+        categories={categories}
+        peptalkVideos={peptalkVideos}
+        onSaveSuccess={async () => {
+          await refreshProducts();
+        }}
+        logAdminAction={logAdminAction}
+        addProduct={addProduct}
+        updateProduct={updateProduct}
+      />
+
       {/* Password Confirmation Modal */}
       {isPasswordConfirmOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
@@ -2540,14 +2880,13 @@ const AdminDashboard: React.FC = () => {
 
               <form onSubmit={handlePasswordConfirmSubmit} className="space-y-3.5 pt-2 text-left">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  <label htmlFor="admindashboard-confirm-password" className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Confirm Password
                   </label>
-                  <input
-                    type="password"
+                  <input id="admindashboard-confirm-password" name="confirm_password" type="password"
                     required
                     value={confirmPasswordInput}
-                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    autoComplete="new-password" onChange={(e) => setConfirmPasswordInput(e.target.value)}
                     placeholder="••••••••"
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   />

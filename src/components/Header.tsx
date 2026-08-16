@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useCOAPageSetting } from '../hooks/useCOAPageSetting';
 import { useCategories } from '../hooks/useCategories';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import {
   ShoppingCart, Menu as MenuIcon, X, MessageCircle, Calculator, FileText,
-  HelpCircle, Truck, BookOpen, Moon, Sun, Lock, Search, ChevronRight,
-  Mail, Sparkles, ArrowRight, Package, User as UserIcon
+  HelpCircle, Truck, BookOpen, Lock, Search, ChevronRight,
+  Mail, Sparkles, ArrowRight, Package, User as UserIcon, Pencil
 } from 'lucide-react';
 import { AdminLoginModal } from './AdminLoginModal';
 import { CustomerAuthModal } from './CustomerAuthModal';
 import { CustomerDashboard } from './CustomerDashboard';
+import { BannerEditModal, BannerData } from './BannerEditModal';
 import { fireToast } from './ToastNotification';
 import { supabase } from '../lib/supabase';
 
@@ -23,7 +25,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClick }) => {
-  /* ─── State ─── */
+  const { siteSettings } = useSiteSettings();
+  const communityTelegramUrl = siteSettings?.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -31,8 +34,19 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [announcementText, setAnnouncementText] = useState("⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️");
   const [announcementActive, setAnnouncementActive] = useState(true);
+  const [bannerData, setBannerData] = useState<BannerData>({
+    announcement_text: "⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️",
+    announcement_active: true,
+    background_color: '#3C6CA8',
+    text_color: '#FFFFFF',
+    display_style: 'marquee',
+    link_url: '',
+    link_open_new_tab: false
+  });
 
   const [customer, setCustomer] = useState<any>(() => {
     const saved = localStorage.getItem('slimdose_customer');
@@ -72,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
 
   const { coaPageEnabled } = useCOAPageSetting();
   const { categories } = useCategories();
-  const { menuItems } = useMenu();
+  const { menuItems } = useMenuContext();
   const [badgeBounce, setBadgeBounce] = useState(false);
   const prevCountRef = useRef(0);
   const megaMenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -102,37 +116,75 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   /* ─── Current path for active state ─── */
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 
-  /* ─── Dark mode ─── */
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const storedTheme = localStorage.getItem('theme');
-      if (storedTheme) {
-        return storedTheme === 'dark';
-      }
-      return false; // Default to light mode
-    }
-    return false;
-  });
 
+
+  /* ─── Check Admin Session ─── */
   useEffect(() => {
-    const root = window.document.documentElement;
-    if (isDark) { root.classList.add('dark'); localStorage.setItem('theme', 'dark'); }
-    else { root.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
-  }, [isDark]);
+    const checkAdmin = () => {
+      const sessionRaw = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
+      if (sessionRaw) {
+        try {
+          const parsed = JSON.parse(sessionRaw);
+          if (parsed && (parsed.role === 'admin' || parsed.role === 'super_admin' || parsed.token)) {
+            setIsAdmin(true);
+            return;
+          }
+        } catch {}
+      }
+      setIsAdmin(false);
+    };
 
-  /* ─── Fetch announcement ─── */
+    checkAdmin();
+    window.addEventListener('storage', checkAdmin);
+    return () => window.removeEventListener('storage', checkAdmin);
+  }, []);
+
+  /* ─── Fetch announcement & Live Sync Listener ─── */
   useEffect(() => {
     const fetchHeaderContent = async () => {
       try {
-        const { data, error } = await supabase.from('page_contents').select('content').eq('page_id', 'header').maybeSingle();
-        if (!error && data && data.content) {
-          const content = data.content as any;
-          if (content.announcement_text !== undefined) setAnnouncementText(content.announcement_text);
-          if (content.announcement_active !== undefined) setAnnouncementActive(content.announcement_active);
+        const { data, error } = await supabase
+          .from('page_contents')
+          .select('page_id, content')
+          .in('page_id', ['header', 'announcement_bar']);
+
+        if (!error && data && data.length > 0) {
+          const headerItem = data.find(d => d.page_id === 'header') || data[0];
+          const content = headerItem.content as any;
+          if (content) {
+            if (content.announcement_text !== undefined) setAnnouncementText(content.announcement_text);
+            if (content.announcement_active !== undefined) setAnnouncementActive(content.announcement_active);
+            setBannerData(prev => ({
+              ...prev,
+              announcement_text: content.announcement_text ?? prev.announcement_text,
+              announcement_active: content.announcement_active ?? prev.announcement_active,
+              background_color: content.background_color || prev.background_color,
+              text_color: content.text_color || prev.text_color,
+              display_style: content.display_style || prev.display_style,
+              link_url: content.link_url || prev.link_url,
+              link_open_new_tab: content.link_open_new_tab ?? prev.link_open_new_tab
+            }));
+          }
         }
-      } catch (err) { console.warn('Failed to fetch header announcement:', err); }
+      } catch (err) {
+        console.warn('Failed to fetch header announcement:', err);
+      }
     };
+
     fetchHeaderContent();
+
+    const handleBannerLiveUpdate = (e: CustomEvent) => {
+      if (e.detail) {
+        const d = e.detail;
+        if (d.announcement_text !== undefined) setAnnouncementText(d.announcement_text);
+        if (d.announcement_active !== undefined) setAnnouncementActive(d.announcement_active);
+        setBannerData(prev => ({ ...prev, ...d }));
+        setAnnouncementDismissed(false);
+      }
+    };
+
+    window.addEventListener('headerAnnouncementUpdated', handleBannerLiveUpdate as EventListener);
+    return () => window.removeEventListener('headerAnnouncementUpdated', handleBannerLiveUpdate as EventListener);
   }, []);
 
   /* ─── Scroll listener ─── */
@@ -195,27 +247,124 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
       {/* ═══ ANNOUNCEMENT BAR ═══ */}
       <div
         className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          showAnnouncement ? 'max-h-10 opacity-100' : 'max-h-0 opacity-0'
+          showAnnouncement ? 'max-h-12 opacity-100' : 'max-h-0 opacity-0'
         }`}
-        style={{ backgroundColor: 'var(--theme-accent)' }}
+        style={{ backgroundColor: bannerData.background_color || 'var(--theme-accent)' }}
       >
-        <div className="relative flex items-center justify-center container-global" style={{ height: '36px' }}>
-          <div className="flex-1 overflow-hidden">
-            <div className="announcement-marquee">
-              <span className="text-white text-[11px] sm:text-xs font-medium tracking-wide whitespace-nowrap">
-                {announcementText}
-              </span>
-            </div>
+        <div className="relative flex items-center justify-between container-global" style={{ minHeight: '36px', height: 'auto', padding: '6px 1rem' }}>
+          <div className="flex-1 overflow-hidden flex items-center justify-center">
+            {bannerData.display_style === 'marquee' ? (
+              <div className="announcement-marquee flex items-center justify-center">
+                {bannerData.link_url ? (
+                  <a
+                    href={bannerData.link_url}
+                    target={bannerData.link_open_new_tab ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    className="text-[11px] sm:text-xs font-medium tracking-wide whitespace-nowrap hover:underline cursor-pointer"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </a>
+                ) : (
+                  <span
+                    className="text-[11px] sm:text-xs font-medium tracking-wide whitespace-nowrap"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </span>
+                )}
+              </div>
+            ) : bannerData.display_style === 'pulse' ? (
+              <div className="flex items-center justify-center animate-pulse text-center">
+                {bannerData.link_url ? (
+                  <a
+                    href={bannerData.link_url}
+                    target={bannerData.link_open_new_tab ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    className="text-[11px] sm:text-xs font-bold tracking-wide hover:underline cursor-pointer truncate"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </a>
+                ) : (
+                  <span
+                    className="text-[11px] sm:text-xs font-bold tracking-wide truncate"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center text-center">
+                {bannerData.link_url ? (
+                  <a
+                    href={bannerData.link_url}
+                    target={bannerData.link_open_new_tab ? '_blank' : '_self'}
+                    rel="noopener noreferrer"
+                    className="text-[11px] sm:text-xs font-medium tracking-wide hover:underline cursor-pointer truncate"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </a>
+                ) : (
+                  <span
+                    className="text-[11px] sm:text-xs font-medium tracking-wide truncate"
+                    style={{ color: bannerData.text_color || '#FFFFFF' }}
+                  >
+                    {announcementText}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          <button
-            onClick={() => setAnnouncementDismissed(true)}
-            className="ml-3 p-0.5 text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/10 flex-shrink-0"
-            aria-label="Dismiss announcement"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+
+          <div className="flex items-center gap-2 shrink-0 ml-3">
+            {/* Admin Only Edit Button Trigger */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setIsBannerModalOpen(true)}
+                className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-xs border border-white/30 transition-all cursor-pointer shadow-xs hover:scale-105"
+                title="Edit Announcement Banner (Admin Only)"
+                aria-label="Edit top banner"
+              >
+                <Pencil className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="hidden xs:inline">Edit Banner</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => setAnnouncementDismissed(true)}
+              className="p-0.5 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/15 flex-shrink-0 cursor-pointer"
+              aria-label="Dismiss announcement"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Admin Only: Inactive Banner Indicator Strip */}
+      {isAdmin && !showAnnouncement && (
+        <div className="bg-slate-900 text-amber-300 text-[11px] font-bold py-1.5 px-3 border-b border-amber-500/20 shadow-xs flex items-center justify-between">
+          <div className="container-global flex items-center justify-between w-full">
+            <div className="flex items-center gap-2 truncate">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0" />
+              <span className="truncate">
+                Admin Notice: Top Announcement Banner is currently <strong>{announcementActive ? 'Dismissed' : 'Disabled / Hidden'}</strong>
+              </span>
+            </div>
+            <button
+              onClick={() => setIsBannerModalOpen(true)}
+              className="ml-3 px-2.5 py-0.5 rounded-full bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/30 text-[10px] font-black transition-all flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <Pencil className="w-2.5 h-2.5" />
+              <span>Edit &amp; Enable</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ═══ MAIN HEADER ═══ */}
       <header
@@ -292,7 +441,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
                 {isActive('/contact') && <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: BRAND_BLUE }} />}
               </a>
               <a
-                href="https://t.me/+fGtShIUkbB84YzZl"
+                href={communityTelegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={navLinkClass('#community')}
@@ -314,21 +463,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
                 <span className="hidden sm:inline">Search</span>
               </button>
 
-              {/* Theme Mode Toggle Button */}
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100/80 dark:bg-gray-800/70 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] dark:hover:text-blue-400 border border-gray-200/60 dark:border-gray-700/60 transition-all shadow-2xs cursor-pointer group"
-                aria-label="Toggle Dark Mode"
-              >
-                <div className="relative w-3.5 h-3.5 flex items-center justify-center">
-                  {isDark ? (
-                    <Sun className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-45 transition-transform" />
-                  ) : (
-                    <Moon className="w-3.5 h-3.5 text-indigo-500 group-hover:-rotate-12 transition-transform" />
-                  )}
-                </div>
-                <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
-              </button>
+
 
               {/* Vertical Elegant Divider */}
               <div className="w-[1px] h-5 bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-700 to-transparent mx-0.5" />
@@ -415,11 +550,11 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
             <div className="container-global py-3">
               <div className="relative max-w-2xl mx-auto">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  ref={searchInputRef}
+                <input id="header-search" name="search" ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  autoComplete="off"
                   placeholder="Search peptides, products, categories..."
                   className="w-full pl-11 pr-10 py-2.5 text-sm bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-theme-accent/20 focus:border-theme-accent/40 transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400"
                   aria-label="Search peptides, products, categories"
@@ -523,8 +658,10 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
           <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-800">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
+              <input id="header-search-products" name="search_products" type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoComplete="off"
                 placeholder="Search products..."
                 className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#3C6CA8]/30 text-gray-900 dark:text-gray-100 placeholder-gray-400"
                 aria-label="Search products"
@@ -597,7 +734,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
           {/* Drawer Footer */}
           <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-800">
             <a
-              href="https://t.me/+fGtShIUkbB84YzZl"
+              href={communityTelegramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90"
@@ -638,6 +775,20 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
             setIsCustomerDashboardOpen(false);
             window.dispatchEvent(new Event('storage'));
             fireToast('Logged out successfully.', 'success');
+          }}
+        />
+      )}
+
+      {/* ─── Banner Edit Modal (Admin Only) ─── */}
+      {isAdmin && (
+        <BannerEditModal
+          isOpen={isBannerModalOpen}
+          onClose={() => setIsBannerModalOpen(false)}
+          initialData={bannerData}
+          onSaved={(updated) => {
+            setBannerData(updated);
+            setAnnouncementText(updated.announcement_text);
+            setAnnouncementActive(updated.announcement_active);
           }}
         />
       )}

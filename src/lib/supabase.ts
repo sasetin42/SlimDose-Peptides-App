@@ -81,9 +81,14 @@ class SupabaseChannel {
   subscribe() {
     if (this.tableName) {
       const colRef = collection(db, this.tableName);
+      let isInitialSnapshot = true;
       this.unsubscribe = onSnapshot(
         colRef,
         (snapshot) => {
+          if (isInitialSnapshot) {
+            isInitialSnapshot = false;
+            return;
+          }
           snapshot.docChanges().forEach((change) => {
             const docData = { id: change.doc.id, ...change.doc.data() };
             this.callbacks.forEach((cb) => {
@@ -145,6 +150,16 @@ class SupabaseQueryBuilder {
 
   in(column: string, values: any[]) {
     this.wheres.push({ column, op: 'in', value: values });
+    return this;
+  }
+
+  ilike(column: string, pattern: string) {
+    this.wheres.push({ column, op: 'ilike' as any, value: pattern });
+    return this;
+  }
+
+  like(column: string, pattern: string) {
+    this.wheres.push({ column, op: 'like' as any, value: pattern });
     return this;
   }
 
@@ -279,6 +294,14 @@ class SupabaseQueryBuilder {
           if (w.op === 'in') {
             return Array.isArray(w.value) && w.value.includes(val);
           }
+          if (w.op === ('ilike' as any)) {
+            const rawPattern = String(w.value).replace(/^%+|%+$/g, '').toLowerCase();
+            return String(val || '').toLowerCase().includes(rawPattern);
+          }
+          if (w.op === ('like' as any)) {
+            const rawPattern = String(w.value).replace(/^%+|%+$/g, '');
+            return String(val || '').includes(rawPattern);
+          }
           return true;
         });
       }
@@ -308,16 +331,34 @@ class SupabaseQueryBuilder {
         return { data: null, error: null };
       }
 
+// Helper to recursively strip undefined properties from documents for Firestore compatibility
+const cleanUndefined = (obj: any): any => {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(cleanUndefined);
+  }
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      cleaned[key] = cleanUndefined(value);
+    }
+  }
+  return cleaned;
+};
+
       // Handle Update
       if (this.updateData) {
+        const sanitizedUpdate = cleanUndefined(this.updateData);
         const promises = docsData.map(async (item: any) => {
           const docRef = doc(db, this.tableName, item.id);
-          await updateDoc(docRef, this.updateData);
+          await updateDoc(docRef, sanitizedUpdate);
         });
         await Promise.all(promises);
         const updated = docsData.map((item: any) => ({
           ...item,
-          ...this.updateData,
+          ...sanitizedUpdate,
         }));
         return { data: updated, error: null };
       }
@@ -328,7 +369,7 @@ class SupabaseQueryBuilder {
         for (const item of this.insertData) {
           const docId = item.id || doc(collection(db, this.tableName)).id;
           const docRef = doc(db, this.tableName, docId);
-          const docData = { ...item, id: docId };
+          const docData = cleanUndefined({ ...item, id: docId });
 
           if (this.isUpsert) {
             await setDoc(docRef, docData, { merge: true });
@@ -390,6 +431,89 @@ export const supabase = {
   removeChannel: (channel: any) => {
     if (channel && typeof channel.unsubscribeChannel === 'function') {
       channel.unsubscribeChannel();
+    }
+  },
+  rpc: async (fnName: string, params?: any) => {
+    try {
+      if (fnName === 'get_sales_analytics') {
+        const { date_start, date_end } = params || {};
+        const start = date_start ? new Date(date_start).getTime() : 0;
+        const end = date_end ? new Date(date_end).getTime() : Infinity;
+
+        const ordersRes = await new SupabaseQueryBuilder('orders').select('*');
+        const orders = ordersRes.data || [];
+        const inRange = orders.filter((o: any) => {
+          const t = new Date(o.created_at || Date.now()).getTime();
+          return t >= start && t <= end && o.status !== 'cancelled';
+        });
+
+        const total_orders = inRange.length;
+        const total_revenue = inRange.reduce((acc: number, o: any) => acc + (Number(o.total_price) || 0), 0);
+        const total_units = inRange.reduce((acc: number, o: any) => {
+          const items = o.order_items || [];
+          return acc + items.reduce((iAcc: number, item: any) => iAcc + (Number(item.quantity) || 1), 0);
+        }, 0);
+        const total_cost = inRange.reduce((acc: number, o: any) => {
+          const items = o.order_items || [];
+          return acc + items.reduce((iAcc: number, item: any) => iAcc + ((Number(item.raw_price) || (Number(item.price) * 0.4)) * (Number(item.quantity) || 1)), 0);
+        }, 0);
+        const total_profit = total_revenue - total_cost;
+        const avg_order_value = total_orders > 0 ? total_revenue / total_orders : 0;
+        const profit_margin = total_revenue > 0 ? (total_profit / total_revenue) * 100 : 0;
+
+        return {
+          data: [{
+            total_revenue,
+            total_profit,
+            total_orders,
+            total_units,
+            avg_order_value,
+            profit_margin,
+          }],
+          error: null,
+        };
+      }
+
+      if (fnName === 'get_product_rankings_v2') {
+        const { date_start, date_end, limit_count = 10 } = params || {};
+        const start = date_start ? new Date(date_start).getTime() : 0;
+        const end = date_end ? new Date(date_end).getTime() : Infinity;
+
+        const ordersRes = await new SupabaseQueryBuilder('orders').select('*');
+        const orders = ordersRes.data || [];
+        const inRange = orders.filter((o: any) => {
+          const t = new Date(o.created_at || Date.now()).getTime();
+          return t >= start && t <= end && o.status !== 'cancelled';
+        });
+
+        const productMap: Record<string, { product_name: string; units_sold: number; revenue: number; cost: number; profit: number }> = {};
+        inRange.forEach((o: any) => {
+          const items = o.order_items || [];
+          items.forEach((item: any) => {
+            const name = item.product_name || item.name || 'Unknown Product';
+            if (!productMap[name]) {
+              productMap[name] = { product_name: name, units_sold: 0, revenue: 0, cost: 0, profit: 0 };
+            }
+            const qty = Number(item.quantity) || 1;
+            const rev = Number(item.total_price) || (Number(item.price) * qty) || 0;
+            const cst = (Number(item.raw_price) || (Number(item.price) * 0.4)) * qty;
+            productMap[name].units_sold += qty;
+            productMap[name].revenue += rev;
+            productMap[name].cost += cst;
+            productMap[name].profit += (rev - cst);
+          });
+        });
+
+        const list = Object.values(productMap)
+          .sort((a, b) => b.units_sold - a.units_sold)
+          .slice(0, limit_count);
+        return { data: list, error: null };
+      }
+
+      return { data: [], error: null };
+    } catch (err: any) {
+      console.warn(`[Supabase RPC] Error invoking ${fnName}:`, err);
+      return { data: [], error: err };
     }
   },
   storage: {
@@ -585,7 +709,7 @@ export const supabase = {
         }
         return { data: resData, error: null };
       } catch (err: any) {
-        console.error(`❌ Edge Function ${functionName} error:`, err);
+        // Return error object gracefully instead of breaking caller flows
         return { data: null, error: err };
       }
     }

@@ -129,20 +129,18 @@ export default function RestockRemindersManager() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Email Subject Line</label>
-            <input
-              type="text"
+            <label htmlFor="restockremindersmanager-email-subject-line" className="block text-xs font-semibold text-slate-600 mb-1">Email Subject Line</label>
+            <input id="restockremindersmanager-email-subject-line" name="email_subject_line" type="text"
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              autoComplete="email" onChange={(e) => setSubject(e.target.value)}
               className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-blue-500/20"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">Body Text Content Template</label>
-            <textarea
-              value={bodyTemplate}
+            <label htmlFor="restockremindersmanager-body-text-content-template" className="block text-xs font-semibold text-slate-600 mb-1">Body Text Content Template</label>
+            <textarea id="restockremindersmanager-body-text-content-template" name="body_text_content_template" value={bodyTemplate}
               onChange={(e) => setBodyTemplate(e.target.value)}
               rows={8}
               className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-blue-500/20 font-mono leading-relaxed"

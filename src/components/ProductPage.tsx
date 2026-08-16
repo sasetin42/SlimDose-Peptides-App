@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { demoProducts } from '../data/demoProducts';
@@ -121,13 +121,16 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
 const ProductPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const optimisticProduct = (location.state as { product?: Product } | null)?.product ?? null;
+  
   const cart = useCart();
   const { globalDiscount } = useGlobalDiscount();
 
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<Product | null>(optimisticProduct);
   const [bundleTiers, setBundleTiers] = useState<ProductBundleTier[]>([]);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!optimisticProduct);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
@@ -136,9 +139,13 @@ const ProductPage: React.FC = () => {
     document.body.scrollTop = 0;
     if (!slug) return;
     let cancelled = false;
-    (async () => {
+    
+    // If we have optimistic data, don't show loading — just fetch in background
+    if (!optimisticProduct) {
       setLoading(true);
-      setNotFound(false);
+    }
+    setNotFound(false);
+    (async () => {
       let foundProduct: Product | null = null;
       let isDemo = false;
 

@@ -5,9 +5,7 @@ import {
   Microscope, Snowflake, Zap, Sparkles, Package, FileText, 
   Calculator, ChevronRight, ArrowRight, CheckCircle2 
 } from 'lucide-react';
-import Header from './Header';
-import Footer from './Footer';
-import { useCart } from '../hooks/useCart';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import { supabase } from '../lib/supabase';
 
 interface DynamicPageProps {
@@ -18,7 +16,7 @@ const DEFAULT_PAGE_CONTENTS: Record<string, any> = {
   about: {
     title: "About SlimDose Peptides",
     subtitle: "Leading Scientific Innovation in Peptide Research",
-    content: "SlimDose Peptides is a premier provider of research-grade peptides and biochemical solutions. We commit ourselves to sourcing the highest quality compounds for laboratory and clinical research applications. Every batch is subject to rigorous quality control processes, including third-party HPLC and Mass Spectrometry analysis to verify identity and purity levels. Our mission is to empower researchers worldwide with reliable, premium products that deliver consistent scientific results.",
+    content: "SlimDose Peptides is a premier provider of research-grade peptides and biochemical solutions. We commit ourselves to sourcing the highest quality compounds for laboratory and clinical research applications. Every batch is subject to rigorous quality control processes to verify identity and purity levels. Our mission is to empower researchers worldwide with reliable, premium products that deliver consistent scientific results.",
     banner_url: "/assets/logo.jpeg",
     seo_title: "About Us - SlimDose Peptides Research Lab",
     seo_description: "Learn about our rigorous testing standards, high-purity guarantees, and mission to advance scientific peptide research."
@@ -57,9 +55,11 @@ const DEFAULT_PAGE_CONTENTS: Record<string, any> = {
 
 export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
   const navigate = useNavigate();
-  const cart = useCart();
+  const { siteSettings } = useSiteSettings();
   const [pageData, setPageData] = useState<any>(DEFAULT_PAGE_CONTENTS[pageId]);
   const [loading, setLoading] = useState(true);
+
+  const communityTelegramUrl = siteSettings?.community_telegram_url || pageData?.telegram_group || 'https://t.me/+fGtShIUkbB84YzZl';
 
   useEffect(() => {
     const fetchPageContent = async () => {
@@ -179,7 +179,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                 </div>
               </div>
 
-              {/* 4-Pillar Quality & Trust Grid */}
+              {/* Scientific Standards & Quality Pillars */}
               <div>
                 <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-5 text-center md:text-left flex items-center justify-center md:justify-start gap-2">
                   <Shield className="w-5 h-5 text-theme-accent" style={{ color: 'var(--theme-accent, #3C6CA8)' }} />
@@ -187,33 +187,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                  {/* Pillar 1: HPLC & Mass Spectrometry */}
-                  <div className="bg-white dark:bg-[#11151E] rounded-2xl border border-gray-200/70 dark:border-gray-800/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center mb-4 text-[#3C6CA8] dark:text-blue-400 group-hover:scale-110 transition-transform">
-                      <Microscope className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                      Third-Party HPLC & Mass Spectrometry
-                    </h4>
-                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Every production batch undergoes independent HPLC and Mass Spectrometry verification to guarantee purity levels exceeding 99% and accurate molecular sequence identity.
-                    </p>
-                  </div>
-
-                  {/* Pillar 2: Cold-Chain Logistics */}
-                  <div className="bg-white dark:bg-[#11151E] rounded-2xl border border-gray-200/70 dark:border-gray-800/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-                    <div className="w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-950/50 flex items-center justify-center mb-4 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform">
-                      <Snowflake className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                      Temperature-Controlled Cold-Chain Packaging
-                    </h4>
-                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                      Reconstituted items are shipped in insulated thermal bags with medical-grade gel ice packs to ensure optimal temperature preservation throughout transit.
-                    </p>
-                  </div>
-
-                  {/* Pillar 3: Laboratory Compliance */}
+                  {/* Pillar 1: Laboratory Compliance */}
                   <div className="bg-white dark:bg-[#11151E] rounded-2xl border border-gray-200/70 dark:border-gray-800/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
                     <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center mb-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
                       <Shield className="w-6 h-6" />
@@ -226,7 +200,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                     </p>
                   </div>
 
-                  {/* Pillar 4: Rapid Dispatch & Support */}
+                  {/* Pillar 2: Rapid Dispatch & Support */}
                   <div className="bg-white dark:bg-[#11151E] rounded-2xl border border-gray-200/70 dark:border-gray-800/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
                     <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center mb-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
                       <Zap className="w-6 h-6" />
@@ -291,7 +265,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                   </a>
 
                   <a
-                    href="https://t.me/+fGtShIUkbB84YzZl"
+                    href={communityTelegramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-4 bg-white dark:bg-[#11151E] rounded-2xl border border-gray-200/70 dark:border-gray-800 flex items-center gap-3.5 hover:border-theme-accent transition-all group shadow-sm"
@@ -318,7 +292,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <div className="space-y-6">
                       <p className="text-charcoal-600 dark:text-gray-300 leading-relaxed text-sm md:text-base">
-                        {pageData.content}
+                        {siteSettings?.contact_inquiry_text || pageData.content || DEFAULT_PAGE_CONTENTS.contact.content}
                       </p>
                       
                       <div className="space-y-4 pt-2">
@@ -328,7 +302,9 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                           </div>
                           <div>
                             <span className="block text-xs font-bold text-charcoal-400 dark:text-gray-400 uppercase tracking-wider">Email Support</span>
-                            <a href={`mailto:${pageData.email}`} className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:underline">{pageData.email}</a>
+                            <a href={`mailto:${siteSettings?.support_email || pageData.email || 'support@slimdose.ph'}`} className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:underline">
+                              {siteSettings?.support_email || pageData.email || 'support@slimdose.ph'}
+                            </a>
                           </div>
                         </div>
 
@@ -338,7 +314,14 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                           </div>
                           <div>
                             <span className="block text-xs font-bold text-charcoal-400 dark:text-gray-400 uppercase tracking-wider">Hotline & WhatsApp</span>
-                            <a href={`https://wa.me/${pageData.whatsapp.replace(/[^0-9]/g, '')}`} className="text-sm font-semibold text-charcoal-900 dark:text-gray-200 hover:underline">{pageData.phone}</a>
+                            <a
+                              href={`https://wa.me/${(siteSettings?.contact_whatsapp || siteSettings?.support_phone || pageData.whatsapp || pageData.phone || '+639778132630').replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-semibold text-charcoal-900 dark:text-gray-200 hover:underline"
+                            >
+                              {siteSettings?.support_phone || siteSettings?.contact_phone || pageData.phone || '+63 977 813 2630'}
+                            </a>
                           </div>
                         </div>
 
@@ -348,7 +331,9 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                           </div>
                           <div>
                             <span className="block text-xs font-bold text-charcoal-400 dark:text-gray-400 uppercase tracking-wider">Operational Hours</span>
-                            <span className="text-sm font-semibold text-charcoal-800 dark:text-gray-200">{pageData.hours}</span>
+                            <span className="text-sm font-semibold text-charcoal-800 dark:text-gray-200">
+                              {siteSettings?.operating_hours || pageData.hours || 'Monday - Friday: 9:00 AM - 6:00 PM PHT'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -365,7 +350,7 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                         </p>
                       </div>
                       <a
-                        href={pageData.telegram_group}
+                        href={communityTelegramUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full py-3 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-full font-bold text-sm text-center shadow-md transition-all flex items-center justify-center gap-2"
@@ -400,4 +385,6 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
     </div>
   );
 };
+
+export default DynamicPage;
 

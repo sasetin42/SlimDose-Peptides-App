@@ -58,8 +58,20 @@ export const useSiteSettings = () => {
         notice_order_days: settingsData.find(s => s.id === 'notice_order_days')?.value || 'Monday - Friday',
         notice_cutoff_time: settingsData.find(s => s.id === 'notice_cutoff_time')?.value || '5:00 PM Daily',
         notice_courier: settingsData.find(s => s.id === 'notice_courier')?.value || 'Next Day via J&T',
-        notice_weekend_orders: settingsData.find(s => s.id === 'notice_weekend_orders')?.value || 'Processed Mondays',
-        notice_agree_button_text: settingsData.find(s => s.id === 'notice_agree_button_text')?.value || 'I Understand & Agree'
+        notice_agree_button_text: settingsData.find(s => s.id === 'notice_agree_button_text')?.value || 'I Understand & Agree',
+        community_telegram_url: settingsData.find(s => s.id === 'community_telegram_url')?.value || 'https://t.me/+fGtShIUkbB84YzZl',
+        support_telegram_url: settingsData.find(s => s.id === 'support_telegram_url')?.value || 'https://t.me/slimdose_mnl',
+        support_email: settingsData.find(s => s.id === 'support_email')?.value || 'support@slimdose.ph',
+        support_phone: settingsData.find(s => s.id === 'support_phone')?.value || '+63 977 813 2630',
+        contact_phone: settingsData.find(s => s.id === 'contact_phone')?.value || '+63 977 813 2630',
+        contact_whatsapp: settingsData.find(s => s.id === 'contact_whatsapp')?.value || '+63 977 813 2630',
+        contact_inquiry_text: settingsData.find(s => s.id === 'contact_inquiry_text')?.value || 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
+        operating_hours: settingsData.find(s => s.id === 'operating_hours')?.value || 'Monday - Friday: 9:00 AM - 6:00 PM PHT',
+        instagram_url: settingsData.find(s => s.id === 'instagram_url')?.value || '',
+        facebook_url: settingsData.find(s => s.id === 'facebook_url')?.value || '',
+        meta_title: settingsData.find(s => s.id === 'meta_title')?.value || 'SlimDose Peptides — High Purity Research Solutions',
+        meta_description: settingsData.find(s => s.id === 'meta_description')?.value || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
+        meta_keywords: settingsData.find(s => s.id === 'meta_keywords')?.value || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested'
       };
 
       setSiteSettings(settings);

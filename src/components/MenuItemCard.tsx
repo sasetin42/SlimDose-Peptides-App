@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Flame } from 'lucide-react';
-import type { Product, ProductVariation, GlobalDiscount } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Flame, Sparkles, Zap, Tag, Atom, ShieldCheck, Heart } from 'lucide-react';
+import { fireToast } from './ToastNotification';
+import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier } from '../types';
 import { resolveProductPricing } from '../utils/pricing';
 
 interface MenuItemCardProps {
@@ -10,19 +11,16 @@ interface MenuItemCardProps {
   onUpdateQuantity?: (index: number, quantity: number) => void;
   onProductClick?: (product: Product) => void;
   globalDiscount?: GlobalDiscount | null;
+  bundleTiers?: ProductBundleTier[];
 }
 
-const getSoldCount = (product: Product): number => {
-  if (typeof product.sales_count === 'number' && product.sales_count > 0) {
-    return product.sales_count;
+// Preload the ProductPage chunk on hover so it's ready before click
+let productPagePrefetched = false;
+const prefetchProductPage = () => {
+  if (!productPagePrefetched) {
+    productPagePrefetched = true;
+    import('./ProductPage');
   }
-  // Deterministic seed based on product id for high-contrast presentation
-  let hash = 0;
-  for (let i = 0; i < product.id.length; i++) {
-    hash = (hash << 5) - hash + product.id.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash % 215) + 35;
 };
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({
@@ -30,13 +28,14 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
   cartQuantity = 0,
   onProductClick,
   globalDiscount,
+  bundleTiers = [],
 }) => {
   const [imageError, setImageError] = useState(false);
 
-  const soldCount = getSoldCount(product);
+  const soldCount = Number(product.sales_count || 0);
 
   const firstAvailableVariation = product.variations && product.variations.length > 0
-    ? (product.variations.find(v => v.stock_quantity > 0) || product.variations[0])
+    ? (product.variations.find((v) => v.stock_quantity > 0) || product.variations[0])
     : undefined;
 
   const pricing = resolveProductPricing(product, firstAvailableVariation, globalDiscount);
@@ -46,109 +45,246 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
   const hasMultipleVariations = (product.variations?.length ?? 0) > 1;
 
   const hasAnyStock = product.variations && product.variations.length > 0
-    ? product.variations.some(v => v.stock_quantity > 0)
+    ? product.variations.some((v) => v.stock_quantity > 0)
     : product.stock_quantity > 0;
 
   const isUnavailable = !product.available || (!hasAnyStock && !product.pre_order_enabled);
 
+  const [isSaved, setIsSaved] = useState<boolean>(() => {
+    try {
+      const custRaw = localStorage.getItem('slimdose_customer');
+      const custId = custRaw ? JSON.parse(custRaw)?.id : 'guest';
+      const stored = JSON.parse(localStorage.getItem(`slimdose_wishlist_${custId}`) || '[]');
+      return Array.isArray(stored) && stored.some((item: any) => item.id === product.id || item.productId === product.id);
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      try {
+        const custRaw = localStorage.getItem('slimdose_customer');
+        const custId = custRaw ? JSON.parse(custRaw)?.id : 'guest';
+        const stored = JSON.parse(localStorage.getItem(`slimdose_wishlist_${custId}`) || '[]');
+        setIsSaved(Array.isArray(stored) && stored.some((item: any) => item.id === product.id || item.productId === product.id));
+      } catch {}
+    };
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('wishlist_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('wishlist_updated', handleUpdate);
+    };
+  }, [product.id]);
+
+  const handleToggleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const custRaw = localStorage.getItem('slimdose_customer');
+      const custId = custRaw ? JSON.parse(custRaw)?.id : 'guest';
+      const storageKey = `slimdose_wishlist_${custId}`;
+      const currentList: any[] = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      const existsIndex = currentList.findIndex((item: any) => item.id === product.id || item.productId === product.id);
+      
+      if (existsIndex >= 0) {
+        currentList.splice(existsIndex, 1);
+        localStorage.setItem(storageKey, JSON.stringify(currentList));
+        setIsSaved(false);
+        fireToast(`Removed ${product.name} from Saved Items.`, 'info');
+      } else {
+        const newItem = {
+          id: product.id,
+          productId: product.id,
+          name: product.name,
+          variant: firstAvailableVariation?.name || 'Standard Vial',
+          price: currentPrice,
+          category: product.category || 'Peptides',
+          inStock: !isUnavailable,
+          image_url: product.image_url || '/assets/logo.jpeg',
+          savedAt: new Date().toISOString()
+        };
+        currentList.unshift(newItem);
+        localStorage.setItem(storageKey, JSON.stringify(currentList));
+        setIsSaved(true);
+        fireToast(`Saved ${product.name} to your Saved Items! ❤️`, 'success');
+      }
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('wishlist_updated'));
+    } catch (err) {
+      console.error('Error toggling wishlist on card:', err);
+    }
+  };
+
+  // Bundle calculations for display
+  const activeBundleTiers = (bundleTiers || []).filter((t) => t.active);
+  const maxBundlePct = activeBundleTiers.length > 0
+    ? Math.max(...activeBundleTiers.map((t) => Number(t.discount_percentage)))
+    : 0;
+  const minBundleQty = activeBundleTiers.length > 0
+    ? Math.min(...activeBundleTiers.map((t) => t.min_quantity))
+    : 2;
+
   const handleClick = () => onProductClick?.(product);
+
+  const discountPercentage = hasDiscount && originalPrice > 0
+    ? Math.round((1 - currentPrice / originalPrice) * 100)
+    : 0;
 
   return (
     <div
       onClick={handleClick}
-      className="relative bg-white dark:bg-[#161B26] rounded-2xl shadow-soft hover:shadow-[0_16px_40px_rgba(60,108,168,0.14)] flex flex-col group cursor-pointer overflow-hidden border border-gray-200/80 dark:border-slate-800/80 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-[#3C6CA8]/40 active:scale-[0.985] h-full"
+      onMouseEnter={prefetchProductPage}
+      className="group relative bg-white dark:bg-[#161B26] rounded-2xl sm:rounded-3xl shadow-soft hover:shadow-[0_20px_48px_rgba(60,108,168,0.16)] flex flex-col cursor-pointer overflow-hidden border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-[#3C6CA8]/50 active:scale-[0.985] h-full"
     >
-      {/* Product Image Container */}
-      <div className="relative aspect-square overflow-hidden bg-gradient-to-tr from-gray-50 via-white to-blue-50/30 dark:from-slate-900 dark:to-slate-850">
-        <img
-          src={product.image_url && !imageError ? product.image_url : '/assets/logo.jpeg'}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-          onError={() => setImageError(true)}
-          loading="lazy"
-        />
+      {/* ─── Product Image Container with Framed Canvas ─── */}
+      <div className="relative p-2 sm:p-3.5 pb-0">
+        <div className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#FAF9F5] dark:bg-slate-900/60 border border-slate-150/70 dark:border-slate-800/70 flex items-center justify-center p-2 sm:p-4">
+          <img
+            src={product.image_url && !imageError ? product.image_url : '/assets/logo.jpeg'}
+            alt={product.name}
+            width={400}
+            height={400}
+            className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-700 ease-out group-hover:scale-106"
+            onError={() => setImageError(true)}
+            loading="lazy"
+            decoding="async"
+          />
 
-        {/* Badges Overlay */}
-        <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 flex flex-col gap-1 pointer-events-none z-10">
-          {product.featured && (
-            <span className="px-2 sm:px-2.5 py-0.5 text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider rounded-full shadow-md backdrop-blur-md" style={{ background: 'linear-gradient(135deg, #3C6CA8 0%, #264874 100%)' }}>
-              ★ Featured
-            </span>
-          )}
-          {hasDiscount && (
-            <span className="px-2 sm:px-2.5 py-0.5 text-white text-[9px] sm:text-[10px] font-extrabold rounded-full shadow-md bg-emerald-600">
-              {Math.round((1 - currentPrice / originalPrice) * 100)}% OFF
-            </span>
-          )}
-          {product.pre_order_enabled && (
-            <span className="px-2 sm:px-2.5 py-0.5 bg-blue-600 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-full shadow-md animate-pulse">
-              Pre-Order
-            </span>
-          )}
-        </div>
+          {/* Badges Overlay */}
+          <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-start justify-between gap-1 pointer-events-none z-10">
+            {/* Left Badge: Research Grade / Featured / Pre-Order */}
+            <div className="flex flex-col gap-1 items-start min-w-0 max-w-[68%]">
+              {product.featured ? (
+                <span className="px-1.5 sm:px-2.5 py-0.5 text-white text-[8px] sm:text-[9.5px] font-black uppercase tracking-wider rounded-full shadow-xs bg-[#3C6CA8] truncate whitespace-nowrap">
+                  ★ Featured
+                </span>
+              ) : product.pre_order_enabled ? (
+                <span className="px-1.5 sm:px-2.5 py-0.5 bg-blue-600 text-white text-[8px] sm:text-[9.5px] font-black uppercase tracking-wider rounded-full shadow-xs animate-pulse truncate whitespace-nowrap">
+                  Pre-Order
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 text-slate-700 dark:text-slate-200 bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-700/80 rounded-full text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs backdrop-blur-sm truncate whitespace-nowrap">
+                  <Atom className="w-2.5 h-2.5 text-[#3C6CA8] shrink-0" />
+                  <span className="truncate">Research Grade</span>
+                </span>
+              )}
+            </div>
 
-        {/* Cart Quantity Pill Badge */}
-        {cartQuantity > 0 && (
-          <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 bg-[#3C6CA8] text-white text-[10px] sm:text-xs font-bold w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-md pointer-events-none ring-2 ring-white dark:ring-[#161B26] z-10">
-            {cartQuantity}
-          </div>
-        )}
+            {/* Right Badge: Discount / Global Sale / Wishlist */}
+            <div className="flex items-center gap-1 shrink-0 pointer-events-auto">
+              {hasDiscount && discountPercentage > 0 && (
+                <span className="px-1.5 sm:px-2 py-0.5 text-white text-[8px] sm:text-[9.5px] font-black uppercase tracking-wider rounded-full shadow-xs bg-[#F04438] whitespace-nowrap">
+                  {discountPercentage}% OFF
+                </span>
+              )}
 
-        {/* Stock Status Overlay */}
-        {isUnavailable && (
-          <div className="absolute inset-0 bg-white/85 dark:bg-[#0F1219]/80 backdrop-blur-[2px] flex items-center justify-center z-10">
-            <span className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-3 py-1 text-[11px] font-bold rounded-full border border-gray-200 dark:border-gray-700 uppercase tracking-wider shadow-sm">
-              {!product.available ? 'Unavailable' : 'Out of Stock'}
-            </span>
-          </div>
-        )}
-      </div>
+              {/* Quick Save / Wishlist Heart Button */}
+              <button
+                type="button"
+                onClick={handleToggleSave}
+                aria-label={isSaved ? "Remove from Saved Items" : "Save Item"}
+                title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
+                className={`p-1.5 rounded-full backdrop-blur-md transition-all cursor-pointer shadow-xs ${
+                  isSaved
+                    ? 'bg-rose-500 text-white shadow-rose-500/30'
+                    : 'bg-white/90 dark:bg-slate-900/90 text-slate-400 hover:text-rose-500 hover:scale-110'
+                }`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+              </button>
 
-      {/* Product Details Area */}
-      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between text-left">
-        <div>
-          {/* Category Tag & Sold Details Pill */}
-          <div className="flex items-center justify-between gap-1 mb-1 flex-wrap">
-            {product.category ? (
-              <p className="text-[10px] uppercase font-bold tracking-wider text-[#3C6CA8] dark:text-blue-400 truncate">
-                {product.category}
-              </p>
-            ) : <span />}
-            
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-extrabold bg-[#3C6CA8] text-white border border-[#3C6CA8] shadow-xs shrink-0">
-              <Flame className="w-2.5 h-2.5 text-amber-300 fill-amber-300 animate-pulse shrink-0" />
-              <span>{soldCount} sold</span>
+              {/* Cart Quantity Badge (if in cart) */}
+              {cartQuantity > 0 && (
+                <div className="bg-[#3C6CA8] text-white text-[9px] sm:text-xs font-black w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 rounded-full flex items-center justify-center shadow-md ring-1.5 ring-white dark:ring-slate-900 shrink-0">
+                  {cartQuantity}
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Stock Status Overlay */}
+          {isUnavailable && (
+            <div className="absolute inset-0 bg-white/85 dark:bg-[#0F1219]/85 backdrop-blur-[2px] flex items-center justify-center z-20">
+              <span className="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[9px] sm:text-[11px] font-bold rounded-full border border-slate-200 dark:border-slate-700 uppercase tracking-wider shadow-sm">
+                {!product.available ? 'Unavailable' : 'Out of Stock'}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── Product Details Area ─── */}
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between text-left relative min-w-0">
+        <div className="min-w-0 flex-1 flex flex-col">
+          {/* Header Row: Category Pill on Left + Sold Count on Right */}
+          <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5 min-w-0">
+            {product.category ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-bold uppercase tracking-wider bg-blue-50/80 dark:bg-blue-950/50 text-[#3C6CA8] dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 truncate max-w-[65%]">
+                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#3C6CA8] shrink-0" />
+                <span className="truncate">{product.category}</span>
+              </span>
+            ) : <div />}
+
+            {soldCount > 0 && (
+              <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-extrabold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/40 shrink-0 ml-auto shadow-2xs">
+                <Flame className="w-2.5 h-2.5 text-amber-500 fill-amber-500 shrink-0" />
+                <span>{soldCount} sold</span>
+              </span>
+            )}
+          </div>
+
           {/* Product Title */}
-          <h3 className="font-bold text-[#232323] dark:text-gray-100 text-[13px] sm:text-[15px] leading-snug w-full truncate group-hover:text-[#3C6CA8] transition-colors mb-1" title={product.name}>
+          <h3
+            className="font-black text-slate-900 dark:text-white text-[13px] sm:text-[15px] leading-snug line-clamp-1 group-hover:text-[#3C6CA8] transition-colors mb-1.5 tracking-tight"
+            title={product.name}
+          >
             {product.name}
           </h3>
 
-          {/* Price Layout */}
-          <div className="flex items-baseline gap-1.5 mb-1.5 flex-wrap">
+          {/* Price Layout with Highlight Pill */}
+          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap min-w-0">
             {hasMultipleVariations && (
-              <span className="text-[10px] text-gray-400 font-medium">From</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium">From</span>
             )}
             {hasDiscount && (
-              <span className="text-[11px] text-gray-400 line-through">
+              <span className="text-[10px] sm:text-xs text-slate-400 font-semibold line-through">
                 ₱{originalPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
               </span>
             )}
-            <span className="text-sm sm:text-base font-extrabold text-[#3C6CA8] dark:text-blue-400 leading-none">
+            <span className="inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#3C6CA8] dark:text-blue-300 font-black text-xs sm:text-sm border border-blue-200/70 dark:border-blue-900/50 shadow-2xs">
               ₱{currentPrice.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
             </span>
           </div>
 
+          {/* Bundle / Global Discount Status Tag */}
+          {activeBundleTiers.length > 0 && (
+            <div className="mb-1.5 min-w-0">
+              {pricing.hasGlobalDiscount ? (
+                <div className="inline-flex items-center gap-1 max-w-full px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 text-[8px] sm:text-[9px] font-bold text-amber-800 dark:text-amber-300 truncate">
+                  <Tag className="w-2.5 h-2.5 text-amber-500 shrink-0" />
+                  <span className="truncate">Bundle up to {maxBundlePct}% OFF</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 max-w-full px-1.5 sm:px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-200/50 text-[8px] sm:text-[9px] font-extrabold text-[#3C6CA8] dark:text-blue-400 truncate">
+                  <Zap className="w-2.5 h-2.5 text-[#3C6CA8] shrink-0" />
+                  <span className="truncate">Buy {minBundleQty}+ Save {maxBundlePct}% OFF</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Description */}
-          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-tight">
-            {product.description}
-          </p>
+          {product.description && (
+            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal mt-auto">
+              {product.description}
+            </p>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default MenuItemCard;
+export default React.memo(MenuItemCard);

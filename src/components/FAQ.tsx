@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronDown, ChevronUp, FlaskConical, Package, CreditCard, Truck, ArrowLeft, MessageCircle, HelpCircle, Search, Sparkles, Calculator, ShieldCheck, ThumbsUp, ThumbsDown, Share2, Check, RefreshCw, ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronUp, FlaskConical, Package, CreditCard, Truck, ArrowLeft, MessageCircle, HelpCircle, Search, Sparkles, Calculator, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useFAQs } from '../hooks/useFAQs';
-import { fireToast } from './ToastNotification';
 
 const categoryIcons: { [key: string]: React.ReactElement } = {
   'PRODUCT & USAGE': <FlaskConical className="w-5 h-5" />,
@@ -15,8 +14,6 @@ const FAQ: React.FC = () => {
   const [openItems, setOpenItems] = useState<Set<string>>(new Set(['1', '2'])); // Open first 2 items by default
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [helpfulFeedback, setHelpfulFeedback] = useState<Record<string, 'yes' | 'no'>>({});
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Toggle individual FAQ item
   const toggleItem = (id: string) => {
@@ -54,20 +51,6 @@ const FAQ: React.FC = () => {
       return matchesCategory && matchesSearch;
     });
   }, [faqs, activeCategory, searchQuery]);
-
-  // Handle Feedback
-  const handleFeedback = (id: string, type: 'yes' | 'no') => {
-    setHelpfulFeedback((prev) => ({ ...prev, [id]: type }));
-    fireToast(type === 'yes' ? 'Thanks for your feedback!' : 'Feedback received. We will refine this answer.', 'success');
-  };
-
-  // Share/Copy Link
-  const handleShare = (faq: any) => {
-    navigator.clipboard.writeText(`${window.location.origin}/faq#${faq.id}`);
-    setCopiedId(faq.id);
-    fireToast('Link copied to clipboard!', 'success');
-    setTimeout(() => setCopiedId(null), 2000);
-  };
 
   const telegramUrl = `https://t.me/slimdose_mnl`;
 
@@ -146,8 +129,7 @@ const FAQ: React.FC = () => {
             {/* Wide Search Bar */}
             <div className="relative">
               <Search className="w-5 h-5 text-gray-400 dark:text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
+              <input id="faq-search" name="search" type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search FAQs by keywords e.g., 'reconstitution', 'shipping', 'needles', 'Tirzepatide'..."
@@ -315,52 +297,6 @@ const FAQ: React.FC = () => {
                               <div className="py-3 text-sm text-gray-700 dark:text-slate-300 leading-relaxed space-y-2 whitespace-pre-line">
                                 {faq.answer}
                               </div>
-
-                              {/* Interactive Answer Footer */}
-                              <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500 dark:text-slate-400">
-                                <div className="flex items-center gap-2">
-                                  <span>Was this answer helpful?</span>
-                                  <button
-                                    onClick={() => handleFeedback(faq.id, 'yes')}
-                                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                      helpfulFeedback[faq.id] === 'yes'
-                                        ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 border-emerald-300'
-                                        : 'hover:bg-gray-100 dark:hover:bg-slate-800 border-gray-200 dark:border-slate-700'
-                                    }`}
-                                    title="Yes"
-                                  >
-                                    <ThumbsUp className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleFeedback(faq.id, 'no')}
-                                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                                      helpfulFeedback[faq.id] === 'no'
-                                        ? 'bg-rose-50 dark:bg-rose-950 text-rose-600 border-rose-300'
-                                        : 'hover:bg-gray-100 dark:hover:bg-slate-800 border-gray-200 dark:border-slate-700'
-                                    }`}
-                                    title="No"
-                                  >
-                                    <ThumbsDown className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-
-                                <button
-                                  onClick={() => handleShare(faq)}
-                                  className="flex items-center gap-1.5 text-xs font-bold text-[#3C6CA8] hover:underline cursor-pointer"
-                                >
-                                  {copiedId === faq.id ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5 text-emerald-500" />
-                                      <span className="text-emerald-500">Copied</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Share2 className="w-3.5 h-3.5" />
-                                      <span>Share Link</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
                             </div>
                           )}
                         </div>
@@ -431,26 +367,26 @@ const FAQ: React.FC = () => {
               </div>
             </div>
 
-            {/* Cold Chain Guarantee Card */}
-            <div className="bg-gradient-to-br from-blue-900 to-slate-900 text-white rounded-3xl p-6 shadow-md border border-blue-800/40 relative overflow-hidden">
-              <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider mb-2">
-                <ShieldCheck className="w-4 h-4" />
-                <span>Cold-Chain Protection</span>
+            {/* Telegram Customer Order Support Card */}
+            <div className="bg-[#0C1931] text-white rounded-[26px] p-6 shadow-xl border border-blue-900/40 relative overflow-hidden">
+              <div className="flex items-center gap-2 text-amber-400 font-black text-xs uppercase tracking-wider mb-2.5">
+                <ShieldCheck className="w-4.5 h-4.5 text-amber-400 shrink-0" />
+                <span>CUSTOMER ORDER SUPPORT</span>
               </div>
-              <h4 className="text-base font-black mb-2 leading-snug">
-                Free Reconstitution & Thermal Ice Pack
+              <h4 className="text-lg font-black text-white mb-2 leading-snug">
+                Have a Question About Your Order?
               </h4>
-              <p className="text-xs text-blue-100/90 leading-relaxed mb-4">
-                Metro Manila orders receive free reconstitution using pharma-grade bacteriostatic water, shipped in an insulated pouch with cold ice packs.
+              <p className="text-xs text-slate-300 leading-relaxed mb-5">
+                Our support team is available on Telegram to assist with questions about your order, set inclusions and delivery.
               </p>
               <a
                 href={telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#3365A5] hover:bg-[#285287] active:scale-[0.98] text-white font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-md group"
               >
-                <MessageCircle className="w-4 h-4" />
-                <span>Chat Direct on Telegram</span>
+                <MessageCircle className="w-5 h-5 text-amber-400 fill-transparent" />
+                <span>Chat on Telegram</span>
               </a>
             </div>
 

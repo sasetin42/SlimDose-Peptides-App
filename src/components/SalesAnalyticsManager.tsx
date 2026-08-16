@@ -168,7 +168,7 @@ const csvEscape = (val: any) => {
 
 const downloadCSV = (filename: string, rows: (string | number)[][]) => {
     const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
-    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -449,16 +449,14 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack })
                         </div>
                         {timeframe === 'custom' && (
                             <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-brand-100 shadow-soft">
-                                <input
-                                    type="date"
+                                <input id="salesanalyticsmanager-input-1" name="input_1" type="date"
                                     value={customStart}
                                     onChange={(e) => setCustomStart(e.target.value)}
                                     max={customEnd}
                                     className="text-sm bg-transparent border-none focus:outline-none text-charcoal-700"
                                 />
                                 <span className="text-charcoal-400 text-sm">to</span>
-                                <input
-                                    type="date"
+                                <input id="salesanalyticsmanager-input-2" name="input_2" type="date"
                                     value={customEnd}
                                     onChange={(e) => setCustomEnd(e.target.value)}
                                     min={customStart}

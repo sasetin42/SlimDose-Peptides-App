@@ -16,10 +16,24 @@ const url =
 
 const client = new ConvexHttpClient(url);
 
-function fire<T>(label: string, fn: () => Promise<T>): void {
-  fn().catch((err) => {
-    console.warn(`[Convex mirror] ${label} failed:`, err);
-  });
+let hasLoggedQuotaNotice = false;
+
+function fire<T>(label: string, fn: () => Promise<T> | any): void {
+  try {
+    Promise.resolve(fn()).catch((err: any) => {
+      const errorMsg = err?.message || String(err);
+      if (errorMsg.includes('exceeded the free plan limits')) {
+        if (!hasLoggedQuotaNotice) {
+          console.info('[Convex mirror] Convex free tier storage limit reached. Primary storage (Supabase/Firebase) is active and unaffected.');
+          hasLoggedQuotaNotice = true;
+        }
+      } else {
+        console.warn(`[Convex mirror] ${label} failed:`, err);
+      }
+    });
+  } catch (syncErr) {
+    console.warn(`[Convex mirror] ${label} invocation error:`, syncErr);
+  }
 }
 
 // ---------- categories ----------

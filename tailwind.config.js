@@ -101,8 +101,19 @@ export default {
         heading: ['Maven Pro', 'sans-serif'],
         cute: ['Maven Pro', 'sans-serif'],
       },
+      fontWeight: {
+        thin: '100',
+        extralight: '200',
+        light: '300',
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '600',
+        extrabold: '600',
+        black: '600',
+      },
       fontSize: {
-        '3xl': ['25px', { lineHeight: '1.2', fontWeight: '700' }],
+        '3xl': ['25px', { lineHeight: '1.2', fontWeight: '600' }],
       },
       boxShadow: {
         'soft': '0 2px 12px rgba(20, 35, 60, 0.05), 0 1px 4px rgba(20, 35, 60, 0.03)',

@@ -69,7 +69,9 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         }
 
         // 2. Insert into Supabase / Firestore customers collection
+        const customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
         const customerRecord = {
+          id: customerId,
           full_name: fullName.trim(),
           email: emailLower,
           phone: phone.trim(),
@@ -88,9 +90,9 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
             throw new Error('An account with this email already exists.');
           }
           console.warn('Database insert notice, using created session:', error);
-          registeredData = { id: `cust-${Date.now()}`, ...customerRecord };
+          registeredData = customerRecord;
         } else {
-          registeredData = data;
+          registeredData = data || customerRecord;
         }
 
         // Save local session
@@ -223,7 +225,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     id="register-fullName"
                     name="fullName"
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                    autoComplete="name" onChange={(e) => setFullName(e.target.value)}
                     placeholder="Jane Doe"
                     className="w-full text-xs sm:text-sm pl-12 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all"
                     required
@@ -245,7 +247,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                       id="register-email"
                       name="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email" onChange={(e) => setEmail(e.target.value)}
                       placeholder="jane.doe@example.com"
                       className="w-full text-xs sm:text-sm pl-12 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all"
                       required
@@ -266,7 +268,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                       id="register-phone"
                       name="phone"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      autoComplete="tel" onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 09123456789"
                       className="w-full text-xs sm:text-sm pl-12 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all"
                       required
@@ -289,7 +291,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                       id="register-password"
                       name="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password" onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full text-xs sm:text-sm pl-12 pr-10 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all"
                       required
@@ -317,7 +319,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                       id="register-confirmPassword"
                       name="confirmPassword"
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password" onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full text-xs sm:text-sm pl-12 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all"
                       required
@@ -341,7 +343,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     id="login-email"
                     name="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email" onChange={(e) => setEmail(e.target.value)}
                     placeholder="jane.doe@example.com"
                     className="w-full text-xs sm:text-sm pl-12 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all shadow-2xs"
                     required
@@ -362,7 +364,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     id="login-password"
                     name="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password" onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full text-xs sm:text-sm pl-12 pr-10 py-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#3C6CA8] focus:border-transparent transition-all shadow-2xs"
                     required

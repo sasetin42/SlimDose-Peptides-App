@@ -132,8 +132,12 @@ export const computeCartPricing = (
   globalDiscount?: GlobalDiscount | null
 ): CartPricing => {
   const lines: PricedLine[] = items.map((item, index) => {
-    const unitBasePrice = getCartItemUnitBasePrice(item, globalDiscount);
-    const tier = pickBundleTier(tiersByProduct[item.product.id], item.quantity);
+    const pricing = resolveProductPricing(item.product, item.variation, globalDiscount);
+    const unitBasePrice = pricing.price;
+    
+    // When a global discount applies to this product, cancel out bundle discount (do not stack)
+    const isBundleEligible = !pricing.hasGlobalDiscount;
+    const tier = isBundleEligible ? pickBundleTier(tiersByProduct[item.product.id], item.quantity) : null;
     const bundlePercent = tier ? Number(tier.discount_percentage) : 0;
     const unitFinalPrice = unitBasePrice * (1 - bundlePercent / 100);
     const lineSubtotal = unitFinalPrice * item.quantity;

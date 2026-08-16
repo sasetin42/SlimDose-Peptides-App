@@ -272,7 +272,7 @@ const PromoSignup: React.FC = () => {
                       id="promo-bannerEmail"
                       name="bannerEmail"
                       value={bannerEmail}
-                      onChange={e => setBannerEmail(e.target.value)}
+                      autoComplete="email" onChange={(e) => setBannerEmail(e.target.value)}
                       placeholder="your@email.com"
                       className="w-full pl-9 pr-2 py-1.5 text-xs sm:text-sm bg-transparent text-[#232323] dark:text-gray-100 placeholder:text-gray-400 focus:outline-none"
                       aria-label="Email for promo updates"
@@ -304,19 +304,19 @@ const PromoSignup: React.FC = () => {
 
       {popupVisible && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal-900/40 backdrop-blur-sm p-4 animate-fadeIn"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal-900/40 backdrop-blur-sm p-3 sm:p-4 animate-fadeIn"
           role="dialog"
           aria-modal="true"
           onClick={handleOutsideClick}
         >
-          <div className="relative bg-white rounded-3xl shadow-luxury max-w-md w-full overflow-hidden animate-fadeIn">
+          <div className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-luxury max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar animate-fadeIn border border-gray-100 dark:border-slate-800">
             {/* Decorative gradient accents */}
-            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-100/60 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-cream-200/80 blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-brand-100/60 dark:bg-blue-900/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-16 w-56 h-56 rounded-full bg-cream-200/80 dark:bg-slate-800/40 blur-3xl pointer-events-none" />
 
             <button
               onClick={dismissPopup}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-white/80 backdrop-blur hover:bg-cream-100 text-charcoal-400 hover:text-charcoal-900 transition-all z-20 border border-charcoal-100"
+              className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur hover:bg-cream-100 dark:hover:bg-slate-700 text-charcoal-400 dark:text-slate-400 hover:text-charcoal-900 dark:hover:text-white transition-all z-20 border border-charcoal-100 dark:border-slate-700 cursor-pointer"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -335,104 +335,104 @@ const PromoSignup: React.FC = () => {
                 <img
                   src={adminPopupImage}
                   alt={adminPopupTitle || 'Promo'}
-                  className="w-full max-h-56 object-cover"
+                  className="w-full max-h-48 sm:max-h-56 object-cover"
                 />
               </a>
             )}
 
-            <div className="relative px-7 pt-8 pb-7">
+            <div className="relative px-5 sm:px-7 pt-6 sm:pt-8 pb-5 sm:pb-7">
               {/* Eyebrow tag */}
-              <div className="flex justify-center mb-5">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 border border-brand-100 text-[10px] uppercase tracking-[0.22em] font-bold text-brand-700">
-                  <Sparkles className="w-3 h-3" />
-                  Members Only
+              <div className="flex justify-center mb-4 sm:mb-5">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3C6CA8]/10 dark:bg-blue-950/50 border border-[#3C6CA8]/20 dark:border-blue-900/40 text-[10px] uppercase tracking-[0.22em] font-bold text-[#3C6CA8] dark:text-blue-300">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Members Exclusive
                 </span>
               </div>
 
               {/* Editorial heading */}
               <div className="text-center mb-2">
                 {adminPopupTitle ? (
-                  <h3 className="font-heading font-bold text-charcoal-900 leading-[1.1] tracking-tight text-3xl sm:text-4xl">
+                  <h3 className="font-heading font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight text-2xl sm:text-3xl md:text-4xl">
                     {adminPopupTitle}
                   </h3>
                 ) : (
-                  <h3 className="font-heading font-bold text-charcoal-900 leading-[1.05] tracking-tight">
-                    <span className="block text-3xl sm:text-4xl">Get</span>
-                    <span className="block text-5xl sm:text-6xl bg-gradient-to-br from-brand-500 to-brand-700 bg-clip-text text-transparent my-1">
+                  <h3 className="font-heading font-extrabold text-slate-900 dark:text-white leading-[1.05] tracking-tight">
+                    <span className="block text-2xl sm:text-3xl">Get</span>
+                    <span className="block text-4xl sm:text-5xl md:text-6xl bg-gradient-to-br from-[#3C6CA8] via-blue-600 to-[#325a8c] bg-clip-text text-transparent my-1 font-black">
                       {discountLabel}
                     </span>
-                    <span className="block text-xl sm:text-2xl text-charcoal-700 font-normal italic">
+                    <span className="block text-lg sm:text-xl text-slate-700 dark:text-slate-300 font-normal italic">
                       your first order
                     </span>
                   </h3>
                 )}
               </div>
 
-              <p className="text-center text-sm text-charcoal-500 mt-4 mb-6 max-w-xs mx-auto leading-relaxed">
+              <p className="text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-3 mb-5 max-w-xs mx-auto leading-relaxed">
                 {adminPopupDescription || 'Join the SlimDose list for exclusive promo codes, restocks, and member-only deals.'}
               </p>
 
               {timeLeft && (
-                <div className="flex justify-center gap-3 my-5 bg-rose-50/50 dark:bg-rose-950/10 border border-rose-100/50 dark:border-rose-900/20 rounded-2xl p-3.5 max-w-xs mx-auto animate-pulse">
-                  <div className="text-center min-w-[45px]">
-                    <span className="block font-heading font-bold text-lg text-rose-600 leading-none">{timeLeft.days}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-rose-500 font-bold mt-1 block">Days</span>
+                <div className="flex justify-center gap-2 sm:gap-3 my-4 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/30 rounded-2xl p-3 max-w-xs mx-auto">
+                  <div className="text-center min-w-[40px]">
+                    <span className="block font-heading font-black text-base sm:text-lg text-amber-700 dark:text-amber-400 leading-none">{timeLeft.days}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-500 font-bold mt-1 block">Days</span>
                   </div>
-                  <span className="font-bold text-rose-400 text-lg leading-none mt-0.5">:</span>
-                  <div className="text-center min-w-[45px]">
-                    <span className="block font-heading font-bold text-lg text-rose-600 leading-none">{timeLeft.hours}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-rose-500 font-bold mt-1 block">Hours</span>
+                  <span className="font-bold text-amber-400 text-base sm:text-lg leading-none mt-0.5">:</span>
+                  <div className="text-center min-w-[40px]">
+                    <span className="block font-heading font-black text-base sm:text-lg text-amber-700 dark:text-amber-400 leading-none">{timeLeft.hours}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-500 font-bold mt-1 block">Hours</span>
                   </div>
-                  <span className="font-bold text-rose-400 text-lg leading-none mt-0.5">:</span>
-                  <div className="text-center min-w-[45px]">
-                    <span className="block font-heading font-bold text-lg text-rose-600 leading-none">{timeLeft.minutes}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-rose-500 font-bold mt-1 block">Min</span>
+                  <span className="font-bold text-amber-400 text-base sm:text-lg leading-none mt-0.5">:</span>
+                  <div className="text-center min-w-[40px]">
+                    <span className="block font-heading font-black text-base sm:text-lg text-amber-700 dark:text-amber-400 leading-none">{timeLeft.minutes}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-500 font-bold mt-1 block">Min</span>
                   </div>
-                  <span className="font-bold text-rose-400 text-lg leading-none mt-0.5">:</span>
-                  <div className="text-center min-w-[45px]">
-                    <span className="block font-heading font-bold text-lg text-rose-600 leading-none">{timeLeft.seconds}</span>
-                    <span className="text-[9px] uppercase tracking-wider text-rose-500 font-bold mt-1 block">Sec</span>
+                  <span className="font-bold text-amber-400 text-base sm:text-lg leading-none mt-0.5">:</span>
+                  <div className="text-center min-w-[40px]">
+                    <span className="block font-heading font-black text-base sm:text-lg text-amber-700 dark:text-amber-400 leading-none">{timeLeft.seconds}</span>
+                    <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-500 font-bold mt-1 block">Sec</span>
                   </div>
                 </div>
               )}
 
               {popupStatus === 'success' ? (
-                <div className="text-center py-2">
-                  <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-brand-500 flex items-center justify-center shadow-luxury">
-                    <Check className="w-7 h-7 text-white" strokeWidth={2.5} />
+                <div className="text-center py-3">
+                  <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#3C6CA8] flex items-center justify-center shadow-lg text-white">
+                    <Check className="w-7 h-7" strokeWidth={2.5} />
                   </div>
-                  <p className="font-heading font-bold text-xl text-charcoal-900">You're subscribed.</p>
-                  <p className="text-sm text-charcoal-500 mt-1">Your promo code is on its way.</p>
+                  <p className="font-heading font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white">You're subscribed!</p>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Your promo code is on its way.</p>
                 </div>
               ) : (
                 <form onSubmit={submitPopup} className="space-y-3">
-                  <div className="relative flex items-center bg-white border border-charcoal-100 hover:border-brand-300 focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-100 rounded-full transition-all duration-200 shadow-soft">
-                    <Mail className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-charcoal-400" />
+                  <div className="relative flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-[#3C6CA8] focus-within:border-[#3C6CA8] focus-within:ring-4 focus-within:ring-[#3C6CA8]/20 rounded-2xl transition-all duration-200 shadow-xs">
+                    <Mail className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <label htmlFor="promo-popupEmail" className="sr-only">Email Address</label>
                     <input
                       type="email"
                       id="promo-popupEmail"
                       name="popupEmail"
                       value={popupEmail}
-                      onChange={e => setPopupEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      className="w-full pl-11 pr-3 py-3.5 bg-transparent text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none rounded-full"
+                      autoComplete="email" onChange={(e) => setPopupEmail(e.target.value)}
+                      placeholder="Enter your email address"
+                      className="w-full pl-11 pr-3 py-3.5 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none text-sm font-medium rounded-2xl"
                       required
                     />
                   </div>
 
                   {popupError && (
-                    <p className="text-sm text-red-600 text-center">{popupError}</p>
+                    <p className="text-xs font-bold text-rose-600 text-center">{popupError}</p>
                   )}
 
                   <button
                     type="submit"
                     disabled={popupStatus === 'submitting'}
-                    className="group w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-full bg-charcoal-900 hover:bg-brand-600 text-white font-semibold disabled:opacity-60 transition-all duration-300 shadow-luxury hover:shadow-hover"
+                    className="group w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-[#3C6CA8] hover:bg-[#325a8c] text-white font-extrabold text-sm disabled:opacity-60 transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
                   >
                     {popupStatus === 'submitting' ? 'Subscribing...' : (
                       <>
-                        Claim My {discountLabel}
+                        <span>Claim My {discountLabel}</span>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                       </>
                     )}
@@ -441,14 +441,14 @@ const PromoSignup: React.FC = () => {
                   <button
                     type="button"
                     onClick={dismissPopup}
-                    className="w-full text-xs text-charcoal-400 hover:text-charcoal-700 transition-colors pt-1"
+                    className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors pt-1 cursor-pointer"
                   >
                     No thanks, I'll pay full price
                   </button>
                 </form>
               )}
 
-              <p className="text-center text-[10px] uppercase tracking-[0.18em] text-charcoal-300 font-semibold mt-6 pt-5 border-t border-charcoal-100">
+              <p className="text-center text-[10px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500 font-bold mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
                 No spam · Unsubscribe anytime
               </p>
             </div>

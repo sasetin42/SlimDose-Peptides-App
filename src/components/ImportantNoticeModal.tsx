@@ -22,8 +22,6 @@ export const ImportantNoticeModal: React.FC = () => {
     setIsOpen(false);
   };
 
-  if (!isOpen) return null;
-
   const noticeTitle = siteSettings?.notice_title || 'Important Notice';
   const noticeSubtitle = siteSettings?.notice_subtitle || 'Please read carefully before continuing';
   const noticeP1 = siteSettings?.notice_disclaimer_p1 || 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.';

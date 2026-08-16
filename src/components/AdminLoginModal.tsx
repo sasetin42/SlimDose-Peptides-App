@@ -295,7 +295,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
                       id="admin-email"
                       name="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email" onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email Address"
                       required
                       disabled={status === 'loading'}
@@ -312,7 +312,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
                       id="admin-password"
                       name="password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password" onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       required
                       disabled={status === 'loading'}

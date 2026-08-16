@@ -223,8 +223,7 @@ export default function SmartGuide() {
             {/* Search Input (Full width on mobile, w-64 on desktop) */}
             <div className="relative flex-1 md:w-64 min-w-0">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
+              <input id="smartguide-search" name="search" type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search PepTalk guides..."

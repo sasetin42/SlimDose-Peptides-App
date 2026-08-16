@@ -167,6 +167,21 @@ export interface SiteSettings {
   notice_courier?: string;
   notice_weekend_orders?: string;
   notice_agree_button_text?: string;
+  // Social & Community Links
+  community_telegram_url?: string;
+  support_telegram_url?: string;
+  support_email?: string;
+  support_phone?: string;
+  contact_phone?: string;
+  contact_whatsapp?: string;
+  contact_inquiry_text?: string;
+  operating_hours?: string;
+  instagram_url?: string;
+  facebook_url?: string;
+  // SEO & Meta
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
 }
 
 // Cart Types

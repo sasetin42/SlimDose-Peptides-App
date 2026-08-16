@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   ShoppingCart,
@@ -24,6 +25,9 @@ import {
   Copy,
   QrCode,
   CheckCircle2,
+  Info,
+  Sparkles,
+  Heart,
 } from 'lucide-react';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier, Protocol } from '../types';
 import { resolveProductPricing, pickBundleTier } from '../utils/pricing';
@@ -32,6 +36,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fireToast } from './ToastNotification';
 import { ProductPeptideCalculator } from './ProductPeptideCalculator';
 import { ProductReviews } from './ProductReviews';
+import { COAModal } from './COAModal';
 
 interface ProductDetailModalProps {
   product: Product;
@@ -56,6 +61,28 @@ interface COASectionProps {
 
 const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, purity, coaUrl, onQuickView }) => {
   const records = getMockCoas(productName, purity, coaUrl);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const scrollLeft = scrollRef.current.scrollLeft;
+      const width = scrollRef.current.clientWidth;
+      const index = Math.round(scrollLeft / (width * 0.8));
+      setActiveIndex(Math.min(Math.max(index, 0), records.length - 1));
+    }
+  };
+
+  const scrollToCard = (index: number) => {
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.querySelector('div')?.clientWidth || 280;
+      scrollRef.current.scrollTo({
+        left: index * (cardWidth + 12),
+        behavior: 'smooth'
+      });
+      setActiveIndex(index);
+    }
+  };
 
   return (
     <div className="mt-6 w-full">
@@ -64,64 +91,68 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
           <span className="text-[10px] sm:text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#3C6CA8] uppercase">Independent Verification</span>
           <h3 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5">Certificate of Analysis</h3>
         </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
-            <ShieldCheck className="w-3 h-3" /> Third Party Tested
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 flex-wrap sm:flex-nowrap">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
+            <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Third Party Tested
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 shrink-0">
-            <Atom className="w-3 h-3" /> Research Grade
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 shrink-0">
+            <Atom className="w-3 h-3 text-blue-600 dark:text-blue-400" /> Research Grade
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800 shrink-0">
-            <Shield className="w-3 h-3" /> High Purity Verified
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800 shrink-0">
+            <Shield className="w-3 h-3 text-violet-600 dark:text-violet-400" /> High Purity Verified
           </span>
         </div>
       </div>
 
-      {/* Desktop Grid & Mobile Scroll Carousel */}
-      <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-hide">
+      {/* Desktop Grid & Compact Mobile Slider Carousel */}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex md:grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 overflow-x-auto pb-3 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-2 px-2 sm:mx-0 sm:px-0"
+      >
         {records.map((rec, i) => {
-          const radius = 22;
+          const radius = 20;
           const circumference = 2 * Math.PI * radius;
           const strokeDashoffset = circumference - (rec.purityPercentage / 100) * circumference;
 
           return (
             <motion.div
               key={rec.batchNumber}
-              className="flex-shrink-0 snap-start w-[280px] sm:w-[310px] md:w-full rounded-2xl border border-gray-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/40 backdrop-blur-md p-5 shadow-sm hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 group relative overflow-hidden"
-              initial={{ opacity: 0, y: 30 }}
+              className="shrink-0 snap-center w-[82vw] max-w-[295px] sm:w-[310px] md:w-full rounded-2xl border border-gray-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-3.5 sm:p-4.5 shadow-sm hover:shadow-md transition-all duration-300 group relative flex flex-col justify-between"
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
             >
-              {/* Card animated border glow */}
-              <div className="absolute inset-0 border border-transparent group-hover:border-blue-500/20 rounded-2xl pointer-events-none transition-all duration-300" />
-              
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-mono text-gray-500 dark:text-slate-400">Batch: {rec.batchNumber}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+              {/* Batch & Status Badge */}
+              <div className="flex items-center justify-between gap-1 mb-2.5">
+                <span className="text-[10.5px] sm:text-xs font-mono font-bold text-gray-700 dark:text-slate-300 truncate max-w-[65%]">
+                  Batch: {rec.batchNumber}
+                </span>
+                <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                   rec.status === 'Active & Verified' 
-                    ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60' 
+                    : 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400 border border-gray-200 dark:border-slate-700'
                 }`}>
                   {rec.status}
                 </span>
               </div>
 
-              {/* Purity Ring */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="relative w-14 h-14 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-14 h-14 transform -rotate-90">
+              {/* Compact Purity Ring */}
+              <div className="flex items-center gap-3 mb-3 bg-blue-50/50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-blue-100/60 dark:border-slate-700/60">
+                <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                  <svg className="w-12 h-12 transform -rotate-90">
                     <circle
-                      cx="28"
-                      cy="28"
+                      cx="24"
+                      cy="24"
                       r={radius}
                       stroke="rgba(60,108,168,0.15)"
                       strokeWidth="3.5"
                       fill="transparent"
                     />
                     <circle
-                      cx="28"
-                      cy="28"
+                      cx="24"
+                      cy="24"
                       r={radius}
                       stroke="#3C6CA8"
                       strokeWidth="3.5"
@@ -131,31 +162,37 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
                       strokeLinecap="round"
                     />
                   </svg>
-                  <span className="absolute text-[10px] font-bold text-gray-800 dark:text-slate-200">{rec.purityPercentage}%</span>
+                  <span className="absolute text-[10px] font-black text-gray-900 dark:text-white leading-none">
+                    {rec.purityPercentage}%
+                  </span>
                 </div>
-                <div>
-                  <div className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Purity Rating</div>
-                  <div className="text-sm font-extrabold text-gray-800 dark:text-slate-200">HPLC Confirmed</div>
+                <div className="min-w-0">
+                  <div className="text-[9px] sm:text-[9.5px] font-bold text-[#3C6CA8] dark:text-[#6A9BE0] uppercase tracking-wider">
+                    Purity Rating
+                  </div>
+                  <div className="text-xs sm:text-sm font-black text-gray-900 dark:text-white leading-tight">
+                    HPLC Confirmed
+                  </div>
                 </div>
               </div>
 
-              {/* Specifications */}
-              <div className="space-y-1.5 text-xs border-t border-gray-100 dark:border-slate-800/80 pt-3 mb-5">
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Tested Variant</span>
-                  <span className="font-semibold text-gray-800 dark:text-slate-200">{rec.variant}</span>
+              {/* Compact Specifications Grid */}
+              <div className="space-y-1.5 text-[11px] sm:text-xs border-t border-gray-100 dark:border-slate-800/80 pt-2 mb-3.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 dark:text-slate-400 font-medium">Tested Variant</span>
+                  <span className="font-bold text-gray-800 dark:text-slate-200 truncate ml-2">{rec.variant}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Lab Facility</span>
-                  <span className="font-semibold text-gray-800 dark:text-slate-200">{rec.laboratory}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 dark:text-slate-400 font-medium">Lab Facility</span>
+                  <span className="font-bold text-gray-800 dark:text-slate-200 truncate ml-2">{rec.laboratory}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Test Date</span>
-                  <span className="font-semibold text-gray-800 dark:text-slate-200">{rec.testDate}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 dark:text-slate-400 font-medium">Test Date</span>
+                  <span className="font-bold text-gray-800 dark:text-slate-200">{rec.testDate}</span>
                 </div>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-gray-500 dark:text-slate-400">Status</span>
-                  <span className="inline-flex items-center gap-0.5 text-green-600 dark:text-green-400 font-bold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 dark:text-slate-400 font-medium">Status</span>
+                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-extrabold text-[11px]">
                     <ShieldCheck className="w-3.5 h-3.5" /> PASS
                   </span>
                 </div>
@@ -164,8 +201,9 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
               {/* Actions */}
               <div className="grid grid-cols-2 gap-2 mt-auto">
                 <button
+                  type="button"
                   onClick={() => onQuickView(rec.coaUrl)}
-                  className="flex items-center justify-center gap-1.5 py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[#3C6CA8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 cursor-pointer"
+                  className="flex items-center justify-center gap-1 py-2 px-2.5 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[#3C6CA8] transition-colors cursor-pointer"
                 >
                   <Microscope className="w-3.5 h-3.5" /> Quick View
                 </button>
@@ -173,7 +211,7 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
                   href={rec.coaUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#3C6CA8] hover:bg-[#315A8E] rounded-xl text-xs font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                  className="flex items-center justify-center gap-1 py-2 px-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] rounded-xl text-xs font-bold text-white transition-colors shadow-xs"
                 >
                   <Download className="w-3.5 h-3.5" /> Download
                 </a>
@@ -181,6 +219,21 @@ const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, 
             </motion.div>
           );
         })}
+      </div>
+
+      {/* Mobile Slider Indicator Dots */}
+      <div className="flex md:hidden items-center justify-center gap-1.5 mt-2">
+        {records.map((_, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => scrollToCard(idx)}
+            aria-label={`Go to slide ${idx + 1}`}
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+              activeIndex === idx ? 'w-5 bg-[#3C6CA8]' : 'w-1.5 bg-gray-300 dark:bg-slate-700'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );
@@ -221,81 +274,80 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
 
   return (
     <div className="mt-8 w-full flex flex-col items-center">
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-800 pb-4 w-full gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-gray-100 dark:border-slate-800 pb-3 w-full gap-2">
         <div className="text-left">
-          <span className="text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#3C6CA8] uppercase">Chemical Profile &amp; Specifications</span>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-0.5">Compound Information</h3>
+          <span className="text-[10px] sm:text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#6A9BE0] uppercase">Chemical Profile &amp; Specifications</span>
+          <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5">Compound Information</h3>
         </div>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800 shrink-0">
           <Atom className="w-3.5 h-3.5 text-[#3C6CA8]" /> Lab Verified Data
         </span>
       </div>
 
-      {/* Tabs list */}
-      <div className="w-full bg-slate-100/80 dark:bg-slate-900/80 p-1.5 rounded-2xl flex overflow-x-auto scrollbar-hide gap-1.5 mb-6 border border-slate-200/60 dark:border-slate-800/60 shadow-inner">
+      {/* 4 Tabs in 2-Column (Mobile) / 4-Column (Desktop) Grid */}
+      <div className="w-full bg-slate-100/90 dark:bg-slate-900/90 p-1.5 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-5 border border-slate-200/80 dark:border-slate-800 shadow-inner">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex-shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+              className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer text-center ${
                 isActive
-                  ? 'bg-[#3C6CA8] text-white shadow-md scale-[1.02]'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
+                  ? 'bg-[#3C6CA8] text-white shadow-sm ring-1 ring-[#3C6CA8]/40'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/60'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-              {tab.label}
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : 'text-[#3C6CA8]'}`} />
+              <span className="truncate">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* Tab content card */}
-      <div className="w-full bg-gradient-to-br from-white/80 via-white/40 to-slate-50/50 dark:from-slate-900/60 dark:via-slate-900/30 dark:to-slate-950/50 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-7 shadow-sm overflow-hidden min-h-[300px] flex flex-col justify-between">
+      <div className="w-full bg-gradient-to-br from-white/90 via-white/50 to-slate-50/60 dark:from-slate-900/70 dark:via-slate-900/40 dark:to-slate-950/60 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 shadow-sm overflow-hidden min-h-[260px] flex flex-col justify-between">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 15 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -15 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left"
           >
-
-
             {activeTab === 'storage' && (
               <>
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4" /> Lyophilized Powder Storage
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <ShieldAlert className="w-4 h-4 text-[#3C6CA8]" /> Lyophilized Powder Storage
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex flex-col border-b border-gray-100 dark:border-slate-800/80 pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Storage Guidelines</span>
-                      <span className="text-sm font-semibold text-charcoal-800 dark:text-slate-200 mt-1">{details.storageLyophilized}</span>
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Storage Guidelines</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 mt-0.5">{details.storageLyophilized}</span>
                     </div>
-                    <div className="flex flex-col pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Recommended Temperature</span>
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400 mt-1">-20°C (Freezer Storage) for long-term stability</span>
+                    <div className="flex flex-col">
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Recommended Temperature</span>
+                      <span className="text-xs sm:text-sm font-extrabold text-[#3C6CA8] dark:text-blue-400 mt-0.5">-20°C (Freezer Storage) for long-term stability</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4" /> Reconstituted Stability
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" /> Reconstituted Stability
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex flex-col border-b border-gray-100 dark:border-slate-800/80 pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Reconstituted Storage</span>
-                      <span className="text-sm font-semibold text-charcoal-800 dark:text-slate-200 mt-1">{details.storageReconstituted}</span>
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Reconstituted Storage</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 mt-0.5">{details.storageReconstituted}</span>
                     </div>
-                    <div className="flex flex-col pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Stability Limit</span>
-                      <span className="text-sm font-semibold text-charcoal-800 dark:text-slate-200 mt-1">{details.stability}</span>
+                    <div className="flex flex-col">
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Stability Limit</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 mt-0.5">{details.stability}</span>
                     </div>
                   </div>
                 </div>
@@ -304,32 +356,32 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
 
             {activeTab === 'reconstitute' && (
               <>
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <Droplet className="w-4 h-4" /> Solvent Selection
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <Droplet className="w-4 h-4 text-blue-500" /> Solvent Selection
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex flex-col border-b border-gray-100 dark:border-slate-800/80 pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Diluent Agent</span>
-                      <span className="text-sm font-semibold text-charcoal-800 dark:text-slate-200 mt-1">{details.diluent}</span>
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Diluent Agent</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 mt-0.5">{details.diluent}</span>
                     </div>
-                    <div className="flex flex-col pb-2">
-                      <span className="text-[10px] text-gray-400 uppercase tracking-wide">Recommended Dilution Volume</span>
-                      <span className="text-sm font-bold text-blue-600 dark:text-blue-400 mt-1">{details.reconstituentVolume}</span>
+                    <div className="flex flex-col">
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Recommended Dilution Volume</span>
+                      <span className="text-xs sm:text-sm font-extrabold text-[#3C6CA8] dark:text-blue-400 mt-0.5">{details.reconstituentVolume}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <Zap className="w-4 h-4" /> Reconstitution Steps
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <Zap className="w-4 h-4 text-amber-500" /> Reconstitution Steps
                   </h4>
-                  <div className="space-y-3 bg-gray-50/50 dark:bg-slate-950/20 p-4 rounded-2xl border border-gray-100 dark:border-slate-800/85">
-                    <p className="text-xs text-gray-600 dark:text-slate-350 leading-relaxed font-semibold">
+                  <div className="space-y-2 bg-gray-50/70 dark:bg-slate-950/40 p-3 rounded-xl border border-gray-100 dark:border-slate-800/85">
+                    <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed font-medium">
                       {details.mixingInstruction}
                     </p>
-                    <div className="flex items-center gap-2 mt-2 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded-md w-fit">
-                      <AlertTriangle className="w-3.5 h-3.5" /> Never shake the vial
+                    <div className="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg border border-amber-200/50 w-fit">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Never shake the vial
                     </div>
                   </div>
                 </div>
@@ -338,49 +390,49 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
 
             {activeTab === 'usage' && (
               <>
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <Microscope className="w-4 h-4" /> Research Applications
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <Microscope className="w-4 h-4 text-indigo-500" /> Research Applications
                   </h4>
                   <ul className="space-y-2">
                     {details.researchApplications.map((app, idx) => (
-                      <li key={idx} className="text-xs text-gray-700 dark:text-slate-300 flex items-start gap-2 bg-gray-50 dark:bg-slate-950/20 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800/80">
-                        <span className="text-blue-500 font-bold">•</span>
+                      <li key={idx} className="text-xs text-gray-700 dark:text-slate-300 flex items-start gap-2 bg-slate-50 dark:bg-slate-950/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                        <span className="text-[#3C6CA8] font-black">•</span>
                         <span>{app}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <FileText className="w-4 h-4" /> Research Protocol Specifications
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-emerald-500" /> Research Protocol Specifications
                   </h4>
                   {protocols && protocols.length > 0 ? (
-                    <div className="space-y-3 bg-gray-50/50 dark:bg-slate-950/20 p-4 rounded-2xl border border-gray-100 dark:border-slate-800/80">
+                    <div className="space-y-2 bg-slate-50/70 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800/80">
                       <div className="flex justify-between border-b border-gray-100 dark:border-slate-800/80 pb-1.5 text-xs">
-                        <span className="text-gray-500 dark:text-slate-400">Target Dosage</span>
-                        <span className="font-semibold text-gray-800 dark:text-slate-200">{protocols[0].dosage}</span>
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">Target Dosage</span>
+                        <span className="font-bold text-gray-900 dark:text-slate-100">{protocols[0].dosage}</span>
                       </div>
                       <div className="flex justify-between border-b border-gray-100 dark:border-slate-800/80 pb-1.5 text-xs">
-                        <span className="text-gray-500 dark:text-slate-400">Frequency</span>
-                        <span className="font-semibold text-gray-800 dark:text-slate-200">{protocols[0].frequency}</span>
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">Frequency</span>
+                        <span className="font-bold text-gray-900 dark:text-slate-100">{protocols[0].frequency}</span>
                       </div>
                       <div className="flex justify-between border-b border-gray-100 dark:border-slate-800/80 pb-1.5 text-xs">
-                        <span className="text-gray-500 dark:text-slate-400">Duration</span>
-                        <span className="font-semibold text-gray-800 dark:text-slate-200">{protocols[0].duration}</span>
+                        <span className="text-gray-500 dark:text-slate-400 font-medium">Duration</span>
+                        <span className="font-bold text-gray-900 dark:text-slate-100">{protocols[0].duration}</span>
                       </div>
                       {protocols[0].notes && protocols[0].notes.length > 0 && (
-                        <div className="pt-1.5">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase">Protocol Notes:</span>
-                          <p className="text-[11px] text-gray-600 dark:text-slate-400 leading-relaxed mt-1">
+                        <div className="pt-1">
+                          <span className="text-[9.5px] font-bold text-gray-400 uppercase">Protocol Notes:</span>
+                          <p className="text-[11px] text-gray-600 dark:text-slate-300 leading-relaxed mt-0.5 font-medium">
                             {protocols[0].notes[0]}
                           </p>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-500 dark:text-slate-400 italic bg-gray-50 dark:bg-slate-950/20 p-4 rounded-2xl text-center">
+                    <div className="text-xs text-gray-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-950/30 p-3.5 rounded-xl text-center">
                       No customized protocol loaded for this compound. General in vitro protocols apply.
                     </div>
                   )}
@@ -390,30 +442,30 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
 
             {activeTab === 'safety' && (
               <>
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4" /> Lab Safety Protocols
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <ShieldAlert className="w-4 h-4 text-amber-500" /> Lab Safety Protocols
                   </h4>
                   <ul className="space-y-2">
                     {details.handlingPPE.map((ppe, idx) => (
-                      <li key={idx} className="text-xs text-gray-700 dark:text-slate-300 flex items-start gap-2 bg-gray-50 dark:bg-slate-950/20 p-2.5 rounded-xl border border-gray-100 dark:border-slate-800/80">
-                        <span className="text-red-500 font-bold">⚠️</span>
+                      <li key={idx} className="text-xs text-gray-700 dark:text-slate-300 flex items-start gap-2 bg-slate-50 dark:bg-slate-950/30 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                        <span className="text-amber-500 font-bold">⚠️</span>
                         <span>{ppe}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                    <AlertOctagon className="w-4 h-4" /> Hazard Classifications
+                <div className="space-y-3 bg-white/70 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-[#3C6CA8] dark:text-blue-400 flex items-center gap-1.5">
+                    <AlertOctagon className="w-4 h-4 text-rose-500" /> Hazard Classifications
                   </h4>
-                  <div className="space-y-3 bg-red-50/20 dark:bg-red-950/10 p-4 rounded-2xl border border-red-200/20">
-                    <div className="flex flex-col pb-1.5 text-xs">
-                      <span className="text-gray-400 dark:text-slate-400 uppercase tracking-wide">Toxicological Profile</span>
-                      <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 mt-1">{details.toxicology}</span>
+                  <div className="space-y-2.5 bg-rose-50/30 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-200/40 dark:border-rose-900/40">
+                    <div className="flex flex-col pb-1 text-xs">
+                      <span className="text-[9.5px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wide">Toxicological Profile</span>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 mt-0.5">{details.toxicology}</span>
                     </div>
-                    <div className="text-[10px] font-bold text-red-700 dark:text-red-400 uppercase bg-red-500/10 px-2 py-1.5 rounded-md leading-relaxed border border-red-500/10">
+                    <div className="text-[10px] font-bold text-rose-700 dark:text-rose-300 uppercase bg-rose-500/10 px-2 py-1.5 rounded-lg leading-relaxed border border-rose-500/20">
                       Not for human or veterinary use. For scientific laboratory research and in vitro diagnostics only.
                     </div>
                   </div>
@@ -604,7 +656,60 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   );
   const [quantity, setQuantity] = useState(1);
   const [coaPreviewImage, setCoaPreviewImage] = useState<string | null>(null);
+  const [isCoaModalOpen, setIsCoaModalOpen] = useState(false);
+  const [customModalCoaUrl, setCustomModalCoaUrl] = useState<string | null>(null);
   const [dosingOpen, setDosingOpen] = useState(false);
+
+  // Wishlist / Saved items state for logged in or guest customer
+  const [isSaved, setIsSaved] = useState<boolean>(() => {
+    try {
+      const custRaw = localStorage.getItem('slimdose_customer');
+      const custId = custRaw ? JSON.parse(custRaw)?.id : 'guest';
+      const stored = JSON.parse(localStorage.getItem(`slimdose_wishlist_${custId}`) || '[]');
+      return Array.isArray(stored) && stored.some((item: any) => item.id === product.id || item.productId === product.id);
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const custRaw = localStorage.getItem('slimdose_customer');
+      const custId = custRaw ? JSON.parse(custRaw)?.id : 'guest';
+      const storageKey = `slimdose_wishlist_${custId}`;
+      const currentList: any[] = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
+      const existsIndex = currentList.findIndex((item: any) => item.id === product.id || item.productId === product.id);
+      
+      if (existsIndex >= 0) {
+        currentList.splice(existsIndex, 1);
+        localStorage.setItem(storageKey, JSON.stringify(currentList));
+        setIsSaved(false);
+        fireToast(`Removed ${product.name} from Saved Items.`, 'info');
+      } else {
+        const newItem = {
+          id: product.id,
+          productId: product.id,
+          name: product.name,
+          variant: selectedVariation?.name || 'Standard Vial',
+          price: unitPrice,
+          category: product.category || 'Peptides',
+          inStock: !isOutOfStock,
+          image_url: product.image_url || '/assets/logo.jpeg',
+          savedAt: new Date().toISOString()
+        };
+        currentList.unshift(newItem);
+        localStorage.setItem(storageKey, JSON.stringify(currentList));
+        setIsSaved(true);
+        fireToast(`Saved ${product.name} to your Saved Items! ❤️`, 'success');
+      }
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('wishlist_updated'));
+    } catch (err) {
+      console.error('Error updating saved items:', err);
+    }
+  };
 
   const getVialStrengthMg = (): number => {
     if (selectedVariation?.name) {
@@ -678,7 +783,11 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     setTimeout(() => setAddedSuccess(false), 2000);
 
     // Trigger toast notification confirmation
-    fireToast(`Added ${quantity}x ${product.name}${selectedVariation ? ` (${selectedVariation.name})` : ''} to your cart! 🛒`, 'success', 4000);
+    if (pricing.hasGlobalDiscount) {
+      fireToast(`Added ${quantity}x ${product.name}${selectedVariation ? ` (${selectedVariation.name})` : ''} with ${globalDiscount?.name || 'Storewide Sale'} applied! (Bundle discount disabled) 🛒`, 'success', 4500);
+    } else {
+      fireToast(`Added ${quantity}x ${product.name}${selectedVariation ? ` (${selectedVariation.name})` : ''} to your cart! 🛒`, 'success', 4000);
+    }
 
     if (!asPage) {
       setTimeout(() => {
@@ -691,7 +800,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     .filter((t) => t.active)
     .slice()
     .sort((a, b) => a.min_quantity - b.min_quantity);
-  const previewTier = pickBundleTier(sortedTiers, quantity);
+  const isBundleEligible = !pricing.hasGlobalDiscount;
+  const previewTier = isBundleEligible ? pickBundleTier(sortedTiers, quantity) : null;
   const bundleUnitPrice = previewTier
     ? unitPrice * (1 - Number(previewTier.discount_percentage) / 100)
     : unitPrice;
@@ -740,20 +850,29 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   );
 
   const shippingInfoGrid = (
-    <div className="rounded-2xl bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-charcoal-200 dark:border-slate-800 p-4 grid grid-cols-3 gap-3 text-center shadow-sm">
+    <div className="rounded-2xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 p-3 sm:p-4 grid grid-cols-3 gap-2 sm:gap-3 text-center shadow-xs">
       <div className="flex flex-col items-center gap-1 group cursor-default">
-        <Truck className="w-5 h-5 text-brand-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
-        <p className="text-[11px] text-charcoal-700 dark:text-slate-400 leading-tight font-medium mt-1">{shippingWindow}</p>
+        <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] dark:text-[#94BBE9] group-hover:scale-110 transition-transform duration-200">
+          <Truck className="w-4 h-4" />
+        </div>
+        <p className="text-[10px] sm:text-[11px] text-charcoal-700 dark:text-slate-300 leading-tight font-semibold mt-0.5">{shippingWindow}</p>
+        <span className="text-[8.5px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">Fast Delivery</span>
       </div>
       <div className="flex flex-col items-center gap-1 group cursor-default">
-        <ShieldCheck className="w-5 h-5 text-brand-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
-        <p className="text-[11px] text-charcoal-700 dark:text-slate-300 leading-tight font-medium mt-1">
-          <span className="underline decoration-dotted">Free shipment protection</span>
+        <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] dark:text-[#94BBE9] group-hover:scale-110 transition-transform duration-200">
+          <ShieldCheck className="w-4 h-4" />
+        </div>
+        <p className="text-[10px] sm:text-[11px] text-charcoal-700 dark:text-slate-300 leading-tight font-semibold mt-0.5">
+          <span>Transit Protected</span>
         </p>
+        <span className="text-[8.5px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">100% Guaranteed</span>
       </div>
       <div className="flex flex-col items-center gap-1 group cursor-default">
-        <Zap className="w-5 h-5 text-brand-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
-        <p className="text-[11px] text-charcoal-700 dark:text-slate-400 leading-tight font-medium mt-1">Overnight shipping</p>
+        <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] dark:text-[#94BBE9] group-hover:scale-110 transition-transform duration-200">
+          <Zap className="w-4 h-4" />
+        </div>
+        <p className="text-[10px] sm:text-[11px] text-charcoal-700 dark:text-slate-300 leading-tight font-semibold mt-0.5">Priority Dispatch</p>
+        <span className="text-[8.5px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">Direct from Lab</span>
       </div>
     </div>
   );
@@ -941,9 +1060,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                   key={variation.id}
                   onClick={() => !outOfStock && setSelectedVariation(variation)}
                   disabled={outOfStock}
-                  className={`px-5 py-2 rounded-full border text-sm font-semibold transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                  className={`px-4 sm:px-5 py-2 rounded-full border text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                     isSelected
-                      ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-[0_0_15px_rgba(60,108,168,0.4)] scale-105'
+                      ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-sm ring-2 ring-[#3C6CA8]/30'
                       : 'bg-white dark:bg-slate-800 text-charcoal-800 dark:text-slate-200 border-charcoal-200 dark:border-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8]'
                   } ${outOfStock ? 'opacity-40 cursor-not-allowed line-through' : ''}`}
                 >
@@ -1006,20 +1125,35 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           })),
         ];
         return (
-          <div className="text-left space-y-2 w-full">
+          <div className="text-left space-y-2.5 w-full">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-extrabold tracking-wider text-[#232323]/80 dark:text-slate-300 uppercase flex items-center gap-1">
                 <Zap className="w-3 h-3 text-[#3C6CA8]" /> Bundle &amp; Save
               </p>
-              {previewTier && (
+              {pricing.hasGlobalDiscount ? (
+                <span className="text-[10px] font-extrabold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/60 flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                  Global Sale Active ({discountPercent}% OFF)
+                </span>
+              ) : previewTier ? (
                 <span className="text-[10px] font-bold text-[#3C6CA8] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-full border border-blue-200/50">
                   {Number(previewTier.discount_percentage)}% Savings Active
                 </span>
-              )}
+              ) : null}
             </div>
+
+            {/* Storewide Sale Active Notice (Explains why bundle discounts are disabled) */}
+            {pricing.hasGlobalDiscount && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs">
+                <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="text-[11px] leading-tight font-medium">
+                  <strong className="font-bold text-amber-800 dark:text-amber-300">{globalDiscount?.name || 'Global Sale'} Active:</strong> Storewide discount ({discountPercent}% OFF) is already applied to this product. Bundle tier discounts are disabled to prevent double-discounting.
+                </span>
+              </div>
+            )}
             
-            {/* Single Line Grid — automatically spans all 4 cards in one row on sm+ screens */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* 3-Column Mobile-Responsive Grid Layout */}
+            <div className={`grid ${cards.length === 2 ? 'grid-cols-2' : cards.length === 3 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-4'} gap-1.5 sm:gap-2.5`}>
               {cards.map((card, i) => {
                 const isSelected = quantity >= card.qty &&
                   (i === cards.length - 1 || quantity < cards[i + 1].qty);
@@ -1028,22 +1162,27 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                     key={i}
                     type="button"
                     onClick={() => setQuantity(card.qty)}
-                    className={`relative rounded-2xl border transition-all duration-300 p-2 text-left cursor-pointer flex flex-col justify-between min-h-[92px] sm:min-h-[102px] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                    className={`relative rounded-2xl border transition-all duration-300 p-1.5 sm:p-2.5 text-left cursor-pointer flex flex-col justify-between min-h-[86px] sm:min-h-[102px] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                       isSelected
-                        ? 'border-[#3C6CA8] bg-gradient-to-b from-blue-50/90 to-blue-100/40 dark:from-slate-800/90 dark:to-blue-950/40 shadow-md ring-2 ring-[#3C6CA8]/40 scale-[1.02]'
+                        ? 'border-[#3C6CA8] bg-gradient-to-b from-blue-50/90 to-blue-100/50 dark:from-slate-800/90 dark:to-blue-950/40 shadow-sm ring-2 ring-[#3C6CA8]/35'
                         : 'border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 hover:border-[#3C6CA8]/60 hover:bg-blue-50/30'
-                    }`}
+                    } ${pricing.hasGlobalDiscount ? 'opacity-90' : ''}`}
                   >
-                    {card.mostPopular && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[8px] font-black tracking-wider uppercase bg-gradient-to-r from-[#3C6CA8] to-[#2A5288] text-white shadow-sm whitespace-nowrap z-10">
+                    {card.mostPopular && !pricing.hasGlobalDiscount && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded-full text-[7px] sm:text-[8px] font-black tracking-wider uppercase bg-gradient-to-r from-[#3C6CA8] to-[#2A5288] text-white shadow-sm whitespace-nowrap z-10">
                         Popular
                       </span>
                     )}
-                    <div className="h-10 sm:h-12 flex items-end justify-center mb-1">
+                    {pricing.hasGlobalDiscount && card.qty > 1 && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded-full text-[7px] sm:text-[7.5px] font-extrabold tracking-wider uppercase bg-amber-500 text-white shadow-xs whitespace-nowrap z-10">
+                        Sale Active
+                      </span>
+                    )}
+                    <div className="h-9 sm:h-12 flex items-end justify-center mb-1">
                       {Array.from({ length: Math.min(card.qty, 3) }).map((_, idx) => (
                         <div
                           key={idx}
-                          className="-mx-1 w-5 sm:w-6 h-9 sm:h-11 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-2xs group-hover:scale-105 transition-transform"
+                          className="-mx-1 w-4.5 sm:w-6 h-8 sm:h-11 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-2xs group-hover:scale-105 transition-transform"
                           style={{ zIndex: idx }}
                         >
                           <img
@@ -1055,19 +1194,23 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                         </div>
                       ))}
                       {card.qty > 3 && (
-                        <span className="ml-0.5 text-[9px] font-bold text-slate-500">+{card.qty - 3}</span>
+                        <span className="ml-0.5 text-[8.5px] sm:text-[9px] font-bold text-slate-500">+{card.qty - 3}</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between gap-1 mt-auto border-t border-slate-100 dark:border-slate-800/80 pt-1">
-                      <span className="text-[10px] font-bold text-[#232323] dark:text-white uppercase tracking-tight truncate">
+                    <div className="flex items-center justify-between gap-0.5 mt-auto border-t border-slate-100 dark:border-slate-800/80 pt-1">
+                      <span className="text-[9px] sm:text-[10px] font-bold text-[#232323] dark:text-white uppercase tracking-tight truncate">
                         {card.qty} {card.qty === 1 ? 'Vial' : 'Vials'}
                       </span>
-                      {card.percent > 0 ? (
-                        <span className="text-[10px] font-extrabold text-[#3C6CA8] dark:text-blue-400">
+                      {pricing.hasGlobalDiscount ? (
+                        <span className="text-[8px] sm:text-[9px] font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                          {discountPercent}% OFF
+                        </span>
+                      ) : card.percent > 0 ? (
+                        <span className="text-[8.5px] sm:text-[10px] font-extrabold text-[#3C6CA8] dark:text-blue-400 shrink-0">
                           {card.percent}% OFF
                         </span>
                       ) : (
-                        <span className="text-[9px] text-slate-400 font-medium">Base</span>
+                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-medium shrink-0">Base</span>
                       )}
                     </div>
                   </button>
@@ -1080,23 +1223,19 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
       {/* CoA + Enhanced Add to Cart Button Row */}
       <div className="flex items-center gap-3 pt-2">
-        {coaUrl ? (
-          <button
-            onClick={() => setCoaPreviewImage(coaUrl)}
-            className="px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 text-[#232323] dark:text-white text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8] transition-all duration-200 inline-flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm hover:shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
-          >
-            <FileText className="w-4 h-4 text-[#3C6CA8]" />
-            COA
-          </button>
-        ) : (
-          <button
-            disabled
-            className="px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-400 text-xs font-bold cursor-not-allowed inline-flex items-center gap-1.5 shrink-0"
-          >
-            <FileText className="w-4 h-4" />
-            COA
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => {
+            setCustomModalCoaUrl(coaUrl);
+            setIsCoaModalOpen(true);
+          }}
+          className="px-4 py-3 rounded-2xl border border-blue-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/80 text-[#232323] dark:text-white text-xs font-black hover:bg-blue-50/80 dark:hover:bg-slate-800 hover:border-[#3C6CA8] hover:text-[#3C6CA8] transition-all duration-200 inline-flex items-center gap-2 shrink-0 cursor-pointer shadow-sm hover:shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 group"
+          title="View Official Certificate of Analysis (COA)"
+        >
+          <FileText className="w-4 h-4 text-[#3C6CA8] group-hover:scale-110 transition-transform" />
+          <span>COA</span>
+        </button>
+
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
@@ -1132,7 +1271,10 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         productName={product.name}
         purity={product.purity_percentage}
         coaUrl={coaUrl}
-        onQuickView={setCoaPreviewImage}
+        onQuickView={(imgUrl) => {
+          setCustomModalCoaUrl(imgUrl);
+          setIsCoaModalOpen(true);
+        }}
       />
       <CompoundInformationSection
         product={product}
@@ -1178,30 +1320,13 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           </div>
         </div>
 
-        {/* Dynamic Full COA Preview Modal */}
-        {coaPreviewImage && (
-          <div
-            className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
-            onClick={() => setCoaPreviewImage(null)}
-          >
-            <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-              <button
-                onClick={() => setCoaPreviewImage(null)}
-                className="absolute -top-12 right-0 bg-white hover:bg-gray-150 text-charcoal-800 rounded-full p-2.5 transition-all shadow-lg z-10 cursor-pointer"
-                aria-label="Close preview"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="bg-white rounded-3xl overflow-hidden max-h-[85vh] flex items-center justify-center">
-                <img
-                  src={coaPreviewImage}
-                  alt="Certificate of Analysis Full View"
-                  className="max-w-full max-h-[85vh] object-contain"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Dynamic Full COA Interactive Modal */}
+        <COAModal
+          isOpen={isCoaModalOpen}
+          onClose={() => setIsCoaModalOpen(false)}
+          product={product}
+          customCoaUrl={customModalCoaUrl}
+        />
       </div>
     );
   }
@@ -1219,13 +1344,29 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           <span className="block w-10 h-1.5 rounded-full bg-charcoal-200" />
         </div>
 
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 rounded-full text-charcoal-400 hover:text-[#3C6CA8] hover:bg-cream-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-1.5">
+          <button
+            onClick={handleToggleSave}
+            type="button"
+            aria-label={isSaved ? "Remove from Saved Items" : "Save Item"}
+            title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
+            className={`p-2 rounded-full border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] ${
+              isSaved
+                ? 'bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100 shadow-xs'
+                : 'bg-white/90 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 shadow-2xs'
+            }`}
+          >
+            <Heart className={`w-4.5 h-4.5 ${isSaved ? 'fill-rose-500 text-rose-500 animate-pulse' : 'text-current'}`} />
+          </button>
+
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="p-1.5 rounded-full text-charcoal-400 hover:text-[#3C6CA8] hover:bg-cream-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {/* Scrollable content */}
         <div className="px-4 sm:px-5 pt-2 pb-4 flex-1 overflow-y-auto">
@@ -1303,35 +1444,18 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
         </div>
       </div>
 
-      {/* Dynamic Full COA Preview Modal */}
-      {coaPreviewImage && (
-        <div
-          className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 animate-fadeIn"
-          onClick={() => setCoaPreviewImage(null)}
-        >
-          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setCoaPreviewImage(null)}
-              className="absolute -top-12 right-0 bg-white hover:bg-gray-150 text-charcoal-800 rounded-full p-2.5 transition-all shadow-lg z-10 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
-              aria-label="Close preview"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="bg-white rounded-3xl overflow-hidden max-h-[85vh] flex items-center justify-center">
-              <img
-                src={coaPreviewImage}
-                alt="Certificate of Analysis Full View"
-                className="max-w-full max-h-[85vh] object-contain"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Dynamic Full COA Interactive Modal */}
+      <COAModal
+        isOpen={isCoaModalOpen}
+        onClose={() => setIsCoaModalOpen(false)}
+        product={product}
+        customCoaUrl={customModalCoaUrl}
+      />
 
       {/* Enhanced Dosing Guide & Instructions Popup Modal */}
-      {dosingOpen && (
+      {dosingOpen && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[10000] bg-charcoal-900/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
+          className="fixed inset-0 z-[999999] bg-charcoal-900/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
           onClick={() => setDosingOpen(false)}
         >
           <motion.div
@@ -1469,7 +1593,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
               </button>
             </div>
           </motion.div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

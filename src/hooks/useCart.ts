@@ -7,6 +7,7 @@ import { getCartItemUnitBasePrice } from '../utils/pricing';
 import { fireToast } from '../components/ToastNotification';
 
 const STORAGE_KEY = 'peptide_cart';
+const STORAGE_KEY_FULL = 'peptide_cart_full_v1';
 const PRODUCT_COLUMNS =
   'id, name, slug, description, category, base_price, discount_price, discount_start_date, discount_end_date, discount_active, purity_percentage, molecular_weight, cas_number, sequence, storage_conditions, inclusions, stock_quantity, available, featured, image_url, safety_sheet_url, coa_url, created_at, updated_at';
 
@@ -16,13 +17,42 @@ interface PersistedCartItem {
   quantity: number;
 }
 
+const STORAGE_FULL_KEY = 'peptide_cart_full_v1';
+
 const persist = (items: CartItem[]) => {
-  const slim: PersistedCartItem[] = items.map((i) => ({
-    product_id: i.product.id,
-    variation_id: i.variation?.id ?? null,
-    quantity: i.quantity,
-  }));
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+  // 1. Persist full items for instant 0ms sync hydration on subsequent loads
+  try {
+    localStorage.setItem(STORAGE_KEY_FULL, JSON.stringify(items));
+  } catch {}
+
+  // 2. Persist slim structure for backward compatibility
+  try {
+    const slim: PersistedCartItem[] = items.map((i) => ({
+      product_id: i.product.id,
+      variation_id: i.variation?.id ?? null,
+      quantity: i.quantity,
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+  } catch {}
+};
+
+const loadInitialCart = (): { items: CartItem[]; hydrated: boolean } => {
+  try {
+    if (typeof window !== 'undefined') {
+      const fullRaw = localStorage.getItem(STORAGE_KEY_FULL);
+      if (fullRaw) {
+        const parsed = JSON.parse(fullRaw);
+        if (Array.isArray(parsed)) {
+          return { items: parsed, hydrated: true };
+        }
+      }
+      const slimRaw = localStorage.getItem(STORAGE_KEY);
+      if (!slimRaw || slimRaw === '[]') {
+        return { items: [], hydrated: true };
+      }
+    }
+  } catch {}
+  return { items: [], hydrated: false };
 };
 
 const loadPersistedIds = (): PersistedCartItem[] => {
@@ -131,8 +161,8 @@ async function hydrateItems(persisted: PersistedCartItem[]): Promise<CartItem[]>
 }
 
 export function useCart() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => loadInitialCart().items);
+  const [hydrated, setHydrated] = useState(() => loadInitialCart().hydrated);
   const [pricesUpdatedAt, setPricesUpdatedAt] = useState<number | null>(null);
   const isInitialMountRef = useRef(true);
 
@@ -140,8 +170,18 @@ export function useCart() {
     let cancelled = false;
     (async () => {
       const persisted = loadPersistedIds();
+      if (persisted.length === 0) {
+        if (!cancelled) setHydrated(true);
+        return;
+      }
+      // If we already have items from full cache, rehydrate quietly in background
       const items = await hydrateItems(persisted);
-      if (!cancelled) { setCartItems(items); setHydrated(true); }
+      if (!cancelled) {
+        if (items.length > 0) {
+          setCartItems(items);
+        }
+        setHydrated(true);
+      }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -261,6 +301,7 @@ export function useCart() {
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY_FULL);
   };
 
   const getTotalPrice = () =>
@@ -298,6 +339,7 @@ export function useCart() {
 
   return {
     cartItems,
+    hydrated,
     addToCart,
     updateQuantity,
     removeFromCart,

@@ -84,13 +84,6 @@ interface WishlistItem {
   inStock: boolean;
 }
 
-// ─── FAQ Data ────────────────────────────────────────────────────────────────
-const FAQ_ITEMS = [
-  { q: 'How do I reconstitute peptides?', a: 'Add bacteriostatic water slowly along the side of the vial. Gently swirl — do not shake. Use 1–2ml of bac water per 5mg vial for typical concentrations. Store reconstituted peptides refrigerated at 4°C and use within 30 days.' },
-  { q: 'What is your shipping policy?', a: 'We ship nationwide via J&T Express. Luzon: ₱120 (2–4 days), Visayas: ₱150 (3–5 days), Mindanao: ₱90 (4–6 days). Free shipping on orders ₱5,000+. Maxim Delivery (COD) available in select areas.' },
-  { q: 'Can I cancel or return an order?', a: 'Orders can be cancelled within 1 hour of placement if not yet confirmed. Once shipped, returns are accepted only for defective or incorrect items within 7 days of delivery. Contact support with your order number and photos of the issue.' },
-  { q: 'How do I track my order?', a: 'Once your order ships, you\'ll receive a J&T tracking number via email and in your account portal under Order History. You can also track via the J&T Express website using your tracking number.' },
-];
 
 // ─── Helper Components ────────────────────────────────────────────────────────
 const StatusBadge: React.FC<{ status: string; type?: 'order' | 'payment' | 'ticket' }> = ({ status, type = 'order' }) => {
@@ -253,7 +246,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   });
 
   // Support state
-  const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketCategory, setTicketCategory] = useState('General');
   const [ticketMessage, setTicketMessage] = useState('');
@@ -629,7 +621,9 @@ Shipping Target: ${deliveryAddr}
 
   // ─── Tab: Dashboard ───────────────────────────────────────────────────────
   const DashboardTab = () => {
-    const totalSpent = orders.reduce((s, o) => s + Number(o.total_price || 0) + Number(o.shipping_fee || 0), 0);
+    const totalSpent = orders
+      .filter(o => o.order_status !== 'cancelled' && o.status !== 'cancelled')
+      .reduce((s, o) => s + Number(o.total_price || 0) + Number(o.shipping_fee || 0), 0);
     const pendingOrders = orders.filter(o => ['new', 'confirmed', 'processing'].includes(o.order_status)).length;
     const recentNotifs = notifications.filter(n => !n.read).slice(0, 3);
     const stats = [
@@ -1180,21 +1174,6 @@ Shipping Target: ${deliveryAddr}
   // ─── Tab: Support ─────────────────────────────────────────────────────────
   const SupportTab = () => (
     <div className="space-y-6">
-      {/* FAQ */}
-      <div>
-        <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2 mb-3"><HelpCircle className="w-4 h-4 text-[#3C6CA8]" />Frequently Asked Questions</h3>
-        <div className="space-y-2">
-          {FAQ_ITEMS.map((faq, i) => (
-            <div key={i} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden">
-              <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} className="w-full flex items-center justify-between px-4 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 pr-2">{faq.q}</span>
-                {faqOpen === i ? <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
-              </button>
-              {faqOpen === i && <div className="px-4 pb-4 text-xs text-gray-600 dark:text-slate-400 leading-relaxed border-t border-gray-100 dark:border-slate-700 pt-3">{faq.a}</div>}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Ticket Form */}
       <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5">

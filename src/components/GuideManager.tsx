@@ -882,14 +882,18 @@ export default function GuideManager() {
 
                                 {/* Cover Image Banner */}
                                 <div className="space-y-1">
-                                    <label htmlFor="guidemanager-cover-image-hero-banner-setmod" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                         Cover Image (Hero Banner)
                                     </label>
-                                    <div className="max-h-48 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-2">
+                                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3">
                                         <ImageUpload
                                             currentImage={modalData.cover_image || undefined}
                                             onImageChange={(imageUrl) => setModalData({ ...modalData, cover_image: imageUrl || null })}
                                             folder="article-covers"
+                                            title="Click to upload cover banner"
+                                            subtitle="Supports JPG, PNG, WebP, GIF, SVG - max 10MB"
+                                            urlPlaceholder="https://example.com/cover-image.jpg"
+                                            urlLabel="Or enter cover image URL"
                                         />
                                     </div>
                                 </div>

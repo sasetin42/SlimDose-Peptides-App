@@ -6,26 +6,54 @@ import {
   mirrorCategoryUpdate,
 } from '../lib/convexMirror';
 
+import { liveScrapedCategories } from '../data/liveScrapedCategories';
+
 export interface Category {
   id: string;
   name: string;
   icon: string;
   sort_order: number;
   active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
+
+const DEFAULT_STANDARD_CATEGORIES: Category[] = liveScrapedCategories.map((c, idx) => ({
+  id: c.id,
+  name: c.name,
+  icon: c.icon || '🔬',
+  sort_order: c.display_order ?? idx,
+  active: true,
+  created_at: c.created_at
+}));
+
+const CACHE_KEY = 'slimdose_cached_categories';
+
+// Module-level in-memory cache for instant cross-component, cross-render access
+let memoryCache: Category[] | null = null;
+try {
+  const local = localStorage.getItem(CACHE_KEY);
+  if (local) {
+    const parsed = JSON.parse(local);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      memoryCache = parsed;
+    }
+  }
+} catch {}
+
+const getInitialCategories = (activeOnly: boolean): Category[] => {
+  const base = memoryCache && memoryCache.length > 0 ? memoryCache : DEFAULT_STANDARD_CATEGORIES;
+  return activeOnly ? base.filter((c) => c.active) : base;
+};
 
 export const useCategories = (options?: { activeOnly?: boolean }) => {
   const activeOnly = options?.activeOnly ?? true;
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>(() => getInitialCategories(activeOnly));
+  const [loading, setLoading] = useState<boolean>(() => !memoryCache || memoryCache.length === 0);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = async () => {
     try {
-      setLoading(true);
-      
       let query = supabase
         .from('categories')
         .select('*');
@@ -39,7 +67,14 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
 
       if (fetchError) throw fetchError;
 
-      setCategories(data || []);
+      if (data && data.length > 0) {
+        memoryCache = data;
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch {}
+        const filtered = activeOnly ? data.filter((c) => c.active) : data;
+        setCategories(filtered);
+      }
       setError(null);
     } catch (err) {
       console.error('Error fetching categories:', err);

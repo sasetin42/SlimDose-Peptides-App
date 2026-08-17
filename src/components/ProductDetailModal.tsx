@@ -28,10 +28,13 @@ import {
   Info,
   Sparkles,
   Heart,
+  ArrowLeft,
+  Home,
+  ChevronRight
 } from 'lucide-react';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier, Protocol } from '../types';
 import { resolveProductPricing, pickBundleTier } from '../utils/pricing';
-import { getCompoundDetails, getMockCoas, getReferences } from '../data/biotechData';
+import { getCompoundDetails, getReferences } from '../data/biotechData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fireToast } from './ToastNotification';
 import { ProductPeptideCalculator } from './ProductPeptideCalculator';
@@ -52,192 +55,7 @@ interface ProductDetailModalProps {
    BIOTECH RESEARCH-GRADE EXPANDED SECTIONS
    ═══════════════════════════════════════════════════════════════ */
 
-interface COASectionProps {
-  productName: string;
-  purity: number;
-  coaUrl: string | null;
-  onQuickView: (imgUrl: string) => void;
-}
 
-const CertificateOfAnalysisSection: React.FC<COASectionProps> = ({ productName, purity, coaUrl, onQuickView }) => {
-  const records = getMockCoas(productName, purity, coaUrl);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const scrollLeft = scrollRef.current.scrollLeft;
-      const width = scrollRef.current.clientWidth;
-      const index = Math.round(scrollLeft / (width * 0.8));
-      setActiveIndex(Math.min(Math.max(index, 0), records.length - 1));
-    }
-  };
-
-  const scrollToCard = (index: number) => {
-    if (scrollRef.current) {
-      const cardWidth = scrollRef.current.querySelector('div')?.clientWidth || 280;
-      scrollRef.current.scrollTo({
-        left: index * (cardWidth + 12),
-        behavior: 'smooth'
-      });
-      setActiveIndex(index);
-    }
-  };
-
-  return (
-    <div className="mt-6 w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 border-b border-gray-100 dark:border-slate-800 pb-3">
-        <div>
-          <span className="text-[10px] sm:text-xs font-bold tracking-wider text-[#3C6CA8] dark:text-[#3C6CA8] uppercase">Independent Verification</span>
-          <h3 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white mt-0.5">Certificate of Analysis</h3>
-        </div>
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 flex-wrap sm:flex-nowrap">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800 shrink-0">
-            <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Third Party Tested
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800 shrink-0">
-            <Atom className="w-3 h-3 text-blue-600 dark:text-blue-400" /> Research Grade
-          </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-800 shrink-0">
-            <Shield className="w-3 h-3 text-violet-600 dark:text-violet-400" /> High Purity Verified
-          </span>
-        </div>
-      </div>
-
-      {/* Desktop Grid & Compact Mobile Slider Carousel */}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex md:grid md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 overflow-x-auto pb-3 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-2 px-2 sm:mx-0 sm:px-0"
-      >
-        {records.map((rec, i) => {
-          const radius = 20;
-          const circumference = 2 * Math.PI * radius;
-          const strokeDashoffset = circumference - (rec.purityPercentage / 100) * circumference;
-
-          return (
-            <motion.div
-              key={rec.batchNumber}
-              className="shrink-0 snap-center w-[82vw] max-w-[295px] sm:w-[310px] md:w-full rounded-2xl border border-gray-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-3.5 sm:p-4.5 shadow-sm hover:shadow-md transition-all duration-300 group relative flex flex-col justify-between"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.08 }}
-            >
-              {/* Batch & Status Badge */}
-              <div className="flex items-center justify-between gap-1 mb-2.5">
-                <span className="text-[10.5px] sm:text-xs font-mono font-bold text-gray-700 dark:text-slate-300 truncate max-w-[65%]">
-                  Batch: {rec.batchNumber}
-                </span>
-                <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                  rec.status === 'Active & Verified' 
-                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60' 
-                    : 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400 border border-gray-200 dark:border-slate-700'
-                }`}>
-                  {rec.status}
-                </span>
-              </div>
-
-              {/* Compact Purity Ring */}
-              <div className="flex items-center gap-3 mb-3 bg-blue-50/50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-blue-100/60 dark:border-slate-700/60">
-                <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
-                  <svg className="w-12 h-12 transform -rotate-90">
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r={radius}
-                      stroke="rgba(60,108,168,0.15)"
-                      strokeWidth="3.5"
-                      fill="transparent"
-                    />
-                    <circle
-                      cx="24"
-                      cy="24"
-                      r={radius}
-                      stroke="#3C6CA8"
-                      strokeWidth="3.5"
-                      fill="transparent"
-                      strokeDasharray={circumference}
-                      strokeDashoffset={strokeDashoffset}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className="absolute text-[10px] font-black text-gray-900 dark:text-white leading-none">
-                    {rec.purityPercentage}%
-                  </span>
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[9px] sm:text-[9.5px] font-bold text-[#3C6CA8] dark:text-[#6A9BE0] uppercase tracking-wider">
-                    Purity Rating
-                  </div>
-                  <div className="text-xs sm:text-sm font-black text-gray-900 dark:text-white leading-tight">
-                    HPLC Confirmed
-                  </div>
-                </div>
-              </div>
-
-              {/* Compact Specifications Grid */}
-              <div className="space-y-1.5 text-[11px] sm:text-xs border-t border-gray-100 dark:border-slate-800/80 pt-2 mb-3.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-slate-400 font-medium">Tested Variant</span>
-                  <span className="font-bold text-gray-800 dark:text-slate-200 truncate ml-2">{rec.variant}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-slate-400 font-medium">Lab Facility</span>
-                  <span className="font-bold text-gray-800 dark:text-slate-200 truncate ml-2">{rec.laboratory}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-slate-400 font-medium">Test Date</span>
-                  <span className="font-bold text-gray-800 dark:text-slate-200">{rec.testDate}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500 dark:text-slate-400 font-medium">Status</span>
-                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-extrabold text-[11px]">
-                    <ShieldCheck className="w-3.5 h-3.5" /> PASS
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="grid grid-cols-2 gap-2 mt-auto">
-                <button
-                  type="button"
-                  onClick={() => onQuickView(rec.coaUrl)}
-                  className="flex items-center justify-center gap-1 py-2 px-2.5 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-[#3C6CA8] transition-colors cursor-pointer"
-                >
-                  <Microscope className="w-3.5 h-3.5" /> Quick View
-                </button>
-                <a
-                  href={rec.coaUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1 py-2 px-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] rounded-xl text-xs font-bold text-white transition-colors shadow-xs"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download
-                </a>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Mobile Slider Indicator Dots */}
-      <div className="flex md:hidden items-center justify-center gap-1.5 mt-2">
-        {records.map((_, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => scrollToCard(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              activeIndex === idx ? 'w-5 bg-[#3C6CA8]' : 'w-1.5 bg-gray-300 dark:bg-slate-700'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
 
 interface CompoundSectionProps {
   product: Product;
@@ -719,6 +537,20 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     return 10;
   };
 
+  const handleOpenGuide = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (product.linked_peptalk_id) {
+      if (product.linked_peptalk_id.startsWith('http://') || product.linked_peptalk_id.startsWith('https://')) {
+        window.open(product.linked_peptalk_id, '_blank');
+        return;
+      }
+      window.open(`/peptalk/${product.linked_peptalk_id}`, '_blank');
+      return;
+    }
+    const searchParam = encodeURIComponent(product.name.split(' ')[0] || product.name);
+    window.open(`/peptalk?search=${searchParam}`, '_blank');
+  };
+
   // Lock body scroll only when used as overlay
   useEffect(() => {
     if (asPage) return;
@@ -828,9 +660,15 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08)_0,transparent_70%)] pointer-events-none" />
       
       {/* Floating Badges */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wide uppercase bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-[#3C6CA8] dark:text-blue-300 border border-[#3C6CA8]/30 dark:border-blue-800/50 shadow-sm">
-        <Atom className="w-2.5 h-2.5 text-[#3C6CA8] animate-spin-slow" /> Research Grade
-      </div>
+      {product.featured ? (
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wide uppercase bg-[#3C6CA8] text-white shadow-sm">
+          ★ Featured
+        </div>
+      ) : product.pre_order_enabled ? (
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-wide uppercase bg-blue-600 text-white shadow-sm animate-pulse">
+          Pre-Order
+        </div>
+      ) : null}
 
       {hasDiscount && (
         <div className="absolute top-3 right-3 z-10 px-2 py-0.5 rounded-full text-[8px] font-extrabold uppercase bg-red-500 text-white shadow-md">
@@ -936,12 +774,11 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       </div>
 
       {/* Dosing Guide & Instructions Action Button */}
-      <button 
-        type="button"
+      <div 
         onClick={() => setDosingOpen(true)}
         className="w-full group relative overflow-hidden rounded-2xl border border-blue-200/80 dark:border-slate-800 bg-gradient-to-r from-blue-50/90 via-slate-50/60 to-blue-50/80 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-blue-950/50 p-3 sm:p-4 text-left shadow-sm hover:shadow-md hover:border-[#3C6CA8] transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
       >
-        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0">
+        <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 dark:bg-blue-400/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center border border-[#3C6CA8]/20 group-hover:scale-110 transition-transform mt-0.5 sm:mt-0">
             <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
@@ -959,23 +796,18 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-slate-800 text-xs font-bold text-[#3C6CA8] dark:text-blue-300 border border-blue-200/60 dark:border-slate-700 shadow-2xs group-hover:bg-[#3C6CA8] group-hover:text-white transition-colors self-start sm:self-auto shrink-0 w-full sm:w-auto">
+        <button
+          type="button"
+          onClick={handleOpenGuide}
+          className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#3C6CA8] text-white hover:bg-[#2e5586] text-xs font-bold shadow-xs transition-colors self-start sm:self-auto shrink-0 w-full sm:w-auto cursor-pointer"
+        >
           <span>Open Guide</span>
           <ExternalLink className="w-3.5 h-3.5" />
-        </div>
-      </button>
+        </button>
+      </div>
 
 
-      {/* View Protocol / Guide Button */}
-      {product.linked_peptalk_id && (
-        <a
-          href={`/peptalk/${product.linked_peptalk_id}`}
-          className="w-full bg-blue-50 hover:bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:hover:bg-blue-950/50 dark:text-blue-300 py-2 rounded-xl font-bold text-[11px] tracking-wide transition-all duration-200 flex items-center justify-center gap-1.5 border border-blue-100 dark:border-blue-900/40 text-center shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
-        >
-          <BookOpen className="w-3.5 h-3.5" />
-          View Protocol / Guide
-        </a>
-      )}
+
 
       {/* Pre-Order Banner */}
       {product.pre_order_enabled && (
@@ -1267,15 +1099,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   const biotechSectionsCommon = (
     <>
       <ProductPeptideCalculator initialVialSizeMg={getVialStrengthMg()} />
-      <CertificateOfAnalysisSection
-        productName={product.name}
-        purity={product.purity_percentage}
-        coaUrl={coaUrl}
-        onQuickView={(imgUrl) => {
-          setCustomModalCoaUrl(imgUrl);
-          setIsCoaModalOpen(true);
-        }}
-      />
       <CompoundInformationSection
         product={product}
         protocols={protocols}
@@ -1285,8 +1108,39 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
   if (asPage) {
     return (
-      <div className="w-full bg-cream-50 dark:bg-slate-950 py-6 sm:py-10">
-        <div className="container-global flex flex-col gap-6 sm:gap-8">
+      <div className="w-full bg-cream-50 dark:bg-slate-950 py-4 sm:py-8">
+        <div className="container-global flex flex-col gap-5 sm:gap-7">
+          {/* Top Breadcrumb & Back to Landing Page Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:text-[#3C6CA8] hover:border-[#3C6CA8] text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:-translate-x-1 group-hover:text-[#3C6CA8] transition-all" />
+              <span>Back to Home</span>
+            </button>
+
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+              <button
+                type="button"
+                onClick={onClose}
+                className="hover:text-[#3C6CA8] flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <Home className="w-3.5 h-3.5" />
+                <span>Home</span>
+              </button>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-700" />
+              {product.category && (
+                <>
+                  <span className="text-slate-500 dark:text-slate-400 font-semibold">{product.category}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-700" />
+                </>
+              )}
+              <span className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[160px] sm:max-w-xs">{product.name}</span>
+            </nav>
+          </div>
+
           {/* Main 2-column responsive layout card for desktop, stacking nicely on mobile */}
           <div className="w-full bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-charcoal-100 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-luxury">
             {/* Desktop 2-column layout */}
@@ -1486,17 +1340,47 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                   </h3>
                 </div>
               </div>
-              <button
-                onClick={() => setDosingOpen(false)}
-                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
-                aria-label="Close modal"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenGuide}
+                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#3C6CA8] hover:bg-[#2b5182] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                >
+                  <span>Open in PepTalk</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setDosingOpen(false)}
+                  className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8]"
+                  aria-label="Close modal"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Scrollable Body */}
             <div className="p-4 sm:p-6 overflow-y-auto space-y-6 text-left text-xs sm:text-sm">
+              {/* PepTalk Protocol Interactive Banner */}
+              <div className="p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#3C6CA8] text-white flex items-center justify-center shrink-0">
+                    <BookOpen className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-blue-950 dark:text-blue-100">Live PepTalk Protocol & Video Guide</p>
+                    <p className="text-[10.5px] text-blue-700/80 dark:text-blue-300/80">View step-by-step video instructions, dosage calculators & guides.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenGuide}
+                  className="px-3.5 py-1.5 bg-[#3C6CA8] hover:bg-[#2b5182] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-xs transition-colors"
+                >
+                  <span>Open PepTalk Protocol</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
               {/* Product Info Banner */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/60 to-slate-50 dark:from-slate-950 dark:to-blue-950/30 border border-blue-100 dark:border-slate-800 shadow-2xs">
                 <div className="flex flex-col">
@@ -1583,7 +1467,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
             {/* Modal Footer */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/50 flex items-center justify-between">
               <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
-                SlimDose Research Grade Reference Guide
+                SlimDose Reference Guide
               </span>
               <button
                 onClick={() => setDosingOpen(false)}

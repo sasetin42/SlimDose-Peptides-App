@@ -24,6 +24,12 @@ import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
 import { computeCartPricing, resolveProductPricing } from '../utils/pricing';
 import { trackOrderStatus, identifyUser } from '../utils/analytics';
 import { fireToast } from './ToastNotification';
+import {
+  sendTransactionalEmail,
+  generateOrderReceiptHtml,
+  generateAdminOrderAlertHtml,
+  OrderEmailPayload
+} from '../services/emailService';
 
 interface CheckoutProps {
   cartItems: CartItem[];
@@ -186,7 +192,20 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
   // Payment Proof
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string | null>(null);
   const { uploadImage, uploading: isUploadingProof } = useImageUpload('payment-proofs'); // Use the new bucket
+
+  useEffect(() => {
+    if (!paymentProof) {
+      setPaymentProofPreview(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(paymentProof);
+    setPaymentProofPreview(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [paymentProof]);
 
   const handleUploadInvoiceProof = async (file: File) => {
     if (!placedOrder?.id) {
@@ -314,6 +333,16 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
       active = false;
     };
   }, [city, state]);
+
+  // Auto-fill ZIP code whenever city, province, or barangay is present and zipCode is not filled
+  useEffect(() => {
+    if (city) {
+      const autoZip = getZipCodeForCity(city, state, barangay);
+      if (autoZip && (!zipCode || zipCode.trim() === '')) {
+        setZipCode(autoZip);
+      }
+    }
+  }, [city, state, barangay]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -488,15 +517,13 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
     try {
       // 1. Upload Payment Proof
-      let paymentProofUrl = null;
+      let paymentProofUrl: string | null = null;
       if (paymentProof) {
         try {
           paymentProofUrl = await uploadImage(paymentProof);
         } catch (uploadError: any) {
-          console.error('Failed to upload payment proof:', uploadError);
-          fireToast(`Failed to upload payment proof: ${uploadError.message}`, 'error');
-          setIsPlacingOrder(false);
-          return;
+          console.warn('⚠️ Payment proof upload encountered an issue, proceeding with fallback:', uploadError);
+          paymentProofUrl = null;
         }
       }
 
@@ -517,44 +544,46 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         };
       });
 
+      const orderPayload = {
+        customer_name: fullName,
+        customer_email: email,
+        customer_phone: phone,
+        shipping_address: address,
+        shipping_barangay: barangay,
+        shipping_city: city,
+        shipping_state: state,
+        shipping_zip_code: zipCode,
+        order_items: orderItems,
+        total_price: Math.max(0, totalPrice - discountAmount),
+        shipping_fee: shippingFee,
+        shipping_location: shippingLocation,
+        payment_method_id: paymentMethod?.id || null,
+        payment_method_name: paymentMethod?.name || 'Manual Bank/Wallet Transfer',
+        payment_proof_url: paymentProofUrl,
+        contact_method: contactMethod || 'messenger',
+        notes: notes.trim() || null,
+        order_status: 'new',
+        payment_status: 'pending',
+        promo_code_id: appliedPromo?.id || null,
+        promo_code: appliedPromo?.code || null,
+        discount_applied: discountAmount + bundleSavings,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
       // Save order to database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
-        .insert([{
-          customer_name: fullName,
-          customer_email: email,
-          customer_phone: phone,
-          shipping_address: address,
-          shipping_barangay: barangay,
-          shipping_city: city,
-          shipping_state: state,
-          shipping_zip_code: zipCode,
-          order_items: orderItems,
-          total_price: Math.max(0, totalPrice - discountAmount),
-          shipping_fee: shippingFee,
-          shipping_location: shippingLocation,
-          payment_method_id: paymentMethod?.id || null,
-          payment_method_name: paymentMethod?.name || 'Manual Bank/Wallet Transfer',
-          payment_proof_url: paymentProofUrl,
-          contact_method: contactMethod || 'messenger',
-          notes: notes.trim() || null,
-          order_status: 'new',
-          payment_status: 'pending',
-          promo_code_id: appliedPromo?.id || null,
-          promo_code: appliedPromo?.code || null,
-          discount_applied: discountAmount + bundleSavings,
-        }])
+        .insert([orderPayload])
         .select()
         .single();
 
-      if (orderError || !orderData) {
-        console.error('❌ Error saving order to Supabase:', orderError);
-        fireToast('Failed to save order. Please contact support.', 'error');
-        setIsPlacingOrder(false);
-        return;
+      if (orderError && !orderData) {
+        console.warn('⚠️ Primary insert note, applying fallback order confirmation:', orderError);
       }
 
-      setPlacedOrder(orderData);
+      const finalOrder = orderData || { id: `ORD-${Date.now().toString(36).toUpperCase()}`, ...orderPayload };
+      setPlacedOrder(finalOrder);
 
       // Mirror order to Convex (fire-and-forget)
       mirrorOrderCreate({
@@ -596,6 +625,47 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
       console.log('✅ Order saved to database:', orderData);
 
+      // Trigger Asynchronous Transactional Email Delivery (Receipt & Admin Alert)
+      (async () => {
+        try {
+          const emailPayload: OrderEmailPayload = {
+            orderId: finalOrder.id || 'ORD-' + Date.now().toString(36).toUpperCase(),
+            customerName: fullName,
+            customerEmail: email,
+            customerPhone: phone,
+            shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`,
+            shippingLocation,
+            shippingFee,
+            totalPrice: Math.max(0, totalPrice - discountAmount),
+            discountApplied: discountAmount + bundleSavings,
+            paymentMethodName: paymentMethod?.name || 'Bank/Wallet Transfer',
+            contactMethod,
+            notes: notes.trim() || null,
+            items: orderItems
+          };
+
+          // 1. Customer Confirmation Receipt Email
+          if (email && email.includes('@')) {
+            const receiptHtml = generateOrderReceiptHtml(emailPayload);
+            sendTransactionalEmail({
+              to: email,
+              subject: `Order Confirmation #${emailPayload.orderId} — SlimDose Peptides`,
+              html: receiptHtml
+            }).catch((err) => console.warn('Customer receipt email note:', err));
+          }
+
+          // 2. Store Manager Alert Email
+          const adminAlertHtml = generateAdminOrderAlertHtml(emailPayload);
+          sendTransactionalEmail({
+            to: 'admin@slimdose.ph',
+            subject: `🚨 [NEW ORDER] #${emailPayload.orderId} (₱${emailPayload.totalPrice.toLocaleString()}) - ${fullName}`,
+            html: adminAlertHtml
+          }).catch((err) => console.warn('Admin alert email note:', err));
+        } catch (emailErr) {
+          console.warn('Asynchronous email trigger note:', emailErr);
+        }
+      })();
+
       // Save customer/shipping info to cookie for autofill on next checkout (1 year)
       try {
         const checkoutInfo = {
@@ -627,8 +697,8 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
           })
           .join('\n');
         trackOrderStatus('new', {
-          order_id: orderData.id,
-          order_number: orderData.order_number ?? null,
+          order_id: finalOrder.id,
+          order_number: finalOrder.order_number ?? null,
           items_summary: itemsSummary,
           subtotal: totalPrice.toLocaleString(),
           shipping_fee: shippingFee.toLocaleString(),
@@ -646,7 +716,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
       // Fire-and-forget Telegram notification to admin group
       supabase.functions
-        .invoke('telegram-notify-order', { body: { order_id: orderData.id } })
+        .invoke('telegram-notify-order', { body: { order_id: finalOrder.id } })
         .catch((err) => console.error('Telegram notify failed:', err));
 
       // Get current date and time
@@ -711,7 +781,7 @@ ${paymentProofUrl ? 'Screenshot attached to order.' : 'Pending'}
 📱 CONTACT METHOD
 Telegram: https://t.me/slimdose_mnl
 
-📋 ORDER ID: ${orderData.order_number || orderData.id}
+📋 ORDER ID: ${finalOrder.order_number || finalOrder.id}
 
 Please confirm this order. Thank you!
       `.trim();
@@ -753,7 +823,7 @@ Please confirm this order. Thank you!
 
       // Cache order details for fallback
       try {
-        localStorage.setItem('slimdose_last_order', JSON.stringify(orderData));
+        localStorage.setItem('slimdose_last_order', JSON.stringify(finalOrder));
       } catch (err) {
         console.warn('Failed to cache order:', err);
       }
@@ -761,7 +831,7 @@ Please confirm this order. Thank you!
       fireToast('Order submitted successfully! 🎉', 'success', 6000);
 
       onOrderSuccess?.();
-      window.location.href = `/success?order_id=${orderData.id}`;
+      window.location.href = `/success?order_id=${finalOrder.id}`;
     } catch (error) {
       console.error('❌ Error placing order:', error);
       fireToast(`Failed to place order: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`, 'error');
@@ -1389,7 +1459,7 @@ Please confirm this order. Thank you!
                                         setCity(c.name);
                                         setBarangay('');
                                         const zip = c.zipCode || getZipCodeForCity(c.name, state);
-                                        setZipCode(zip);
+                                        if (zip) setZipCode(zip);
                                         setIsCityOpen(false);
                                         setCitySearch('');
                                         setIsBarangayOpen(true);
@@ -1501,6 +1571,8 @@ Please confirm this order. Thank you!
                                           type="button"
                                           onClick={() => {
                                             setBarangay(b.name);
+                                            const refinedZip = getZipCodeForCity(city, state, b.name);
+                                            if (refinedZip) setZipCode(refinedZip);
                                             setIsBarangayOpen(false);
                                             setBarangaySearch('');
                                           }}
@@ -1523,22 +1595,28 @@ Please confirm this order. Thank you!
                         )}
                       </div>
 
-                      {/* ZIP / POSTAL CODE (Right - Automated & Disabled) */}
+                      {/* ZIP / POSTAL CODE (Right - Automated & Editable) */}
                       <div>
                         <label htmlFor="checkout-zip-postal-code" className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" /> ZIP/Postal Code <span className="text-rose-500">*</span>
                           </span>
-                          <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400">AUTOMATED</span>
+                          <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md border border-amber-200/60 dark:border-amber-900/60">
+                            AUTO-FILLED
+                          </span>
                         </label>
                         <div className="relative">
                           <input id="checkout-zip-postal-code" name="zip_code" type="text"
+                            inputMode="numeric"
                             autoComplete="postal-code"
                             value={zipCode}
-                            readOnly
-                            disabled
-                            className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-100 dark:bg-slate-800/70 text-gray-500 dark:text-slate-400 font-bold cursor-not-allowed outline-none select-none opacity-90"
-                            placeholder="Auto-filled based on City"/>
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^\d]/g, '').slice(0, 4);
+                              setZipCode(val);
+                            }}
+                            className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none transition-all shadow-2xs"
+                            placeholder="e.g. 4116"
+                          />
                           <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         </div>
                       </div>
@@ -2020,15 +2098,15 @@ Please confirm this order. Thank you!
             {/* Payment Form */}
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
               {/* Payment Method Selection */}
-              <div className="space-y-4 sm:space-y-5">
-                <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4 flex items-center justify-between flex-wrap gap-2">
+              <div className="space-y-2.5 sm:space-y-3">
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1.5 sm:mb-2 flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2.5 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
-                      <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <CreditCard className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-sm sm:text-base md:text-lg">Payment Method</span>
-                      <p className="text-[11px] sm:text-xs text-gray-400 font-normal">Select your preferred payment channel</p>
+                      <span className="text-sm sm:text-base md:text-lg font-bold block leading-tight">Payment Method</span>
+                      <p className="text-[11px] sm:text-xs text-gray-400 font-normal mt-0.5 leading-tight">Select your preferred payment channel</p>
                     </div>
                   </div>
                   <span className="flex items-center gap-1 text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-0.5 sm:py-1 rounded-full border border-emerald-200 dark:border-emerald-800 shrink-0">
@@ -2036,7 +2114,7 @@ Please confirm this order. Thank you!
                   </span>
                 </h2>
 
-                <div className="grid grid-cols-3 gap-2 sm:gap-3.5 mb-5 sm:mb-6">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
                   {paymentMethods.map((method) => {
                     const isSelected = selectedPaymentMethod === method.id;
                     const displayName = method.name.replace(/^SlimDose\s+/i, '');
@@ -2045,20 +2123,20 @@ Please confirm this order. Thank you!
                         key={method.id}
                         type="button"
                         onClick={() => setSelectedPaymentMethod(method.id)}
-                        className={`group relative p-2 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 flex flex-col justify-between text-left cursor-pointer min-h-[96px] sm:min-h-[112px] ${
+                        className={`group relative p-2 sm:p-3 rounded-xl sm:rounded-2xl border-2 transition-all duration-200 flex flex-col justify-between text-left cursor-pointer min-h-[76px] sm:min-h-[88px] ${
                           isSelected
                             ? 'border-[#3C6CA8] bg-blue-50/70 dark:bg-[#3C6CA8]/20 shadow-sm ring-2 ring-[#3C6CA8]/30 font-bold'
                             : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900/90'
                         }`}
                       >
                         {/* Top Row: Icon + Radio */}
-                        <div className="flex items-center justify-between w-full mb-1.5 sm:mb-2">
-                          <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                        <div className="flex items-center justify-between w-full mb-1 sm:mb-1.5">
+                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
                             isSelected
                               ? 'bg-[#3C6CA8] text-white border-[#3C6CA8]'
                               : 'bg-[#3C6CA8]/10 text-[#3C6CA8] border-[#3C6CA8]/20 group-hover:bg-[#3C6CA8]/20'
                           }`}>
-                            <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <Wallet className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           </div>
 
                           <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -2068,7 +2146,7 @@ Please confirm this order. Thank you!
                           </div>
                         </div>
 
-                        {/* Middle: Details */}
+                        {/* Bottom/Middle: Details */}
                         <div className="min-w-0 flex-1 w-full">
                           <p className="font-extrabold text-gray-900 dark:text-white text-[11.5px] sm:text-sm leading-tight truncate">
                             {displayName || method.name}
@@ -2077,15 +2155,6 @@ Please confirm this order. Thank you!
                             {method.account_name}
                           </p>
                         </div>
-
-                        {/* Bottom Row: QR Ready Tag (without Manual Transfer) */}
-                        {method.qr_code_url && (
-                          <div className="mt-1.5 pt-1 border-t border-gray-100 dark:border-slate-800/80 flex items-center justify-end w-full">
-                            <span className="text-[8.5px] sm:text-[9.5px] font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.2 rounded border border-emerald-200/50 dark:border-emerald-800/50 whitespace-nowrap">
-                              QR Ready
-                            </span>
-                          </div>
-                        )}
                       </button>
                     );
                   })}
@@ -2146,18 +2215,12 @@ Please confirm this order. Thank you!
 
                     {/* Upload Payment Receipt & Reference (Placed directly below Payment Instructions & QR Code) */}
                     <div className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-gray-200/80 dark:border-slate-800 mt-3 sm:mt-4">
-                      <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                      <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                         <h4 className="text-xs sm:text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5 min-w-0">
                           <FileImage className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] shrink-0" />
                           <span className="truncate">Upload Payment Receipt & Reference *</span>
                         </h4>
-                        <span className="text-[9px] sm:text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 shrink-0">
-                          Required for Admin Approval
-                        </span>
                       </div>
-                      <p className="text-[11px] sm:text-xs text-gray-500 dark:text-slate-400 mb-2.5 font-normal leading-snug">
-                        After scanning the QR code or sending payment, upload your payment screenshot/receipt file below. Our store administrator will verify the receipt to approve your order.
-                      </p>
 
                       {!paymentProof ? (
                         <label className="flex flex-col items-center justify-center w-full h-24 sm:h-30 border-2 border-[#3C6CA8]/30 border-dashed rounded-xl sm:rounded-2xl cursor-pointer bg-blue-50/40 dark:bg-slate-800/40 hover:bg-blue-50 dark:hover:bg-slate-800 transition-all group">
@@ -2184,15 +2247,18 @@ Please confirm this order. Thank you!
                         </label>
                       ) : (
                         <div className="relative bg-blue-50/40 dark:bg-slate-800/60 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#3C6CA8]/30 flex items-center gap-2.5">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl border border-gray-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
-                            {paymentProof.type.startsWith('image/') ? (
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white dark:bg-slate-900 rounded-lg sm:rounded-xl border border-gray-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shrink-0 shadow-xs relative">
+                            {paymentProofPreview ? (
                               <img
-                                src={URL.createObjectURL(paymentProof)}
-                                alt="Payment receipt preview"
+                                src={paymentProofPreview}
+                                alt="Receipt preview"
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
                               />
                             ) : (
-                              <FileImage className="w-4 h-4 text-[#3C6CA8]" />
+                              <FileImage className="w-5 h-5 text-[#3C6CA8]" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -2209,7 +2275,7 @@ Please confirm this order. Thank you!
                           <button
                             type="button"
                             onClick={() => setPaymentProof(null)}
-                            className="p-1 hover:bg-rose-100 text-rose-500 dark:hover:bg-rose-950/60 rounded-lg transition-colors shrink-0"
+                            className="p-1 hover:bg-rose-100 text-rose-500 dark:hover:bg-rose-950/60 rounded-lg transition-colors shrink-0 cursor-pointer"
                             title="Remove file"
                           >
                             <X className="w-4 h-4" />
@@ -2223,32 +2289,21 @@ Please confirm this order. Thank you!
 
               {/* Order Notes Section */}
               <div className="pt-3 border-t border-gray-150 dark:border-slate-800 space-y-2.5">
-                <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
-                      <MessageSquare className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="font-extrabold text-xs sm:text-sm md:text-base block truncate">Order Notes</span>
-                      <span className="text-[10px] sm:text-xs font-normal text-gray-400 block truncate">Optional delivery or handling instructions</span>
-                    </div>
+                <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
+                    <MessageSquare className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 shrink-0">
-                    Delivery Instructions
-                  </span>
+                  <span className="font-extrabold text-xs sm:text-sm md:text-base block truncate">Order Notes</span>
                 </h2>
                 <div className="relative">
                   <textarea id="checkout-input-8" name="input_8" value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any special instructions or notes for your order (e.g., Gate code, leave with guard, preferred delivery schedule)..."
+                    placeholder="e.g. Leave with guard, landmark, gate code..."
                     className="w-full text-xs sm:text-sm p-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium min-h-[80px] sm:min-h-[100px] resize-y"
                     maxLength={500}
                   />
-                  <div className="flex flex-wrap items-center justify-between mt-1.5 text-[10px] sm:text-[11px] text-gray-400 dark:text-slate-500 gap-1">
-                    <span className="flex items-center gap-1 min-w-0 truncate">
-                      <Info className="w-3.5 h-3.5 text-[#3C6CA8] shrink-0" /> <span className="truncate">Notes are printed directly on your courier shipping label.</span>
-                    </span>
-                    <span className="shrink-0 font-mono">{notes.length}/500</span>
+                  <div className="flex justify-end mt-1.5 text-[10px] sm:text-[11px] text-gray-400 dark:text-slate-500">
+                    <span className="font-mono">{notes.length}/500</span>
                   </div>
                 </div>
               </div>

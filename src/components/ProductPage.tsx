@@ -262,7 +262,13 @@ const ProductPage: React.FC = () => {
             product={product}
             bundleTiers={bundleTiers}
             protocols={protocols}
-            onClose={() => navigate(-1)}
+            onClose={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/');
+              }
+            }}
             onAddToCart={(p, v, q, priceOverride) => cart.addToCart(p, v, q, priceOverride)}
             globalDiscount={globalDiscount}
           />

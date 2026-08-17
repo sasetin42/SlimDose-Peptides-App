@@ -2,25 +2,30 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Public read-only access for menu images, coas, faqs, and guides
+    // Payment proofs & receipts: Allow checkout customers to upload payment proofs
+    match /payment-proofs/{allPaths=**} {
+      allow read, write: if true;
+    }
+
+    match /receipts/{allPaths=**} {
+      allow read, write: if true;
+    }
+    
+    // Menu images, coas, faqs, and guides
     match /menu-images/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
     
     match /coas/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
     
     match /faqs/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow read, write: if true;
     }
     
     match /guides/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null || true;
+      allow read, write: if true;
     }
 
     match /peptalk-videos/{allPaths=**} {
@@ -31,14 +36,7 @@ service firebase.storage {
       allow read, write: if true;
     }
 
-    // Receipts / Invoices: Anyone can submit confirmation receipts,
-    // but reading/listing receipts is restricted to authorized store admins
-    match /receipts/{allPaths=**} {
-      allow create: if true;
-      allow read, write: if request.auth != null || true;
-    }
-
-    // Default public write fallback for administrative uploads
+    // Default public access fallback
     match /{allPaths=**} {
       allow read, write: if true;
     }

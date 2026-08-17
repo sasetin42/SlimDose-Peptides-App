@@ -154,20 +154,22 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
           {/* Badges Overlay */}
           <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-start justify-between gap-1 pointer-events-none z-10">
-            {/* Left Badge: Research Grade / Featured / Pre-Order */}
-            <div className="flex flex-col gap-1 items-start min-w-0 max-w-[68%]">
-              {product.featured ? (
+            {/* Left Badge: Category / Featured / Pre-Order */}
+            <div className="flex flex-wrap items-center gap-1 min-w-0 max-w-[68%]">
+              {product.category && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-[#3C6CA8] dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 backdrop-blur-md shadow-2xs truncate">
+                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#3C6CA8] shrink-0" />
+                  <span className="truncate">{product.category}</span>
+                </span>
+              )}
+              {product.featured && (
                 <span className="px-1.5 sm:px-2.5 py-0.5 text-white text-[8px] sm:text-[9.5px] font-black uppercase tracking-wider rounded-full shadow-xs bg-[#3C6CA8] truncate whitespace-nowrap">
                   ★ Featured
                 </span>
-              ) : product.pre_order_enabled ? (
+              )}
+              {product.pre_order_enabled && !product.featured && (
                 <span className="px-1.5 sm:px-2.5 py-0.5 bg-blue-600 text-white text-[8px] sm:text-[9.5px] font-black uppercase tracking-wider rounded-full shadow-xs animate-pulse truncate whitespace-nowrap">
                   Pre-Order
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 text-slate-700 dark:text-slate-200 bg-white/95 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-700/80 rounded-full text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider shadow-2xs backdrop-blur-sm truncate whitespace-nowrap">
-                  <Atom className="w-2.5 h-2.5 text-[#3C6CA8] shrink-0" />
-                  <span className="truncate">Research Grade</span>
                 </span>
               )}
             </div>
@@ -204,6 +206,23 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             </div>
           </div>
 
+          {/* Bottom-Left Overlay: Bundle / Global Discount Tag */}
+          {activeBundleTiers.length > 0 && (
+            <div className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 pointer-events-none z-10 max-w-[88%]">
+              {pricing.hasGlobalDiscount ? (
+                <div className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-50/95 dark:bg-amber-950/90 border border-amber-400/40 text-[8px] sm:text-[9px] font-bold text-amber-800 dark:text-amber-300 backdrop-blur-md shadow-2xs truncate">
+                  <Tag className="w-2.5 h-2.5 text-amber-500 shrink-0" />
+                  <span className="truncate">Bundle up to {maxBundlePct}% OFF</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-50/95 dark:bg-blue-950/90 border border-blue-200/80 dark:border-blue-900/60 text-[8px] sm:text-[9.5px] font-extrabold text-[#3C6CA8] dark:text-blue-300 backdrop-blur-md shadow-2xs truncate">
+                  <Zap className="w-2.5 h-2.5 text-[#3C6CA8] dark:text-blue-400 shrink-0" />
+                  <span className="truncate">Buy {minBundleQty}+ Save {maxBundlePct}% OFF</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stock Status Overlay */}
           {isUnavailable && (
             <div className="absolute inset-0 bg-white/85 dark:bg-[#0F1219]/85 backdrop-blur-[2px] flex items-center justify-center z-20">
@@ -218,23 +237,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
       {/* ─── Product Details Area ─── */}
       <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between text-left relative min-w-0">
         <div className="min-w-0 flex-1 flex flex-col">
-          {/* Header Row: Category Pill on Left + Sold Count on Right */}
-          <div className="flex items-center justify-between gap-1.5 mb-1 sm:mb-1.5 min-w-0">
-            {product.category ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-bold uppercase tracking-wider bg-blue-50/80 dark:bg-blue-950/50 text-[#3C6CA8] dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 truncate max-w-[65%]">
-                <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#3C6CA8] shrink-0" />
-                <span className="truncate">{product.category}</span>
-              </span>
-            ) : <div />}
-
-            {soldCount > 0 && (
-              <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-extrabold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/40 shrink-0 ml-auto shadow-2xs">
-                <Flame className="w-2.5 h-2.5 text-amber-500 fill-amber-500 shrink-0" />
-                <span>{soldCount} sold</span>
-              </span>
-            )}
-          </div>
-
           {/* Product Title */}
           <h3
             className="font-black text-slate-900 dark:text-white text-[13px] sm:text-[15px] leading-snug line-clamp-1 group-hover:text-[#3C6CA8] transition-colors mb-1.5 tracking-tight"
@@ -258,28 +260,21 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             </span>
           </div>
 
-          {/* Bundle / Global Discount Status Tag */}
-          {activeBundleTiers.length > 0 && (
-            <div className="mb-1.5 min-w-0">
-              {pricing.hasGlobalDiscount ? (
-                <div className="inline-flex items-center gap-1 max-w-full px-1.5 sm:px-2 py-0.5 rounded-md bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/25 text-[8px] sm:text-[9px] font-bold text-amber-800 dark:text-amber-300 truncate">
-                  <Tag className="w-2.5 h-2.5 text-amber-500 shrink-0" />
-                  <span className="truncate">Bundle up to {maxBundlePct}% OFF</span>
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-1 max-w-full px-1.5 sm:px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 border border-blue-200/50 text-[8px] sm:text-[9px] font-extrabold text-[#3C6CA8] dark:text-blue-400 truncate">
-                  <Zap className="w-2.5 h-2.5 text-[#3C6CA8] shrink-0" />
-                  <span className="truncate">Buy {minBundleQty}+ Save {maxBundlePct}% OFF</span>
-                </div>
+          {/* Description & Sold Count Inline Row */}
+          {(product.description || soldCount > 0) && (
+            <div className="flex items-center justify-between gap-1.5 mt-auto pt-1 min-w-0">
+              {product.description ? (
+                <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-1 leading-relaxed font-normal truncate">
+                  {product.description}
+                </p>
+              ) : <div />}
+              {soldCount > 0 && (
+                <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-extrabold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-900/40 shrink-0 ml-auto shadow-2xs">
+                  <Flame className="w-2.5 h-2.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <span>{soldCount} sold</span>
+                </span>
               )}
             </div>
-          )}
-
-          {/* Description */}
-          {product.description && (
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal mt-auto">
-              {product.description}
-            </p>
           )}
         </div>
       </div>

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, Mail, Phone, Clock, MessageSquare, Shield, 
   Microscope, Snowflake, Zap, Sparkles, Package, FileText, 
-  Calculator, ChevronRight, ArrowRight, CheckCircle2 
+  Calculator, ChevronRight, ArrowRight, CheckCircle2, Send 
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { supabase } from '../lib/supabase';
@@ -26,8 +26,7 @@ const DEFAULT_PAGE_CONTENTS: Record<string, any> = {
     subtitle: "Get in Touch with our Support Team",
     content: "For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.",
     email: "support@slimdose.ph",
-    phone: "+63 977 813 2630",
-    whatsapp: "+63 977 813 2630",
+    telegram: "https://telegram.me/slimdose_mnl",
     hours: "Monday - Friday: 9:00 AM - 6:00 PM PHT",
     telegram_group: "https://t.me/+fGtShIUkbB84YzZl",
     seo_title: "Contact Us - SlimDose Peptides",
@@ -309,18 +308,18 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
                         </div>
 
                         <div className="flex items-start gap-3.5">
-                          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-xl">
-                            <Phone className="w-5 h-5" />
+                          <div className="p-2.5 bg-sky-50 dark:bg-sky-950 text-[#0088cc] dark:text-sky-400 rounded-xl">
+                            <Send className="w-5 h-5" />
                           </div>
                           <div>
-                            <span className="block text-xs font-bold text-charcoal-400 dark:text-gray-400 uppercase tracking-wider">Hotline & WhatsApp</span>
+                            <span className="block text-xs font-bold text-charcoal-400 dark:text-gray-400 uppercase tracking-wider">Telegram Support</span>
                             <a
-                              href={`https://wa.me/${(siteSettings?.contact_whatsapp || siteSettings?.support_phone || pageData.whatsapp || pageData.phone || '+639778132630').replace(/[^0-9]/g, '')}`}
+                              href={siteSettings?.support_telegram_url || pageData.telegram || pageData.telegram_support || 'https://telegram.me/slimdose_mnl'}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm font-semibold text-charcoal-900 dark:text-gray-200 hover:underline"
+                              className="text-sm font-semibold text-blue-700 dark:text-blue-400 hover:underline"
                             >
-                              {siteSettings?.support_phone || siteSettings?.contact_phone || pageData.phone || '+63 977 813 2630'}
+                              {siteSettings?.support_telegram_url || pageData.telegram || pageData.telegram_support || 'https://telegram.me/slimdose_mnl'}
                             </a>
                           </div>
                         </div>

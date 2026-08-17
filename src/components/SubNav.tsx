@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useCategories } from '../hooks/useCategories';
 
 interface SubNavProps {
@@ -7,37 +7,37 @@ interface SubNavProps {
 }
 
 const SubNav: React.FC<SubNavProps> = ({ selectedCategory, onCategoryClick }) => {
-  const { categories, loading } = useCategories();
+  const { categories } = useCategories();
 
-  if (loading) {
-    return (
-      <div className="bg-white">
-        <div className="container-global py-3">
-          <div className="flex space-x-3 overflow-x-auto scrollbar-hide">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="animate-pulse bg-cream-100 h-11 w-36 rounded-full" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  const displayCategories = useMemo(() => {
+    if (!categories || categories.length === 0) return [];
+    // Ensure "all" / "All Products" is available at the start if not present in list
+    if (!categories.some(c => c.id.toLowerCase() === 'all')) {
+      return [{ id: 'all', name: 'All Products', icon: '🔬', sort_order: 0, active: true }, ...categories];
+    }
+    return categories;
+  }, [categories]);
+
+  if (displayCategories.length === 0) {
+    return null;
   }
 
   return (
-    <nav className="bg-white sticky top-[60px] lg:top-[64px] z-40">
+    <nav className="bg-white dark:bg-[#0F1219] sticky top-[60px] lg:top-[64px] z-40 border-b border-gray-100 dark:border-gray-800 transition-colors">
       <div className="container-global">
-        <div className="flex items-center gap-3 py-3 overflow-x-auto scrollbar-hide">
-          {categories.map((category) => {
-            const isSelected = selectedCategory === category.id;
+        <div className="flex items-center gap-2 sm:gap-3 py-2.5 sm:py-3 overflow-x-auto scrollbar-hide">
+          {displayCategories.map((category) => {
+            const isSelected = selectedCategory.toLowerCase() === category.id.toLowerCase();
 
             return (
               <button
                 key={category.id}
+                type="button"
                 onClick={() => onCategoryClick(category.id)}
-                className={`px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5 border-[1.5px] cursor-pointer ${
+                className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-150 active:scale-95 border cursor-pointer shrink-0 ${
                   isSelected
-                    ? 'bg-theme-accent text-white border-theme-accent shadow-luxury'
-                    : 'bg-white dark:bg-[#161B26] text-theme-accent border-gray-250 dark:border-gray-700 shadow-soft hover:bg-gray-50/50 dark:hover:bg-gray-800/40'
+                    ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-sm'
+                    : 'bg-white dark:bg-[#161B26] text-slate-700 dark:text-slate-200 border-slate-250 dark:border-slate-700 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300'
                 }`}
               >
                 {category.name}
@@ -55,4 +55,4 @@ const SubNav: React.FC<SubNavProps> = ({ selectedCategory, onCategoryClick }) =>
   );
 };
 
-export default SubNav;
+export default React.memo(SubNav);

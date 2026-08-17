@@ -36,16 +36,44 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
-  const [announcementText, setAnnouncementText] = useState("⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️");
-  const [announcementActive, setAnnouncementActive] = useState(true);
-  const [bannerData, setBannerData] = useState<BannerData>({
-    announcement_text: "⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️",
-    announcement_active: true,
-    background_color: '#3C6CA8',
-    text_color: '#FFFFFF',
-    display_style: 'marquee',
-    link_url: '',
-    link_open_new_tab: false
+  const [announcementText, setAnnouncementText] = useState(() => {
+    try {
+      const cached = localStorage.getItem('slimdose_banner_settings');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.announcement_text) return parsed.announcement_text;
+      }
+    } catch {}
+    return "⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️";
+  });
+  const [announcementActive, setAnnouncementActive] = useState(() => {
+    try {
+      const cached = localStorage.getItem('slimdose_banner_settings');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.announcement_active !== undefined) return Boolean(parsed.announcement_active);
+      }
+    } catch {}
+    return true;
+  });
+  const [bannerData, setBannerData] = useState<BannerData>(() => {
+    const defaultData: BannerData = {
+      announcement_text: "⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️",
+      announcement_active: true,
+      background_color: '#3C6CA8',
+      text_color: '#FFFFFF',
+      display_style: 'marquee',
+      link_url: '',
+      link_open_new_tab: false
+    };
+    try {
+      const cached = localStorage.getItem('slimdose_banner_settings');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return { ...defaultData, ...parsed };
+      }
+    } catch {}
+    return defaultData;
   });
 
   const [customer, setCustomer] = useState<any>(() => {
@@ -72,6 +100,16 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
     const handleStorageChange = () => {
       const saved = localStorage.getItem('slimdose_customer');
       setCustomer(saved ? JSON.parse(saved) : null);
+
+      try {
+        const cachedBanner = localStorage.getItem('slimdose_banner_settings');
+        if (cachedBanner) {
+          const parsed = JSON.parse(cachedBanner);
+          if (parsed.announcement_text !== undefined) setAnnouncementText(parsed.announcement_text);
+          if (parsed.announcement_active !== undefined) setAnnouncementActive(Boolean(parsed.announcement_active));
+          setBannerData(prev => ({ ...prev, ...parsed }));
+        }
+      } catch {}
     };
     const handleOpenAuth = () => {
       setIsCustomerAuthOpen(true);
@@ -116,8 +154,6 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   /* ─── Current path for active state ─── */
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 
-
-
   /* ─── Check Admin Session ─── */
   useEffect(() => {
     const checkAdmin = () => {
@@ -143,28 +179,67 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   useEffect(() => {
     const fetchHeaderContent = async () => {
       try {
+        // 1. Fetch from page_contents (prefer 'announcement_bar' then 'header' with banner keys)
         const { data, error } = await supabase
           .from('page_contents')
           .select('page_id, content')
-          .in('page_id', ['header', 'announcement_bar']);
+          .in('page_id', ['announcement_bar', 'header']);
 
+        let foundContent: any = null;
         if (!error && data && data.length > 0) {
-          const headerItem = data.find(d => d.page_id === 'header') || data[0];
-          const content = headerItem.content as any;
-          if (content) {
-            if (content.announcement_text !== undefined) setAnnouncementText(content.announcement_text);
-            if (content.announcement_active !== undefined) setAnnouncementActive(content.announcement_active);
-            setBannerData(prev => ({
-              ...prev,
-              announcement_text: content.announcement_text ?? prev.announcement_text,
-              announcement_active: content.announcement_active ?? prev.announcement_active,
-              background_color: content.background_color || prev.background_color,
-              text_color: content.text_color || prev.text_color,
-              display_style: content.display_style || prev.display_style,
-              link_url: content.link_url || prev.link_url,
-              link_open_new_tab: content.link_open_new_tab ?? prev.link_open_new_tab
-            }));
+          const barItem = data.find(d => d.page_id === 'announcement_bar' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+          const headerItem = data.find(d => d.page_id === 'header' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+          foundContent = barItem?.content || headerItem?.content || data[0]?.content;
+        }
+
+        // 2. Fetch from site_settings as fallback/overlay
+        const { data: siteSettingsData } = await supabase
+          .from('site_settings')
+          .select('*')
+          .in('id', ['announcement_text', 'announcement_active', 'announcement_bg_color', 'announcement_text_color', 'announcement_style', 'announcement_link_url']);
+
+        if (siteSettingsData && siteSettingsData.length > 0) {
+          const textSetting = siteSettingsData.find(s => s.id === 'announcement_text')?.value;
+          const activeSetting = siteSettingsData.find(s => s.id === 'announcement_active')?.value;
+          const bgSetting = siteSettingsData.find(s => s.id === 'announcement_bg_color')?.value;
+          const textColSetting = siteSettingsData.find(s => s.id === 'announcement_text_color')?.value;
+          const styleSetting = siteSettingsData.find(s => s.id === 'announcement_style')?.value;
+          const linkSetting = siteSettingsData.find(s => s.id === 'announcement_link_url')?.value;
+
+          foundContent = {
+            announcement_text: foundContent?.announcement_text ?? (textSetting !== undefined && textSetting !== '' ? textSetting : undefined),
+            announcement_active: foundContent?.announcement_active ?? (activeSetting !== undefined ? activeSetting === 'true' || activeSetting === true : undefined),
+            background_color: foundContent?.background_color || bgSetting,
+            text_color: foundContent?.text_color || textColSetting,
+            display_style: foundContent?.display_style || styleSetting,
+            link_url: foundContent?.link_url ?? linkSetting,
+            link_open_new_tab: foundContent?.link_open_new_tab
+          };
+        }
+
+        if (foundContent) {
+          if (foundContent.announcement_text !== undefined && foundContent.announcement_text !== null) {
+            setAnnouncementText(foundContent.announcement_text);
           }
+          if (foundContent.announcement_active !== undefined && foundContent.announcement_active !== null) {
+            setAnnouncementActive(foundContent.announcement_active === true || foundContent.announcement_active === 'true');
+          }
+          setBannerData(prev => {
+            const nextData = {
+              ...prev,
+              announcement_text: foundContent.announcement_text ?? prev.announcement_text,
+              announcement_active: foundContent.announcement_active !== undefined ? (foundContent.announcement_active === true || foundContent.announcement_active === 'true') : prev.announcement_active,
+              background_color: foundContent.background_color || prev.background_color,
+              text_color: foundContent.text_color || prev.text_color,
+              display_style: foundContent.display_style || prev.display_style,
+              link_url: foundContent.link_url !== undefined ? foundContent.link_url : prev.link_url,
+              link_open_new_tab: foundContent.link_open_new_tab ?? prev.link_open_new_tab
+            };
+            try {
+              localStorage.setItem('slimdose_banner_settings', JSON.stringify(nextData));
+            } catch {}
+            return nextData;
+          });
         }
       } catch (err) {
         console.warn('Failed to fetch header announcement:', err);
@@ -177,14 +252,48 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
       if (e.detail) {
         const d = e.detail;
         if (d.announcement_text !== undefined) setAnnouncementText(d.announcement_text);
-        if (d.announcement_active !== undefined) setAnnouncementActive(d.announcement_active);
-        setBannerData(prev => ({ ...prev, ...d }));
+        if (d.announcement_active !== undefined) setAnnouncementActive(Boolean(d.announcement_active));
+        setBannerData(prev => {
+          const next = { ...prev, ...d };
+          try {
+            localStorage.setItem('slimdose_banner_settings', JSON.stringify(next));
+          } catch {}
+          return next;
+        });
         setAnnouncementDismissed(false);
       }
     };
 
     window.addEventListener('headerAnnouncementUpdated', handleBannerLiveUpdate as EventListener);
-    return () => window.removeEventListener('headerAnnouncementUpdated', handleBannerLiveUpdate as EventListener);
+
+    // Supabase Realtime Subscription for instant cross-tab/cross-device sync
+    const channel = supabase
+      .channel('header_announcement_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'page_contents', filter: 'page_id=eq.announcement_bar' },
+        (payload: any) => {
+          if (payload.new && payload.new.content) {
+            const c = payload.new.content;
+            if (c.announcement_text !== undefined) setAnnouncementText(c.announcement_text);
+            if (c.announcement_active !== undefined) setAnnouncementActive(Boolean(c.announcement_active));
+            setBannerData(prev => {
+              const updated = { ...prev, ...c };
+              try {
+                localStorage.setItem('slimdose_banner_settings', JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+            setAnnouncementDismissed(false);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('headerAnnouncementUpdated', handleBannerLiveUpdate as EventListener);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   /* ─── Scroll listener ─── */
@@ -424,7 +533,12 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
                 FAQ
                 {isActive('/faq') && <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: BRAND_BLUE }} />}
               </a>
-              <a href="/peptalk" className={navLinkClass('/peptalk')}>
+              <a
+                href="/peptalk"
+                onMouseEnter={() => { import('./SmartGuide'); }}
+                onFocus={() => { import('./SmartGuide'); }}
+                className={navLinkClass('/peptalk')}
+              >
                 Peptalk
                 {isActive('/peptalk') && <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: BRAND_BLUE }} />}
               </a>
@@ -452,10 +566,10 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
 
             {/* ─── RIGHT: Actions ─── */}
             <div className="flex items-center gap-1.5 sm:gap-2 ml-auto lg:ml-0 lg:flex-1 lg:justify-end">
-              {/* Search Button */}
+              {/* Search Button (Desktop / Tablet only) */}
               <button
                 onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(''); }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100/80 dark:bg-gray-800/70 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] dark:hover:text-blue-400 border border-gray-200/60 dark:border-gray-700/60 transition-all shadow-2xs cursor-pointer group"
+                className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-700 dark:text-gray-200 bg-gray-100/80 dark:bg-gray-800/70 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] dark:hover:text-blue-400 border border-gray-200/60 dark:border-gray-700/60 transition-all shadow-2xs cursor-pointer group"
                 aria-label="Toggle search bar"
                 aria-expanded={searchOpen}
               >
@@ -463,10 +577,8 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
                 <span className="hidden sm:inline">Search</span>
               </button>
 
-
-
               {/* Vertical Elegant Divider */}
-              <div className="w-[1px] h-5 bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-700 to-transparent mx-0.5" />
+              <div className="hidden md:block w-[1px] h-5 bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-700 to-transparent mx-0.5" />
 
               {/* Customer Account Button */}
               {customer ? (
@@ -544,9 +656,9 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
           </div>
         </div>
 
-        {/* ═══ SEARCH BAR (Expandable) ═══ */}
+        {/* ═══ SEARCH BAR (Expandable - Desktop/Tablet only) ═══ */}
         {searchOpen && (
-          <div className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0F1219] animate-fadeIn">
+          <div className="hidden md:block border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0F1219] animate-fadeIn">
             <div className="container-global py-3">
               <div className="relative max-w-2xl mx-auto">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />

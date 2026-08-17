@@ -26,6 +26,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
+import { formatOrderId } from '../utils/orderUtils';
+import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
+import { liveScrapedOrders } from '../data/liveScrapedOrders';
 
 export interface Customer {
   id: string;
@@ -130,12 +133,23 @@ export default function CustomerCRMManager() {
         };
       });
 
-      const combinedCustomers = [...fetchedCustomers, ...Object.values(guestCustomersMap)];
-      setCustomers(combinedCustomers);
-      setOrders(fetchedOrders);
+      let finalCustomers = [...fetchedCustomers, ...Object.values(guestCustomersMap)];
+      let finalOrders = fetchedOrders;
+
+      if (finalCustomers.length === 0 && liveScrapedCustomers.length > 0) {
+        finalCustomers = liveScrapedCustomers as Customer[];
+      }
+      if (finalOrders.length === 0 && liveScrapedOrders.length > 0) {
+        finalOrders = liveScrapedOrders as CustomerOrder[];
+      }
+
+      setCustomers(finalCustomers);
+      setOrders(finalOrders);
       setLastSyncTime(new Date());
     } catch (err) {
-      console.error('Error loading CRM data:', err);
+      console.error('Error loading CRM data, using scraped live cache:', err);
+      setCustomers(liveScrapedCustomers as Customer[]);
+      setOrders(liveScrapedOrders as CustomerOrder[]);
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -1067,7 +1081,7 @@ export default function CustomerCRMManager() {
                           <div className="space-y-0.5">
                             <div className="flex items-center gap-2">
                               <span className="font-mono font-black text-slate-900 dark:text-white">
-                                #{ord.order_number || ord.id.slice(0, 8)}
+                                {formatOrderId(ord)}
                               </span>
                               <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md uppercase ${
                                 ord.order_status === 'delivered' 

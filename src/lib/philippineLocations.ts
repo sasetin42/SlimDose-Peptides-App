@@ -804,13 +804,14 @@ export async function fetchCitiesForProvinceLive(provinceNameOrCode: string): Pr
             const bundledMatch = (PH_CITIES[prov.code] || []).find(
               (bc) => bc.name.toLowerCase() === fullName.toLowerCase() || bc.name.toLowerCase().includes(cleanName.toLowerCase())
             );
+            const resolvedZip = bundledMatch?.zipCode || item.zipCode || resolveExactPhilippineZipCode(fullName, prov.name) || resolveExactPhilippineZipCode(cleanName, prov.name);
 
             return {
               code: `${prov.code}_${item.code || item.name.replace(/\s+/g, '_').toUpperCase()}`,
               name: fullName,
               provinceCode: prov.code,
               psgcCode: item.code,
-              zipCode: bundledMatch?.zipCode || item.zipCode,
+              zipCode: resolvedZip,
               isCity
             };
           });
@@ -993,19 +994,35 @@ export async function fetchBarangaysForCityLive(cityNameOrCode: string, province
   return getBarangaysForCity(cityNameOrCode, provinceNameOrCode);
 }
 
+import { resolveExactPhilippineZipCode } from '../data/philippineZipCodes';
+
 /**
- * Get accurate Postal ZIP Code for City / Municipality
+ * Get accurate Postal ZIP Code for City / Municipality & Barangay
  */
-export function getZipCodeForCity(cityNameOrCode: string, provinceNameOrCode?: string): string {
+export function getZipCodeForCity(
+  cityNameOrCode: string,
+  provinceNameOrCode?: string,
+  barangayName?: string
+): string {
   if (!cityNameOrCode) return '';
+
+  // 1. High-precision 3-tier dictionary resolution (Barangay -> City -> Province)
+  const resolved = resolveExactPhilippineZipCode(cityNameOrCode, provinceNameOrCode, barangayName);
+  if (resolved) return resolved;
+
   const target = cityNameOrCode.trim().toLowerCase();
 
-  // Search bundled & memory cached cities
+  // 2. Search bundled & memory cached cities
   for (const cList of Object.values(PH_CITIES)) {
     const found = cList.find(
       (c) =>
-        (c.code.toLowerCase() === target || c.name.toLowerCase() === target || c.name.toLowerCase().includes(target)) &&
-        (!provinceNameOrCode || c.provinceCode.toLowerCase() === provinceNameOrCode.toLowerCase())
+        (c.code.toLowerCase() === target ||
+          c.name.toLowerCase() === target ||
+          c.name.toLowerCase().includes(target) ||
+          target.includes(c.name.toLowerCase())) &&
+        (!provinceNameOrCode ||
+          c.provinceCode.toLowerCase() === provinceNameOrCode.toLowerCase() ||
+          provinceNameOrCode.toLowerCase().includes(c.provinceCode.toLowerCase()))
     );
     if (found?.zipCode) return found.zipCode;
   }
@@ -1017,3 +1034,5 @@ export function getZipCodeForCity(cityNameOrCode: string, provinceNameOrCode?: s
 
   return '';
 }
+
+export { resolveExactPhilippineZipCode };

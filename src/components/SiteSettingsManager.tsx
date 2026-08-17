@@ -19,13 +19,20 @@ import {
   Instagram,
   Loader2,
   Trash2,
-  Clock
+  Clock,
+  Send,
+  Lock,
+  Eye,
+  EyeOff,
+  Server,
+  Key
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { fireToast } from './ToastNotification';
+import { sendTransactionalEmail, generateSmtpTestEmailHtml } from '../services/emailService';
 
-type SettingsTab = 'general' | 'community' | 'homepage' | 'notice' | 'seo';
+type SettingsTab = 'general' | 'community' | 'homepage' | 'notice' | 'seo' | 'smtp';
 
 const SiteSettingsManager: React.FC = () => {
   const { siteSettings, loading, updateSiteSettings, refetch } = useSiteSettings();
@@ -36,6 +43,12 @@ const SiteSettingsManager: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
+
+  // SMTP Testing State
+  const [showPassword, setShowPassword] = useState(false);
+  const [testEmailRecipient, setTestEmailRecipient] = useState('');
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Main Form Data State
   const [formData, setFormData] = useState({
@@ -79,7 +92,21 @@ const SiteSettingsManager: React.FC = () => {
     // SEO & Meta
     meta_title: '',
     meta_description: '',
-    meta_keywords: ''
+    meta_keywords: '',
+    // SMTP & Email Notification Settings
+    smtp_enabled: 'true',
+    smtp_provider: 'smtp',
+    smtp_host: 'smtp.gmail.com',
+    smtp_port: '465',
+    smtp_secure: 'true',
+    smtp_user: 'orders@slimdose.ph',
+    smtp_pass: '',
+    smtp_from_email: 'orders@slimdose.ph',
+    smtp_from_name: 'SlimDose Peptides',
+    smtp_admin_email: 'admin@slimdose.ph',
+    smtp_send_order_receipt: 'true',
+    smtp_send_admin_alert: 'true',
+    smtp_send_status_update: 'true'
   });
 
   // Track initial state to detect unsaved changes
@@ -99,7 +126,7 @@ const SiteSettingsManager: React.FC = () => {
         contact_whatsapp: siteSettings.contact_whatsapp || '+63 977 813 2630',
         contact_inquiry_text: siteSettings.contact_inquiry_text || 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
         community_telegram_url: siteSettings.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl',
-        support_telegram_url: siteSettings.support_telegram_url || 'https://t.me/slimdose_mnl',
+        support_telegram_url: siteSettings.support_telegram_url || 'https://telegram.me/slimdose_mnl',
         instagram_url: siteSettings.instagram_url || '',
         facebook_url: siteSettings.facebook_url || '',
         hero_badge_text: siteSettings.hero_badge_text || 'Premium Peptide Solutions',
@@ -123,14 +150,132 @@ const SiteSettingsManager: React.FC = () => {
         notice_agree_button_text: siteSettings.notice_agree_button_text || 'I Understand & Agree',
         meta_title: siteSettings.meta_title || 'SlimDose Peptides — High Purity Research Solutions',
         meta_description: siteSettings.meta_description || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
-        meta_keywords: siteSettings.meta_keywords || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested'
+        meta_keywords: siteSettings.meta_keywords || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested',
+        // SMTP Synced
+        smtp_enabled: siteSettings.smtp_enabled || 'true',
+        smtp_provider: siteSettings.smtp_provider || 'smtp',
+        smtp_host: siteSettings.smtp_host || 'smtp.gmail.com',
+        smtp_port: siteSettings.smtp_port || '465',
+        smtp_secure: siteSettings.smtp_secure || 'true',
+        smtp_user: siteSettings.smtp_user || 'orders@slimdose.ph',
+        smtp_pass: siteSettings.smtp_pass || '',
+        smtp_from_email: siteSettings.smtp_from_email || 'orders@slimdose.ph',
+        smtp_from_name: siteSettings.smtp_from_name || 'SlimDose Peptides',
+        smtp_admin_email: siteSettings.smtp_admin_email || 'admin@slimdose.ph',
+        smtp_send_order_receipt: siteSettings.smtp_send_order_receipt || 'true',
+        smtp_send_admin_alert: siteSettings.smtp_send_admin_alert || 'true',
+        smtp_send_status_update: siteSettings.smtp_send_status_update || 'true'
       };
 
       setFormData(synced);
       setInitialData(synced);
+      setTestEmailRecipient(synced.smtp_admin_email || synced.support_email || 'admin@slimdose.ph');
       setLogoPreview(siteSettings.site_logo || '/assets/logo.jpeg');
     }
   }, [siteSettings]);
+
+  const handleProviderPreset = (provider: string) => {
+    if (provider === 'gmail') {
+      setFormData(prev => ({
+        ...prev,
+        smtp_provider: 'gmail',
+        smtp_host: 'smtp.gmail.com',
+        smtp_port: '465',
+        smtp_secure: 'true'
+      }));
+      fireToast('Applied Gmail / Google Workspace SMTP preset', 'info');
+    } else if (provider === 'brevo') {
+      setFormData(prev => ({
+        ...prev,
+        smtp_provider: 'brevo',
+        smtp_host: 'smtp-relay.brevo.com',
+        smtp_port: '587',
+        smtp_secure: 'false'
+      }));
+      fireToast('Applied Brevo / Sendinblue SMTP preset', 'info');
+    } else if (provider === 'sendgrid') {
+      setFormData(prev => ({
+        ...prev,
+        smtp_provider: 'sendgrid',
+        smtp_host: 'smtp.sendgrid.net',
+        smtp_port: '587',
+        smtp_secure: 'false'
+      }));
+      fireToast('Applied SendGrid SMTP preset', 'info');
+    } else if (provider === 'resend') {
+      setFormData(prev => ({
+        ...prev,
+        smtp_provider: 'resend',
+        smtp_host: 'smtp.resend.com',
+        smtp_port: '465',
+        smtp_secure: 'true'
+      }));
+      fireToast('Applied Resend SMTP preset', 'info');
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        smtp_provider: 'smtp'
+      }));
+    }
+  };
+
+  const handleSendTestEmail = async () => {
+    if (!testEmailRecipient || !testEmailRecipient.includes('@')) {
+      fireToast('Please enter a valid recipient email address', 'warning');
+      return;
+    }
+
+    try {
+      setIsSendingTest(true);
+      setTestResult(null);
+
+      const smtpConfig = {
+        enabled: formData.smtp_enabled === 'true',
+        provider: formData.smtp_provider,
+        host: formData.smtp_host,
+        port: parseInt(formData.smtp_port, 10) || 465,
+        secure: formData.smtp_secure === 'true',
+        user: formData.smtp_user,
+        pass: formData.smtp_pass,
+        fromEmail: formData.smtp_from_email,
+        fromName: formData.smtp_from_name,
+        adminEmail: formData.smtp_admin_email,
+        sendOrderReceipt: formData.smtp_send_order_receipt === 'true',
+        sendAdminAlert: formData.smtp_send_admin_alert === 'true',
+        sendStatusUpdate: formData.smtp_send_status_update === 'true'
+      };
+
+      const testHtml = generateSmtpTestEmailHtml(smtpConfig);
+
+      const res = await sendTransactionalEmail({
+        to: testEmailRecipient,
+        subject: `[SlimDose] Test Transactional Email (${formData.smtp_provider.toUpperCase()})`,
+        html: testHtml,
+        fromEmail: formData.smtp_from_email,
+        fromName: formData.smtp_from_name,
+        smtpConfig
+      });
+
+      if (res.success) {
+        setTestResult({
+          success: true,
+          message: `Verification test email dispatched successfully to ${testEmailRecipient} (Ref: ${res.messageId})`
+        });
+        fireToast(`Test email sent successfully to ${testEmailRecipient}! ✉️`, 'success');
+      } else {
+        throw new Error(res.error || 'Failed to dispatch test email');
+      }
+    } catch (err: any) {
+      console.error('Test email failure:', err);
+      setTestResult({
+        success: false,
+        message: err.message || 'Error communicating with SMTP relay.'
+      });
+      fireToast(`Test email error: ${err.message || 'Check SMTP credentials'}`, 'error');
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
 
   const hasUnsavedChanges = useMemo(() => {
     if (!initialData) return !!logoFile;
@@ -250,10 +395,11 @@ const SiteSettingsManager: React.FC = () => {
     { id: 'homepage', label: 'Homepage Hero & Copy', icon: Home },
     { id: 'notice', label: 'Research Notice Modal', icon: Shield },
     { id: 'seo', label: 'SEO & Metadata', icon: Search },
+    { id: 'smtp', label: 'SMTP & Email System', icon: Mail },
   ];
 
   return (
-    <div className="space-y-4 sm:space-y-6 text-left max-w-5xl mx-auto pb-24 font-inter">
+    <div className="space-y-4 sm:space-y-6 text-left max-w-5xl mx-auto pb-32 font-inter">
       {/* ── Top Header Banner ── */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3">
@@ -640,11 +786,29 @@ const SiteSettingsManager: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Hotline Phone & WhatsApp */}
+                {/* Telegram Support Link & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
+                    <label htmlFor="sitesettingsmanager-support-telegram-url" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Telegram Support Link
+                    </label>
+                    <div className="relative">
+                      <Send className="w-4 h-4 text-sky-500 absolute left-3 top-2.5" />
+                      <input
+                        id="sitesettingsmanager-support-telegram-url"
+                        type="url"
+                        name="support_telegram_url"
+                        value={formData.support_telegram_url}
+                        onChange={handleInputChange}
+                        placeholder="https://telegram.me/slimdose_mnl"
+                        className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
                     <label htmlFor="sitesettingsmanager-support-phone" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Hotline &amp; Phone Display
+                      Hotline &amp; Phone Backup
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-emerald-500 absolute left-3 top-2.5" />
@@ -654,24 +818,6 @@ const SiteSettingsManager: React.FC = () => {
                         name="support_phone"
                         autoComplete="tel"
                         value={formData.support_phone}
-                        onChange={handleInputChange}
-                        placeholder="+63 977 813 2630"
-                        className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label htmlFor="sitesettingsmanager-contact-whatsapp" className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                      WhatsApp Direct Number
-                    </label>
-                    <div className="relative">
-                      <Phone className="w-4 h-4 text-emerald-600 absolute left-3 top-2.5" />
-                      <input
-                        id="sitesettingsmanager-contact-whatsapp"
-                        type="text"
-                        name="contact_whatsapp"
-                        value={formData.contact_whatsapp}
                         onChange={handleInputChange}
                         placeholder="+63 977 813 2630"
                         className="w-full pl-9 pr-3.5 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
@@ -729,15 +875,15 @@ const SiteSettingsManager: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Hotline & WhatsApp Preview */}
+                    {/* Telegram Support Preview */}
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-2xs">
-                        <Phone className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/70 text-[#0088cc] dark:text-sky-400 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Send className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">HOTLINE &amp; WHATSAPP</span>
-                        <span className="block text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
-                          {formData.support_phone || '+63 977 813 2630'}
+                        <span className="block text-[10px] font-black text-slate-400 uppercase tracking-wider">TELEGRAM</span>
+                        <span className="block text-xs font-bold text-blue-600 dark:text-blue-400 truncate">
+                          {formData.support_telegram_url || 'https://telegram.me/slimdose_mnl'}
                         </span>
                       </div>
                     </div>
@@ -1137,9 +1283,353 @@ const SiteSettingsManager: React.FC = () => {
         </div>
       )}
 
+      {/* ═══════════════════════════════════════════════════════════════════════════ */}
+      {/* ── TAB 6: SMTP & Transactional Email Settings ── */}
+      {/* ═══════════════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'smtp' && (
+        <div className="space-y-6">
+          {/* Main SMTP Configuration Card */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-5 sm:p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-900/40 flex items-center justify-center text-[#3C6CA8] shrink-0">
+                  <Server className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+                    SMTP Relay &amp; Email Service
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Configure your outbound SMTP credentials for transactional receipts and customer order notifications.
+                  </p>
+                </div>
+              </div>
+
+              {/* Master Email Toggle */}
+              <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 sm:px-3 rounded-xl border border-slate-200/70 dark:border-slate-700">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                  Email Dispatch System:
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      smtp_enabled: prev.smtp_enabled === 'true' ? 'false' : 'true'
+                    }))
+                  }
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
+                    formData.smtp_enabled === 'true'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {formData.smtp_enabled === 'true' ? 'ACTIVE / ENABLED' : 'DISABLED'}
+                </button>
+              </div>
+            </div>
+
+            {/* Provider Quick Presets */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                Quick Provider Presets
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                {[
+                  { id: 'smtp', label: 'Custom SMTP', desc: 'Custom Host & Port' },
+                  { id: 'gmail', label: 'Gmail / Google', desc: 'smtp.gmail.com (SSL 465)' },
+                  { id: 'brevo', label: 'Brevo (Sendinblue)', desc: 'smtp-relay.brevo.com' },
+                  { id: 'resend', label: 'Resend', desc: 'smtp.resend.com' },
+                  { id: 'sendgrid', label: 'SendGrid', desc: 'smtp.sendgrid.net' }
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleProviderPreset(p.id)}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                      formData.smtp_provider === p.id
+                        ? 'border-[#3C6CA8] bg-blue-50/60 dark:bg-slate-800 ring-2 ring-[#3C6CA8]/20'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300'
+                    }`}
+                  >
+                    <span className="font-extrabold text-xs text-slate-900 dark:text-white">
+                      {p.label}
+                    </span>
+                    <span className="text-[10px] text-slate-400 truncate mt-1">
+                      {p.desc}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* SMTP Server Connection Credentials */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="space-y-1 sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  SMTP Host Server
+                </label>
+                <input
+                  type="text"
+                  name="smtp_host"
+                  value={formData.smtp_host}
+                  onChange={handleInputChange}
+                  placeholder="e.g. smtp.gmail.com or mail.slimdose.ph"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Port &amp; Security
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    name="smtp_port"
+                    value={formData.smtp_port}
+                    onChange={handleInputChange}
+                    placeholder="465 / 587"
+                    className="w-20 px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                    autoComplete="off"
+                  />
+                  <select
+                    name="smtp_secure"
+                    value={formData.smtp_secure}
+                    onChange={handleInputChange}
+                    className="flex-1 px-2.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
+                  >
+                    <option value="true">SSL / TLS (Port 465)</option>
+                    <option value="false">STARTTLS (Port 587)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Authentication Credentials */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                  <span>SMTP Username / API User</span>
+                </label>
+                <input
+                  type="text"
+                  name="smtp_user"
+                  value={formData.smtp_user}
+                  onChange={handleInputChange}
+                  placeholder="orders@slimdose.ph or apikey"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                    <span>SMTP Password / App Password / API Key</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[10px] text-slate-400 hover:text-[#3C6CA8] font-bold flex items-center gap-1"
+                  >
+                    {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showPassword ? 'Hide' : 'Reveal'}</span>
+                  </button>
+                </label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="smtp_pass"
+                  value={formData.smtp_pass}
+                  onChange={handleInputChange}
+                  placeholder="••••••••••••••••"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+
+            {/* Sender Identity & Notification Destinations */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Sender Display Name
+                </label>
+                <input
+                  type="text"
+                  name="smtp_from_name"
+                  value={formData.smtp_from_name}
+                  onChange={handleInputChange}
+                  placeholder="SlimDose Peptides"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  From Email Address
+                </label>
+                <input
+                  type="email"
+                  name="smtp_from_email"
+                  value={formData.smtp_from_email}
+                  onChange={handleInputChange}
+                  placeholder="orders@slimdose.ph"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Admin Alert Recipient Email
+                </label>
+                <input
+                  type="email"
+                  name="smtp_admin_email"
+                  value={formData.smtp_admin_email}
+                  onChange={handleInputChange}
+                  placeholder="admin@slimdose.ph"
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            {/* Notification Rules Toggles */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
+                Automated Transactional Triggers
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  {
+                    key: 'smtp_send_order_receipt',
+                    title: 'Customer Order Receipt',
+                    desc: 'Send branded HTML confirmation email upon customer checkout'
+                  },
+                  {
+                    key: 'smtp_send_admin_alert',
+                    title: 'Admin New Order Alert',
+                    desc: 'Send instant notification to store managers when new order is placed'
+                  },
+                  {
+                    key: 'smtp_send_status_update',
+                    title: 'Shipping & Tracking Update',
+                    desc: 'Send email with J&T/Maxim tracking number when order ships'
+                  }
+                ].map((item) => {
+                  const isChecked = (formData as any)[item.key] === 'true';
+                  return (
+                    <div
+                      key={item.key}
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          [item.key]: isChecked ? 'false' : 'true'
+                        }))
+                      }
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
+                        isChecked
+                          ? 'border-[#3C6CA8]/50 bg-blue-50/40 dark:bg-slate-800/90'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 opacity-75'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {}}
+                        className="mt-0.5 w-4 h-4 rounded text-[#3C6CA8] focus:ring-[#3C6CA8]"
+                      />
+                      <div>
+                        <p className="text-xs font-extrabold text-slate-900 dark:text-white">
+                          {item.title}
+                        </p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Live Test Email Sender Card */}
+          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white border border-blue-800/40 shadow-sm space-y-4">
+            <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+              <Sparkles className="w-4 h-4" />
+              <span>SMTP Connection &amp; Relay Diagnostics</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm sm:text-base font-black text-white">
+                  Send a Live Verification Email
+                </h3>
+                <p className="text-xs text-blue-200/90 mt-0.5">
+                  Test your active configuration by sending a sample branded transactional email right now.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <input
+                  type="email"
+                  value={testEmailRecipient}
+                  onChange={(e) => setTestEmailRecipient(e.target.value)}
+                  placeholder="recipient@example.com"
+                  className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800/90 border border-blue-700/50 text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-400 outline-none w-full sm:w-64"
+                />
+                <button
+                  type="button"
+                  onClick={handleSendTestEmail}
+                  disabled={isSendingTest}
+                  className="px-4 py-2 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs font-black transition-all flex items-center justify-center gap-2 shrink-0 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {isSendingTest ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Dispatching...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Send Test</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Test Result Message Box */}
+            {testResult && (
+              <div
+                className={`p-3 rounded-xl text-xs flex items-center gap-2.5 font-medium border ${
+                  testResult.success
+                    ? 'bg-emerald-950/80 border-emerald-800 text-emerald-200'
+                    : 'bg-rose-950/80 border-rose-800 text-rose-200'
+                }`}
+              >
+                {testResult.success ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                )}
+                <span>{testResult.message}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Sticky Bottom Action Bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 sm:p-4 shadow-lg">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 p-3 sm:p-4 shadow-xl">
+        <div className="max-w-5xl mx-auto px-2 sm:px-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             {hasUnsavedChanges ? (
               <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 truncate">

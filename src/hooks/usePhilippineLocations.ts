@@ -168,6 +168,12 @@ export function usePhilippineLocations(props?: UsePhilippineLocationsProps) {
   const handleSelectBarangay = (barangayName: string) => {
     setSelectedBarangay(barangayName);
 
+    // Refine ZIP code with specific barangay resolution if applicable
+    const refinedZip = getZipCodeForCity(selectedCity, selectedProvince, barangayName);
+    if (refinedZip) {
+      setZipCode(refinedZip);
+    }
+
     const brgyObj = barangays.find((b) => b.name.toLowerCase() === barangayName.toLowerCase());
     if (brgyObj && props?.onBarangayChange) {
       props.onBarangayChange(brgyObj);

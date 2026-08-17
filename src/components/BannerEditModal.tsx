@@ -111,21 +111,7 @@ export const BannerEditModal: React.FC<BannerEditModalProps> = ({
         } catch {}
       }
 
-      // 2. Save to page_contents for 'header'
-      const { error: headerErr } = await supabase
-        .from('page_contents')
-        .upsert({
-          page_id: 'header',
-          content: {
-            ...formData,
-            updated_at: new Date().toISOString()
-          },
-          updated_at: new Date().toISOString()
-        });
-
-      if (headerErr) console.warn('header page_contents error:', headerErr);
-
-      // 3. Save to page_contents for 'announcement_bar' as well
+      // 2. Save to page_contents for 'announcement_bar'
       const { error: barErr } = await supabase
         .from('page_contents')
         .upsert({
@@ -139,18 +125,24 @@ export const BannerEditModal: React.FC<BannerEditModalProps> = ({
 
       if (barErr) console.warn('announcement_bar page_contents error:', barErr);
 
-      // 4. Mirror to site_settings
+      // 3. Mirror to site_settings
       try {
         await supabase.from('site_settings').upsert([
           { id: 'announcement_text', value: formData.announcement_text, type: 'string', updated_at: new Date().toISOString() },
           { id: 'announcement_active', value: String(formData.announcement_active), type: 'boolean', updated_at: new Date().toISOString() },
           { id: 'announcement_bg_color', value: formData.background_color || '#3C6CA8', type: 'string', updated_at: new Date().toISOString() },
           { id: 'announcement_text_color', value: formData.text_color || '#FFFFFF', type: 'string', updated_at: new Date().toISOString() },
-          { id: 'announcement_style', value: formData.display_style || 'marquee', type: 'string', updated_at: new Date().toISOString() }
+          { id: 'announcement_style', value: formData.display_style || 'marquee', type: 'string', updated_at: new Date().toISOString() },
+          { id: 'announcement_link_url', value: formData.link_url || '', type: 'string', updated_at: new Date().toISOString() }
         ]);
       } catch (siteErr) {
         console.warn('site_settings mirror error:', siteErr);
       }
+
+      // 4. Cache locally
+      try {
+        localStorage.setItem('slimdose_banner_settings', JSON.stringify(formData));
+      } catch {}
 
       // 5. Log audit trail
       try {

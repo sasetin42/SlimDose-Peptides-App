@@ -1,4 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { db } from '../lib/firebase';
+import {
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDocs,
+  onSnapshot,
+  query,
+  orderBy,
+} from 'firebase/firestore';
 import { supabase } from '../lib/supabase';
 import {
   mirrorPaymentMethodCreate,
@@ -22,10 +33,10 @@ const LOCAL_STORAGE_KEY = 'slimdose_payment_methods';
 
 export const defaultPaymentMethods: PaymentMethod[] = [
   {
-    id: 'gcash',
-    name: 'GCash',
-    account_number: '0977 813 2630',
-    account_name: 'SlimDose PH',
+    id: 'bdo',
+    name: 'BDO',
+    account_number: '010990146456',
+    account_name: 'Slimdose',
     qr_code_url: '',
     active: true,
     sort_order: 1,
@@ -33,13 +44,24 @@ export const defaultPaymentMethods: PaymentMethod[] = [
     updated_at: new Date().toISOString(),
   },
   {
-    id: 'bank-transfer',
-    name: 'Security Bank / BDO',
-    account_number: '0000-1234-5678',
-    account_name: 'SlimDose Biochemicals',
+    id: 'gcash',
+    name: 'GCash',
+    account_number: '0977 813 2630',
+    account_name: 'Kyle Ryu S.',
     qr_code_url: '',
     active: true,
     sort_order: 2,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'cimb',
+    name: 'CIMB',
+    account_number: '0000-1234-5678',
+    account_name: 'Kyle Ryu S.',
+    qr_code_url: '',
+    active: true,
+    sort_order: 3,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }
@@ -67,37 +89,48 @@ export const usePaymentMethods = () => {
     }
   };
 
-  const fetchPaymentMethods = async () => {
+  // Seed default payment methods if Firestore collection is completely empty
+  const seedDefaultsIfEmpty = useCallback(async () => {
+    try {
+      const colRef = collection(db, 'payment_methods');
+      const snap = await getDocs(colRef);
+      if (snap.empty) {
+        console.log('🌱 Seeding default payment methods to Firestore...');
+        for (const item of defaultPaymentMethods) {
+          await setDoc(doc(db, 'payment_methods', item.id), item, { merge: true });
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ Seeding payment methods skipped (permission or offline):', e);
+    }
+  }, []);
+
+  const fetchPaymentMethods = useCallback(async () => {
     try {
       setLoading(true);
-      
-      const { data, error: fetchError } = await supabase
-        .from('payment_methods')
-        .select('*')
-        .eq('active', true)
-        .order('sort_order', { ascending: true });
+      const colRef = collection(db, 'payment_methods');
+      const snap = await getDocs(colRef);
 
-      if (fetchError || !data || data.length === 0) {
-        // Fallback to local storage if remote returns empty or errors out
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-          const parsed: PaymentMethod[] = JSON.parse(saved);
-          const activeOnly = parsed.filter(m => m.active);
-          if (activeOnly.length > 0) {
-            setPaymentMethods(activeOnly);
-            setLoading(false);
-            return;
-          }
-        }
-        setPaymentMethods(defaultPaymentMethods);
+      if (snap.empty) {
+        await seedDefaultsIfEmpty();
+        setPaymentMethods(defaultPaymentMethods.filter(m => m.active));
+        saveToLocalStorage(defaultPaymentMethods);
+        setLoading(false);
         return;
       }
 
-      const merged = data || [];
-      setPaymentMethods(merged);
-      saveToLocalStorage(merged);
+      const items: PaymentMethod[] = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as PaymentMethod[];
+
+      items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      const activeOnly = items.filter(m => m.active !== false);
+
+      setPaymentMethods(activeOnly.length > 0 ? activeOnly : items);
+      saveToLocalStorage(items);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching payment methods:', err);
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (saved) {
@@ -106,29 +139,30 @@ export const usePaymentMethods = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [seedDefaultsIfEmpty]);
 
-  const fetchAllPaymentMethods = async () => {
+  const fetchAllPaymentMethods = useCallback(async () => {
     try {
       setLoading(true);
-      
-      const { data, error: fetchError } = await supabase
-        .from('payment_methods')
-        .select('*')
-        .order('sort_order', { ascending: true });
+      const colRef = collection(db, 'payment_methods');
+      const snap = await getDocs(colRef);
 
-      if (fetchError || !data || data.length === 0) {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-          setPaymentMethods(JSON.parse(saved));
-          setLoading(false);
-          return;
-        }
+      if (snap.empty) {
+        await seedDefaultsIfEmpty();
+        setPaymentMethods(defaultPaymentMethods);
+        saveToLocalStorage(defaultPaymentMethods);
+        setLoading(false);
+        return;
       }
 
-      const merged = data || [];
-      setPaymentMethods(merged);
-      saveToLocalStorage(merged);
+      const items: PaymentMethod[] = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as PaymentMethod[];
+
+      items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      setPaymentMethods(items);
+      saveToLocalStorage(items);
       setError(null);
     } catch (err) {
       console.error('Error fetching all payment methods:', err);
@@ -139,112 +173,57 @@ export const usePaymentMethods = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [seedDefaultsIfEmpty]);
 
   const addPaymentMethod = async (method: Omit<PaymentMethod, 'created_at' | 'updated_at'>) => {
     try {
-      // Normalize qr_code_url: undefined/null/empty string → placeholder URL
-      // Database requires NOT NULL, so we use a placeholder if empty
       let qrCodeUrl = method.qr_code_url?.trim() || '';
       if (!qrCodeUrl || qrCodeUrl === '') {
-        // Use a placeholder image URL if no QR code is provided
         qrCodeUrl = 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop';
       }
-      
-      console.log('📤 Adding payment method:', { 
-        id: method.id, 
-        name: method.name,
-        qr_code_url: qrCodeUrl,
-        qr_code_url_length: qrCodeUrl.length,
-        is_placeholder: qrCodeUrl.includes('pexels.com')
-      });
-      
-      const { data, error: insertError } = await supabase
-        .from('payment_methods')
-        .insert({
-          id: method.id,
-          name: method.name,
-          account_number: method.account_number,
-          account_name: method.account_name,
-          qr_code_url: qrCodeUrl, // Always explicitly set (never empty)
-          active: method.active,
-          sort_order: method.sort_order
-        })
-        .select('*, qr_code_url') // Explicitly include qr_code_url in response
-        .single();
 
-      if (insertError) {
-        console.warn('⚠️ Supabase insert RLS restriction encounter. Using fallback saved record:', insertError);
-        const fallbackObj = {
-          id: method.id,
-          name: method.name,
-          account_number: method.account_number,
-          account_name: method.account_name,
-          qr_code_url: qrCodeUrl,
-          active: method.active,
-          sort_order: method.sort_order,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-
-        mirrorPaymentMethodCreate(fallbackObj);
-        setPaymentMethods(prev => {
-          const next = [...prev, fallbackObj];
-          saveToLocalStorage(next);
-          return next;
-        });
-        return fallbackObj;
-      }
-
-      console.log('✅ Payment method added:', {
-        id: data?.id,
-        qr_code_url: data?.qr_code_url
-      });
-
-      mirrorPaymentMethodCreate({
+      const newMethod: PaymentMethod = {
         id: method.id,
         name: method.name,
         account_number: method.account_number,
         account_name: method.account_name,
         qr_code_url: qrCodeUrl,
-        active: method.active,
-        sort_order: method.sort_order,
-      });
-
-      const fallbackObj = {
-        id: method.id,
-        name: method.name,
-        account_number: method.account_number,
-        account_name: method.account_name,
-        qr_code_url: qrCodeUrl,
-        active: method.active,
-        sort_order: method.sort_order,
+        active: method.active ?? true,
+        sort_order: method.sort_order || 0,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
+
+      // Direct Firestore write with merge
+      const docRef = doc(db, 'payment_methods', method.id);
+      await setDoc(docRef, newMethod, { merge: true });
+
+      // Optimistic update
       setPaymentMethods(prev => {
-        const next = [...prev.filter(m => m.id !== method.id), fallbackObj];
+        const next = [...prev.filter(m => m.id !== method.id), newMethod];
+        next.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
         saveToLocalStorage(next);
         return next;
       });
 
-      await fetchAllPaymentMethods();
-      return data;
+      mirrorPaymentMethodCreate(newMethod);
+      return newMethod;
     } catch (err: any) {
-      console.warn('⚠️ Exception during payment method add. Applying active local fallback...', err);
-      const fallbackObj = {
+      console.warn('⚠️ Error during addPaymentMethod. Applying optimistic local fallback...', err);
+      const fallbackObj: PaymentMethod = {
         id: method.id,
         name: method.name,
         account_number: method.account_number,
         account_name: method.account_name,
         qr_code_url: method.qr_code_url || 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-        active: method.active,
-        sort_order: method.sort_order,
+        active: method.active ?? true,
+        sort_order: method.sort_order || 0,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
       setPaymentMethods(prev => {
-        const next = [...prev, fallbackObj];
+        const next = [...prev.filter(m => m.id !== method.id), fallbackObj];
+        next.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
         saveToLocalStorage(next);
         return next;
       });
@@ -254,54 +233,39 @@ export const usePaymentMethods = () => {
 
   const updatePaymentMethod = async (id: string, updates: Partial<PaymentMethod>) => {
     try {
-      // Create update payload
-      const updatePayload: any = {};
-      
-      // Include all fields that are in the updates object
-      if (updates.name !== undefined) updatePayload.name = updates.name;
-      if (updates.account_number !== undefined) updatePayload.account_number = updates.account_number;
-      if (updates.account_name !== undefined) updatePayload.account_name = updates.account_name;
-      if (updates.active !== undefined) updatePayload.active = updates.active;
-      if (updates.sort_order !== undefined) updatePayload.sort_order = updates.sort_order;
-      
-      // ALWAYS explicitly handle qr_code_url if it's in updates
+      const updatePayload: any = {
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+
       if ('qr_code_url' in updates) {
         if (updates.qr_code_url !== undefined && updates.qr_code_url !== null) {
           const urlString = String(updates.qr_code_url).trim();
-          updatePayload.qr_code_url = urlString === '' 
+          updatePayload.qr_code_url = urlString === ''
             ? 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop'
             : urlString;
-        } else {
-          updatePayload.qr_code_url = 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop';
         }
       }
-      
+
+      // Direct Firestore write with merge
+      const docRef = doc(db, 'payment_methods', id);
+      await setDoc(docRef, updatePayload, { merge: true });
+
+      // Optimistic update
       setPaymentMethods(prev => {
-        const next = prev.map(item => item.id === id ? { ...item, ...updatePayload, updated_at: new Date().toISOString() } : item);
+        const next = prev.map(item => item.id === id ? { ...item, ...updatePayload } : item);
+        next.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
         saveToLocalStorage(next);
         return next;
       });
 
-      const { data, error: updateError } = await supabase
-        .from('payment_methods')
-        .update(updatePayload)
-        .eq('id', id)
-        .select('*, qr_code_url')
-        .single();
-
-      if (updateError) {
-        console.warn('⚠️ Supabase update RLS restriction encounter. Using fallback updated record:', updateError);
-        mirrorPaymentMethodUpdate(id, updatePayload);
-        return { id, ...updatePayload };
-      }
-
       mirrorPaymentMethodUpdate(id, updatePayload);
-      await fetchAllPaymentMethods();
-      return data;
+      return { id, ...updatePayload };
     } catch (err: any) {
-      console.warn('⚠️ Exception during payment method update. Applying local fallback update...', err);
+      console.warn('⚠️ Error during updatePaymentMethod. Applying local fallback update...', err);
       setPaymentMethods(prev => {
         const next = prev.map(item => item.id === id ? { ...item, ...updates, updated_at: new Date().toISOString() } : item);
+        next.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
         saveToLocalStorage(next);
         return next;
       });
@@ -311,66 +275,76 @@ export const usePaymentMethods = () => {
 
   const deletePaymentMethod = async (id: string) => {
     try {
+      // Optimistic update
       setPaymentMethods(prev => {
         const next = prev.filter(m => m.id !== id);
         saveToLocalStorage(next);
         return next;
       });
 
-      const { error: deleteError } = await supabase
-        .from('payment_methods')
-        .delete()
-        .eq('id', id);
-
-      if (deleteError) console.warn('Delete remote warning:', deleteError);
+      // Direct Firestore delete
+      const docRef = doc(db, 'payment_methods', id);
+      await deleteDoc(docRef);
 
       mirrorPaymentMethodDelete(id);
-      await fetchAllPaymentMethods();
     } catch (err) {
-      console.error('Error deleting payment method:', err);
+      console.error('Error deleting payment method from Firestore:', err);
     }
   };
 
   const reorderPaymentMethods = async (reorderedMethods: PaymentMethod[]) => {
     try {
-      const updates = reorderedMethods.map((method, index) => ({
-        id: method.id,
-        sort_order: index + 1
+      const updated = reorderedMethods.map((method, index) => ({
+        ...method,
+        sort_order: index + 1,
+        updated_at: new Date().toISOString(),
       }));
 
-      for (const update of updates) {
-        await supabase
-          .from('payment_methods')
-          .update({ sort_order: update.sort_order })
-          .eq('id', update.id);
-      }
+      setPaymentMethods(updated);
+      saveToLocalStorage(updated);
 
-      await fetchAllPaymentMethods();
+      for (const item of updated) {
+        const docRef = doc(db, 'payment_methods', item.id);
+        await setDoc(docRef, { sort_order: item.sort_order, updated_at: item.updated_at }, { merge: true });
+      }
     } catch (err) {
-      console.error('Error reordering payment methods:', err);
+      console.error('Error reordering payment methods in Firestore:', err);
       throw err;
     }
   };
 
   useEffect(() => {
+    // 1. Initial fetch & seed check
     fetchPaymentMethods();
 
-    // Subscribe to realtime database changes for payment methods
-    const channel = supabase
-      .channel('public_payment_methods_realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'payment_methods' },
-        () => {
-          fetchPaymentMethods();
+    // 2. Realtime listener via Firestore onSnapshot for live updates across all clients
+    const colRef = collection(db, 'payment_methods');
+    const unsubscribe = onSnapshot(
+      colRef,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const items: PaymentMethod[] = snapshot.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          })) as PaymentMethod[];
+
+          items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+          const activeOnly = items.filter(m => m.active !== false);
+
+          setPaymentMethods(activeOnly.length > 0 ? activeOnly : items);
+          saveToLocalStorage(items);
+          setLoading(false);
         }
-      )
-      .subscribe();
+      },
+      (err) => {
+        console.warn('⚠️ Firestore realtime onSnapshot for payment_methods encountered an error:', err);
+      }
+    );
 
     return () => {
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
-  }, []);
+  }, [fetchPaymentMethods]);
 
   return {
     paymentMethods,

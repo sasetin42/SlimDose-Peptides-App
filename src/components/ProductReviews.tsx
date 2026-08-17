@@ -156,7 +156,7 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, produ
       <div className="mb-5 p-3 rounded-2xl bg-[#3C6CA8]/5 dark:bg-[#3C6CA8]/15 border border-[#3C6CA8]/20 dark:border-[#3C6CA8]/40 flex flex-wrap items-center justify-between gap-3 text-xs text-gray-700 dark:text-slate-200">
         <div className="flex items-center gap-2">
           <Award className="w-4 h-4 text-amber-500 shrink-0" />
-          <span className="font-bold text-[11px] sm:text-xs text-gray-900 dark:text-white">100% Authentic Research Grade Feedback</span>
+          <span className="font-bold text-[11px] sm:text-xs text-gray-900 dark:text-white">100% Authentic Verified Feedback</span>
         </div>
       </div>
 

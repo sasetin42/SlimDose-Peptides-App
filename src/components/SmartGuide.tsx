@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { FileText, ArrowLeft, BookOpen, Calendar, User, ChevronRight, Video as VideoIcon, Play, X, Search, Sparkles, Bookmark, Share2, Calculator, FlaskConical, Check, Clock, ShieldCheck, MessageCircle, ExternalLink, Truck } from 'lucide-react';
+import { FileText, ArrowLeft, BookOpen, Calendar, User, ChevronRight, Video as VideoIcon, Play, X, Search, Sparkles, Bookmark, Share2, Calculator, FlaskConical, Check, Clock, ShieldCheck, MessageCircle, ExternalLink, Truck, Loader2 } from 'lucide-react';
 import { fireToast } from './ToastNotification';
+import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 
 interface Article {
   id: string;
@@ -26,11 +27,93 @@ interface Video {
   duration?: string;
 }
 
+const FALLBACK_ARTICLES: Article[] = [
+  {
+    id: 'tirzepatide-reconstitution-guide',
+    title: 'Complete Tirzepatide Reconstitution & Storage Protocol',
+    preview: 'Step-by-step laboratory instructions for reconstituting lyophilized Tirzepatide peptide vials with bacteriostatic water, calculating correct ratios, and maintaining cold-chain integrity.',
+    author: 'SlimDose Medical Team',
+    published_date: '2025-01-15',
+    cover_image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
+    read_time: '4 min read',
+    category: 'RECONSTITUTION'
+  },
+  {
+    id: 'peptide-pen-loading-priming',
+    title: 'Cartridge Loading & Priming with the SlimDose Pen',
+    preview: 'Learn how to insert your 3ml peptide cartridge into the reusable dosing pen, dial your prescribed dose, and prime the needle properly for air-free delivery.',
+    author: 'Clinical Research Staff',
+    published_date: '2025-01-20',
+    cover_image: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&auto=format&fit=crop&q=80',
+    read_time: '3 min read',
+    category: 'PEN & NEEDLES'
+  },
+  {
+    id: 'dosage-titration-schedule',
+    title: 'Standard Titration Schedule: 2.5mg to 15mg Explained',
+    preview: 'Understanding progressive dosage titration curves, minimizing side effects, and tracking physiological milestones over a 4 to 16 week research program.',
+    author: 'SlimDose Science Lead',
+    published_date: '2025-02-01',
+    cover_image: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&auto=format&fit=crop&q=80',
+    read_time: '5 min read',
+    category: 'DOSING & USAGE'
+  }
+];
+
+const FALLBACK_VIDEOS: Video[] = [
+  {
+    id: 'vid-reconstitution-walkthrough',
+    title: 'Visual Walkthrough: Peptide Reconstitution Protocol',
+    description: 'Step-by-step video tutorial demonstrating proper bacteriostatic water mixing, gentle swirling technique, and vial storage.',
+    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    thumbnail_url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&auto=format&fit=crop&q=80',
+    category: 'RECONSTITUTION',
+    created_at: '2025-01-15T00:00:00Z',
+    duration: '3:45'
+  },
+  {
+    id: 'vid-pen-cartridge-loading',
+    title: 'SlimDose Dosing Pen Setup & Cartridge Loading',
+    description: 'Complete hands-on video showing how to assemble your reusable dosing pen, load the 3ml cartridge, and dial the exact dose.',
+    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    thumbnail_url: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&auto=format&fit=crop&q=80',
+    category: 'PEN & NEEDLES',
+    created_at: '2025-01-20T00:00:00Z',
+    duration: '4:12'
+  }
+];
+
+// Module-level in-memory cache for instant zero-latency loading across views
+let cachedArticles: Article[] | null = null;
+let cachedVideos: Video[] | null = null;
+
+try {
+  const localArt = localStorage.getItem('peptalk_cached_articles');
+  if (localArt) {
+    const parsed = JSON.parse(localArt);
+    if (Array.isArray(parsed) && parsed.length > 0) cachedArticles = parsed;
+  }
+  const localVid = localStorage.getItem('peptalk_cached_videos');
+  if (localVid) {
+    const parsed = JSON.parse(localVid);
+    if (Array.isArray(parsed) && parsed.length > 0) cachedVideos = parsed;
+  }
+} catch {}
+
 export default function SmartGuide() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [articles, setArticles] = useState<Article[]>(() => cachedArticles || FALLBACK_ARTICLES);
+  const [videos, setVideos] = useState<Video[]>(() => cachedVideos || FALLBACK_VIDEOS);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('search') || '';
+    } catch {
+      return '';
+    }
+  });
+
   const [activeTab, setActiveTab] = useState<'articles' | 'videos'>('articles');
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -46,12 +129,12 @@ export default function SmartGuide() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadAll = async () => {
-      setLoading(true);
-      await Promise.all([fetchArticles(), fetchVideos()]);
-      setLoading(false);
+    const syncRemoteData = async () => {
+      setIsSyncing(true);
+      await Promise.allSettled([fetchArticles(), fetchVideos()]);
+      setIsSyncing(false);
     };
-    loadAll();
+    syncRemoteData();
   }, []);
 
   const fetchArticles = async () => {
@@ -63,17 +146,36 @@ export default function SmartGuide() {
         .order('display_order', { ascending: true });
 
       if (error) throw error;
-      if (data) {
-        setArticles(
-          data.map((art, idx) => ({
-            ...art,
-            read_time: `${3 + (idx % 4)} min read`,
-            category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
-          }))
-        );
+      if (data && data.length > 0) {
+        const mapped = data.map((art, idx) => ({
+          ...art,
+          read_time: `${3 + (idx % 4)} min read`,
+          category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
+        }));
+        cachedArticles = mapped;
+        setArticles(mapped);
+        try {
+          localStorage.setItem('peptalk_cached_articles', JSON.stringify(mapped));
+        } catch {}
+      } else if (liveScrapedGuideTopics && liveScrapedGuideTopics.length > 0) {
+        const mapped = liveScrapedGuideTopics.map((art, idx) => ({
+          ...art,
+          read_time: `${3 + (idx % 4)} min read`,
+          category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
+        }));
+        cachedArticles = mapped;
+        setArticles(mapped);
       }
     } catch (error) {
-      console.error('Error fetching articles:', error);
+      console.warn('Error fetching articles from remote, using cached/scraped fallback:', error);
+      if (liveScrapedGuideTopics && liveScrapedGuideTopics.length > 0) {
+        const mapped = liveScrapedGuideTopics.map((art, idx) => ({
+          ...art,
+          read_time: `${3 + (idx % 4)} min read`,
+          category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
+        }));
+        setArticles(mapped);
+      }
     }
   };
 
@@ -85,9 +187,15 @@ export default function SmartGuide() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      if (data) setVideos(data);
+      if (data && data.length > 0) {
+        cachedVideos = data;
+        setVideos(data);
+        try {
+          localStorage.setItem('peptalk_cached_videos', JSON.stringify(data));
+        } catch {}
+      }
     } catch (error) {
-      console.error('Error fetching videos:', error);
+      console.warn('Error fetching videos from remote:', error);
     }
   };
 
@@ -146,17 +254,6 @@ export default function SmartGuide() {
   };
 
   const telegramUrl = `https://t.me/slimdose_mnl`;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin w-10 h-10 border-4 border-[#3C6CA8] border-t-transparent rounded-full" />
-          <p className="text-xs font-bold text-gray-500 dark:text-slate-400">Loading PepTalk Content Center...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-gray-900 dark:text-slate-100 transition-colors text-left">
@@ -271,47 +368,33 @@ export default function SmartGuide() {
       </div>
 
       {/* Main Expanded Layout Container (max-w-7xl) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        {/* Top Hero Feature Showcase */}
-        <div className="bg-gradient-to-r from-[#3C6CA8]/15 via-blue-50 to-[#3C6CA8]/5 dark:from-slate-900 dark:via-slate-900/90 dark:to-slate-900 border border-[#3C6CA8]/20 rounded-3xl p-6 md:p-8 mb-8 shadow-sm relative overflow-hidden">
-          <div className="relative z-10 max-w-3xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3C6CA8]/10 text-[#3C6CA8] text-xs font-black uppercase tracking-wider mb-3 border border-[#3C6CA8]/20">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>PepTalk Masterclass &amp; Knowledge Base</span>
-            </div>
-            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-              Everything You Need for Safe &amp; Effective Peptide Therapy
-            </h2>
-            <p className="text-xs md:text-sm text-gray-600 dark:text-slate-300 leading-relaxed mb-4">
-              Explore step-by-step Tirzepatide reconstitution, insulin pen cartridge loading, dosage calculations, and cold-chain storage guidelines created by our medical team.
-            </p>
-
-            {/* Quick Filter Badges */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              {['All', 'RECONSTITUTION', 'DOSING & USAGE', 'PEN & NEEDLES'].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer border ${
-                    selectedCategory === cat
-                      ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-sm'
-                      : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-[#3C6CA8]/50'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 md:py-8">
+        {/* Category Filter Buttons */}
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none sm:flex-wrap">
+            {['All', 'RECONSTITUTION', 'DOSING & USAGE', 'PEN & NEEDLES'].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer shrink-0 border ${
+                  selectedCategory === cat
+                    ? 'bg-[#3C6CA8] text-white border-[#3C6CA8] shadow-sm'
+                    : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-[#3C6CA8]/50 shadow-2xs'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* 2-Column Responsive Grid Layout (lg:grid-cols-12) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-start">
           {/* LEFT COLUMN: Articles / Videos Grid (8 Cols) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-4 sm:space-y-6">
             {/* Search Indicator */}
             {searchQuery && (
-              <div className="flex items-center justify-between bg-blue-50/70 dark:bg-slate-900 border border-blue-100 dark:border-slate-800 rounded-2xl px-4 py-3 text-xs">
+              <div className="flex items-center justify-between bg-blue-50/70 dark:bg-slate-900 border border-blue-100 dark:border-slate-800 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 text-[11px] sm:text-xs">
                 <span className="font-semibold text-gray-700 dark:text-slate-300">
                   Showing PepTalk results for <span className="font-bold text-[#3C6CA8]">"{searchQuery}"</span> ({activeTab === 'articles' ? filteredArticles.length : filteredVideos.length} found)
                 </span>
@@ -327,9 +410,9 @@ export default function SmartGuide() {
             {/* ─── Articles Grid ─── */}
             {activeTab === 'articles' && (
               filteredArticles.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center shadow-sm border border-gray-200 dark:border-slate-800">
-                  <FileText className="w-12 h-12 text-[#3C6CA8] mx-auto mb-3 opacity-50" />
-                  <h3 className="text-lg font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-sm border border-gray-200 dark:border-slate-800">
+                  <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-[#3C6CA8] mx-auto mb-3 opacity-50" />
+                  <h3 className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white mb-1">
                     No articles found
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-slate-400 mb-4 max-w-sm mx-auto">
@@ -346,18 +429,18 @@ export default function SmartGuide() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6">
                   {filteredArticles.map((article) => {
                     const isBookmarked = savedArticles.has(article.id);
                     return (
                       <div
                         key={article.id}
                         onClick={() => navigate(`/peptalk/${article.id}`)}
-                        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-between"
+                        className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-between"
                       >
                         <div>
                           {/* Cover Image */}
-                          <div className="relative w-full h-48 bg-slate-900 overflow-hidden">
+                          <div className="relative w-full h-36 sm:h-48 bg-slate-900 overflow-hidden">
                             {article.cover_image ? (
                               <img
                                 src={article.cover_image}
@@ -366,50 +449,50 @@ export default function SmartGuide() {
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-[#3C6CA8] to-slate-900 flex items-center justify-center">
-                                <BookOpen className="w-12 h-12 text-white/30" />
+                                <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-white/30" />
                               </div>
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                             
                             {/* Category & Bookmark Badge */}
-                            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                              <span className="bg-[#3C6CA8] text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+                            <div className="absolute top-2.5 left-2.5 right-2.5 sm:top-3 sm:left-3 sm:right-3 flex items-center justify-between">
+                              <span className="bg-[#3C6CA8] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full shadow-xs">
                                 {article.category || 'GUIDE'}
                               </span>
                               <button
                                 type="button"
                                 onClick={(e) => toggleBookmark(e, article.id)}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
+                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center backdrop-blur-md border transition-all ${
                                   isBookmarked
                                     ? 'bg-amber-400 text-gray-950 border-amber-300'
                                     : 'bg-black/40 text-white border-white/20 hover:bg-black/60'
                                 }`}
                                 title={isBookmarked ? 'Bookmarked' : 'Save for later'}
                               >
-                                <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                                <Bookmark className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isBookmarked ? 'fill-current' : ''}`} />
                               </button>
                             </div>
                           </div>
 
                           {/* Content */}
-                          <div className="p-5">
-                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#3C6CA8] transition-colors leading-snug">
+                          <div className="p-3.5 sm:p-5">
+                            <h3 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-[#3C6CA8] transition-colors leading-snug">
                               {article.title}
                             </h3>
                             {article.preview && (
-                              <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-3 leading-relaxed mb-4">
+                              <p className="text-[11px] sm:text-xs text-gray-600 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 leading-relaxed mb-3 sm:mb-4">
                                 {article.preview}
                               </p>
                             )}
 
                             {/* Meta Info */}
-                            <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-400 pt-2 border-t border-gray-100 dark:border-slate-800">
-                              <span className="flex items-center gap-1 font-semibold text-gray-700 dark:text-slate-300">
-                                <User className="w-3.5 h-3.5 text-[#3C6CA8]" />
-                                <span>{article.author}</span>
+                            <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-gray-500 dark:text-slate-400 pt-2 border-t border-gray-100 dark:border-slate-800">
+                              <span className="flex items-center gap-1 font-semibold text-gray-700 dark:text-slate-300 truncate max-w-[140px] sm:max-w-none">
+                                <User className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#3C6CA8] shrink-0" />
+                                <span className="truncate">{article.author}</span>
                               </span>
-                              <span className="flex items-center gap-1 font-medium">
-                                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="flex items-center gap-1 font-medium shrink-0">
+                                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400" />
                                 <span>{article.read_time}</span>
                               </span>
                             </div>
@@ -417,10 +500,10 @@ export default function SmartGuide() {
                         </div>
 
                         {/* Read Link */}
-                        <div className="px-5 pb-5 pt-0">
-                          <div className="flex items-center justify-between text-xs font-black text-[#3C6CA8] group-hover:gap-2 transition-all">
+                        <div className="px-3.5 pb-3.5 sm:px-5 sm:pb-5 pt-0">
+                          <div className="flex items-center justify-between text-[11px] sm:text-xs font-black text-[#3C6CA8] group-hover:gap-2 transition-all">
                             <span>READ FULL GUIDE</span>
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           </div>
                         </div>
                       </div>
@@ -433,9 +516,9 @@ export default function SmartGuide() {
             {/* ─── Videos Grid ─── */}
             {activeTab === 'videos' && (
               filteredVideos.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center shadow-sm border border-gray-200 dark:border-slate-800">
-                  <VideoIcon className="w-12 h-12 text-[#3C6CA8] mx-auto mb-3 opacity-50" />
-                  <h3 className="text-lg font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-sm border border-gray-200 dark:border-slate-800">
+                  <VideoIcon className="w-10 h-10 sm:w-12 sm:h-12 text-[#3C6CA8] mx-auto mb-3 opacity-50" />
+                  <h3 className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white mb-1">
                     No video tutorials found
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-slate-400 mb-4 max-w-sm mx-auto">
@@ -452,16 +535,16 @@ export default function SmartGuide() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-6">
                   {filteredVideos.map((vid) => (
                     <div
                       key={vid.id}
                       onClick={() => setSelectedVideo(vid)}
-                      className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-between"
+                      className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-between"
                     >
                       <div>
                         {/* Video Thumbnail */}
-                        <div className="relative w-full h-48 bg-slate-900 flex items-center justify-center overflow-hidden">
+                        <div className="relative w-full h-36 sm:h-48 bg-slate-900 flex items-center justify-center overflow-hidden">
                           {vid.thumbnail_url ? (
                             <img
                               src={vid.thumbnail_url}
@@ -472,30 +555,30 @@ export default function SmartGuide() {
                             <div className="w-full h-full bg-gradient-to-br from-[#3C6CA8] to-slate-950 opacity-80" />
                           )}
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <div className="w-12 h-12 rounded-full bg-[#3C6CA8] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <Play className="w-6 h-6 fill-white ml-0.5" />
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#3C6CA8] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                              <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-white ml-0.5" />
                             </div>
                           </div>
-                          <span className="absolute top-3 left-3 bg-[#3C6CA8] text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                          <span className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 bg-[#3C6CA8] text-white text-[8.5px] sm:text-[9px] font-black uppercase tracking-wider px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full">
                             {vid.category || 'TUTORIAL'}
                           </span>
                         </div>
 
                         {/* Card Content */}
-                        <div className="p-5">
-                          <h3 className="text-base font-extrabold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#3C6CA8] transition-colors leading-snug">
+                        <div className="p-3.5 sm:p-5">
+                          <h3 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-[#3C6CA8] transition-colors leading-snug">
                             {vid.title}
                           </h3>
-                          <p className="text-xs text-gray-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                          <p className="text-[11px] sm:text-xs text-gray-600 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 leading-relaxed">
                             {vid.description}
                           </p>
                         </div>
                       </div>
 
-                      <div className="p-5 pt-0">
-                        <div className="flex items-center gap-1.5 text-[#3C6CA8] font-black text-xs uppercase tracking-wider">
+                      <div className="p-3.5 sm:p-5 pt-0">
+                        <div className="flex items-center gap-1.5 text-[#3C6CA8] font-black text-[11px] sm:text-xs uppercase tracking-wider">
                           <span>WATCH TUTORIAL VIDEO</span>
-                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
                         </div>
                       </div>
                     </div>
@@ -506,70 +589,70 @@ export default function SmartGuide() {
           </div>
 
           {/* RIGHT COLUMN: Interactive Sidebar & Patient Resources (4 Cols) */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-4 sm:space-y-6">
             {/* Quick Patient Resources Box */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
-              <h3 className="text-base font-extrabold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-gray-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#3C6CA8]" />
                 <span>Patient Tools &amp; Calculators</span>
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2.5 sm:space-y-3">
                 <a
                   href="/calculator"
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
+                  className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8.5 h-8.5 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
-                      <Calculator className="w-4.5 h-4.5" />
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-lg sm:rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
+                      <Calculator className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     </div>
                     <div>
                       <p className="font-extrabold text-xs">Dosage Calculator</p>
-                      <p className="text-[10px] text-gray-400">Calculate Tirzepatide units &amp; mg</p>
+                      <p className="text-[9.5px] sm:text-[10px] text-gray-400">Calculate Tirzepatide units &amp; mg</p>
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
                 </a>
 
                 <a
                   href="/track-order"
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
+                  className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8.5 h-8.5 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-900/40">
-                      <Truck className="w-4.5 h-4.5" />
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-lg sm:rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-900/40">
+                      <Truck className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     </div>
                     <div>
                       <p className="font-extrabold text-xs">Track My Order</p>
-                      <p className="text-[10px] text-gray-400">Real-time J&amp;T &amp; Maxim tracking</p>
+                      <p className="text-[9.5px] sm:text-[10px] text-gray-400">Real-time J&amp;T &amp; Maxim tracking</p>
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
                 </a>
 
                 <a
                   href="/coa"
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
+                  className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gray-50 dark:bg-slate-800 hover:bg-[#3C6CA8]/10 text-gray-800 dark:text-slate-100 hover:text-[#3C6CA8] border border-gray-100 dark:border-slate-700/50 transition-all group"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8.5 h-8.5 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 flex items-center justify-center shrink-0 border border-purple-200 dark:border-purple-900/40">
-                      <FlaskConical className="w-4.5 h-4.5" />
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-lg sm:rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 flex items-center justify-center shrink-0 border border-purple-200 dark:border-purple-900/40">
+                      <FlaskConical className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                     </div>
                     <div>
                       <p className="font-extrabold text-xs">Purity COA Reports</p>
-                      <p className="text-[10px] text-gray-400">99.4%+ Verified Lab Test Results</p>
+                      <p className="text-[9.5px] sm:text-[10px] text-gray-400">99.4%+ Verified Lab Test Results</p>
                     </div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 group-hover:text-[#3C6CA8] transition-colors" />
                 </a>
               </div>
             </div>
 
             {/* Saved Bookmarks Box */}
             {savedArticles.size > 0 && (
-              <div className="bg-amber-50/70 dark:bg-slate-900 rounded-3xl p-6 border border-amber-200 dark:border-slate-800 shadow-sm">
-                <h3 className="text-sm font-extrabold text-amber-900 dark:text-amber-300 mb-3 flex items-center justify-between">
+              <div className="bg-amber-50/70 dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-amber-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-xs sm:text-sm font-extrabold text-amber-900 dark:text-amber-300 mb-2.5 sm:mb-3 flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <Bookmark className="w-4 h-4 text-amber-500 fill-current" />
+                    <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 fill-current" />
                     <span>Your Bookmarks ({savedArticles.size})</span>
                   </span>
                   <button
@@ -582,14 +665,14 @@ export default function SmartGuide() {
                     Clear
                   </button>
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {articles
                     .filter((a) => savedArticles.has(a.id))
                     .map((a) => (
                       <div
                         key={a.id}
                         onClick={() => navigate(`/peptalk/${a.id}`)}
-                        className="p-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-amber-100/50 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-between text-xs"
+                        className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 hover:bg-amber-100/50 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-between text-xs"
                       >
                         <span className="font-bold text-gray-900 dark:text-white truncate">{a.title}</span>
                         <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -600,24 +683,24 @@ export default function SmartGuide() {
             )}
 
             {/* Telegram Customer Order Support Banner */}
-            <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 shadow-md border border-blue-800/40 relative overflow-hidden">
-              <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider mb-2">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md border border-blue-800/40 relative overflow-hidden">
+              <div className="flex items-center gap-2 text-amber-400 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider mb-1.5 sm:mb-2">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Customer Order Support</span>
               </div>
-              <h4 className="text-base font-black text-white text-[#FFFFFF] mb-2 leading-snug">
+              <h4 className="text-sm sm:text-base font-black text-white text-[#FFFFFF] mb-1.5 sm:mb-2 leading-snug">
                 Have a Question About Your Order?
               </h4>
-              <p className="text-xs text-blue-100/90 leading-relaxed mb-4">
+              <p className="text-[11px] sm:text-xs text-blue-100/90 leading-relaxed mb-3 sm:mb-4">
                 Our support team is available on Telegram to assist with questions about your order, set inclusions and delivery.
               </p>
               <a
                 href={telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-2xl bg-[#3C6CA8] hover:bg-[#325a8c] text-white font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+                className="w-full py-2.5 sm:py-3 px-4 rounded-xl sm:rounded-2xl bg-[#3C6CA8] hover:bg-[#325a8c] text-white font-black text-xs flex items-center justify-center gap-2 transition-all shadow-md"
               >
-                <MessageCircle className="w-4.5 h-4.5 text-amber-300" />
+                <MessageCircle className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-300" />
                 <span>Chat on Telegram</span>
               </a>
             </div>

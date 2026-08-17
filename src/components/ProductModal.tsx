@@ -28,7 +28,7 @@ import { supabase } from '../lib/supabase';
 import ImageUpload from './ImageUpload';
 import { fireToast } from './ToastNotification';
 
-export interface PepTalkVideoOption {
+export interface PepTalkOption {
   id: string;
   title: string;
 }
@@ -38,7 +38,8 @@ interface ProductModalProps {
   onClose: () => void;
   product: Product | null; // null for Create, Product for Edit
   categories: Category[];
-  peptalkVideos?: PepTalkVideoOption[];
+  peptalkVideos?: PepTalkOption[];
+  peptalkArticles?: PepTalkOption[];
   onSaveSuccess: () => Promise<void>;
   logAdminAction?: (action: string, details?: any) => void;
   addProduct: (product: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => Promise<{ success: boolean; data?: Product; error?: string }>;
@@ -67,6 +68,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
   product,
   categories,
   peptalkVideos = [],
+  peptalkArticles = [],
   onSaveSuccess,
   logAdminAction,
   addProduct,
@@ -985,51 +987,142 @@ const ProductModal: React.FC<ProductModalProps> = ({
           {/* TAB 5: DOSING & BUNDLES */}
           {activeTab === 'dosing_bundles' && (
             <div className="space-y-5 animate-in fade-in duration-150">
-              {/* Dosing Guide */}
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3">
-                <span className="text-xs font-black text-slate-800 dark:text-white block">Dosing Instructions & Protocol</span>
-                <textarea id="productmodal-input-11" name="input_11" rows={3}
-                  value={formData.dosing_guide || ''}
-                  onChange={(e) => setFormData({ ...formData, dosing_guide: e.target.value })}
-                  placeholder="Explain reconstitution volume, starting dose, cycle frequency..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium"
-                />
+              {/* Dosing Guide & PepTalk Link Section */}
+              <div className="p-4 sm:p-5 bg-blue-50/40 dark:bg-slate-800/60 border border-blue-200/80 dark:border-slate-700 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FlaskConical className="w-4 h-4 text-[#3C6CA8]" />
+                    <span className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider">
+                      Dosing Guide, Instructions &amp; PepTalk Link
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sampleText = `• Reconstitution: Reconstitute lyophilized powder using 1.0 mL to 2.0 mL of Bacteriostatic Water (0.9% Benzyl Alcohol). Slowly drip down the glass vial wall; gently swirl and do not shake.\n• Dosing Protocol: Administer subcutaneously using a sterile calibrated U-100 insulin syringe according to target research protocol.\n• Storage: Lyophilized powder stores at -20°C. Once reconstituted, refrigerate at 2°C–8°C for up to 30 days.`;
+                      const sampleNotes = `Strictly for laboratory research and analytical in vitro purposes. Not for human consumption. Keep refrigerated and light-protected after reconstitution.`;
+                      setFormData(prev => ({
+                        ...prev,
+                        dosing_guide: prev.dosing_guide || sampleText,
+                        usage_notes: prev.usage_notes || sampleNotes
+                      }));
+                      fireToast('Standard peptide protocol populated!', 'info');
+                    }}
+                    className="text-[10.5px] font-bold text-[#3C6CA8] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Auto-Fill Standard Protocol</span>
+                  </button>
+                </div>
 
+                {/* PepTalk Protocol Redirection Link / Selector */}
+                <div className="p-3.5 bg-white dark:bg-slate-900 border border-blue-100 dark:border-slate-800 rounded-xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="productmodal-linked-peptalk-protocol" className="block text-[11px] font-bold text-slate-700 dark:text-slate-200">
+                      Linked PepTalk Protocol / Guide (Customer Redirect)
+                    </label>
+                    {formData.linked_peptalk_id && (
+                      <a
+                        href={formData.linked_peptalk_id.startsWith('http') ? formData.linked_peptalk_id : `/peptalk/${formData.linked_peptalk_id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] font-bold text-[#3C6CA8] hover:underline flex items-center gap-1"
+                      >
+                        <span>Test Link</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
+                    )}
+                  </div>
+
+                  <select
+                    id="productmodal-linked-peptalk-protocol"
+                    name="linked_peptalk_protocol"
+                    value={formData.linked_peptalk_id || ''}
+                    onChange={(e) => setFormData({ ...formData, linked_peptalk_id: e.target.value || null })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-white"
+                  >
+                    <option value="">Auto (Redirects to PepTalk search by compound name)</option>
+                    {peptalkArticles.length > 0 && (
+                      <optgroup label="📖 PepTalk Articles / Guides">
+                        {peptalkArticles.map((a) => (
+                          <option key={`art-${a.id}`} value={a.id}>
+                            Article: {a.title}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {peptalkVideos.length > 0 && (
+                      <optgroup label="🎥 PepTalk Video Protocols">
+                        {peptalkVideos.map((v) => (
+                          <option key={`vid-${v.id}`} value={v.id}>
+                            Video: {v.title}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </select>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="text"
+                      placeholder="Or enter custom PepTalk ID / external guide URL..."
+                      value={formData.linked_peptalk_id || ''}
+                      onChange={(e) => setFormData({ ...formData, linked_peptalk_id: e.target.value || null })}
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-white"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    When customers click &quot;Open Guide&quot; on this product, they will instantly jump to this interactive protocol in PepTalk.
+                  </p>
+                </div>
+
+                {/* Dosing Instructions (Detailed Text) */}
+                <div>
+                  <label htmlFor="productmodal-input-11" className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    Dosing Instructions &amp; Text Protocol (Optional Summary)
+                  </label>
+                  <textarea
+                    id="productmodal-input-11"
+                    name="input_11"
+                    rows={3}
+                    value={formData.dosing_guide || ''}
+                    onChange={(e) => setFormData({ ...formData, dosing_guide: e.target.value })}
+                    placeholder="Explain reconstitution volume, starting dose, cycle frequency, insulin syringe calibration..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium leading-relaxed"
+                  />
+                </div>
+
+                {/* Visual Dosage Reference Chart & Notes */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div>
-                    <label htmlFor="productmodal-dosage-chart-image-url" className="block text-[10.5px] font-bold text-slate-500 mb-1">Dosage Chart Image URL</label>
-                    <input id="productmodal-dosage-chart-image-url" name="dosage_chart_image_url" type="url"
+                    <label htmlFor="productmodal-dosage-chart-image-url" className="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                      Dosage Reference Chart Image URL
+                    </label>
+                    <input
+                      id="productmodal-dosage-chart-image-url"
+                      name="dosage_chart_image_url"
+                      type="url"
                       value={formData.dosage_chart_url || ''}
                       onChange={(e) => setFormData({ ...formData, dosage_chart_url: e.target.value })}
-                      placeholder="https://example.com/chart.png"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
+                      placeholder="https://example.com/dosage-chart.png"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="productmodal-linked-peptalk-protocol-video" className="block text-[10.5px] font-bold text-slate-500 mb-1">Linked PepTalk Protocol Video</label>
-                    <select id="productmodal-linked-peptalk-protocol-video" name="linked_peptalk_protocol_video" value={formData.linked_peptalk_id || ''}
-                      onChange={(e) => setFormData({ ...formData, linked_peptalk_id: e.target.value || null })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold"
-                    >
-                      <option value="">No linked guide video</option>
-                      {peptalkVideos.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.title}
-                        </option>
-                      ))}
-                    </select>
+                    <label htmlFor="productmodal-important-usage-notes" className="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 mb-1">
+                      Important Usage &amp; Safety Notes
+                    </label>
+                    <textarea
+                      id="productmodal-important-usage-notes"
+                      name="important_usage_notes"
+                      rows={2}
+                      value={formData.usage_notes || ''}
+                      onChange={(e) => setFormData({ ...formData, usage_notes: e.target.value })}
+                      placeholder="e.g. For research purposes only. Reconstitute with Bac Water. Refrigerate."
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-white"
+                    />
                   </div>
-                </div>
-
-                <div>
-                  <label htmlFor="productmodal-important-usage-notes" className="block text-[10.5px] font-bold text-slate-500 mb-1">Important Usage Notes</label>
-                  <textarea id="productmodal-important-usage-notes" name="important_usage_notes" rows={2}
-                    value={formData.usage_notes || ''}
-                    onChange={(e) => setFormData({ ...formData, usage_notes: e.target.value })}
-                    placeholder="e.g. For research purposes only. Keep refrigerated after reconstitution."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs"
-                  />
                 </div>
               </div>
 

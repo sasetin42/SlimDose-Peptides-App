@@ -148,6 +148,42 @@ class SupabaseQueryBuilder {
     return this;
   }
 
+  not(column: string, operator: string, value: any) {
+    if (operator === 'is' && value === null) {
+      this.wheres.push({ column, op: '!=' as any, value: null });
+    } else if (operator === 'eq') {
+      this.wheres.push({ column, op: '!=', value });
+    } else {
+      this.wheres.push({ column, op: '!=' as any, value });
+    }
+    return this;
+  }
+
+  is(column: string, value: any) {
+    this.wheres.push({ column, op: '==', value });
+    return this;
+  }
+
+  gt(column: string, value: any) {
+    this.wheres.push({ column, op: '>' as any, value });
+    return this;
+  }
+
+  gte(column: string, value: any) {
+    this.wheres.push({ column, op: '>=' as any, value });
+    return this;
+  }
+
+  lt(column: string, value: any) {
+    this.wheres.push({ column, op: '<' as any, value });
+    return this;
+  }
+
+  lte(column: string, value: any) {
+    this.wheres.push({ column, op: '<=' as any, value });
+    return this;
+  }
+
   in(column: string, values: any[]) {
     this.wheres.push({ column, op: 'in', value: values });
     return this;
@@ -294,6 +330,18 @@ class SupabaseQueryBuilder {
           if (w.op === 'in') {
             return Array.isArray(w.value) && w.value.includes(val);
           }
+          if (w.op === ('>' as any)) {
+            return Number(val) > Number(w.value);
+          }
+          if (w.op === ('>=' as any)) {
+            return Number(val) >= Number(w.value);
+          }
+          if (w.op === ('<' as any)) {
+            return Number(val) < Number(w.value);
+          }
+          if (w.op === ('<=' as any)) {
+            return Number(val) <= Number(w.value);
+          }
           if (w.op === ('ilike' as any)) {
             const rawPattern = String(w.value).replace(/^%+|%+$/g, '').toLowerCase();
             return String(val || '').toLowerCase().includes(rawPattern);
@@ -321,7 +369,9 @@ class SupabaseQueryBuilder {
 
       // Handle Delete
       if (this.isDelete) {
-        const promises = docsData.map(async (item: any) => {
+        const targetId = this.wheres.find(w => w.column === 'id' && w.op === '==')?.value;
+        const targets = docsData.length > 0 ? docsData : (targetId ? [{ id: String(targetId) }] : []);
+        const promises = targets.map(async (item: any) => {
           const docRef = doc(db, this.tableName, item.id);
           // Purge linked storage files before deleting
           await cleanupStorageFilesForDoc(item);
@@ -351,12 +401,15 @@ const cleanUndefined = (obj: any): any => {
       // Handle Update
       if (this.updateData) {
         const sanitizedUpdate = cleanUndefined(this.updateData);
-        const promises = docsData.map(async (item: any) => {
+        const targetId = this.wheres.find(w => w.column === 'id' && w.op === '==')?.value;
+        const targets = docsData.length > 0 ? docsData : (targetId ? [{ id: String(targetId) }] : []);
+
+        const promises = targets.map(async (item: any) => {
           const docRef = doc(db, this.tableName, item.id);
-          await updateDoc(docRef, sanitizedUpdate);
+          await setDoc(docRef, { ...sanitizedUpdate, id: item.id }, { merge: true });
         });
         await Promise.all(promises);
-        const updated = docsData.map((item: any) => ({
+        const updated = targets.map((item: any) => ({
           ...item,
           ...sanitizedUpdate,
         }));
@@ -444,7 +497,7 @@ export const supabase = {
         const orders = ordersRes.data || [];
         const inRange = orders.filter((o: any) => {
           const t = new Date(o.created_at || Date.now()).getTime();
-          return t >= start && t <= end && o.status !== 'cancelled';
+          return t >= start && t <= end && o.status !== 'cancelled' && o.order_status !== 'cancelled';
         });
 
         const total_orders = inRange.length;

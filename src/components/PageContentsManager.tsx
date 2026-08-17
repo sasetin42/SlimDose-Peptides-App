@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Loader2, ArrowLeft, Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ImageUpload from './ImageUpload';
+import { fireToast } from './ToastNotification';
 
 interface PageContentsManagerProps {
   onBack: () => void;
@@ -106,12 +107,17 @@ export const PageContentsManager: React.FC<PageContentsManagerProps> = ({ onBack
 
           // Mirror to site_settings
           await supabase.from('site_settings').upsert([
-            { id: 'announcement_text', value: formData.announcement_text || '', type: 'string', updated_at: new Date().toISOString() },
+            { id: 'announcement_text', value: formData.announcement_text ?? '', type: 'string', updated_at: new Date().toISOString() },
             { id: 'announcement_active', value: String(formData.announcement_active !== false), type: 'boolean', updated_at: new Date().toISOString() },
             { id: 'announcement_bg_color', value: formData.background_color || '#3C6CA8', type: 'string', updated_at: new Date().toISOString() },
             { id: 'announcement_text_color', value: formData.text_color || '#FFFFFF', type: 'string', updated_at: new Date().toISOString() },
-            { id: 'announcement_style', value: formData.display_style || 'marquee', type: 'string', updated_at: new Date().toISOString() }
+            { id: 'announcement_style', value: formData.display_style || 'marquee', type: 'string', updated_at: new Date().toISOString() },
+            { id: 'announcement_link_url', value: formData.link_url || '', type: 'string', updated_at: new Date().toISOString() }
           ]);
+
+          try {
+            localStorage.setItem('slimdose_banner_settings', JSON.stringify(formData));
+          } catch {}
 
           window.dispatchEvent(new CustomEvent('headerAnnouncementUpdated', { detail: formData }));
         } catch (annErr) {
@@ -150,10 +156,10 @@ export const PageContentsManager: React.FC<PageContentsManagerProps> = ({ onBack
         console.warn('Failed to save audit log:', logErr);
       }
 
-      alert('Page content saved successfully! Changes are live.');
+      fireToast('Page contents saved & synced live! 🎉', 'success');
     } catch (err) {
       console.error('Error saving page content:', err);
-      alert('Failed to save page contents.');
+      fireToast('Failed to save page contents.', 'error');
     } finally {
       setSaving(false);
     }
@@ -163,9 +169,17 @@ export const PageContentsManager: React.FC<PageContentsManagerProps> = ({ onBack
     switch (selectedPage) {
       case 'announcement_bar':
         return (
-          <div className="space-y-4">
-            <h4 className="text-sm font-bold text-gray-900 border-b pb-2">Announcement Banner Settings</h4>
-            <div className="flex items-center gap-3">
+          <div className="space-y-5">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white">Announcement Banner Settings</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Customize the storefront announcement bar copy, appearance, and animations.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-800">
               <input
                 type="checkbox"
                 id="announcement_active"
@@ -173,17 +187,82 @@ export const PageContentsManager: React.FC<PageContentsManagerProps> = ({ onBack
                 onChange={(e) => handleFieldChange('announcement_active', e.target.checked)}
                 className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="announcement_active" className="text-sm font-semibold text-gray-700 cursor-pointer">
+              <label htmlFor="announcement_active" className="text-sm font-semibold text-gray-700 dark:text-gray-200 cursor-pointer">
                 Enable Announcement Bar on website
               </label>
             </div>
+
             <div>
-              <label htmlFor="pagecontentsmanager-announcement-text" className="block text-xs font-semibold text-gray-600 mb-1">Announcement Text</label>
+              <label htmlFor="pagecontentsmanager-announcement-text" className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Announcement Text</label>
               <input id="pagecontentsmanager-announcement-text" name="announcement_text" type="text"
                 value={formData.announcement_text ?? ''}
                 onChange={(e) => handleFieldChange('announcement_text', e.target.value)}
-                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                className="w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                 placeholder="e.g. ⚡ FREE cold-chain shipping for Metro Manila orders over ₱5,000! ❄️"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="pagecontentsmanager-bg-color" className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Background Color</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={formData.background_color || '#3C6CA8'}
+                    onChange={(e) => handleFieldChange('background_color', e.target.value)}
+                    className="w-9 h-9 rounded-xl border p-0.5 cursor-pointer bg-transparent"
+                  />
+                  <input
+                    id="pagecontentsmanager-bg-color"
+                    type="text"
+                    value={formData.background_color || '#3C6CA8'}
+                    onChange={(e) => handleFieldChange('background_color', e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-xl text-xs font-mono uppercase dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="pagecontentsmanager-text-color" className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Text Color</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={formData.text_color || '#FFFFFF'}
+                    onChange={(e) => handleFieldChange('text_color', e.target.value)}
+                    className="w-9 h-9 rounded-xl border p-0.5 cursor-pointer bg-transparent"
+                  />
+                  <input
+                    id="pagecontentsmanager-text-color"
+                    type="text"
+                    value={formData.text_color || '#FFFFFF'}
+                    onChange={(e) => handleFieldChange('text_color', e.target.value)}
+                    className="flex-1 px-3 py-2 border rounded-xl text-xs font-mono uppercase dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="pagecontentsmanager-style" className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Display Animation Style</label>
+              <select
+                id="pagecontentsmanager-style"
+                value={formData.display_style || 'marquee'}
+                onChange={(e) => handleFieldChange('display_style', e.target.value)}
+                className="w-full px-4 py-2.5 border rounded-xl text-sm dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+              >
+                <option value="marquee">Marquee Scrolling (Smooth loop)</option>
+                <option value="static">Static Centered</option>
+                <option value="pulse">Pulse Alert Effect</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="pagecontentsmanager-link-url" className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Destination URL (Optional)</label>
+              <input id="pagecontentsmanager-link-url" type="text"
+                value={formData.link_url ?? ''}
+                onChange={(e) => handleFieldChange('link_url', e.target.value)}
+                className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+                placeholder="e.g. /coa or /calculator"
               />
             </div>
           </div>

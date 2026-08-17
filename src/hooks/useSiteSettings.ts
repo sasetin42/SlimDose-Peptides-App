@@ -60,7 +60,7 @@ export const useSiteSettings = () => {
         notice_courier: settingsData.find(s => s.id === 'notice_courier')?.value || 'Next Day via J&T',
         notice_agree_button_text: settingsData.find(s => s.id === 'notice_agree_button_text')?.value || 'I Understand & Agree',
         community_telegram_url: settingsData.find(s => s.id === 'community_telegram_url')?.value || 'https://t.me/+fGtShIUkbB84YzZl',
-        support_telegram_url: settingsData.find(s => s.id === 'support_telegram_url')?.value || 'https://t.me/slimdose_mnl',
+        support_telegram_url: settingsData.find(s => s.id === 'support_telegram_url')?.value || 'https://telegram.me/slimdose_mnl',
         support_email: settingsData.find(s => s.id === 'support_email')?.value || 'support@slimdose.ph',
         support_phone: settingsData.find(s => s.id === 'support_phone')?.value || '+63 977 813 2630',
         contact_phone: settingsData.find(s => s.id === 'contact_phone')?.value || '+63 977 813 2630',
@@ -71,7 +71,21 @@ export const useSiteSettings = () => {
         facebook_url: settingsData.find(s => s.id === 'facebook_url')?.value || '',
         meta_title: settingsData.find(s => s.id === 'meta_title')?.value || 'SlimDose Peptides — High Purity Research Solutions',
         meta_description: settingsData.find(s => s.id === 'meta_description')?.value || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
-        meta_keywords: settingsData.find(s => s.id === 'meta_keywords')?.value || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested'
+        meta_keywords: settingsData.find(s => s.id === 'meta_keywords')?.value || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested',
+        // SMTP & Email settings
+        smtp_enabled: settingsData.find(s => s.id === 'smtp_enabled')?.value || 'true',
+        smtp_provider: settingsData.find(s => s.id === 'smtp_provider')?.value || 'smtp',
+        smtp_host: settingsData.find(s => s.id === 'smtp_host')?.value || 'smtp.gmail.com',
+        smtp_port: settingsData.find(s => s.id === 'smtp_port')?.value || '465',
+        smtp_secure: settingsData.find(s => s.id === 'smtp_secure')?.value || 'true',
+        smtp_user: settingsData.find(s => s.id === 'smtp_user')?.value || 'orders@slimdose.ph',
+        smtp_pass: settingsData.find(s => s.id === 'smtp_pass')?.value || '',
+        smtp_from_email: settingsData.find(s => s.id === 'smtp_from_email')?.value || 'orders@slimdose.ph',
+        smtp_from_name: settingsData.find(s => s.id === 'smtp_from_name')?.value || 'SlimDose Peptides',
+        smtp_admin_email: settingsData.find(s => s.id === 'smtp_admin_email')?.value || 'admin@slimdose.ph',
+        smtp_send_order_receipt: settingsData.find(s => s.id === 'smtp_send_order_receipt')?.value || 'true',
+        smtp_send_admin_alert: settingsData.find(s => s.id === 'smtp_send_admin_alert')?.value || 'true',
+        smtp_send_status_update: settingsData.find(s => s.id === 'smtp_send_status_update')?.value || 'true'
       };
 
       setSiteSettings(settings);

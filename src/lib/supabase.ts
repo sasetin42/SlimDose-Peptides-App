@@ -22,6 +22,44 @@ import {
   deleteObject,
 } from 'firebase/storage';
 
+import { liveScrapedProducts } from '../data/liveScrapedProducts';
+import { liveScrapedCategories } from '../data/liveScrapedCategories';
+import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
+import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
+import { liveScrapedPaymentMethods } from '../data/liveScrapedPaymentMethods';
+import { liveScrapedPromoCodes } from '../data/liveScrapedPromoCodes';
+import { liveScrapedProductReviews } from '../data/liveScrapedProductReviews';
+
+// Flatten variations from products
+const allLiveScrapedVariations = liveScrapedProducts.flatMap((p: any) => p.variations || []);
+
+export const getLiveScrapedFallback = (table: string): any[] => {
+  switch (table) {
+    case 'products':
+      return liveScrapedProducts;
+    case 'product_variations':
+      return allLiveScrapedVariations;
+    case 'categories':
+      return liveScrapedCategories;
+    case 'orders':
+      return liveScrapedOrders;
+    case 'customers':
+    case 'subscribers':
+      return liveScrapedCustomers;
+    case 'guide_topics':
+      return liveScrapedGuideTopics;
+    case 'payment_methods':
+      return liveScrapedPaymentMethods;
+    case 'promo_codes':
+      return liveScrapedPromoCodes;
+    case 'product_reviews':
+      return liveScrapedProductReviews;
+    default:
+      return [];
+  }
+};
+
 // Helper to delete storage files by URL
 const deleteFileByUrl = async (url: string) => {
   if (!url || typeof url !== 'string' || !url.includes('firebasestorage.googleapis.com')) return;
@@ -59,6 +97,51 @@ const cleanupStorageFilesForDoc = async (docData: any) => {
 
   scanAndCleanup(docData);
   await Promise.all(promises);
+};
+
+const DELETED_ITEMS_KEY = 'slimdose_deleted_ids_by_table';
+
+export const getDeletedIdsForTable = (tableName: string): Set<string> => {
+  try {
+    const raw = localStorage.getItem(DELETED_ITEMS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const ids = Array.isArray(parsed[tableName]) ? parsed[tableName] : [];
+    return new Set(ids.map(String));
+  } catch {
+    return new Set();
+  }
+};
+
+export const markIdsAsDeleted = (tableName: string, ids: string[]) => {
+  try {
+    const raw = localStorage.getItem(DELETED_ITEMS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const existing = new Set(Array.isArray(parsed[tableName]) ? parsed[tableName] : []);
+    ids.forEach(id => {
+      if (id) existing.add(String(id));
+    });
+    parsed[tableName] = Array.from(existing);
+    localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(parsed));
+  } catch (e) {
+    console.warn('Failed to record deleted IDs to storage:', e);
+  }
+};
+
+// Helper to recursively strip undefined properties from documents for Firestore compatibility
+const cleanUndefined = (obj: any): any => {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(cleanUndefined);
+  }
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      cleaned[key] = cleanUndefined(value);
+    }
+  }
+  return cleaned;
 };
 
 class SupabaseChannel {
@@ -300,22 +383,75 @@ class SupabaseQueryBuilder {
       }
 
       // Fetch from Firestore (optimized using query constraints if available)
-      let firestoreQueryRef: any = colRef;
-      const queryConstraints: any[] = [];
-      for (const w of this.wheres) {
-        if (w.op === '==' || w.op === '!=' || w.op === 'in') {
-          queryConstraints.push(where(w.column, w.op, w.value));
+      let docsData: any[] = [];
+      try {
+        // Firestore limits 'in' queries to 30 values max.
+        const inConstraint = this.wheres.find(w => w.op === 'in');
+        if (inConstraint && Array.isArray(inConstraint.value) && inConstraint.value.length > 30) {
+          // Break into chunks of 30
+          const chunkSize = 30;
+          const chunks: any[][] = [];
+          for (let i = 0; i < inConstraint.value.length; i += chunkSize) {
+            chunks.push(inConstraint.value.slice(i, i + chunkSize));
+          }
+
+          const otherWheres = this.wheres.filter(w => w !== inConstraint);
+          const chunkPromises = chunks.map(async (chunk) => {
+            const constraints: any[] = [];
+            for (const w of otherWheres) {
+              if (w.op === '==' || w.op === '!=' || w.op === 'in') {
+                constraints.push(where(w.column, w.op, w.value));
+              }
+            }
+            constraints.push(where(inConstraint.column, 'in', chunk));
+            const qRef = firestoreQuery(colRef, ...constraints);
+            const snap = await getDocs(qRef);
+            return snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+          });
+
+          const chunkResults = await Promise.all(chunkPromises);
+          docsData = chunkResults.flat();
+        } else {
+          const queryConstraints: any[] = [];
+          for (const w of this.wheres) {
+            if (w.op === '==' || w.op === '!=' || w.op === 'in') {
+              queryConstraints.push(where(w.column, w.op, w.value));
+            }
+          }
+          const firestoreQueryRef = queryConstraints.length > 0
+            ? firestoreQuery(colRef, ...queryConstraints)
+            : colRef;
+
+          const snapshot = await getDocs(firestoreQueryRef);
+          docsData = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }));
         }
-      }
-      if (queryConstraints.length > 0) {
-        firestoreQueryRef = firestoreQuery(colRef, ...queryConstraints);
+      } catch (e) {
+        console.warn(`[Firestore Adapter] Query on ${this.tableName} using live scraped dataset:`, e);
       }
 
-      const snapshot = await getDocs(firestoreQueryRef);
-      let docsData = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
+      // Filter out deleted tombstone IDs from fallback
+      const deletedIds = getDeletedIdsForTable(this.tableName);
+      let fallback = getLiveScrapedFallback(this.tableName);
+      if (fallback && fallback.length > 0) {
+        if (deletedIds.size > 0) {
+          fallback = fallback.filter(f => !deletedIds.has(String(f.id || f.order_number)));
+        }
+        if (docsData.length === 0) {
+          docsData = [...fallback];
+        } else if (docsData.length < fallback.length) {
+          const existingIds = new Set(docsData.map(d => String(d.id || d.order_number)));
+          const missingFallback = fallback.filter(f => !existingIds.has(String(f.id || f.order_number)));
+          docsData = [...docsData, ...missingFallback];
+        }
+      }
+
+      // Also ensure docsData contains no deleted tombstone items
+      if (deletedIds.size > 0) {
+        docsData = docsData.filter(d => !deletedIds.has(String(d.id || d.order_number)));
+      }
 
       // Apply any fallback wheres client-side
       for (const w of this.wheres) {
@@ -367,36 +503,58 @@ class SupabaseQueryBuilder {
         });
       }
 
-      // Handle Delete
+      // Handle Delete (supports single .eq('id'), bulk .in('id', [...]), and filtered targets)
       if (this.isDelete) {
         const targetId = this.wheres.find(w => w.column === 'id' && w.op === '==')?.value;
-        const targets = docsData.length > 0 ? docsData : (targetId ? [{ id: String(targetId) }] : []);
+        const targetInIds = this.wheres.find(w => w.column === 'id' && w.op === 'in')?.value;
+        
+        let idsToDelete: string[] = [];
+        if (targetId) {
+          idsToDelete = [String(targetId)];
+        } else if (Array.isArray(targetInIds)) {
+          idsToDelete = targetInIds.map(String);
+        } else if (docsData.length > 0) {
+          idsToDelete = docsData.map(d => String(d.id));
+        }
+
+        // Record in tombstone registry immediately
+        if (idsToDelete.length > 0) {
+          markIdsAsDeleted(this.tableName, idsToDelete);
+        }
+
+        const targets = docsData.length > 0 ? docsData : idsToDelete.map(id => ({ id }));
         const promises = targets.map(async (item: any) => {
-          const docRef = doc(db, this.tableName, item.id);
-          // Purge linked storage files before deleting
-          await cleanupStorageFilesForDoc(item);
-          await deleteDoc(docRef);
+          if (!item.id) return;
+          try {
+            const docRef = doc(db, this.tableName, String(item.id));
+            await cleanupStorageFilesForDoc(item);
+            await deleteDoc(docRef);
+          } catch (delErr) {
+            console.warn(`[Firestore Adapter] deleteDoc error for ${item.id}:`, delErr);
+          }
         });
         await Promise.all(promises);
+
+        // If products table, also cascade-delete associated variations
+        if (this.tableName === 'products' && idsToDelete.length > 0) {
+          try {
+            const varColRef = collection(db, 'product_variations');
+            const varSnap = await getDocs(varColRef);
+            const varDeletePromises: Promise<void>[] = [];
+            varSnap.docs.forEach(docSnap => {
+              const data = docSnap.data();
+              if (idsToDelete.includes(String(data.product_id))) {
+                varDeletePromises.push(deleteDoc(doc(db, 'product_variations', docSnap.id)));
+              }
+            });
+            await Promise.all(varDeletePromises);
+          } catch (varErr) {
+            console.warn('[Firestore Adapter] Variation cascade delete skipped:', varErr);
+          }
+        }
+
         return { data: null, error: null };
       }
-
-// Helper to recursively strip undefined properties from documents for Firestore compatibility
-const cleanUndefined = (obj: any): any => {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(cleanUndefined);
-  }
-  const cleaned: Record<string, any> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value !== undefined) {
-      cleaned[key] = cleanUndefined(value);
-    }
-  }
-  return cleaned;
-};
 
       // Handle Update
       if (this.updateData) {
@@ -742,11 +900,17 @@ export const supabase = {
   functions: {
     invoke: async (functionName: string, options?: { body?: any }) => {
       try {
+        const customUrl = import.meta.env.VITE_SUPABASE_URL;
+        // If no valid active Supabase URL is configured, bypass edge function gracefully
+        if (!customUrl || customUrl.includes('xvhsyawffuhymkpxkuzc')) {
+          console.debug(`ℹ️ Edge function '${functionName}' skipped (no active edge function endpoint).`);
+          return { data: { success: true, skipped: true }, error: null };
+        }
+
         console.log(`⚡ Invoking Edge Function: ${functionName}`, options?.body);
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://xvhsyawffuhymkpxkuzc.supabase.co';
         const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
         
-        const response = await fetch(`${supabaseUrl}/functions/v1/${functionName}`, {
+        const response = await fetch(`${customUrl}/functions/v1/${functionName}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, ArrowRight, ExternalLink, ArrowLeft, ShieldCheck, Copy, Check, RefreshCw, ThermometerSnowflake, MapPin, Calendar, HelpCircle, PhoneCall, Sparkles, Building2, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import { normalizeSdpToSld, formatOrderId } from '../utils/orderUtils';
+
 
 interface TrackingOrderItem {
     product_name: string;
@@ -97,8 +100,48 @@ const OrderTracking: React.FC = () => {
         const rawQuery = queryStr.trim();
         if (!rawQuery) return;
         
-        // Strip common prefixes for clean lookup
-        const query = rawQuery.replace(/^ORD-/i, '');
+        // Strip prefixes like "ID:", "Order ID:", "Order #:", "#", "ORD-"
+        const cleanQuery = rawQuery
+            .replace(/^(id\s*:\s*|order\s*id\s*:\s*|order\s*#?\s*:\s*|ref\s*:\s*|ord-)/i, '')
+            .replace(/^#+/, '')
+            .trim();
+
+        // Normalise the query itself: SDP0960 → SLD-000960
+        const normalisedQuery = normalizeSdpToSld(cleanQuery);
+
+        // Build list of candidate search keys (covers SLD↔SDP bridging)
+        const searchCandidates = [
+            rawQuery,
+            cleanQuery,
+            normalisedQuery,
+            cleanQuery.toUpperCase(),
+            cleanQuery.toLowerCase(),
+            cleanQuery.replace(/[\s\-_]/g, ''),
+            cleanQuery.replace(/^([a-zA-Z]+)(\d+)$/, '$1-$2'),
+            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SLD-$2'),
+            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SDP-$2'),
+            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SDP$2'),
+        ];
+
+        const digitMatch = cleanQuery.match(/\d+/);
+        if (digitMatch) {
+            const digits = digitMatch[0];
+            searchCandidates.push(
+                digits,
+                `SDP${digits}`,
+                `SDP-${digits}`,
+                // Zero-padded SLD format (canonical new format)
+                `SLD-${digits.padStart(6, '0')}`,
+                // Old SDP format with 4-digit padding (covers SDP0960 etc.)
+                `SDP${digits.padStart(4, '0')}`,
+                `SDP-${digits.padStart(4, '0')}`,
+                // Reverse: if query is SLD-000960, also try SDP0960 (strip leading zeros)
+                `SDP${String(parseInt(digits, 10))}`
+            );
+        }
+
+        const uniqueCandidates = Array.from(new Set(searchCandidates.filter(Boolean)));
+
 
         setLoading(true);
         setError(null);
@@ -108,47 +151,70 @@ const OrderTracking: React.FC = () => {
         try {
             let rawData: any = null;
 
-            // 1. Try exact id match first
-            const { data: byId } = await supabase
-                .from('orders')
-                .select('*')
-                .eq('id', rawQuery)
-                .maybeSingle();
+            // 1. Try exact or flexible database match across candidates
+            for (const cand of uniqueCandidates) {
+                if (rawData) break;
 
-            if (byId) {
-                rawData = byId;
-            } else {
-                // 2. Try exact order_number match
-                const { data: byNum } = await supabase
+                const { data: byId } = await supabase
                     .from('orders')
                     .select('*')
-                    .or(`order_number.eq.${query},order_number.eq.${rawQuery}`)
+                    .or(`id.eq.${cand},order_number.eq.${cand},tracking_number.eq.${cand}`)
                     .maybeSingle();
 
-                if (byNum) {
-                    rawData = byNum;
-                } else {
-                    // 3. Try flexible search across id, order_number, tracking_number (with both clean query and raw query)
-                    const { data: byFlex } = await supabase
-                        .from('orders')
-                        .select('*')
-                        .or(`id.ilike.%${query}%,id.ilike.%${rawQuery}%,order_number.ilike.%${query}%,order_number.ilike.%${rawQuery}%,tracking_number.ilike.%${rawQuery}%`)
-                        .order('created_at', { ascending: false })
-                        .limit(1);
+                if (byId) {
+                    rawData = byId;
+                    break;
+                }
+            }
 
-                    if (byFlex && byFlex.length > 0) {
-                        rawData = byFlex[0];
-                    } else {
-                        // 4. Try RPC function fallback if available
-                        try {
-                            const { data: rpcData } = await supabase.rpc('get_order_details', {
-                                order_id_input: rawQuery
-                            });
-                            if (rpcData) rawData = rpcData;
-                        } catch {
-                            // RPC not available
-                        }
-                    }
+            // 2. Try pattern match across orders table
+            if (!rawData) {
+                const { data: byFlex } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .or(`id.ilike.%${cleanQuery}%,order_number.ilike.%${cleanQuery}%,tracking_number.ilike.%${cleanQuery}%`)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (byFlex && byFlex.length > 0) {
+                    rawData = byFlex[0];
+                }
+            }
+
+            // 3. Fallback to in-memory live dataset
+            if (!rawData && Array.isArray(liveScrapedOrders)) {
+                const fallbackMatch = (liveScrapedOrders as any[]).find((o: any) => {
+                    const oId = String(o.id || '').toLowerCase();
+                    const oNum = String(o.order_number || '').toLowerCase();
+                    const oTrack = String(o.tracking_number || '').toLowerCase();
+                    const oPhone = String(o.customer_phone || '').toLowerCase();
+                    return uniqueCandidates.some(c => {
+                        const cLow = c.toLowerCase();
+                        return (
+                            oId === cLow ||
+                            oNum === cLow ||
+                            oTrack === cLow ||
+                            oId.replace(/[\s\-_]/g, '') === cLow.replace(/[\s\-_]/g, '') ||
+                            oNum.replace(/[\s\-_]/g, '') === cLow.replace(/[\s\-_]/g, '') ||
+                            (digitMatch && (oId.includes(digitMatch[0]) || oNum.includes(digitMatch[0])))
+                        );
+                    });
+                });
+
+                if (fallbackMatch) {
+                    rawData = fallbackMatch;
+                }
+            }
+
+            // 4. Try RPC function fallback if available
+            if (!rawData) {
+                try {
+                    const { data: rpcData } = await supabase.rpc('get_order_details', {
+                        order_id_input: cleanQuery
+                    });
+                    if (rpcData) rawData = rpcData;
+                } catch {
+                    // RPC not available
                 }
             }
 
@@ -165,9 +231,12 @@ const OrderTracking: React.FC = () => {
                     }))
                     : [];
 
+                const rawOrderNum = rawData.order_number || rawData.id || null;
+                const normalizedOrderNum = rawOrderNum ? normalizeSdpToSld(String(rawOrderNum)) : null;
+
                 const formattedOrder: TrackingOrder = {
                     id: rawData.id,
-                    order_number: rawData.order_number || null,
+                    order_number: normalizedOrderNum,
                     order_status: rawData.order_status || 'new',
                     payment_status: rawData.payment_status || 'pending',
                     payment_method_name: rawData.payment_method_name || null,
@@ -195,8 +264,13 @@ const OrderTracking: React.FC = () => {
                 };
 
                 setOrder(formattedOrder);
+                // Sync the search input to the canonical order reference
+                if (formattedOrder.order_number) {
+                    setOrderId(formattedOrder.order_number);
+                }
+
             } else {
-                setError(`No order found matching "${query}". Please check your order ID or reference number and try again.`);
+                setError(`No order found matching "${rawQuery}". Please check your order reference number and try again.`);
             }
         } catch (err: any) {
             console.error('Error fetching order:', err);
@@ -206,45 +280,6 @@ const OrderTracking: React.FC = () => {
         }
     };
 
-    // Realtime subscription for order updates
-    useEffect(() => {
-        if (!order?.id) return;
-
-        const channel = supabase
-            .channel(`order-tracking-${order.id}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'orders',
-                    filter: `id=eq.${order.id}`
-                },
-                (payload) => {
-                    const rawData = payload.new as any;
-                    // Silently update order state when a change happens
-                    setOrder(prevOrder => {
-                        if (!prevOrder) return prevOrder;
-                        return {
-                            ...prevOrder,
-                            order_status: rawData.order_status || prevOrder.order_status,
-                            payment_status: rawData.payment_status || prevOrder.payment_status,
-                            tracking_number: rawData.tracking_number !== undefined ? rawData.tracking_number : prevOrder.tracking_number,
-                            tracking_courier: rawData.tracking_courier !== undefined ? rawData.tracking_courier : prevOrder.tracking_courier,
-                            courier_name: rawData.courier_name !== undefined ? rawData.courier_name : prevOrder.courier_name,
-                            courier_code: rawData.courier_code !== undefined ? rawData.courier_code : prevOrder.courier_code,
-                            tracking_url_template: rawData.tracking_url_template !== undefined ? rawData.tracking_url_template : prevOrder.tracking_url_template,
-                            shipping_note: rawData.shipping_note !== undefined ? rawData.shipping_note : prevOrder.shipping_note,
-                        };
-                    });
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [order?.id]);
 
     const handleTrack = async (e?: React.FormEvent, searchVal?: string) => {
         if (e) e.preventDefault();
@@ -278,9 +313,7 @@ const OrderTracking: React.FC = () => {
                         <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span>Back to Store</span>
                     </a>
-                    <span className="flex items-center gap-1 text-[10px] sm:text-xs font-extrabold text-[#3C6CA8] bg-[#3C6CA8]/10 dark:bg-[#3C6CA8]/20 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-[#3C6CA8]/20">
-                        <ThermometerSnowflake className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> Cold-Chain Tracked
-                    </span>
+
                 </div>
 
                 {/* Hero Header */}
@@ -292,7 +325,7 @@ const OrderTracking: React.FC = () => {
                         Live Order & Package Tracking
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-                        Track your peptide shipment status, courier details, and cold-chain dispatch progress in real time.
+                        Track your peptide shipment status and courier details in real time.
                     </p>
                 </div>
 
@@ -304,7 +337,7 @@ const OrderTracking: React.FC = () => {
                             <input id="ordertracking-input-1" name="input_1" type="text"
                                 value={orderId}
                                 onChange={(e) => setOrderId(e.target.value)}
-                                placeholder="Enter Order ID or Number (e.g., SDP-10492)..."
+                                placeholder="Enter Order ID or Number (e.g., SDP0961)..."
                                 className="w-full text-xs sm:text-base pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none transition-all font-medium"
                             />
                         </div>
@@ -332,7 +365,6 @@ const OrderTracking: React.FC = () => {
                         <span className="flex items-center gap-1 font-medium text-gray-500 dark:text-slate-400">
                             <HelpCircle className="w-3.5 h-3.5 text-[#3C6CA8] shrink-0" /> Need your order number? Check your email confirmation.
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-[#3C6CA8]">24/7 Cold-Chain Dispatch Monitoring</span>
                     </div>
                 </div>
 
@@ -379,7 +411,7 @@ const OrderTracking: React.FC = () => {
                                 <div className="md:text-right bg-white/10 backdrop-blur-sm p-2.5 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-white/15">
                                     <p className="text-[10px] sm:text-[11px] text-blue-200 uppercase font-extrabold tracking-wider">Order Reference</p>
                                     <p className="font-mono text-sm sm:text-base font-extrabold text-white">
-                                        {order.order_number || `ORD-${order.id.slice(0, 8).toUpperCase()}`}
+                                        {formatOrderId(order, { prefix: false })}
                                     </p>
                                 </div>
                             </div>
@@ -512,11 +544,7 @@ const OrderTracking: React.FC = () => {
                                             <span className="flex items-center gap-1.5">
                                                 <Truck className="w-4 h-4 text-[#3C6CA8]" /> Courier Dispatch
                                             </span>
-                                            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-md">
-                                                Cold-Chain Insulated
-                                            </span>
                                         </h3>
-
                                         {order.tracking_number ? (
                                             <div className="space-y-3">
                                                 <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-xl border border-gray-200 dark:border-slate-800">
@@ -557,7 +585,7 @@ const OrderTracking: React.FC = () => {
                                             <div className="text-center py-4 text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800">
                                                 <Truck className="w-7 h-7 sm:w-8 sm:h-8 mx-auto mb-1.5 opacity-30 text-[#3C6CA8]" />
                                                 <p className="font-extrabold text-xs sm:text-sm text-gray-700 dark:text-slate-200">No tracking number assigned yet</p>
-                                                <p className="text-[11px] sm:text-xs mt-0.5 text-gray-400">Your order is being prepared for cold-chain insulated dispatch.</p>
+
                                             </div>
                                         )}
                                     </div>

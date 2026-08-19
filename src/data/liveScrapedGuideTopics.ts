@@ -1,4 +1,5 @@
-export const liveScrapedGuideTopics: any[] = [
+// Live Scraped Articles & Guide Topics from slimdoseph.com (2026-08-18T04:41:38.015Z)
+export const liveScrapedGuideTopics = [
   {
     "id": "fe5eb5c3-153b-43e6-a826-a64498adbea6",
     "title": "YouthDose (NAD+) Protocol",

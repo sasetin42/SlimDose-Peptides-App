@@ -16,11 +16,37 @@ import {
   ChevronDown,
   ArrowUp,
   ArrowDown,
-  AlertTriangle
+  AlertTriangle,
+  FlaskConical,
+  Scale,
+  Heart,
+  Zap,
+  Star,
+  Shield,
+  Droplets,
+  Pill,
+  Brain,
+  Leaf,
+  Coffee,
 } from 'lucide-react';
 import { useCategories, Category } from '../hooks/useCategories';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
+
+// ─── Icon Renderer ─────────────────────────────────────────────────────────────
+// Handles both emoji strings (e.g. "🔬") and Lucide component name strings
+// (e.g. "FlaskConical", "Scale") that come from the scraped category data.
+const LUCIDE_MAP: Record<string, React.FC<{ className?: string }>> = {
+  FlaskConical, Scale, Heart, Zap, Star, Shield,
+  Droplets, Pill, Brain, Leaf, Coffee, Sparkles, Package, FolderOpen,
+};
+
+const CategoryIcon: React.FC<{ icon: string; className?: string }> = ({ icon, className = 'w-5 h-5' }) => {
+  const LucideComp = LUCIDE_MAP[icon];
+  if (LucideComp) return <LucideComp className={className} />;
+  // Assume it's an emoji or text
+  return <span className="text-xl leading-none">{icon || '🔬'}</span>;
+};
 
 interface CategoryManagerProps {
   onBack: () => void;
@@ -586,8 +612,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                         {/* Category & Slug */}
                         <td className="py-4 px-5">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3C6CA8]/10 to-blue-50 dark:from-slate-800 dark:to-slate-800/60 border border-[#3C6CA8]/20 flex items-center justify-center text-xl shrink-0 shadow-inner">
-                              <span>{cat.icon || '🔬'}</span>
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3C6CA8]/10 to-blue-50 dark:from-slate-800 dark:to-slate-800/60 border border-[#3C6CA8]/20 flex items-center justify-center shrink-0 shadow-inner text-[#3C6CA8]">
+                              <CategoryIcon icon={cat.icon} />
                             </div>
                             <div className="min-w-0">
                               <h4 className="font-black text-sm text-[#232323] dark:text-white truncate group-hover:text-[#3C6CA8] transition-colors">
@@ -669,8 +695,8 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                   <div key={cat.id} className="p-4 sm:p-5 space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-11 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center text-2xl shrink-0 border border-[#3C6CA8]/20 shadow-inner">
-                          <span>{cat.icon || '🔬'}</span>
+                        <div className="w-11 h-11 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20 shadow-inner">
+                          <CategoryIcon icon={cat.icon} />
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-extrabold text-sm sm:text-base text-[#232323] dark:text-white truncate">
@@ -807,7 +833,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                   />
                   <div className="flex-1 p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <span className="text-[11px] text-slate-400 font-bold">Selected Preview:</span>
-                    <span className="text-2xl">{formData.icon || '🔬'}</span>
+                    <div className="text-[#3C6CA8] flex items-center justify-center">
+                      <CategoryIcon icon={formData.icon} className="w-6 h-6" />
+                    </div>
                   </div>
                 </div>
 
@@ -848,7 +876,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
               <div className="p-3 bg-[#3C6CA8]/5 dark:bg-slate-800/80 rounded-xl border border-[#3C6CA8]/20">
                 <span className="text-[10px] font-extrabold uppercase text-[#3C6CA8] block mb-1">Storefront Button Preview</span>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xs">
-                  <span className="text-lg">{formData.icon || '🔬'}</span>
+                  <div className="text-[#3C6CA8] flex items-center justify-center">
+                    <CategoryIcon icon={formData.icon} className="w-5 h-5" />
+                  </div>
                   <span className="font-extrabold text-xs text-slate-800 dark:text-white">
                     {formData.name.trim() || 'Category Name'}
                   </span>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useGlobalDiscountAdmin } from '../hooks/useGlobalDiscount';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
 import { demoProducts } from '../data/demoProducts';
 import type { GlobalDiscount, Product } from '../types';
 import {
@@ -75,7 +75,7 @@ const GlobalDiscountManager: React.FC<GlobalDiscountManagerProps> = ({
   adminRole = 'admin'
 }) => {
   const { discounts, loading, saveDiscount, deleteDiscount, toggleActive } = useGlobalDiscountAdmin();
-  const { products: menuProducts } = useMenu();
+  const { products: menuProducts } = useMenuContext();
 
   // Guarantee products list is always populated from useMenu, local storage cache, or demoProducts
   const products: Product[] = useMemo(() => {

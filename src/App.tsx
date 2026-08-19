@@ -12,6 +12,7 @@ import VerificationGateway from './components/VerificationGateway';
 import { MenuProvider, useMenuContext } from './contexts/MenuContext';
 import ImportantNoticeModal from './components/ImportantNoticeModal';
 import ProductPageSkeleton from './components/ProductPageSkeleton';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Lazy-loaded routes — only downloaded when the user navigates to them
 const Checkout = lazy(() => import('./components/Checkout'));
@@ -242,35 +243,37 @@ function App() {
         <MenuProvider>
           <Router>
             <ScrollToTop />
-            <Suspense fallback={<PageSkeleton />}>
-              <Routes>
-                <Route path="/" element={<MainApp />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+            <ErrorBoundary>
+              <Suspense fallback={<PageSkeleton />}>
+                <Routes>
+                  <Route path="/" element={<MainApp />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
 
-                {/* Standard Pages Layout */}
-                <Route element={<SubPageLayout />}>
-                  <Route path="/coa" element={<COA />} />
-                  <Route path="/checkout" element={<CheckoutPageRoute />} />
-                  <Route path="/success" element={<Success />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/calculator" element={<PeptideCalculator />} />
-                  <Route path="/track-order" element={<OrderTracking />} />
-                  <Route path="/peptalk" element={<SmartGuide />} />
-                  <Route path="/peptalk/:id" element={<ArticleDetail />} />
-                  <Route path="/about" element={<DynamicPage pageId="about" />} />
-                  <Route path="/contact" element={<DynamicPage pageId="contact" />} />
-                  <Route path="/shipping-policy" element={<DynamicPage pageId="shipping_policy" />} />
-                  <Route path="/privacy-policy" element={<DynamicPage pageId="privacy_policy" />} />
-                  <Route path="/terms" element={<DynamicPage pageId="terms_conditions" />} />
-                  {/* Catch-all product slug — must stay LAST */}
-                  <Route path="/:slug" element={
-                    <Suspense fallback={<ProductPageSkeleton />}>
-                      <ProductPage />
-                    </Suspense>
-                  } />
-                </Route>
-              </Routes>
-            </Suspense>
+                  {/* Standard Pages Layout */}
+                  <Route element={<SubPageLayout />}>
+                    <Route path="/coa" element={<COA />} />
+                    <Route path="/checkout" element={<CheckoutPageRoute />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/calculator" element={<PeptideCalculator />} />
+                    <Route path="/track-order" element={<OrderTracking />} />
+                    <Route path="/peptalk" element={<SmartGuide />} />
+                    <Route path="/peptalk/:id" element={<ArticleDetail />} />
+                    <Route path="/about" element={<DynamicPage pageId="about" />} />
+                    <Route path="/contact" element={<DynamicPage pageId="contact" />} />
+                    <Route path="/shipping-policy" element={<DynamicPage pageId="shipping_policy" />} />
+                    <Route path="/privacy-policy" element={<DynamicPage pageId="privacy_policy" />} />
+                    <Route path="/terms" element={<DynamicPage pageId="terms_conditions" />} />
+                    {/* Catch-all product slug — must stay LAST */}
+                    <Route path="/:slug" element={
+                      <Suspense fallback={<ProductPageSkeleton />}>
+                        <ProductPage />
+                      </Suspense>
+                    } />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
           </Router>
         </MenuProvider>
       </ToastProvider>

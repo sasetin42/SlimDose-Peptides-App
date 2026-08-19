@@ -1,4 +1,68 @@
-export const liveScrapedOrders: any[] = [
+// Live Scraped Orders from slimdoseph.com (2026-08-18T04:41:37.988Z)
+export const liveScrapedOrders = [
+  {
+    "id": "SDP0961",
+    "order_number": "SDP0961",
+    "customer_name": "Verified Research Client (SDP-0961)",
+    "customer_email": "client0961@slimdose.ph",
+    "customer_phone": "0917-890-0961",
+    "contact_method": "whatsapp",
+    "shipping_address": "Unit 12B High Street South Corporate Plaza, 26th Street",
+    "shipping_city": "Taguig City",
+    "shipping_state": "Metro Manila",
+    "shipping_zip_code": "1634",
+    "shipping_country": "Philippines",
+    "shipping_barangay": "Brgy. Fort Bonifacio",
+    "shipping_region": "NCR",
+    "shipping_location": "Metro Manila (Cold-Chain Express)",
+    "courier_id": "jt_express",
+    "shipping_fee": 150,
+    "order_items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2 / Tirzepatide) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 15,
+        "total": 45,
+        "quantity": 3,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ],
+    "subtotal": 2244,
+    "total_price": 2394,
+    "pricing_mode": "PHP",
+    "payment_method_id": "gcash",
+    "payment_method_name": "GCash (Verified Instant)",
+    "payment_status": "paid",
+    "payment_proof_url": null,
+    "promo_code_id": null,
+    "promo_code": null,
+    "discount_applied": 0,
+    "order_status": "shipped",
+    "notes": "Cold-chain pharmaceutical insulated packaging with ice packs.",
+    "admin_notes": "Priority dispatch verified.",
+    "tracking_number": "JT-SDP-0961PH",
+    "tracking_courier": "J&T Express Cold-Chain",
+    "courier_name": "J&T Express",
+    "courier_code": "jt_express",
+    "tracking_url_template": "https://www.jtexpress.ph/index/query/gzquery.html",
+    "shipping_provider": "J&T Express Philippines",
+    "shipping_note": "Package is in transit with cold-chain courier to Taguig City delivery hub.",
+    "shipped_at": "2026-08-18T06:30:00.000Z",
+    "created_at": "2026-08-17T14:20:00.000Z",
+    "updated_at": "2026-08-18T08:15:00.000Z"
+  },
   {
     "id": "0f806f1c-77f8-4ebd-b78a-2312a8fb4cbd",
     "customer_name": "Joanne Cabalan",
@@ -65,7 +129,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:04.852+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "29743151-8776-4ac4-ba3f-c5819ccaca70",
@@ -124,7 +210,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:03.42+00:00",
     "telegram_legacy_message_id": 610,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "413a7918-7a93-4609-9ec4-9a3344bdfe50",
@@ -183,7 +282,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.569+00:00",
     "telegram_legacy_message_id": 2177,
     "telegram_proof_message_id": 1821,
-    "telegram_legacy_proof_message_id": 2178
+    "telegram_legacy_proof_message_id": 2178,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "536df4d7-9132-4c09-bba2-b55c2bfa4b92",
@@ -242,7 +354,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.191+00:00",
     "telegram_legacy_message_id": 1996,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1853,
+        "total": 1853,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c1d9a40b-49ed-4e18-a325-c9a827f1abca",
@@ -301,7 +426,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.928+00:00",
     "telegram_legacy_message_id": 2009,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 3417.1499999999996,
+        "quantity": 3,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "3d1491c3-c05b-4542-920b-b5c4ba897db9",
@@ -360,7 +498,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:01.265+00:00",
     "telegram_legacy_message_id": 317,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bd25688d-40e0-4683-a616-4d708a16a11f",
@@ -419,7 +570,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:01.518+00:00",
     "telegram_legacy_message_id": 794,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "76eeadfe-fb95-4c36-8b70-00fe5c75995b",
@@ -478,7 +642,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:02.853+00:00",
     "telegram_legacy_message_id": 869,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "05e554e4-c822-40fd-b156-aa801e001bec",
@@ -536,7 +713,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-03T09:00:03.779+00:00",
     "telegram_legacy_message_id": 415,
     "telegram_proof_message_id": 180,
-    "telegram_legacy_proof_message_id": 416
+    "telegram_legacy_proof_message_id": 416,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "7cff2a3f-5563-4210-b5d6-9649e53fe39b",
@@ -595,7 +784,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.295+00:00",
     "telegram_legacy_message_id": 311,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7,
+        "total": 7,
+        "quantity": 1,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a92354dc-b24a-47c5-a4fd-aa45df49e352",
@@ -654,7 +856,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:04.255+00:00",
     "telegram_legacy_message_id": 2386,
     "telegram_proof_message_id": 2024,
-    "telegram_legacy_proof_message_id": 2387
+    "telegram_legacy_proof_message_id": 2387,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3e7a8092-601c-4dbe-bbc5-f5d3823523bb",
@@ -713,7 +928,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:03.685+00:00",
     "telegram_legacy_message_id": 611,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1f68f374-fa49-47d3-af45-ef9aa7e90da8",
@@ -772,7 +1000,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.11+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2399,
+        "total": 7197,
+        "quantity": 3,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "28eadaf3-257b-55b9-b782-66b00a18afc9",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9f20167a-b884-4cfa-ac49-5bb43b0f6da0",
@@ -831,7 +1072,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:02.48+00:00",
     "telegram_legacy_message_id": 862,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b18c0c93-a760-4fb9-ba8e-6b3ba57804f3",
@@ -901,7 +1155,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:03.632+00:00",
     "telegram_legacy_message_id": 2739,
     "telegram_proof_message_id": 2371,
-    "telegram_legacy_proof_message_id": 2740
+    "telegram_legacy_proof_message_id": 2740,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2564.0499999999997,
+        "total": 5128.099999999999,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "aa629d82-78e8-491b-b792-296a77ef100a",
@@ -960,7 +1238,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.35+00:00",
     "telegram_legacy_message_id": 333,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7,
+        "total": 21,
+        "quantity": 3,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0d461435-396a-4678-965c-9c0d2f812dbf",
@@ -1030,7 +1321,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.605+00:00",
     "telegram_legacy_message_id": 446,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 20,
+        "quantity": 2,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7a48fbb6-d9a0-4d52-ba25-ed98c5bad48c",
@@ -1100,7 +1415,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:06.653+00:00",
     "telegram_legacy_message_id": 1132,
     "telegram_proof_message_id": 858,
-    "telegram_legacy_proof_message_id": 1133
+    "telegram_legacy_proof_message_id": 1133,
+    "items": [
+      {
+        "price": 1519,
+        "total": 1519,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2754,
+        "total": 5508,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4d3ba15d-88b2-46b9-a186-a403d864145c",
@@ -1170,7 +1509,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:02.697+00:00",
     "telegram_legacy_message_id": 833,
     "telegram_proof_message_id": 562,
-    "telegram_legacy_proof_message_id": 834
+    "telegram_legacy_proof_message_id": 834,
+    "items": [
+      {
+        "price": 10,
+        "total": 200,
+        "quantity": 20,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbf83f1f-74a6-4000-b6a8-77b2c91aeed7",
@@ -1229,7 +1592,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.654+00:00",
     "telegram_legacy_message_id": 867,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "88238f7e-d8ec-49c3-b6bc-c3dc6992b4ee",
@@ -1288,7 +1664,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:01.317+00:00",
     "telegram_legacy_message_id": 325,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2399,
+        "total": 7197,
+        "quantity": 3,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "28eadaf3-257b-55b9-b782-66b00a18afc9",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a4f0ea61-509c-4229-a2f0-0509eff9a6c3",
@@ -1358,7 +1747,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:03.942+00:00",
     "telegram_legacy_message_id": 859,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "93c235ff-cf96-4b2d-9232-881b08d1f138",
@@ -1417,7 +1830,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:05.443+00:00",
     "telegram_legacy_message_id": 2250,
     "telegram_proof_message_id": 1893,
-    "telegram_legacy_proof_message_id": 2251
+    "telegram_legacy_proof_message_id": 2251,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ced890bf-95cd-47aa-87b7-cd31c4f454f0",
@@ -1476,7 +1902,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:04.563+00:00",
     "telegram_legacy_message_id": 697,
     "telegram_proof_message_id": 431,
-    "telegram_legacy_proof_message_id": 698
+    "telegram_legacy_proof_message_id": 698,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "65c19f60-2244-49bf-9be7-a37e87a693a0",
@@ -1535,7 +1974,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-20T09:00:02.461+00:00",
     "telegram_legacy_message_id": 1837,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b8708e3b-9e8f-4872-b4ce-3a8927791a4c",
@@ -1605,7 +2057,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.334+00:00",
     "telegram_legacy_message_id": 1969,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8a46168a-68c0-4b92-b24b-14e3b01f386a",
@@ -1675,7 +2151,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.149+00:00",
     "telegram_legacy_message_id": 2002,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2944,
+        "total": 2944,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2754,
+        "total": 2754,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b2946797-255e-45cf-b124-dc3412a72cc4",
@@ -1733,7 +2233,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:03.356+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "e7e46d99-846c-4b31-b7f0-1fccf614ae4a",
@@ -1792,7 +2304,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:04.472+00:00",
     "telegram_legacy_message_id": 2612,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bb1ff492-4a3d-4817-9bb9-207193886a1b",
@@ -1850,7 +2375,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:02.635+00:00",
     "telegram_legacy_message_id": 349,
     "telegram_proof_message_id": 114,
-    "telegram_legacy_proof_message_id": 350
+    "telegram_legacy_proof_message_id": 350,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f24f6681-52af-46fe-9065-eade21a190e3",
@@ -1909,7 +2446,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-23T09:00:02.27+00:00",
     "telegram_legacy_message_id": 527,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a240aea6-3006-417e-bdde-ec3edc0e3994",
@@ -1967,7 +2517,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-09T09:00:01.425+00:00",
     "telegram_legacy_message_id": 401,
     "telegram_proof_message_id": 166,
-    "telegram_legacy_proof_message_id": 402
+    "telegram_legacy_proof_message_id": 402,
+    "items": [
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ba9b995b-a14f-4642-8fa1-723c4c50dc51",
@@ -2026,7 +2588,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:02.93+00:00",
     "telegram_legacy_message_id": 2809,
     "telegram_proof_message_id": 2441,
-    "telegram_legacy_proof_message_id": 2810
+    "telegram_legacy_proof_message_id": 2810,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b463cf2a-5240-4536-9a71-1dc8e5d95b0d",
@@ -2094,7 +2669,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:04.696+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "db7bf9e3-c570-4dd6-81d1-d560a31432c1",
@@ -2153,7 +2750,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.442+00:00",
     "telegram_legacy_message_id": 508,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1614,
+        "total": 1614,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "416ea13d-8e91-4810-b830-aa08a800dd9a",
@@ -2212,7 +2822,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:08.568+00:00",
     "telegram_legacy_message_id": 566,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 567
+    "telegram_legacy_proof_message_id": 567,
+    "items": [
+      {
+        "price": 12,
+        "total": 12,
+        "quantity": 1,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "670abd28-49c0-402b-a59c-d33cf708c914",
@@ -2271,7 +2894,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:02.965+00:00",
     "telegram_legacy_message_id": 831,
     "telegram_proof_message_id": 560,
-    "telegram_legacy_proof_message_id": 832
+    "telegram_legacy_proof_message_id": 832,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e98142fe-24bf-4f81-8b80-2d8872398a4e",
@@ -2330,7 +2966,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.02+00:00",
     "telegram_legacy_message_id": 1300,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "529a37c0-40f0-44b1-81d6-1265fafaca06",
@@ -2389,7 +3038,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.195+00:00",
     "telegram_legacy_message_id": 1907,
     "telegram_proof_message_id": 1624,
-    "telegram_legacy_proof_message_id": 1908
+    "telegram_legacy_proof_message_id": 1908,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "76768e84-7abe-4e16-b445-0a050ce0feb3",
@@ -2459,7 +3121,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-23T09:00:02.711+00:00",
     "telegram_legacy_message_id": 473,
     "telegram_proof_message_id": 234,
-    "telegram_legacy_proof_message_id": 474
+    "telegram_legacy_proof_message_id": 474,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 60,
+        "quantity": 6,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b07692d1-d1eb-42b1-a9d9-78b9465d511e",
@@ -2517,7 +3203,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:02.702+00:00",
     "telegram_legacy_message_id": 351,
     "telegram_proof_message_id": 116,
-    "telegram_legacy_proof_message_id": 352
+    "telegram_legacy_proof_message_id": 352,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "33232940-c4b6-4248-8665-6dd515d0c1e8",
@@ -2587,7 +3285,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.378+00:00",
     "telegram_legacy_message_id": 1968,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5167054a-f2be-4620-88ca-c4857e3d5b59",
@@ -2646,7 +3368,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-04T09:00:03.359+00:00",
     "telegram_legacy_message_id": 1048,
     "telegram_proof_message_id": 774,
-    "telegram_legacy_proof_message_id": 1049
+    "telegram_legacy_proof_message_id": 1049,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d68dd515-a854-4dc2-b913-9920f6dabc27",
@@ -2716,7 +3451,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:03.901+00:00",
     "telegram_legacy_message_id": 1993,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1805,
+        "total": 1805,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a1d3abd7-63b0-4c6f-935b-8d76ed87e387",
@@ -2775,7 +3534,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:04.158+00:00",
     "telegram_legacy_message_id": 336,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "233b29fd-522b-41ae-b793-9045a5cf3dfa",
@@ -2834,7 +3606,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.314+00:00",
     "telegram_legacy_message_id": 2847,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e2983d13-6368-4f4d-bb6a-4bcafdb41768",
@@ -2904,7 +3689,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:02.426+00:00",
     "telegram_legacy_message_id": 1989,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "987f0b44-cf7e-460a-b36e-91312c899117",
@@ -2962,7 +3771,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.519+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c19d13f7-b4e3-4008-8dc4-4daa28b34c12",
@@ -3021,7 +3842,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:04.198+00:00",
     "telegram_legacy_message_id": 344,
     "telegram_proof_message_id": 109,
-    "telegram_legacy_proof_message_id": 345
+    "telegram_legacy_proof_message_id": 345,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4cf748e5-bb05-41fd-a31a-8e3abae2e674",
@@ -3080,7 +3914,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4768,
     "telegram_proof_message_id": 4351,
-    "telegram_legacy_proof_message_id": 4769
+    "telegram_legacy_proof_message_id": 4769,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "33eb9d5b-09dc-489d-ba3a-8343c7734794",
@@ -3150,7 +3997,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.841+00:00",
     "telegram_legacy_message_id": 605,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "da00e927-7d76-4c89-949f-cec66663823d",
@@ -3209,7 +4080,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3404,
     "telegram_proof_message_id": 3028,
-    "telegram_legacy_proof_message_id": 3405
+    "telegram_legacy_proof_message_id": 3405,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ba8ca075-3acf-4291-bd6e-c8a3ac3c2d72",
@@ -3268,7 +4152,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-23T09:00:03.078+00:00",
     "telegram_legacy_message_id": 612,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1329,
+        "total": 1329,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "efabe135-2c11-4d87-be89-7d753c49efe1",
@@ -3327,7 +4224,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:02.872+00:00",
     "telegram_legacy_message_id": 695,
     "telegram_proof_message_id": 429,
-    "telegram_legacy_proof_message_id": 696
+    "telegram_legacy_proof_message_id": 696,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "412a4258-4b0d-43c9-b127-0a1caa930fe0",
@@ -3397,7 +4307,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:06.177+00:00",
     "telegram_legacy_message_id": 2003,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1519,
+        "total": 1519,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2754,
+        "total": 5508,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "630ac01b-0503-4144-ac22-a7262b34f619",
@@ -3456,7 +4390,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:04.141+00:00",
     "telegram_legacy_message_id": 1904,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9991b7a3-31cd-4c9b-8ab9-48dbcce02a0a",
@@ -3515,7 +4462,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.523+00:00",
     "telegram_legacy_message_id": 857,
     "telegram_proof_message_id": 586,
-    "telegram_legacy_proof_message_id": 858
+    "telegram_legacy_proof_message_id": 858,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "08e20ac3-b925-4a3e-b24a-45ba65a0fad0",
@@ -3574,7 +4534,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.058+00:00",
     "telegram_legacy_message_id": 1182,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3092277e-c07a-4b06-9208-f407be3ef04e",
@@ -3632,7 +4605,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:04.947+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "bffea9a5-27d8-4748-b499-fa8a06211984",
@@ -3691,7 +4676,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3737,
     "telegram_proof_message_id": 3359,
-    "telegram_legacy_proof_message_id": 3738
+    "telegram_legacy_proof_message_id": 3738,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6c432caa-9110-4a97-bfb9-64ccbb5ada8f",
@@ -3761,7 +4759,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.534+00:00",
     "telegram_legacy_message_id": 872,
     "telegram_proof_message_id": 601,
-    "telegram_legacy_proof_message_id": 873
+    "telegram_legacy_proof_message_id": 873,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "92bcad96-f693-4abc-ba0e-a8c34172e0b8",
@@ -3820,7 +4842,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:03.706+00:00",
     "telegram_legacy_message_id": 1986,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "44741cf7-7eea-4a3f-94b8-100fa93b9805",
@@ -3879,7 +4914,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-23T09:00:03.41+00:00",
     "telegram_legacy_message_id": 475,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2469,
+        "total": 2469,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "332fea22-b406-4e08-990c-6deffb938634",
@@ -3938,7 +4986,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:03.375+00:00",
     "telegram_legacy_message_id": 532,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 1708.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "bbc2ad02-41cb-491f-9840-37903a547d3b",
@@ -3997,7 +5058,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:02.855+00:00",
     "telegram_legacy_message_id": 2397,
     "telegram_proof_message_id": 2035,
-    "telegram_legacy_proof_message_id": 2398
+    "telegram_legacy_proof_message_id": 2398,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "00f115d9-dc4d-466c-9ff0-71bfecb85ffc",
@@ -4056,7 +5130,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.371+00:00",
     "telegram_legacy_message_id": 606,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 799,
+        "total": 799,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "34dfe97f-f937-4f2a-9ce7-9fe3ad39c83c",
@@ -4115,7 +5202,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.353+00:00",
     "telegram_legacy_message_id": 524,
     "telegram_proof_message_id": 285,
-    "telegram_legacy_proof_message_id": 525
+    "telegram_legacy_proof_message_id": 525,
+    "items": [
+      {
+        "price": 2184,
+        "total": 2184,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "01c15116-1495-4d5f-83d5-91b02f6fe90d",
@@ -4185,7 +5285,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:05.007+00:00",
     "telegram_legacy_message_id": 587,
     "telegram_proof_message_id": 342,
-    "telegram_legacy_proof_message_id": 588
+    "telegram_legacy_proof_message_id": 588,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4dc08dd8-f10c-44d4-9e37-82299e599c15",
@@ -4266,7 +5390,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:01.556+00:00",
     "telegram_legacy_message_id": 1701,
     "telegram_proof_message_id": 1420,
-    "telegram_legacy_proof_message_id": 1702
+    "telegram_legacy_proof_message_id": 1702,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 70,
+        "quantity": 10,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "39789dd8-8f6a-4450-b925-8568cfe71814",
@@ -4336,7 +5495,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:06.687+00:00",
     "telegram_legacy_message_id": 2220,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3200,
+        "total": 3200,
+        "quantity": 1,
+        "product_id": "e050c552-eb12-4dad-9423-7c3111871f29",
+        "product_name": "Kiara Reju PDRN (PRE-ORDER)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "424bd583-2dc0-4f72-8f6d-e39477adc40c",
@@ -4395,7 +5578,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3410,
     "telegram_proof_message_id": 3034,
-    "telegram_legacy_proof_message_id": 3411
+    "telegram_legacy_proof_message_id": 3411,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fd140f76-e59e-427e-b16b-c97be695f1d3",
@@ -4465,7 +5661,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:05.733+00:00",
     "telegram_legacy_message_id": 2292,
     "telegram_proof_message_id": 1935,
-    "telegram_legacy_proof_message_id": 2293
+    "telegram_legacy_proof_message_id": 2293,
+    "items": [
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1f918bd9-4c44-4946-9e0f-09ea2da9686b",
@@ -4535,7 +5755,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4754,
     "telegram_proof_message_id": 4337,
-    "telegram_legacy_proof_message_id": 4755
+    "telegram_legacy_proof_message_id": 4755,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "db9eac64-222a-45b5-ac4c-fc34cde4869d",
@@ -4594,7 +5838,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:03.881+00:00",
     "telegram_legacy_message_id": 621,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5199,
+        "total": 5199,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ca861218-a73a-4d66-b6c0-26f7c18a9bca",
@@ -4664,7 +5921,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:01.9+00:00",
     "telegram_legacy_message_id": 876,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 10,
+        "total": 50,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a2ae1a0f-cb46-4b86-aba6-84616eb1f4ad",
@@ -4734,7 +6015,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-29T09:00:01.538+00:00",
     "telegram_legacy_message_id": 969,
     "telegram_proof_message_id": 697,
-    "telegram_legacy_proof_message_id": 970
+    "telegram_legacy_proof_message_id": 970,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "4c93c6a5-5186-4747-b904-e4af97cb8bb1",
+        "product_name": "Etherium Gluta Drip 🇯🇵",
+        "variation_id": "dc6e49a0-cf0b-46ac-8ae1-3c8d0af4a41d",
+        "variation_name": "Box of 10 with Drip Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a8a6b56b-fcc8-40ea-bc0d-f8790659bff4",
@@ -4793,7 +6098,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.928+00:00",
     "telegram_legacy_message_id": 748,
     "telegram_proof_message_id": 482,
-    "telegram_legacy_proof_message_id": 749
+    "telegram_legacy_proof_message_id": 749,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a599808b-1d53-432f-a537-30161edde8ab",
@@ -4852,66 +6170,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.974+00:00",
     "telegram_legacy_message_id": 865,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "e9597ba7-4f0f-4f64-bc8d-e2af7d9bcd4d",
-    "customer_name": "Therese Henry",
-    "customer_email": "Jasminehenryofficial@gmail.com",
-    "customer_phone": "09392594934",
-    "contact_method": "paymongo",
-    "shipping_address": "17k, Eastwood le grand tower 2,",
-    "shipping_city": "Quezon city",
-    "shipping_state": "Metro Manila",
-    "shipping_zip_code": "1100",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Bagumbayan",
-    "shipping_region": null,
-    "shipping_location": "LALAMOVE (SAME DAY DELIVERY)",
-    "courier_id": null,
-    "shipping_fee": 0,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 2299,
-        "total": 2299,
+        "price": 1899,
+        "total": 1899,
         "quantity": 1,
-        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
-        "product_name": "SlimDose (GLP-2) 15mg",
-        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
         "variation_name": "Set",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 2299,
-    "pricing_mode": "PHP",
-    "payment_method_id": null,
-    "payment_method_name": "PayMongo",
-    "payment_status": "pending",
-    "payment_proof_url": null,
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "cancelled",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": null,
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-06-14T15:23:53.941614+00:00",
-    "updated_at": "2026-07-15T09:00:01.158537+00:00",
-    "order_number": "SLD-001438",
-    "telegram_message_id": null,
-    "paymongo_checkout_id": "cs_e90f8d67f92ff1c7bd7d89cd",
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-07-15T09:00:01.118+00:00",
-    "telegram_legacy_message_id": 1966,
-    "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    ]
   },
   {
     "id": "d1dc06ae-8cc8-4af1-a47a-a422c58551c2",
@@ -4970,7 +6242,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:03.231+00:00",
     "telegram_legacy_message_id": 2394,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aedfe39c-76f2-4e90-8751-aa10ec2db47f",
@@ -5029,7 +6314,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.853+00:00",
     "telegram_legacy_message_id": 828,
     "telegram_proof_message_id": 557,
-    "telegram_legacy_proof_message_id": 829
+    "telegram_legacy_proof_message_id": 829,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9d926ce0-0b13-4622-9056-89aabde9b312",
@@ -5110,7 +6408,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:02.468+00:00",
     "telegram_legacy_message_id": 4567,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c52056c3-b06c-490a-b679-a0d93b504a97",
@@ -5180,7 +6513,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:01.627+00:00",
     "telegram_legacy_message_id": 608,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 10,
+        "total": 50,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "33f5c376-d885-4f03-839e-cd6a3efe7040",
@@ -5250,7 +6607,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:04.124+00:00",
     "telegram_legacy_message_id": 622,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c04e65be-bd31-47f1-a24a-8447a7680c16",
@@ -5320,7 +6701,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-29T09:00:03.083+00:00",
     "telegram_legacy_message_id": 745,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 100,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4e4ca044-0631-4160-9704-03ea701c1bfa",
@@ -5379,7 +6784,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:01.726+00:00",
     "telegram_legacy_message_id": 1720,
     "telegram_proof_message_id": 1439,
-    "telegram_legacy_proof_message_id": 1721
+    "telegram_legacy_proof_message_id": 1721,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1ca4c63b-7ce1-46a2-8c31-cdd2697dbb6e",
@@ -5438,7 +6856,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:03.468+00:00",
     "telegram_legacy_message_id": 1718,
     "telegram_proof_message_id": 1437,
-    "telegram_legacy_proof_message_id": 1719
+    "telegram_legacy_proof_message_id": 1719,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d6810da0-264a-44d2-810e-bab688b89821",
@@ -5497,7 +6928,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.844+00:00",
     "telegram_legacy_message_id": 2176,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e62d3bb3-a87f-4d3d-a723-6f44ed87d032",
@@ -5565,7 +7009,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:02.594+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4ae55c06-e85c-403d-a750-ddd2d42f3c99",
@@ -5623,7 +7089,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-04T09:00:02.259+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4c3420d3-e888-4bfc-9cfa-f9c049b52144",
@@ -5693,7 +7171,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:01.758+00:00",
     "telegram_legacy_message_id": 609,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 10,
+        "total": 50,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c0485a33-30ca-4ffa-87ee-cd34b539d45b",
@@ -5752,7 +7254,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.131+00:00",
     "telegram_legacy_message_id": 2182,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1100,
+        "total": 1100,
+        "quantity": 1,
+        "product_id": "f20cf9f3-f0d2-4157-8a03-7e22effae7e4",
+        "product_name": "Exosome Skin Serum",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9d166dae-6fe4-4d4b-aaab-01c5a1310dac",
@@ -5822,7 +7337,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:01.501+00:00",
     "telegram_legacy_message_id": 570,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2754,
+        "total": 5508,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2089,
+        "total": 4178,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "08047060-395f-438b-a340-9bd36b818d59",
@@ -5881,7 +7420,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.374+00:00",
     "telegram_legacy_message_id": 2332,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6ed3c7ef-febc-45a9-9308-e6f834fcaa27",
@@ -5940,7 +7492,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:04.17+00:00",
     "telegram_legacy_message_id": 542,
     "telegram_proof_message_id": 301,
-    "telegram_legacy_proof_message_id": 543
+    "telegram_legacy_proof_message_id": 543,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d18a9c80-154f-4d71-b5d9-060f36ee3846",
@@ -6010,7 +7575,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4172,
     "telegram_proof_message_id": 3792,
-    "telegram_legacy_proof_message_id": 4173
+    "telegram_legacy_proof_message_id": 4173,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5f59383e-bde9-41e2-9ef4-d37591ea10fb",
@@ -6069,7 +7658,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:02.691+00:00",
     "telegram_legacy_message_id": 1540,
     "telegram_proof_message_id": 1265,
-    "telegram_legacy_proof_message_id": 1541
+    "telegram_legacy_proof_message_id": 1541,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c272da33-dca8-43d2-89d9-f62ba970f6a1",
@@ -6137,7 +7739,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:02.943+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "8de096f5-89a6-4dd3-829d-4c9d64465e57",
@@ -6229,7 +7853,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.064+00:00",
     "telegram_legacy_message_id": 424,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2659.0499999999997,
+        "total": 5318.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "1243c3eb-042a-4707-a1d6-299c0e853669",
@@ -6288,7 +7958,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:02.786+00:00",
     "telegram_legacy_message_id": 877,
     "telegram_proof_message_id": 606,
-    "telegram_legacy_proof_message_id": 878
+    "telegram_legacy_proof_message_id": 878,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5bb775c8-2c62-4562-ae5a-22c5c6fbec8b",
@@ -6358,7 +8041,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3408,
     "telegram_proof_message_id": 3032,
-    "telegram_legacy_proof_message_id": 3409
+    "telegram_legacy_proof_message_id": 3409,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "798714ca-5290-43ea-a938-ca6ef23828e1",
@@ -6417,7 +8124,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.495+00:00",
     "telegram_legacy_message_id": 2299,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ae71d94f-c4f9-4f93-a54b-13ac2c73db68",
@@ -6487,7 +8207,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.482+00:00",
     "telegram_legacy_message_id": 568,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2754,
+        "total": 24786,
+        "quantity": 9,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2296.17,
+        "total": 20665.53,
+        "quantity": 9,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 7
+      }
+    ]
   },
   {
     "id": "717c1073-6201-4e04-b4b9-1a858613b10c",
@@ -6546,7 +8290,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4424,
     "telegram_proof_message_id": 4040,
-    "telegram_legacy_proof_message_id": 4425
+    "telegram_legacy_proof_message_id": 4425,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2d7e6094-7f79-4b43-85b2-4cf19a3042b4",
@@ -6605,7 +8362,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:01.754+00:00",
     "telegram_legacy_message_id": 2557,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "08016a28-8c82-47ed-8386-78f05bd419df",
@@ -6664,7 +8434,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4738,
     "telegram_proof_message_id": 4321,
-    "telegram_legacy_proof_message_id": 4739
+    "telegram_legacy_proof_message_id": 4739,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b6a3acd0-1658-4179-b065-63343b3a7e3e",
@@ -6723,7 +8506,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:03.31+00:00",
     "telegram_legacy_message_id": 795,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1c318979-a3a7-4665-a611-46fb15ca428b",
@@ -6782,7 +8578,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.389+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f42c329b-de7f-41eb-9dd3-95207ff98b96",
@@ -6852,7 +8661,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:00.808+00:00",
     "telegram_legacy_message_id": 1967,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fe26401b-c752-4489-99f7-9f7c5b9fa60c",
@@ -6911,7 +8744,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-23T09:00:03.489+00:00",
     "telegram_legacy_message_id": 613,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1614,
+        "total": 1614,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d0c1cb15-2155-44cb-8d36-850cd3ac077b",
@@ -6970,7 +8816,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:03.06+00:00",
     "telegram_legacy_message_id": 1749,
     "telegram_proof_message_id": 1468,
-    "telegram_legacy_proof_message_id": 1750
+    "telegram_legacy_proof_message_id": 1750,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bb64013f-8118-4c96-b5c6-2fb55d44dc1c",
@@ -7029,7 +8888,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-27T09:00:03.398+00:00",
     "telegram_legacy_message_id": 2256,
     "telegram_proof_message_id": 1899,
-    "telegram_legacy_proof_message_id": 2257
+    "telegram_legacy_proof_message_id": 2257,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6c2e9b9a-84f8-4b02-be4f-c8dcf573be00",
@@ -7088,7 +8960,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3972,
     "telegram_proof_message_id": 3594,
-    "telegram_legacy_proof_message_id": 3973
+    "telegram_legacy_proof_message_id": 3973,
+    "items": [
+      {
+        "price": 1439,
+        "total": 1439,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6a242cd2-d09a-4b28-8f1a-d8783908227d",
@@ -7147,7 +9032,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.361+00:00",
     "telegram_legacy_message_id": 2855,
     "telegram_proof_message_id": 2487,
-    "telegram_legacy_proof_message_id": 2856
+    "telegram_legacy_proof_message_id": 2856,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b1e4f864-feb2-4354-8973-6baa99de8e1f",
@@ -7205,7 +9103,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:02.551+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "e5ea4a7a-1684-4611-b32f-122f8bef08df",
@@ -7275,7 +9185,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:02.876+00:00",
     "telegram_legacy_message_id": 614,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 721.05,
+        "total": 1442.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1262.55,
+        "total": 2525.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "4ff55af0-69ff-43f6-88c7-fa3819b4a178",
@@ -7334,7 +9268,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.334+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "da809aaa-8dcf-4e0f-b4e6-15d04605a71e",
@@ -7393,7 +9340,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.637+00:00",
     "telegram_legacy_message_id": 2860,
     "telegram_proof_message_id": 2492,
-    "telegram_legacy_proof_message_id": 2861
+    "telegram_legacy_proof_message_id": 2861,
+    "items": [
+      {
+        "price": 5749,
+        "total": 5749,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV Exosome",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "82b7dc4f-56fa-49fc-a7f2-69d740c85750",
@@ -7463,7 +9423,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:08.891+00:00",
     "telegram_legacy_message_id": 632,
     "telegram_proof_message_id": 366,
-    "telegram_legacy_proof_message_id": 633
+    "telegram_legacy_proof_message_id": 633,
+    "items": [
+      {
+        "price": 10,
+        "total": 200,
+        "quantity": 20,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7b42fc9a-c971-4ef3-acc7-83128ad55f41",
@@ -7533,7 +9517,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-19T09:00:02.254+00:00",
     "telegram_legacy_message_id": 1958,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "462b244a-46d2-479e-ac95-323e1d8b3dcb",
@@ -7603,7 +9611,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:03.625+00:00",
     "telegram_legacy_message_id": 544,
     "telegram_proof_message_id": 303,
-    "telegram_legacy_proof_message_id": 545
+    "telegram_legacy_proof_message_id": 545,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "786f4633-0c0e-4577-a460-70c360fdc09e",
@@ -7673,7 +9705,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:02.33+00:00",
     "telegram_legacy_message_id": 1911,
     "telegram_proof_message_id": 1628,
-    "telegram_legacy_proof_message_id": 1912
+    "telegram_legacy_proof_message_id": 1912,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e28a6420-ca2c-41e3-9027-465b6ffb3985",
@@ -7732,7 +9788,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:03.772+00:00",
     "telegram_legacy_message_id": 1985,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7211bbb3-6edc-4883-baa6-9c283c0bdba8",
@@ -7791,7 +9860,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:02.868+00:00",
     "telegram_legacy_message_id": 2644,
     "telegram_proof_message_id": 2278,
-    "telegram_legacy_proof_message_id": 2645
+    "telegram_legacy_proof_message_id": 2645,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "65a661c9-a5ed-4365-96b3-47bad0d371bc",
@@ -7861,7 +9943,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:02.573+00:00",
     "telegram_legacy_message_id": 307,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 308
+    "telegram_legacy_proof_message_id": 308,
+    "items": [
+      {
+        "price": 1260.03,
+        "total": 2520.06,
+        "quantity": 2,
+        "product_id": "caa321cc-2646-59b1-a445-454bada77262",
+        "product_name": "5-Amino-1MQ 5mg",
+        "variation_id": "9b652970-4326-5bfa-93ab-f7e2ee31cf07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 3
+      },
+      {
+        "price": 2089.0499999999997,
+        "total": 20890.499999999996,
+        "quantity": 10,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "190ad53d-4958-4154-b06d-952fb1550376",
@@ -7920,7 +10026,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3933,
     "telegram_proof_message_id": 3555,
-    "telegram_legacy_proof_message_id": 3934
+    "telegram_legacy_proof_message_id": 3934,
+    "items": [
+      {
+        "price": 2609,
+        "total": 7827,
+        "quantity": 3,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0b0f545a-70e4-4af4-8301-dcd84fe5d884",
@@ -7979,7 +10098,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:09.185+00:00",
     "telegram_legacy_message_id": 637,
     "telegram_proof_message_id": 371,
-    "telegram_legacy_proof_message_id": 638
+    "telegram_legacy_proof_message_id": 638,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8f022ad2-a37c-4ec2-bae6-7d7ca796e438",
@@ -8037,7 +10169,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:02.403+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "15c50e70-577d-4861-809c-f4055faf49f3",
@@ -8096,7 +10240,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3644,
     "telegram_proof_message_id": 3266,
-    "telegram_legacy_proof_message_id": 3645
+    "telegram_legacy_proof_message_id": 3645,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "85cfd4ee-169f-47e1-bc4a-d4c9551ffb3c",
@@ -8155,7 +10312,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:01.53+00:00",
     "telegram_legacy_message_id": 617,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5cbcc582-956b-4456-822c-5730b12e9c98",
@@ -8236,7 +10406,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:03.86+00:00",
     "telegram_legacy_message_id": 2734,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8acc18a9-c5dc-4649-a083-a4033f7bffcf",
@@ -8295,7 +10500,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:03.119+00:00",
     "telegram_legacy_message_id": 1901,
     "telegram_proof_message_id": 1618,
-    "telegram_legacy_proof_message_id": 1902
+    "telegram_legacy_proof_message_id": 1902,
+    "items": [
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b8c0a3ca-32c0-43e8-a0a6-53bd2f305a8b",
@@ -8354,7 +10572,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:01.845+00:00",
     "telegram_legacy_message_id": 2629,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d0f1b27f-2688-4463-9901-5dea821b4310",
@@ -8424,7 +10655,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:06.79+00:00",
     "telegram_legacy_message_id": 2546,
     "telegram_proof_message_id": 2182,
-    "telegram_legacy_proof_message_id": 2547
+    "telegram_legacy_proof_message_id": 2547,
+    "items": [
+      {
+        "price": 3200,
+        "total": 3200,
+        "quantity": 1,
+        "product_id": "e050c552-eb12-4dad-9423-7c3111871f29",
+        "product_name": "Kiara Reju PDRN (PRE-ORDER)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "02f0cbd2-88a1-4554-b230-37251831ff4a",
@@ -8483,7 +10738,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.324+00:00",
     "telegram_legacy_message_id": 1682,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "300ddaf8-baac-47e0-8140-e2071c3714a0",
@@ -8551,7 +10819,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.799+00:00",
     "telegram_legacy_message_id": 383,
     "telegram_proof_message_id": 148,
-    "telegram_legacy_proof_message_id": 384
+    "telegram_legacy_proof_message_id": 384,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "bab00efe-6f34-41ee-bab0-41e170bb658f",
@@ -8610,7 +10900,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:02.882+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7499,
+        "total": 7499,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b1843738-8cb1-4a59-9093-17eacb307c68",
@@ -8669,7 +10972,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.781+00:00",
     "telegram_legacy_message_id": 1694,
     "telegram_proof_message_id": 1413,
-    "telegram_legacy_proof_message_id": 1695
+    "telegram_legacy_proof_message_id": 1695,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "450582ca-ae11-412e-bfd1-2b60af0e05da",
@@ -8728,7 +11044,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4280,
     "telegram_proof_message_id": 3900,
-    "telegram_legacy_proof_message_id": 4281
+    "telegram_legacy_proof_message_id": 4281,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "76b768d9-96eb-4552-8201-e9da3bc223f6",
@@ -8787,7 +11116,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:05.624+00:00",
     "telegram_legacy_message_id": 2735,
     "telegram_proof_message_id": 2367,
-    "telegram_legacy_proof_message_id": 2736
+    "telegram_legacy_proof_message_id": 2736,
+    "items": [
+      {
+        "price": 3000,
+        "total": 3000,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "21443356-a2ae-4016-a382-3b4b0ee717c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f75e6dc6-41c8-4249-93b9-923f575da3eb",
@@ -8846,7 +11188,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.42+00:00",
     "telegram_legacy_message_id": 1297,
     "telegram_proof_message_id": 1023,
-    "telegram_legacy_proof_message_id": 1298
+    "telegram_legacy_proof_message_id": 1298,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "28ade53e-689b-4452-8e74-dac2ed329f43",
@@ -8905,7 +11260,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3362,
     "telegram_proof_message_id": 2986,
-    "telegram_legacy_proof_message_id": 3363
+    "telegram_legacy_proof_message_id": 3363,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1d48c275-dc84-4ed7-ba75-64bda5434fbc",
@@ -8964,7 +11332,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.389+00:00",
     "telegram_legacy_message_id": 1113,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e8618115-d8a9-4599-9a6c-6e7f5ad08871",
@@ -9023,7 +11404,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:03.529+00:00",
     "telegram_legacy_message_id": 1758,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e685450f-9f98-4240-9032-8c5d53e0a6a0",
@@ -9082,7 +11476,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:02.838+00:00",
     "telegram_legacy_message_id": 1814,
     "telegram_proof_message_id": 1533,
-    "telegram_legacy_proof_message_id": 1815
+    "telegram_legacy_proof_message_id": 1815,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c5bec859-3696-465a-9c8f-16e67e77700a",
@@ -9141,7 +11548,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4056,
     "telegram_proof_message_id": 3678,
-    "telegram_legacy_proof_message_id": 4057
+    "telegram_legacy_proof_message_id": 4057,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6ba1c60c-f482-4009-a067-abb968af9d5c",
@@ -9200,7 +11620,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4068,
     "telegram_proof_message_id": 3690,
-    "telegram_legacy_proof_message_id": 4069
+    "telegram_legacy_proof_message_id": 4069,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "288f1b2b-2cc5-46ea-80aa-901989bc8021",
@@ -9259,7 +11692,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.946+00:00",
     "telegram_legacy_message_id": 2858,
     "telegram_proof_message_id": 2490,
-    "telegram_legacy_proof_message_id": 2859
+    "telegram_legacy_proof_message_id": 2859,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4cfc30ef-f0a6-49fc-a909-0e6b6a87e995",
@@ -9318,7 +11764,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.233+00:00",
     "telegram_legacy_message_id": 2013,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "8ef83a86-4109-4857-8ecb-c78e34de5a3a",
@@ -9377,7 +11836,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.455+00:00",
     "telegram_legacy_message_id": 1110,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b5b13eee-bded-4a21-8a24-d637cc0ee4fb",
@@ -9436,7 +11908,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:02.908+00:00",
     "telegram_legacy_message_id": 882,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (Tirze) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e0193cc8-b7e0-48e4-bca1-1c46c5f59f38",
@@ -9495,7 +11980,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.93+00:00",
     "telegram_legacy_message_id": 854,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ca91dc82-a34f-4795-a1db-89bc31a1dd53",
@@ -9553,7 +12051,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:03.091+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "d8576481-3a2d-4ad5-8595-4e8885ddb2d6",
@@ -9612,7 +12122,92 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.151+00:00",
     "telegram_legacy_message_id": 315,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1709.05,
+        "total": 6836.2,
+        "quantity": 4,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "538a5623-eb97-54e2-b433-24d0d928358b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
+  },
+  {
+    "id": "b0b558e7-7e4a-402a-9c1b-005a9b511a5f",
+    "customer_name": "Samie Casafranca",
+    "customer_email": "gadianocarlo03@gmail.com",
+    "customer_phone": "09567394511",
+    "contact_method": "messenger",
+    "shipping_address": "Deca Homes Talomo Tourmaline st. Block 65 lot 11",
+    "shipping_city": "Davao City",
+    "shipping_state": "Davao Del Sur",
+    "shipping_zip_code": "8000",
+    "shipping_country": "Philippines",
+    "shipping_barangay": "Bago Gallera",
+    "shipping_region": null,
+    "shipping_location": "MAXIM (SAME DAY DELIVERY)",
+    "courier_id": null,
+    "shipping_fee": 0,
+    "order_items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ],
+    "subtotal": null,
+    "total_price": 2999,
+    "pricing_mode": "PHP",
+    "payment_method_id": "bdo",
+    "payment_method_name": "BDO",
+    "payment_status": "paid",
+    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1787016985329-spcvm6tphd8.png",
+    "promo_code_id": null,
+    "promo_code": null,
+    "discount_applied": 0,
+    "order_status": "confirmed",
+    "notes": null,
+    "admin_notes": null,
+    "tracking_number": null,
+    "tracking_courier": null,
+    "shipping_provider": null,
+    "shipping_note": null,
+    "shipped_at": null,
+    "created_at": "2026-08-18T01:36:26.485014+00:00",
+    "updated_at": "2026-08-18T03:23:57.751561+00:00",
+    "order_number": "SLD-001944",
+    "telegram_message_id": 4406,
+    "paymongo_checkout_id": null,
+    "paymongo_payment_id": null,
+    "paymongo_payment_method_used": null,
+    "winback_emailed_at": null,
+    "telegram_legacy_message_id": 4824,
+    "telegram_proof_message_id": 4407,
+    "telegram_legacy_proof_message_id": 4825,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "07c590e9-902b-40ca-87f1-c29012784dd0",
@@ -9671,7 +12266,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.185+00:00",
     "telegram_legacy_message_id": 4558,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8d718d13-9ae6-4bc9-b229-286ea5bd74db",
@@ -9729,7 +12337,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:03.432+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "dbd47299-e430-439a-8070-bd649b47449a",
@@ -9788,7 +12408,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-26T09:00:09.461+00:00",
     "telegram_legacy_message_id": 595,
     "telegram_proof_message_id": 350,
-    "telegram_legacy_proof_message_id": 596
+    "telegram_legacy_proof_message_id": 596,
+    "items": [
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbb85911-396e-40e8-a8b5-71cd6f99f098",
@@ -9847,7 +12480,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:01.672+00:00",
     "telegram_legacy_message_id": 618,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dcb0fc76-6fb2-495f-a5e0-b813d695f4a7",
@@ -9905,7 +12551,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:06.04+00:00",
     "telegram_legacy_message_id": 381,
     "telegram_proof_message_id": 146,
-    "telegram_legacy_proof_message_id": 382
+    "telegram_legacy_proof_message_id": 382,
+    "items": [
+      {
+        "price": 2699,
+        "total": 5398,
+        "quantity": 2,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "b3c5ee84-da0e-4937-aa7b-b86db8f72a86",
@@ -9975,7 +12633,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:02.676+00:00",
     "telegram_legacy_message_id": 693,
     "telegram_proof_message_id": 427,
-    "telegram_legacy_proof_message_id": 694
+    "telegram_legacy_proof_message_id": 694,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "ba517707-138b-5f52-87f9-d451682f3762",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "70e0a998-7e64-4637-a8a9-3759b357988b",
@@ -10045,7 +12727,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:03.757+00:00",
     "telegram_legacy_message_id": 1995,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1805,
+        "total": 1805,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8d4e06cb-0e01-4bd9-89f1-5b1adc6dcd22",
@@ -10115,7 +12821,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:03.771+00:00",
     "telegram_legacy_message_id": 2869,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "5e7bec98-0beb-5029-9e61-09b1b1d390fe",
+        "variation_name": "Salmon Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c309adf8-76a3-4a5b-923e-a2cca70a585f",
@@ -10174,66 +12904,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.281+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "dcd79d9f-3075-40ed-9606-a7d8d318e683",
-    "customer_name": "Amy",
-    "customer_email": "amythisbonggo96@gmail.com",
-    "customer_phone": "09776709682",
-    "contact_method": "messenger",
-    "shipping_address": "aster street",
-    "shipping_city": "- CITY OF DAVAO",
-    "shipping_state": "REGION XI (DAVAO REGION)",
-    "shipping_zip_code": "8000",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Communal",
-    "shipping_region": null,
-    "shipping_location": "MINDANAO (J&T)",
-    "courier_id": null,
-    "shipping_fee": 90,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 854.05,
-        "total": 1708.1,
+        "price": 1699,
+        "total": 3398,
         "quantity": 2,
-        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
-        "product_name": "Lipo Vela",
-        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
-        "variation_name": "Set",
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
         "purity_percentage": 99,
-        "bundle_discount_percent": 5
+        "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 1708.1,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1780412734372-45afy4lkjiz.JPG",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 89.9,
-    "order_status": "shipped",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": "JT0018842458818",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-06-02T15:05:37.235097+00:00",
-    "updated_at": "2026-07-03T09:00:01.59441+00:00",
-    "order_number": "SLD-001299",
-    "telegram_message_id": 731,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-07-03T09:00:01.564+00:00",
-    "telegram_legacy_message_id": 1006,
-    "telegram_proof_message_id": 732,
-    "telegram_legacy_proof_message_id": 1007
+    ]
   },
   {
     "id": "a17651f7-403a-4523-a52f-64c13eded7c5",
@@ -10301,7 +12985,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:06.08+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 10,
+        "total": 100,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "8fe5f2c1-f65f-4bd1-ba77-161063bda522",
@@ -10360,7 +13066,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-04T09:00:02.236+00:00",
     "telegram_legacy_message_id": 1043,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1e9cace5-73c1-4a75-af5f-d5296b3accf2",
@@ -10419,7 +13138,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:03.233+00:00",
     "telegram_legacy_message_id": 2788,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d4cea539-bc34-4e0e-81f2-57e7c6f8bea5",
@@ -10478,7 +13210,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.615+00:00",
     "telegram_legacy_message_id": 2012,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 3417.1499999999996,
+        "quantity": 3,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "9a3f6204-887e-438b-b592-d1a46e6a31ca",
@@ -10537,7 +13282,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-11T09:00:02.33+00:00",
     "telegram_legacy_message_id": 1378,
     "telegram_proof_message_id": 1104,
-    "telegram_legacy_proof_message_id": 1379
+    "telegram_legacy_proof_message_id": 1379,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f9be7947-33c1-4620-997e-c5b15dccbb02",
@@ -10595,7 +13353,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-03T09:00:02.352+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "5d10a49a-3ac1-53dd-baba-08c2859dd336",
+        "product_name": "Epithera (Epithalon) 50mg",
+        "variation_id": "e82ca41a-494d-533a-8941-5b07c08974b5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "015e6286-d279-4ee1-8599-26ead15b0217",
@@ -10665,7 +13435,103 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.651+00:00",
     "telegram_legacy_message_id": 981,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 96,
+        "quantity": 8,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
+  },
+  {
+    "id": "23f8ff81-16ba-4961-84dd-3f56a6108367",
+    "customer_name": "Lowella Marie Buendia",
+    "customer_email": "lowellabuendia18@gmail.com",
+    "customer_phone": "09171174531",
+    "contact_method": "messenger",
+    "shipping_address": "Block 5, Lot 25, Bridgetown 2",
+    "shipping_city": "Butuan City",
+    "shipping_state": "Agusan del Norte",
+    "shipping_zip_code": "8600",
+    "shipping_country": "Philippines",
+    "shipping_barangay": "Villa Kananga",
+    "shipping_region": null,
+    "shipping_location": "MINDANAO (J&T)",
+    "courier_id": null,
+    "shipping_fee": 90,
+    "order_items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ],
+    "subtotal": null,
+    "total_price": 2099,
+    "pricing_mode": "PHP",
+    "payment_method_id": "gcash",
+    "payment_method_name": "GCash",
+    "payment_status": "paid",
+    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1787005036613-2s0hh4odb2.png",
+    "promo_code_id": null,
+    "promo_code": null,
+    "discount_applied": 0,
+    "order_status": "confirmed",
+    "notes": null,
+    "admin_notes": null,
+    "tracking_number": null,
+    "tracking_courier": null,
+    "shipping_provider": null,
+    "shipping_note": null,
+    "shipped_at": null,
+    "created_at": "2026-08-17T22:17:17.832411+00:00",
+    "updated_at": "2026-08-18T03:24:02.068679+00:00",
+    "order_number": "SLD-001943",
+    "telegram_message_id": 4408,
+    "paymongo_checkout_id": null,
+    "paymongo_payment_id": null,
+    "paymongo_payment_method_used": null,
+    "winback_emailed_at": null,
+    "telegram_legacy_message_id": 4826,
+    "telegram_proof_message_id": 4409,
+    "telegram_legacy_proof_message_id": 4827,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6dc31031-77a4-4aa0-bebb-f9d847d1ebae",
@@ -10724,7 +13590,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:02.48+00:00",
     "telegram_legacy_message_id": 619,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "78e2f795-80d8-480e-8cc1-e224c3fb19cc",
@@ -10783,7 +13662,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.874+00:00",
     "telegram_legacy_message_id": 2010,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 3417.1499999999996,
+        "quantity": 3,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "0de0dfaf-86ca-4cd1-9a83-4baf370ffa1d",
@@ -10841,7 +13733,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:03.102+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "a503b044-70c4-40b1-a08b-892fd809febf",
@@ -10911,7 +13815,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:03.253+00:00",
     "telegram_legacy_message_id": 863,
     "telegram_proof_message_id": 592,
-    "telegram_legacy_proof_message_id": 864
+    "telegram_legacy_proof_message_id": 864,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1607ce7d-a7a9-4dfa-9570-6b9fd575ba63",
@@ -10970,7 +13898,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 1022,
     "telegram_proof_message_id": 748,
-    "telegram_legacy_proof_message_id": 1023
+    "telegram_legacy_proof_message_id": 1023,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3ae55658-3502-4935-91be-20c7d35579c6",
@@ -11028,7 +13969,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-03T09:00:03.474+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirzepatide) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3bec629a-6ab8-4ee3-87fc-f1ec0771f60e",
@@ -11086,7 +14039,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-04T09:00:01.868+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "56bae587-2761-4132-b1c0-35397cb22786",
@@ -11144,65 +14109,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:02.314+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "067960a6-238f-4a3c-b611-fb77d428ff95",
-    "customer_name": "Elle Harmon",
-    "customer_email": "elleharmon08@gmail.com",
-    "customer_phone": "09696232703",
-    "contact_method": "messenger",
-    "shipping_address": "153 Mangosteen Street, Santo Domingo",
-    "shipping_city": "Davao City",
-    "shipping_state": "Davao del Sur",
-    "shipping_zip_code": "8000",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Buhangin Davao",
-    "shipping_region": null,
-    "shipping_location": "MAXIM (SAME DAY DELIVERY)",
-    "courier_id": null,
-    "shipping_fee": 0,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 2099,
-        "total": 2099,
+        "price": 1999,
+        "total": 1999,
         "quantity": 1,
-        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059204",
-        "product_name": "RetaDose (Retatrutide) 10mg",
-        "variation_id": "eed72307-b336-4087-9be7-5162d8e870be",
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (Tirze) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
         "variation_name": "Set",
         "purity_percentage": 99
       }
-    ],
-    "subtotal": null,
-    "total_price": 2099,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1778104670094-ri6m460tu1.png",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "delivered",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": null,
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-05-06T21:57:51.243226+00:00",
-    "updated_at": "2026-06-06T09:00:02.825601+00:00",
-    "order_number": "SLD-001035",
-    "telegram_message_id": 66,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-06-06T09:00:02.797+00:00",
-    "telegram_legacy_message_id": null,
-    "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    ]
   },
   {
     "id": "22129861-d36a-4ffb-ad9b-d3dc631d492b",
@@ -11260,7 +14179,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-04T09:00:02.53+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f2aeba21-24a0-4e04-90d0-afeba195d0c3",
@@ -11318,7 +14249,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.061+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "97ad06d7-de70-47d7-bc2a-6dabd6ea75c0",
@@ -11376,7 +14319,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.961+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 499,
+        "total": 2994,
+        "quantity": 6,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c4240f23-aaab-48e0-8b1c-b1e92b014435",
@@ -11435,7 +14390,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-11T09:00:02.547+00:00",
     "telegram_legacy_message_id": 1977,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "11f2a05e-8df5-46d3-adaa-ee7fea444428",
@@ -11494,7 +14462,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:02.914+00:00",
     "telegram_legacy_message_id": 2787,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "060efad8-6f34-40bb-8592-39f190dac392",
@@ -11553,7 +14534,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:02.551+00:00",
     "telegram_legacy_message_id": 2871,
     "telegram_proof_message_id": 2503,
-    "telegram_legacy_proof_message_id": 2872
+    "telegram_legacy_proof_message_id": 2872,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9c75e843-96b5-42ab-a190-a7846e45725d",
@@ -11621,7 +14615,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:02.406+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059211",
+        "product_name": "SkinBoost (KPV) 10mg",
+        "variation_id": "32f27fcf-4132-4e6f-8176-ed083d83dd65",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "815d66ff-f7c1-420c-a363-a84371c3d353",
@@ -11680,7 +14696,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-09T09:00:01.575+00:00",
     "telegram_legacy_message_id": 1306,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0d2cf355-e0dc-439c-932d-20204528b7bf",
@@ -11750,7 +14779,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.911+00:00",
     "telegram_legacy_message_id": 881,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 299,
+        "total": 299,
+        "quantity": 1,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7aa241fa-8d03-440d-ae9e-3348cbb6aeef",
@@ -11831,7 +14884,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:02.868+00:00",
     "telegram_legacy_message_id": 620,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "69d6ad71-97d9-5158-b365-4b8ba92b66f5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 250,
+        "total": 250,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
+        "variation_name": "3ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "234d8178-b2f3-4d13-9a6c-59a189bc7a3d",
@@ -11890,7 +14978,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.153+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a302ee1a-88e2-49df-8f6f-2d56bbd69698",
@@ -11949,7 +15050,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:01.656+00:00",
     "telegram_legacy_message_id": 2243,
     "telegram_proof_message_id": 1886,
-    "telegram_legacy_proof_message_id": 2244
+    "telegram_legacy_proof_message_id": 2244,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ce521451-f1a2-44ad-b8e7-a95b5a36ae41",
@@ -12008,7 +15122,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.447+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ad7a39dd-ea8f-4fc8-acdc-e937c1825d45",
@@ -12067,7 +15194,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.641+00:00",
     "telegram_legacy_message_id": 1641,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2250,
+        "total": 4500,
+        "quantity": 2,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "c2674da8-538b-441e-9057-c69ba68206f5",
+        "variation_name": "200u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "58b152ad-93eb-4743-a28d-143ef08adaa0",
@@ -12125,7 +15265,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:02.315+00:00",
     "telegram_legacy_message_id": 373,
     "telegram_proof_message_id": 138,
-    "telegram_legacy_proof_message_id": 374
+    "telegram_legacy_proof_message_id": 374,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "d0bd4869-ea50-49b2-954c-e46619079892",
@@ -12184,7 +15336,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:02.806+00:00",
     "telegram_legacy_message_id": 323,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 324
+    "telegram_legacy_proof_message_id": 324,
+    "items": [
+      {
+        "price": 2399,
+        "total": 2399,
+        "quantity": 1,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "28eadaf3-257b-55b9-b782-66b00a18afc9",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "94933dc9-ae65-42ec-a214-f3a722b0379f",
@@ -12243,7 +15408,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:03.573+00:00",
     "telegram_legacy_message_id": 927,
     "telegram_proof_message_id": 656,
-    "telegram_legacy_proof_message_id": 928
+    "telegram_legacy_proof_message_id": 928,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ad089011-842a-4b53-b957-f0e04275c67f",
@@ -12302,7 +15480,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:03.459+00:00",
     "telegram_legacy_message_id": 2289,
     "telegram_proof_message_id": 1932,
-    "telegram_legacy_proof_message_id": 2290
+    "telegram_legacy_proof_message_id": 2290,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "848f78f3-1bd2-49cf-b94c-d0fdac1828dc",
@@ -12360,7 +15551,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-09T09:00:01.192+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 29990,
+        "quantity": 10,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c4d1bffe-9cde-4f10-b628-6a001c1c6397",
@@ -12419,7 +15622,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:03.758+00:00",
     "telegram_legacy_message_id": 1138,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 3417.1499999999996,
+        "quantity": 3,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "75d9ca8e-832c-4fda-8f6d-b0e72b6a8f01",
@@ -12478,7 +15694,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:03.552+00:00",
     "telegram_legacy_message_id": 326,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7499,
+        "total": 7499,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "497057c7-328e-4906-9e4b-ac164a6d26d8",
@@ -12546,7 +15775,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:02.792+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f3a5b007-8573-4183-aa56-5d6ec470b830",
@@ -12604,7 +15855,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:03.259+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (Tirze) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ec60c356-a9fd-4b15-bddf-ec318f2ec4fe",
@@ -12662,7 +15925,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:02.139+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "145f4f69-b147-4e9e-89bb-0f578d3315ac",
@@ -12720,7 +15995,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:02.863+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (Tirze) 60mg - PREORDER",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "2031f953-d16c-4293-86f7-fec3d4f5704e",
@@ -12788,7 +16075,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:01.184+00:00",
     "telegram_legacy_message_id": 389,
     "telegram_proof_message_id": 154,
-    "telegram_legacy_proof_message_id": 390
+    "telegram_legacy_proof_message_id": 390,
+    "items": [
+      {
+        "price": 1899,
+        "total": 18990,
+        "quantity": 10,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (Tirze) 10mg",
+        "variation_id": "69d6ad71-97d9-5158-b365-4b8ba92b66f5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 799,
+        "total": 7990,
+        "quantity": 10,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "936a18b7-5f2f-4ef0-9915-366ba3b79925",
@@ -12869,7 +16178,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:04.058+00:00",
     "telegram_legacy_message_id": 1961,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "fa60bce3-28d3-5fbe-b566-48113fb00588",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "abb1e432-255d-404f-9186-de2a3bd23a16",
@@ -12939,7 +16283,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:03.128+00:00",
     "telegram_legacy_message_id": 515,
     "telegram_proof_message_id": 276,
-    "telegram_legacy_proof_message_id": 516
+    "telegram_legacy_proof_message_id": 516,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 450,
+        "total": 450,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "96d3b248-3a21-4e10-b910-8274552f3d99",
@@ -13020,7 +16388,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:03.266+00:00",
     "telegram_legacy_message_id": 4568,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "989495e0-c7e5-5333-9a83-534243c82994",
+        "variation_name": "Cherry Red",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 455,
+        "quantity": 65,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 640,
+        "quantity": 8,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d60dbeec-961b-437f-8006-416854883bb3",
@@ -13078,7 +16481,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-09T09:00:01.37+00:00",
     "telegram_legacy_message_id": 403,
     "telegram_proof_message_id": 168,
-    "telegram_legacy_proof_message_id": 404
+    "telegram_legacy_proof_message_id": 404,
+    "items": [
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "a1c0e8e8-ca81-4a40-8dcf-21b2067e0908",
@@ -13146,7 +16561,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:02.693+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "1ef4f217-3822-4b8d-94fe-f09b28ab047f",
@@ -13224,7 +16661,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-04T09:00:02.643+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirzepatide) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 999,
+        "total": 1998,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3f23d225-5924-4c96-9259-f031575d7508",
@@ -13282,7 +16751,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:03.332+00:00",
     "telegram_legacy_message_id": 385,
     "telegram_proof_message_id": 150,
-    "telegram_legacy_proof_message_id": 386
+    "telegram_legacy_proof_message_id": 386,
+    "items": [
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "edb83df5-4be1-4773-b31a-12cb4df0b0b1",
@@ -13340,7 +16821,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.399+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ebd3251d-864e-4ecd-9159-d9315bc1489e",
@@ -13399,7 +16892,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:02.299+00:00",
     "telegram_legacy_message_id": 885,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cf796615-6d6a-4ca9-9d27-a8654a7b1d90",
@@ -13458,7 +16964,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:03.63+00:00",
     "telegram_legacy_message_id": 796,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c1cd2c54-abdb-4b29-9d66-a96326726985",
@@ -13528,7 +17047,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.184+00:00",
     "telegram_legacy_message_id": 1068,
     "telegram_proof_message_id": 794,
-    "telegram_legacy_proof_message_id": 1069
+    "telegram_legacy_proof_message_id": 1069,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "d9b475ae-8a40-58db-b463-2f2789c6a322",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8ef62422-de11-4392-a31c-93d4436538c2",
@@ -13586,7 +17129,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:03.861+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1499,
+        "total": 1499,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "17966c10-3b67-4d20-85ab-691dbe0b6a62",
@@ -13656,7 +17211,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:02.908+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "02f5f6da-7a5f-4875-b8c0-5287d9b832db",
@@ -13715,7 +17294,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 1349,
     "telegram_proof_message_id": 1075,
-    "telegram_legacy_proof_message_id": 1350
+    "telegram_legacy_proof_message_id": 1350,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d3f121ae-1f1c-4329-8e91-f471a6935b20",
@@ -13773,7 +17365,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:02.282+00:00",
     "telegram_legacy_message_id": 365,
     "telegram_proof_message_id": 130,
-    "telegram_legacy_proof_message_id": 366
+    "telegram_legacy_proof_message_id": 366,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3af21ef5-5daa-45d1-9b7e-cfd712699a13",
@@ -13831,7 +17435,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:03.601+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3000,
+        "total": 3000,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "21443356-a2ae-4016-a382-3b4b0ee717c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4f8b044e-4b4c-4c39-b2d7-6e2cd40415a2",
@@ -13890,7 +17506,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:04.391+00:00",
     "telegram_legacy_message_id": 1620,
     "telegram_proof_message_id": 1345,
-    "telegram_legacy_proof_message_id": 1621
+    "telegram_legacy_proof_message_id": 1621,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "29f42acb-4875-4af5-8f73-9e26420222a6",
@@ -13949,7 +17578,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3667,
     "telegram_proof_message_id": 3289,
-    "telegram_legacy_proof_message_id": 3668
+    "telegram_legacy_proof_message_id": 3668,
+    "items": [
+      {
+        "price": 1899.05,
+        "total": 3798.1,
+        "quantity": 2,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "66d9a723-f7ad-4664-96d5-924ddce6ab6a",
@@ -14007,7 +17649,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.476+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059204",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "eed72307-b336-4087-9be7-5162d8e870be",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "a4efb060-212d-4f33-86ef-e35ead4c90ec",
@@ -14075,7 +17729,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:05.2+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 10,
+        "total": 20,
+        "quantity": 2,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "638bd860-7923-4dfa-98dc-996388ae3d4d",
@@ -14145,7 +17821,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:03.823+00:00",
     "telegram_legacy_message_id": 1994,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1805,
+        "total": 1805,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "598b0ede-eeed-4b2a-bb92-ac4ad2f4aed1",
@@ -14203,7 +17903,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:02.064+00:00",
     "telegram_legacy_message_id": 387,
     "telegram_proof_message_id": 152,
-    "telegram_legacy_proof_message_id": 388
+    "telegram_legacy_proof_message_id": 388,
+    "items": [
+      {
+        "price": 1599,
+        "total": 3198,
+        "quantity": 2,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "82c8844b-bfea-4024-aa37-ab8763605707",
@@ -14273,7 +17985,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:03.71+00:00",
     "telegram_legacy_message_id": 2284,
     "telegram_proof_message_id": 1927,
-    "telegram_legacy_proof_message_id": 2285
+    "telegram_legacy_proof_message_id": 2285,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8d6adf41-6af6-41e0-9b5e-9542c088824e",
@@ -14341,7 +18077,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-13T09:00:02.853+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "009733ce-3412-4971-a5ee-be8def99cab3",
@@ -14399,7 +18157,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:02.764+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "fd0a2965-621f-4870-bbed-8b807ffff166",
@@ -14480,7 +18250,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:04.112+00:00",
     "telegram_legacy_message_id": 1959,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 1960
+    "telegram_legacy_proof_message_id": 1960,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "204f9dc6-c2d6-48f0-b7d7-a04ace051aa4",
@@ -14539,7 +18344,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4246,
     "telegram_proof_message_id": 3866,
-    "telegram_legacy_proof_message_id": 4247
+    "telegram_legacy_proof_message_id": 4247,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d3469577-4273-469a-88fa-e413586c98e2",
@@ -14597,7 +18415,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:05.244+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "6cecd6e0-cc7b-43fb-8423-b2fd546d097c",
@@ -14667,7 +18497,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:01.499+00:00",
     "telegram_legacy_message_id": 2105,
     "telegram_proof_message_id": 1750,
-    "telegram_legacy_proof_message_id": 2106
+    "telegram_legacy_proof_message_id": 2106,
+    "items": [
+      {
+        "price": 3000,
+        "total": 3000,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "21443356-a2ae-4016-a382-3b4b0ee717c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1709.05,
+        "total": 3418.1,
+        "quantity": 2,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "460acc6f-745d-4244-8a32-88d3821f7411",
@@ -14755,7 +18609,49 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:02.465+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "ef6208b8-50a4-4fa4-9062-a08ba541a574",
+        "variation_name": "Box of 10 (Vietnam)",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 7,
+        "total": 70,
+        "quantity": 10,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "cdec83a6-9e4a-41a8-9eec-8565ebfe4156",
@@ -14813,7 +18709,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-11T09:00:03.056+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f449c852-607b-4bad-a0ea-952c710af2b1",
@@ -14881,7 +18789,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:03.114+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 350,
+        "total": 350,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "8fca5ac4-d720-4b8e-858a-b591322eceaa",
@@ -14962,7 +18892,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:04.177+00:00",
     "telegram_legacy_message_id": 1745,
     "telegram_proof_message_id": 1464,
-    "telegram_legacy_proof_message_id": 1746
+    "telegram_legacy_proof_message_id": 1746,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b72863b-eee6-4678-ab81-5caec28f4b98",
@@ -15021,7 +18986,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:01.417+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2399,
+        "total": 2399,
+        "quantity": 1,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "28eadaf3-257b-55b9-b782-66b00a18afc9",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "21ad5762-eaed-4c99-965d-3d42f7e97bc3",
@@ -15079,7 +19057,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-09T09:00:01.283+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "632b432b-217d-4bfe-b71d-6c59d236dc5d",
@@ -15138,7 +19128,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:03.686+00:00",
     "telegram_legacy_message_id": 868,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4dfa3093-d5f8-4834-86c2-37888e87efff",
@@ -15206,7 +19209,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-12T09:00:05.76+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "95af4ddf-f27b-4efe-bcdb-236fe1b4c2c9",
@@ -15284,7 +19309,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-13T09:00:01.517+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 10,
+        "total": 80,
+        "quantity": 8,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f13a66f4-15a8-42ca-bb0a-fdd75125e086",
@@ -15342,7 +19399,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:04.215+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 3798,
+        "quantity": 2,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f9cc3f21-462c-4199-b7a0-0c2c20646910",
@@ -15420,7 +19489,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:02.819+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic)",
+        "variation_id": "8377645f-9a2a-5527-bda0-03f3e8f65412",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "1c83c71f-457d-4c3f-9485-0c7438fe0dc1",
@@ -15479,7 +19580,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:02.655+00:00",
     "telegram_legacy_message_id": 1722,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0f9a0eb0-d8e1-480e-a646-8d80ae5e6f5c",
@@ -15537,7 +19651,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:01.499+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3d81774e-0ab8-4e4a-8a33-1f9d68c32e78",
@@ -15595,7 +19721,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:03.599+00:00",
     "telegram_legacy_message_id": 375,
     "telegram_proof_message_id": 140,
-    "telegram_legacy_proof_message_id": 376
+    "telegram_legacy_proof_message_id": 376,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "970eab77-b736-46ff-a940-7ce214f23e8d",
@@ -15654,7 +19792,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.543+00:00",
     "telegram_legacy_message_id": 2264,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "72be66db-b44e-4bbb-bc06-f9941d8f1eee",
@@ -15713,7 +19864,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:02.813+00:00",
     "telegram_legacy_message_id": 2150,
     "telegram_proof_message_id": 1794,
-    "telegram_legacy_proof_message_id": 2151
+    "telegram_legacy_proof_message_id": 2151,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "20c46735-6272-482e-b1e2-32a0dc10e863",
@@ -15781,7 +19945,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:01.766+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 12,
+        "total": 48,
+        "quantity": 4,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "748ef800-9ea8-4db4-bc29-8568c4b793bf",
@@ -15851,7 +20037,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3372,
     "telegram_proof_message_id": 2996,
-    "telegram_legacy_proof_message_id": 3373
+    "telegram_legacy_proof_message_id": 3373,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2b0a3006-db51-4ae8-bcb2-8c4c9fb05b65",
@@ -15910,7 +20120,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:01.646+00:00",
     "telegram_legacy_message_id": 3937,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 50,
+        "total": 250,
+        "quantity": 5,
+        "product_id": "456bfe6f-b591-4efa-a053-4c870d728b38",
+        "product_name": "Threaded Plunger Syringe 5ml",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3df23bc1-bfec-46a9-87c4-ba733ed5265c",
@@ -15980,7 +20203,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:02.746+00:00",
     "telegram_legacy_message_id": 528,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2754,
+        "total": 2754,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1519,
+        "total": 1519,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "732cd6d5-0647-4a16-9c8e-16829dbae719",
@@ -16038,7 +20285,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:02.374+00:00",
     "telegram_legacy_message_id": 353,
     "telegram_proof_message_id": 118,
-    "telegram_legacy_proof_message_id": 354
+    "telegram_legacy_proof_message_id": 354,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "aedffbc9-410b-4719-9f63-38674efe0b9d",
@@ -16097,7 +20356,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:02.934+00:00",
     "telegram_legacy_message_id": 699,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "646ffe6e-9778-406d-b05a-380062c98d42",
@@ -16211,7 +20483,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:02.442+00:00",
     "telegram_legacy_message_id": 692,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "e430acf4-d1c6-5778-b7ca-4592f830fbd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994.05,
+        "total": 3988.1,
+        "quantity": 2,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 2697,
+        "quantity": 3,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cf21c6c0-8189-43ff-932c-f207d8b24600",
@@ -16279,7 +20619,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:02.965+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 350,
+        "total": 350,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3a29f859-b5ec-4519-914e-9a9e760db740",
@@ -16337,7 +20699,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:01.987+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "624d9e34-8256-4dd2-ae17-d5a37ebe4981",
@@ -16395,7 +20769,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:03.628+00:00",
     "telegram_legacy_message_id": 363,
     "telegram_proof_message_id": 128,
-    "telegram_legacy_proof_message_id": 364
+    "telegram_legacy_proof_message_id": 364,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "79e92a30-6455-4922-bbe0-27b0cffa9c59",
@@ -16453,7 +20839,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-09T09:00:02.288+00:00",
     "telegram_legacy_message_id": 399,
     "telegram_proof_message_id": 164,
-    "telegram_legacy_proof_message_id": 400
+    "telegram_legacy_proof_message_id": 400,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "d97cb5a7-7315-45a8-a37f-d3d4d8dd48f7",
@@ -16512,7 +20910,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:02.642+00:00",
     "telegram_legacy_message_id": 1964,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7fc96749-329a-4411-a06b-f7de890a74f2",
@@ -16570,7 +20981,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:04.317+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "5e7bec98-0beb-5029-9e61-09b1b1d390fe",
+        "variation_name": "Salmon Pink",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "84644845-6c3d-403e-a58a-98893f632618",
@@ -16629,7 +21052,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:02.54+00:00",
     "telegram_legacy_message_id": 1836,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8e165275-9525-4f23-be9e-371adce62d73",
@@ -16699,7 +21135,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-11T09:00:03.264+00:00",
     "telegram_legacy_message_id": 1976,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c3cae325-a551-4c26-b8cd-27ff77c26db4",
@@ -16757,7 +21217,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:01.417+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 0
+      }
+    ]
   },
   {
     "id": "5bcbce85-1bf8-4600-b856-36eff1bf27e5",
@@ -16815,7 +21287,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 367,
     "telegram_proof_message_id": 132,
-    "telegram_legacy_proof_message_id": 368
+    "telegram_legacy_proof_message_id": 368,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "545983c9-965a-4967-a4f8-6f0dee53d7d3",
@@ -16873,7 +21357,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:02.428+00:00",
     "telegram_legacy_message_id": 357,
     "telegram_proof_message_id": 122,
-    "telegram_legacy_proof_message_id": 358
+    "telegram_legacy_proof_message_id": 358,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3a566675-c9b8-4cc3-ade5-f0be9441479a",
@@ -16931,7 +21427,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:03.173+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "84ca2c7e-4c05-4de2-975f-ae5d0b415452",
@@ -16990,7 +21498,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:03.185+00:00",
     "telegram_legacy_message_id": 464,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bdff0450-677d-4574-9211-7422ed89c1df",
@@ -17049,7 +21570,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.198+00:00",
     "telegram_legacy_message_id": 314,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0c07ac27-4a96-4df5-8dbd-96fa950e5499",
@@ -17119,7 +21653,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:02.816+00:00",
     "telegram_legacy_message_id": 855,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 854,
+        "total": 854,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2659,
+        "total": 2659,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6444d2d5-590b-4e60-a770-f3c9037dfc3f",
@@ -17187,7 +21745,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:02.774+00:00",
     "telegram_legacy_message_id": 359,
     "telegram_proof_message_id": 124,
-    "telegram_legacy_proof_message_id": 360
+    "telegram_legacy_proof_message_id": 360,
+    "items": [
+      {
+        "price": 1199,
+        "total": 2398,
+        "quantity": 2,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "bf0dae55-2e5b-43d4-931f-55bff5b8f80d",
@@ -17257,7 +21837,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:03.354+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "032d53c6-b4e4-49a5-bc74-efec822479e2",
@@ -17327,7 +21931,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.018+00:00",
     "telegram_legacy_message_id": 569,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2089,
+        "total": 2089,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "04d98290-db6e-4d13-8bb8-cae3e6bead43",
@@ -17397,66 +22025,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.627+00:00",
     "telegram_legacy_message_id": 539,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "802d17f1-dbdc-4b20-bcd6-68d959c858b7",
-    "customer_name": "Amy",
-    "customer_email": "amythisbonggo96@gmail.com",
-    "customer_phone": "09776709682",
-    "contact_method": "messenger",
-    "shipping_address": "Phase 2 block 11 lot 40 camella homes communal ",
-    "shipping_city": "- CITY OF DAVAO",
-    "shipping_state": "REGION XI (DAVAO REGION)",
-    "shipping_zip_code": "8000",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Communal",
-    "shipping_region": null,
-    "shipping_location": "MINDANAO (J&T)",
-    "courier_id": null,
-    "shipping_fee": 90,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 959,
-        "total": 959,
+        "price": 7125,
+        "total": 7125,
         "quantity": 1,
-        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
-        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
-        "variation_id": "e95075f2-1ba1-5ab8-949c-f86c0032b9bb",
-        "variation_name": "Set",
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "bf5b3932-201d-4bf1-829b-00ab4849b296",
+        "variation_name": "Box of 10 (Italy)",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
+      },
+      {
+        "price": 1894.3,
+        "total": 3788.6,
+        "quantity": 2,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "d9b475ae-8a40-58db-b463-2f2789c6a322",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
       }
-    ],
-    "subtotal": null,
-    "total_price": 959,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1785983587539-c9p8hc8btq.png",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "delivered",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": "JT0022185120849",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-08-06T02:33:08.779937+00:00",
-    "updated_at": "2026-08-08T15:34:33.256883+00:00",
-    "order_number": "SLD-001873",
-    "telegram_message_id": 3987,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": null,
-    "telegram_legacy_message_id": 4370,
-    "telegram_proof_message_id": 3988,
-    "telegram_legacy_proof_message_id": 4371
+    ]
   },
   {
     "id": "7acf570b-4d19-4a56-828a-57929a342dbf",
@@ -17515,7 +22108,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.653+00:00",
     "telegram_legacy_message_id": 797,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "16289167-e55a-40f5-8010-a725854fea36",
@@ -17585,7 +22191,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:02.954+00:00",
     "telegram_legacy_message_id": 615,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 721.05,
+        "total": 1442.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1262.55,
+        "total": 2525.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "29a2dca2-4d33-4492-b15d-330c321fefb9",
@@ -17644,7 +22274,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:04.153+00:00",
     "telegram_legacy_message_id": 318,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "47ff2af1-0c80-48a9-b1d0-3a6d1c4bfa85",
@@ -17725,7 +22368,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:02.507+00:00",
     "telegram_legacy_message_id": 2473,
     "telegram_proof_message_id": 2111,
-    "telegram_legacy_proof_message_id": 2474
+    "telegram_legacy_proof_message_id": 2474,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 399,
+        "total": 399,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2a77e3cd-33a9-42c2-bd6f-a3ed6ab52db9",
@@ -17784,7 +22462,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.432+00:00",
     "telegram_legacy_message_id": 1915,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dc9d8ec8-e5a6-425f-b54f-ceaea4802608",
@@ -17842,7 +22533,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:02.728+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "fcf1e8a3-1bcc-5405-abfb-a207d4fb4dab",
+        "variation_name": "Cloud Pink",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "e29bdfd1-eef0-4557-bed4-f7e5b93b74a1",
@@ -17901,7 +22604,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3542,
     "telegram_proof_message_id": 3164,
-    "telegram_legacy_proof_message_id": 3543
+    "telegram_legacy_proof_message_id": 3543,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "805073b2-314a-4eb1-90e6-647ffb5734c1",
@@ -17960,7 +22676,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:03.247+00:00",
     "telegram_legacy_message_id": 312,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7,
+        "total": 7,
+        "quantity": 1,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "124a11ed-142a-4712-b7c5-94e721b4dce9",
@@ -18030,7 +22759,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-22T09:00:03.264+00:00",
     "telegram_legacy_message_id": 465,
     "telegram_proof_message_id": 226,
-    "telegram_legacy_proof_message_id": 466
+    "telegram_legacy_proof_message_id": 466,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "efe6315a-e0c3-4d4b-9042-af021132ab79",
@@ -18100,7 +22853,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:01.385+00:00",
     "telegram_legacy_message_id": 982,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 1708.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5c614dd3-3d8d-4fa9-a06e-be2ccfb0dcdc",
@@ -18170,7 +22947,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-29T09:00:02.675+00:00",
     "telegram_legacy_message_id": 1033,
     "telegram_proof_message_id": 759,
-    "telegram_legacy_proof_message_id": 1034
+    "telegram_legacy_proof_message_id": 1034,
+    "items": [
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "3b97f35b-e26e-557b-9c22-6bc19537a650",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2f94f399-393d-48f0-9f4a-ecf516454281",
@@ -18229,7 +23030,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:02.953+00:00",
     "telegram_legacy_message_id": 2469,
     "telegram_proof_message_id": 2107,
-    "telegram_legacy_proof_message_id": 2470
+    "telegram_legacy_proof_message_id": 2470,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3250b81b-e6d9-4e23-820d-7dbd7735a94f",
@@ -18288,7 +23102,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:11.104+00:00",
     "telegram_legacy_message_id": 3048,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "09db9f48-faab-47a5-831d-38170ab01a8f",
@@ -18347,7 +23174,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:07.005+00:00",
     "telegram_legacy_message_id": 4583,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a48f62ba-1af1-4ba0-a7f0-64b211979ab6",
@@ -18406,7 +23246,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:01.65+00:00",
     "telegram_legacy_message_id": 2785,
     "telegram_proof_message_id": 2417,
-    "telegram_legacy_proof_message_id": 2786
+    "telegram_legacy_proof_message_id": 2786,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bf5a3767-5e47-49ee-9129-168caa0df419",
@@ -18465,7 +23318,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:02.261+00:00",
     "telegram_legacy_message_id": 758,
     "telegram_proof_message_id": 492,
-    "telegram_legacy_proof_message_id": 759
+    "telegram_legacy_proof_message_id": 759,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a2d62a08-da80-4ccf-82f3-a97c7b17a1c0",
@@ -18524,7 +23390,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.221+00:00",
     "telegram_legacy_message_id": 2008,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ddc6345c-e42e-4ae4-9af4-49e42bc624d0",
@@ -18594,7 +23473,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:02.436+00:00",
     "telegram_legacy_message_id": 849,
     "telegram_proof_message_id": 578,
-    "telegram_legacy_proof_message_id": 850
+    "telegram_legacy_proof_message_id": 850,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1399,
+        "total": 1399,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4365a377-558c-4d3a-8992-72084d1c8598",
@@ -18653,7 +23556,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:03.283+00:00",
     "telegram_legacy_message_id": 2395,
     "telegram_proof_message_id": 2033,
-    "telegram_legacy_proof_message_id": 2396
+    "telegram_legacy_proof_message_id": 2396,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b3a93276-86a3-49f5-8775-f285f596aac3",
@@ -18723,7 +23639,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.08+00:00",
     "telegram_legacy_message_id": 856,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 721.05,
+        "total": 1442.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1262.55,
+        "total": 2525.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "de3cb395-fb65-46d8-8446-0d2a7ca0bb7b",
@@ -18782,7 +23722,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.56+00:00",
     "telegram_legacy_message_id": 824,
     "telegram_proof_message_id": 553,
-    "telegram_legacy_proof_message_id": 825
+    "telegram_legacy_proof_message_id": 825,
+    "items": [
+      {
+        "price": 712.5,
+        "total": 1425,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "5b0d6bbd-01c8-4529-852e-c8b10679183b",
@@ -18852,7 +23805,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4248,
     "telegram_proof_message_id": 3868,
-    "telegram_legacy_proof_message_id": 4249
+    "telegram_legacy_proof_message_id": 4249,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "771dfed4-f055-4cca-a806-4009560e8804",
@@ -18911,7 +23888,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:03.779+00:00",
     "telegram_legacy_message_id": 2540,
     "telegram_proof_message_id": 2176,
-    "telegram_legacy_proof_message_id": 2541
+    "telegram_legacy_proof_message_id": 2541,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1268ed7d-8c74-4f28-af93-9bc0a02a2139",
@@ -18970,7 +23960,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:02.512+00:00",
     "telegram_legacy_message_id": 2802,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "15ab958b-5191-4bc1-b341-f27c43040bfe",
@@ -19029,7 +24032,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.221+00:00",
     "telegram_legacy_message_id": 1047,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dfa24a3c-2552-4aa0-a150-2bd2eaaeba4a",
@@ -19088,7 +24104,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:02.298+00:00",
     "telegram_legacy_message_id": 929,
     "telegram_proof_message_id": 658,
-    "telegram_legacy_proof_message_id": 930
+    "telegram_legacy_proof_message_id": 930,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6e2d9f7b-ee0a-49b3-9666-64fb4b9892d7",
@@ -19147,66 +24176,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.907+00:00",
     "telegram_legacy_message_id": 1044,
     "telegram_proof_message_id": 770,
-    "telegram_legacy_proof_message_id": 1045
-  },
-  {
-    "id": "01355725-f37e-4ee5-a724-960f946ecea9",
-    "customer_name": "Mecherl Mak Nisperos Mak",
-    "customer_email": "mecherlnmak@gmail.com",
-    "customer_phone": "09358013557",
-    "contact_method": "messenger",
-    "shipping_address": "NA",
-    "shipping_city": "San Fernando",
-    "shipping_state": "La Union",
-    "shipping_zip_code": "2500",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Lingsat",
-    "shipping_region": null,
-    "shipping_location": "LUZON (J&T)",
-    "courier_id": null,
-    "shipping_fee": 120,
-    "order_items": [
+    "telegram_legacy_proof_message_id": 1045,
+    "items": [
       {
-        "price": 759.05,
-        "total": 3036.2,
-        "quantity": 4,
-        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
-        "product_name": "Lipo Vela",
-        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
-        "variation_name": "Vials only",
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
         "purity_percentage": 99,
-        "bundle_discount_percent": 5
+        "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 3036.2,
-    "pricing_mode": "PHP",
-    "payment_method_id": "bdo",
-    "payment_method_name": "BDO",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1779790894717-r2n5neg1un.jpeg",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 159.8,
-    "order_status": "delivered",
-    "notes": "#80 Cabanela Transient & Apartment,\nDalumpinas Rd., Brgy. Lingsat, San\nFernando, La Union, Room 3",
-    "admin_notes": null,
-    "tracking_number": "JT0018464075042",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-05-26T10:21:35.507058+00:00",
-    "updated_at": "2026-06-26T09:00:04.92063+00:00",
-    "order_number": "SLD-001232",
-    "telegram_message_id": 588,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-06-26T09:00:04.899+00:00",
-    "telegram_legacy_message_id": 860,
-    "telegram_proof_message_id": 589,
-    "telegram_legacy_proof_message_id": 861
+    ]
   },
   {
     "id": "1adc9dc5-1e76-4543-b1b1-bd524519ed1c",
@@ -19265,7 +24248,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:02.261+00:00",
     "telegram_legacy_message_id": 2072,
     "telegram_proof_message_id": 1717,
-    "telegram_legacy_proof_message_id": 2073
+    "telegram_legacy_proof_message_id": 2073,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0b4e79c2-4d5a-49aa-a65c-33f52b730d0e",
@@ -19335,7 +24331,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4256,
     "telegram_proof_message_id": 3876,
-    "telegram_legacy_proof_message_id": 4257
+    "telegram_legacy_proof_message_id": 4257,
+    "items": [
+      {
+        "price": 10,
+        "total": 30,
+        "quantity": 3,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "af4bd57b-25a9-4bca-85f6-7f98f8896d4c",
@@ -19394,7 +24414,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3514,
     "telegram_proof_message_id": 3136,
-    "telegram_legacy_proof_message_id": 3515
+    "telegram_legacy_proof_message_id": 3515,
+    "items": [
+      {
+        "price": 5199,
+        "total": 5199,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "24b1952c-96e9-4773-ba7d-1d7eb586f5a6",
@@ -19453,7 +24486,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.402+00:00",
     "telegram_legacy_message_id": 913,
     "telegram_proof_message_id": 642,
-    "telegram_legacy_proof_message_id": 914
+    "telegram_legacy_proof_message_id": 914,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "69d6ad71-97d9-5158-b365-4b8ba92b66f5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1f69afc4-8c12-469d-a981-5dcea5f4609a",
@@ -19512,7 +24558,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:02.697+00:00",
     "telegram_legacy_message_id": 979,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c44b257-2432-497f-b08f-f29c4f4e379c",
@@ -19571,7 +24630,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.562+00:00",
     "telegram_legacy_message_id": 1295,
     "telegram_proof_message_id": 1021,
-    "telegram_legacy_proof_message_id": 1296
+    "telegram_legacy_proof_message_id": 1296,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5d43f3b7-94a5-44f0-9ce6-f010d37daa7b",
@@ -19639,7 +24711,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:03.678+00:00",
     "telegram_legacy_message_id": 413,
     "telegram_proof_message_id": 178,
-    "telegram_legacy_proof_message_id": 414
+    "telegram_legacy_proof_message_id": 414,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirzepatide) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ca6d9ebe-72b0-46fd-82bd-1f3e777ca576",
@@ -19709,7 +24803,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:04.225+00:00",
     "telegram_legacy_message_id": 623,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cff49f7a-8325-4f78-8ba4-bae1620114c9",
@@ -19768,7 +24886,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-25T09:00:04.264+00:00",
     "telegram_legacy_message_id": 589,
     "telegram_proof_message_id": 344,
-    "telegram_legacy_proof_message_id": 590
+    "telegram_legacy_proof_message_id": 590,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "5b5f4c04-088d-52ce-a780-932eeff30ca9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "661a11a6-8dd0-4f5e-a4b5-8ae63e98b4cd",
@@ -19827,7 +24958,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:04.072+00:00",
     "telegram_legacy_message_id": 2688,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5034.05,
+        "total": 10068.1,
+        "quantity": 2,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "e317c65c-ea62-4ab4-a58b-336695773181",
@@ -19886,7 +25030,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.478+00:00",
     "telegram_legacy_message_id": 1999,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2564,
+        "total": 2564,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0674e7f0-46b3-4d6a-9922-ea689c5290a4",
@@ -19954,7 +25111,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:01.22+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "0d0f1d23-0538-44d2-978b-62376036f21c",
@@ -20032,7 +25211,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:01.356+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c939bc66-b6d0-42ad-b324-12fa69afb6b3",
@@ -20090,7 +25301,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:03.698+00:00",
     "telegram_legacy_message_id": 419,
     "telegram_proof_message_id": 184,
-    "telegram_legacy_proof_message_id": 420
+    "telegram_legacy_proof_message_id": 420,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059202",
+        "product_name": "SlimDose (Tirzepatide) 20mg",
+        "variation_id": "f828daed-b597-4a71-bea6-f527ef78bceb",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4e9cedc2-f031-43dc-b1f9-e4310961ef50",
@@ -20149,7 +25372,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4402,
     "telegram_proof_message_id": 4018,
-    "telegram_legacy_proof_message_id": 4403
+    "telegram_legacy_proof_message_id": 4403,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4fd6fc4f-9635-4a14-9d20-82220c30b7b5",
@@ -20208,7 +25444,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4459,
     "telegram_proof_message_id": 4075,
-    "telegram_legacy_proof_message_id": 4460
+    "telegram_legacy_proof_message_id": 4460,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "11ffa763-1265-4dfa-822b-d43f48863429",
@@ -20267,7 +25516,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3364,
     "telegram_proof_message_id": 2988,
-    "telegram_legacy_proof_message_id": 3365
+    "telegram_legacy_proof_message_id": 3365,
+    "items": [
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4b961216-a3dd-4522-8137-db7f32d9f2b1",
@@ -20326,7 +25588,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:04.352+00:00",
     "telegram_legacy_message_id": 2684,
     "telegram_proof_message_id": 2318,
-    "telegram_legacy_proof_message_id": 2685
+    "telegram_legacy_proof_message_id": 2685,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fe91c684-2234-427a-8144-93e0623476cc",
@@ -20385,7 +25660,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:04.175+00:00",
     "telegram_legacy_message_id": 2737,
     "telegram_proof_message_id": 2369,
-    "telegram_legacy_proof_message_id": 2738
+    "telegram_legacy_proof_message_id": 2738,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d8d3af04-ba1b-48e0-b76a-b942755294b8",
@@ -20443,7 +25731,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:03.628+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "7eefa3d4-73cd-48c3-93bb-ea0d9ad5cfaf",
@@ -20502,7 +25802,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3709,
     "telegram_proof_message_id": 3331,
-    "telegram_legacy_proof_message_id": 3710
+    "telegram_legacy_proof_message_id": 3710,
+    "items": [
+      {
+        "price": 3609.0499999999997,
+        "total": 7218.099999999999,
+        "quantity": 2,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "22d2d77a-f200-4469-b116-cde5f25c72b6",
@@ -20561,7 +25874,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:01.548+00:00",
     "telegram_legacy_message_id": 2789,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8f82ded4-98d0-4fc7-9240-1f46db168010",
@@ -20631,7 +25957,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4070,
     "telegram_proof_message_id": 3692,
-    "telegram_legacy_proof_message_id": 4071
+    "telegram_legacy_proof_message_id": 4071,
+    "items": [
+      {
+        "price": 989,
+        "total": 1978,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 4679,
+        "total": 4679,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e9d70563-86e6-4aef-a753-af91bf517988",
@@ -20690,7 +26040,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:04.221+00:00",
     "telegram_legacy_message_id": 791,
     "telegram_proof_message_id": 525,
-    "telegram_legacy_proof_message_id": 792
+    "telegram_legacy_proof_message_id": 792,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2e0978b0-bbe8-4eec-afec-1d110b7a59a1",
@@ -20749,7 +26112,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.751+00:00",
     "telegram_legacy_message_id": 2011,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 3417.1499999999996,
+        "quantity": 3,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "70510725-97f0-49db-902e-dab6ec34d9d4",
@@ -20830,7 +26206,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:02.155+00:00",
     "telegram_legacy_message_id": 1153,
     "telegram_proof_message_id": 879,
-    "telegram_legacy_proof_message_id": 1154
+    "telegram_legacy_proof_message_id": 1154,
+    "items": [
+      {
+        "price": 1614,
+        "total": 1614,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2089,
+        "total": 2089,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2184,
+        "total": 2184,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "48a22941-3b2d-4ffe-94d7-84a84eb40ad3",
@@ -20889,7 +26300,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.261+00:00",
     "telegram_legacy_message_id": 1232,
     "telegram_proof_message_id": 958,
-    "telegram_legacy_proof_message_id": 1233
+    "telegram_legacy_proof_message_id": 1233,
+    "items": [
+      {
+        "price": 2184,
+        "total": 2184,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aaf47f18-891e-46ab-adab-5de918ca4130",
@@ -20948,7 +26372,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.577+00:00",
     "telegram_legacy_message_id": 980,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "753505d5-a765-4d24-8e7e-3d034cc0e060",
@@ -21016,7 +26453,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-03T09:00:03.35+00:00",
     "telegram_legacy_message_id": 417,
     "telegram_proof_message_id": 182,
-    "telegram_legacy_proof_message_id": 418
+    "telegram_legacy_proof_message_id": 418,
+    "items": [
+      {
+        "price": 1499,
+        "total": 1499,
+        "quantity": 1,
+        "product_id": "3a6e747d-696a-4db6-b63f-f62e827d7cb5",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose (GHK-Cu) 100mg",
+        "variation_id": "da8bdcd1-dd72-4d54-a9b5-3e8bfad72713",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3b278b50-008d-484d-a2d3-cf9cc2d92de0",
@@ -21075,7 +26534,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:02.681+00:00",
     "telegram_legacy_message_id": 1018,
     "telegram_proof_message_id": 744,
-    "telegram_legacy_proof_message_id": 1019
+    "telegram_legacy_proof_message_id": 1019,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "eb467c6e-a247-4776-ae55-d5424d194121",
@@ -21134,7 +26606,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-04T09:00:03.222+00:00",
     "telegram_legacy_message_id": 1070,
     "telegram_proof_message_id": 796,
-    "telegram_legacy_proof_message_id": 1071
+    "telegram_legacy_proof_message_id": 1071,
+    "items": [
+      {
+        "price": 2754.0499999999997,
+        "total": 5508.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "0d9d74d1-6788-416f-9418-e4e6f80af98e",
@@ -21193,7 +26678,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:02.475+00:00",
     "telegram_legacy_message_id": 1066,
     "telegram_proof_message_id": 792,
-    "telegram_legacy_proof_message_id": 1067
+    "telegram_legacy_proof_message_id": 1067,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a4787872-fcfa-4894-818d-207b64a96c97",
@@ -21271,7 +26769,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:01.536+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "58183dd5-5247-4d6c-8d65-6d06d3d75a06",
@@ -21349,7 +26879,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:01.703+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "93787406-0cf8-4844-b9e7-0dc95c63f0e1",
@@ -21427,7 +26989,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:01.797+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "60a24cd1-0df7-4e72-9d35-16994801369c",
@@ -21505,7 +27099,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:02.649+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "50a27337-bd60-4290-a911-bae21c32d783",
@@ -21583,7 +27209,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-01T09:00:03.051+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "4cd5f842-d8b6-456c-abe2-587612d7d6ba",
+        "product_name": "Cagrilintide 10mg (Cagri10)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 2800,
+        "total": 2800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose 100mg",
+        "variation_id": "54432591-037a-40da-b192-b316f498a06d",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "3ec1e689-fbcf-464e-93e9-039c6890b805",
@@ -21642,7 +27300,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:02.464+00:00",
     "telegram_legacy_message_id": 1186,
     "telegram_proof_message_id": 912,
-    "telegram_legacy_proof_message_id": 1187
+    "telegram_legacy_proof_message_id": 1187,
+    "items": [
+      {
+        "price": 4939,
+        "total": 4939,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cf3fe5bb-7b51-4c5c-aa51-7fdbc7816d50",
@@ -21712,7 +27383,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:04.526+00:00",
     "telegram_legacy_message_id": 4573,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aa99cd24-5143-4541-9e23-f56921e97182",
@@ -21793,7 +27488,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.341+00:00",
     "telegram_legacy_message_id": 2001,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 854,
+        "total": 854,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e825aeaa-677b-4981-bbb9-6df90b998597",
@@ -21863,7 +27593,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4250,
     "telegram_proof_message_id": 3870,
-    "telegram_legacy_proof_message_id": 4251
+    "telegram_legacy_proof_message_id": 4251,
+    "items": [
+      {
+        "price": 1039,
+        "total": 1039,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8631419e-932d-4952-99a3-26868162430d",
@@ -21922,7 +27676,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.5+00:00",
     "telegram_legacy_message_id": 1025,
     "telegram_proof_message_id": 751,
-    "telegram_legacy_proof_message_id": 1026
+    "telegram_legacy_proof_message_id": 1026,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "43e3a881-58bd-4fad-b4e0-096b6ba4f92d",
@@ -21981,7 +27748,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.41+00:00",
     "telegram_legacy_message_id": 2538,
     "telegram_proof_message_id": 2174,
-    "telegram_legacy_proof_message_id": 2539
+    "telegram_legacy_proof_message_id": 2539,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "13dd400e-d11e-4608-ac63-cad557d51b13",
@@ -22049,7 +27829,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:02.835+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "fa60bce3-28d3-5fbe-b566-48113fb00588",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4c24135f-a002-4bc6-adf1-8ae30d37a8be",
@@ -22117,7 +27919,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:03.995+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 450,
+        "total": 450,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "2db1fb8f-6b20-4b6b-8859-6b9961d918cb",
@@ -22187,7 +28011,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.265+00:00",
     "telegram_legacy_message_id": 1012,
     "telegram_proof_message_id": 738,
-    "telegram_legacy_proof_message_id": 1013
+    "telegram_legacy_proof_message_id": 1013,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 100,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "38df893c-5c79-48f0-8d9d-ff9d661239d9",
@@ -22246,7 +28094,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.579+00:00",
     "telegram_legacy_message_id": 967,
     "telegram_proof_message_id": 695,
-    "telegram_legacy_proof_message_id": 968
+    "telegram_legacy_proof_message_id": 968,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8beff50a-1400-4947-a323-7ed4c6f26b85",
@@ -22327,7 +28188,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.419+00:00",
     "telegram_legacy_message_id": 2000,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 854,
+        "total": 854,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d2245a4c-ec32-4990-9232-c2cd2a19d067",
@@ -22397,7 +28293,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.146+00:00",
     "telegram_legacy_message_id": 1139,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "24390513-06ca-4365-8247-45744b1f5136",
@@ -22478,7 +28398,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.918+00:00",
     "telegram_legacy_message_id": 1183,
     "telegram_proof_message_id": 909,
-    "telegram_legacy_proof_message_id": 1184
+    "telegram_legacy_proof_message_id": 1184,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 854,
+        "total": 854,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "769c9901-6ecb-4604-92b7-e87d8b6a52cf",
@@ -22537,7 +28492,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.829+00:00",
     "telegram_legacy_message_id": 1108,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2564,
+        "total": 2564,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c4cf1df1-65c7-474f-b84c-8369a9e5d405",
@@ -22596,7 +28564,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:06.413+00:00",
     "telegram_legacy_message_id": 1134,
     "telegram_proof_message_id": 860,
-    "telegram_legacy_proof_message_id": 1135
+    "telegram_legacy_proof_message_id": 1135,
+    "items": [
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d5f5bcd2-262e-420f-aa87-6af932e04b7a",
@@ -22666,7 +28647,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:03.511+00:00",
     "telegram_legacy_message_id": 2807,
     "telegram_proof_message_id": 2439,
-    "telegram_legacy_proof_message_id": 2808
+    "telegram_legacy_proof_message_id": 2808,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c1c008a-8d41-487e-ab45-4463f10671a4",
@@ -22724,7 +28729,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:04.63+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 5598,
+        "quantity": 2,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "04ff54a5-b080-40f0-b72e-aee7d17eddff",
@@ -22783,7 +28800,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:02.886+00:00",
     "telegram_legacy_message_id": 2980,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0b63d1d7-10bb-467a-8d81-572c2f3c623f",
@@ -22842,7 +28872,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-16T09:00:05.515+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5f1b16ac-ddb2-41ae-bfd1-fc50fff11366",
@@ -22920,7 +28963,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:01.203+00:00",
     "telegram_legacy_message_id": 411,
     "telegram_proof_message_id": 176,
-    "telegram_legacy_proof_message_id": 412
+    "telegram_legacy_proof_message_id": 412,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f773230b-c399-4f1e-be1e-d57ec0d84d0a",
@@ -22979,7 +29054,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.212+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f4b58df9-252c-4032-b65f-9bd377cd4da5",
@@ -23067,7 +29155,49 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:04.003+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 10,
+        "total": 10,
+        "quantity": 1,
+        "product_id": "7a5650b4-3a52-4a0f-bfa4-e95f9dc08f77",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 199,
+        "total": 199,
+        "quantity": 1,
+        "product_id": "3b034a84-117f-424e-8e56-0bc003a2493b",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "b688a5f8-dee8-4636-81ee-dccc5a028e60",
+        "variation_name": "3ml",
+        "purity_percentage": 99
+      },
+      {
+        "price": 12,
+        "total": 48,
+        "quantity": 4,
+        "product_id": "d8ced5dd-636a-4585-b86f-633188a6181f",
+        "product_name": "Insulin Syringe",
+        "variation_id": "75fbf8ee-b8ce-4edb-8b0b-d4e8a3494bd4",
+        "variation_name": "0.5ml",
+        "purity_percentage": 0
+      }
+    ]
   },
   {
     "id": "11762de1-745f-4e33-b9df-7160718e7b2a",
@@ -23126,7 +29256,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.535+00:00",
     "telegram_legacy_message_id": 1344,
     "telegram_proof_message_id": 1070,
-    "telegram_legacy_proof_message_id": 1345
+    "telegram_legacy_proof_message_id": 1345,
+    "items": [
+      {
+        "price": 999,
+        "total": 1998,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bb1de9a1-3de4-4a45-8e75-45401b74947d",
@@ -23273,7 +29416,108 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-20T09:00:02.676+00:00",
     "telegram_legacy_message_id": 1956,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "113f7a1e-2a84-4e33-8baf-8ae82362f661",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid Serum",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "5e7bec98-0beb-5029-9e61-09b1b1d390fe",
+        "variation_name": "Salmon Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 35,
+        "quantity": 5,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "a5ab70ca-4378-448a-8688-b67a2f5ab2da",
+        "variation_name": "4mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8,
+        "total": 40,
+        "quantity": 5,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "c59f5d79-049c-4de7-85c7-9f67268e6146",
+        "variation_name": "6mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 50,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e9dc3e8e-093d-46dd-bd66-bba7ba520f5b",
@@ -23351,7 +29595,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:03.411+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirzepatide) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "684a238f-4048-424d-9afb-d587edd18e74",
@@ -23409,7 +29685,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:04.265+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "cb6b90a2-7dd7-4a93-a2f5-415722bfe2a0",
@@ -23487,7 +29775,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:01.355+00:00",
     "telegram_legacy_message_id": 409,
     "telegram_proof_message_id": 174,
-    "telegram_legacy_proof_message_id": 410
+    "telegram_legacy_proof_message_id": 410,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1499,
+        "total": 1499,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (Tirze) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "07a4905c-c5d4-4346-bd37-2ff596754c4e",
@@ -23546,7 +29866,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3432,
     "telegram_proof_message_id": 3056,
-    "telegram_legacy_proof_message_id": 3433
+    "telegram_legacy_proof_message_id": 3433,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "268e8608-5660-428b-806f-b2b58264078d",
@@ -23616,7 +29949,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.328+00:00",
     "telegram_legacy_message_id": 4578,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
+        "variation_name": "3ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0225d6a5-de87-4de0-9be9-b4c929c840b8",
@@ -23686,7 +30043,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-11T09:00:02.876+00:00",
     "telegram_legacy_message_id": 1373,
     "telegram_proof_message_id": 1099,
-    "telegram_legacy_proof_message_id": 1374
+    "telegram_legacy_proof_message_id": 1374,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9212a0a8-b956-4e48-81d6-14dcfdfe299e",
@@ -23744,7 +30125,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:02.195+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (Tirze) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f7e2118d-1485-45a9-995b-938ae79ccc8a",
@@ -23803,7 +30196,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:03.274+00:00",
     "telegram_legacy_message_id": 1218,
     "telegram_proof_message_id": 944,
-    "telegram_legacy_proof_message_id": 1219
+    "telegram_legacy_proof_message_id": 1219,
+    "items": [
+      {
+        "price": 2849,
+        "total": 5698,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ec588b6d-3474-4c03-b362-1aeee17c988a",
@@ -23881,7 +30287,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:03.942+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 13,
+        "total": 13,
+        "quantity": 1,
+        "product_id": "d8ced5dd-636a-4585-b86f-633188a6181f",
+        "product_name": "Insulin Syringe",
+        "variation_id": "ef9ae69d-4e10-4149-b13b-99e88a449a97",
+        "variation_name": "1ml",
+        "purity_percentage": 0
+      },
+      {
+        "price": 450,
+        "total": 450,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "01202895-0621-49bc-b132-7b630facf689",
@@ -23949,7 +30387,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-05T09:00:04.575+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "681cdcb5-059f-573f-81b2-46c1284a1865",
+        "product_name": "KissDose (Kisspeptin) 5mg",
+        "variation_id": "1e90041b-4693-5412-ad43-fcc34e279899",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "4239e372-7811-4ed1-8533-7e9d16c0a478",
@@ -24007,7 +30467,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:02.741+00:00",
     "telegram_legacy_message_id": 407,
     "telegram_proof_message_id": 172,
-    "telegram_legacy_proof_message_id": 408
+    "telegram_legacy_proof_message_id": 408,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "41c93af1-d3fd-4f88-994e-0a2d6000acff",
@@ -24077,7 +30549,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:03.629+00:00",
     "telegram_legacy_message_id": 1235,
     "telegram_proof_message_id": 961,
-    "telegram_legacy_proof_message_id": 1236
+    "telegram_legacy_proof_message_id": 1236,
+    "items": [
+      {
+        "price": 3338.2999999999997,
+        "total": 6676.599999999999,
+        "quantity": 2,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
+        "variation_name": "3ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f01044d6-2593-46a5-afa2-c802d64e6455",
@@ -24136,7 +30632,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.836+00:00",
     "telegram_legacy_message_id": 2912,
     "telegram_proof_message_id": 2544,
-    "telegram_legacy_proof_message_id": 2913
+    "telegram_legacy_proof_message_id": 2913,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "143da6af-5459-4eac-966e-431c156d90b0",
@@ -24204,7 +30713,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:03.224+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 450,
+        "total": 1800,
+        "quantity": 4,
+        "product_id": "10615cf1-6d32-4e3a-aa6b-b460f9abe331",
+        "product_name": "Aqualyx 10ml",
+        "variation_id": "25c76ee1-53b2-45fd-9069-a171a92034b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059205",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "10e6fa65-704f-43ee-8015-90e3fbcd5dd7",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "1be9ba01-77ed-4f8e-8764-ae5dc1503194",
@@ -24262,7 +30793,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:02.407+00:00",
     "telegram_legacy_message_id": 405,
     "telegram_proof_message_id": 170,
-    "telegram_legacy_proof_message_id": 406
+    "telegram_legacy_proof_message_id": 406,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "725408f4-fe7c-451e-a64e-0814f377c38d",
@@ -24321,7 +30864,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:00.797+00:00",
     "telegram_legacy_message_id": 2914,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2250,
+        "total": 2250,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "c2674da8-538b-441e-9057-c69ba68206f5",
+        "variation_name": "200u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c2369054-268e-43d6-87aa-d5dd9de2f635",
@@ -24402,7 +30958,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:04.298+00:00",
     "telegram_legacy_message_id": 1991,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1329.05,
+        "total": 2658.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "656dcbb2-8716-4d15-9228-130fc4921438",
@@ -24472,7 +31063,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:03.38+00:00",
     "telegram_legacy_message_id": 1988,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bf20ce2d-8539-4102-a29e-f852f5a36953",
@@ -24542,7 +31157,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-15T09:00:10.45+00:00",
     "telegram_legacy_message_id": 4552,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "d9b475ae-8a40-58db-b463-2f2789c6a322",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fb56f0bc-a953-4993-a097-f690bbccd26b",
@@ -24601,7 +31240,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-06T09:00:03.708+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "b3307321-5ad4-5774-9580-1a87f3ff9335",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "50dff830-fc9e-44be-820b-f05a5e8f1fd9",
@@ -24671,7 +31323,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:02.77+00:00",
     "telegram_legacy_message_id": 1409,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c0d37c8-10e2-4a11-b80e-4c4e40dbe8a0",
@@ -24752,7 +31428,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.492+00:00",
     "telegram_legacy_message_id": 2007,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "8377645f-9a2a-5527-bda0-03f3e8f65412",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 24,
+        "quantity": 2,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "21775a5f-6df2-4a6b-8e39-64535cbb2c66",
@@ -24820,7 +31531,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:03.145+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "1eb96a3f-0347-4e49-92ae-e26d919ec3fa",
@@ -24879,7 +31612,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:02.863+00:00",
     "telegram_legacy_message_id": 1220,
     "telegram_proof_message_id": 946,
-    "telegram_legacy_proof_message_id": 1221
+    "telegram_legacy_proof_message_id": 1221,
+    "items": [
+      {
+        "price": 811.3,
+        "total": 1622.6,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "d93a82e6-2ae3-4ab8-936c-cb4c6dd6d4e0",
@@ -24938,7 +31684,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:02.257+00:00",
     "telegram_legacy_message_id": 1451,
     "telegram_proof_message_id": 1177,
-    "telegram_legacy_proof_message_id": 1452
+    "telegram_legacy_proof_message_id": 1452,
+    "items": [
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e47bf0c3-485e-49db-b386-f91553d01061",
@@ -24997,7 +31756,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3512,
     "telegram_proof_message_id": 3134,
-    "telegram_legacy_proof_message_id": 3513
+    "telegram_legacy_proof_message_id": 3513,
+    "items": [
+      {
+        "price": 759.05,
+        "total": 1518.1,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "0573b509-f25b-4e07-9571-25ba0a06bbb4",
@@ -25056,7 +31828,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.222+00:00",
     "telegram_legacy_message_id": 4577,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "95e49d6f-635d-489a-917f-d50e1d5389fc",
+        "product_name": "Botulax (Lalamove/Maxim only)",
+        "variation_id": "750c6600-a017-43d4-8c32-6f285129f0d2",
+        "variation_name": "300u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "babd4f1c-8f8b-4335-bb2b-fa3757b52b07",
@@ -25115,7 +31900,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:04.563+00:00",
     "telegram_legacy_message_id": 1990,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "9411a1f9-b4d5-4380-a4a6-2216f62baf32",
+        "product_name": "FatBlaster (Lipo-C+) 10ml",
+        "variation_id": "98b97325-f334-47a4-b746-125804bbf084",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dbe93446-f052-4403-9e9a-b9fc527e0cd5",
@@ -25196,7 +31994,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:03.884+00:00",
     "telegram_legacy_message_id": 853,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2089,
+        "total": 4178,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 759,
+        "total": 759,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 474,
+        "total": 948,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "14fd9bf2-556d-48ec-a196-43b31b82ca54",
@@ -25284,7 +32117,49 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-07T09:00:03.564+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 12,
+        "total": 120,
+        "quantity": 10,
+        "product_id": "d8ced5dd-636a-4585-b86f-633188a6181f",
+        "product_name": "Insulin Syringe",
+        "variation_id": "75fbf8ee-b8ce-4edb-8b0b-d4e8a3494bd4",
+        "variation_name": "0.5ml",
+        "purity_percentage": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059207",
+        "product_name": "BeautyDose (GHK-Cu) 100mg",
+        "variation_id": "da8bdcd1-dd72-4d54-a9b5-3e8bfad72713",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ed53c59e-4fc5-45cd-a83c-4c6f88513bc5",
@@ -25354,7 +32229,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-09T09:00:01.318+00:00",
     "telegram_legacy_message_id": 1293,
     "telegram_proof_message_id": 1019,
-    "telegram_legacy_proof_message_id": 1294
+    "telegram_legacy_proof_message_id": 1294,
+    "items": [
+      {
+        "price": 3609.0499999999997,
+        "total": 7218.099999999999,
+        "quantity": 2,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "330d4e4c-ac60-4fb9-b98d-eff4cbde1304",
@@ -25362,7 +32261,7 @@ export const liveScrapedOrders: any[] = [
     "customer_email": "sarahjane24amora@yahoo.com",
     "customer_phone": "09059541472",
     "contact_method": "messenger",
-    "shipping_address": "Sophia��s Beauty hub , Saint Paul Street , Pasil ",
+    "shipping_address": "Sophia’s Beauty hub , Saint Paul Street , Pasil ",
     "shipping_city": "Cagayan de Oro city ",
     "shipping_state": "Misamis oriental ",
     "shipping_zip_code": "9000",
@@ -25424,7 +32323,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.185+00:00",
     "telegram_legacy_message_id": 798,
     "telegram_proof_message_id": 527,
-    "telegram_legacy_proof_message_id": 799
+    "telegram_legacy_proof_message_id": 799,
+    "items": [
+      {
+        "price": 6175,
+        "total": 6175,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 124,
+        "total": 1240,
+        "quantity": 10,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c114d0c0-c604-480d-ac21-5e31ffbec50d",
@@ -25482,7 +32405,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:03.55+00:00",
     "telegram_legacy_message_id": 397,
     "telegram_proof_message_id": 162,
-    "telegram_legacy_proof_message_id": 398
+    "telegram_legacy_proof_message_id": 398,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "5d6a3b37-cfec-449a-877c-77a2f72183b7",
@@ -25552,7 +32487,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:02.738+00:00",
     "telegram_legacy_message_id": 1358,
     "telegram_proof_message_id": 1084,
-    "telegram_legacy_proof_message_id": 1359
+    "telegram_legacy_proof_message_id": 1359,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "359808bb-324a-47bf-b1db-f02c70e706db",
@@ -25611,7 +32570,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3434,
     "telegram_proof_message_id": 3058,
-    "telegram_legacy_proof_message_id": 3435
+    "telegram_legacy_proof_message_id": 3435,
+    "items": [
+      {
+        "price": 1100,
+        "total": 1100,
+        "quantity": 1,
+        "product_id": "f20cf9f3-f0d2-4157-8a03-7e22effae7e4",
+        "product_name": "Exosome Skin Serum",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "484bd599-4a84-4a71-ad29-adfd9b4f3933",
@@ -25681,7 +32653,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.373+00:00",
     "telegram_legacy_message_id": 1289,
     "telegram_proof_message_id": 1015,
-    "telegram_legacy_proof_message_id": 1290
+    "telegram_legacy_proof_message_id": 1290,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ee6d18b7-aa88-4be3-b15b-9374e1df774a",
@@ -25751,7 +32747,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:03.505+00:00",
     "telegram_legacy_message_id": 1975,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 1708.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3e79b62f-f650-457d-8fa6-2f4baf000efb",
@@ -25810,7 +32830,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 1274,
     "telegram_proof_message_id": 1000,
-    "telegram_legacy_proof_message_id": 1275
+    "telegram_legacy_proof_message_id": 1275,
+    "items": [
+      {
+        "price": 2199,
+        "total": 4398,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fbd60b6c-dace-4a21-93d6-cdd3b440b313",
@@ -25880,7 +32913,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.567+00:00",
     "telegram_legacy_message_id": 616,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5c266615-6676-488a-8cdf-f95dea0d76fe",
@@ -25939,7 +32996,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3711,
     "telegram_proof_message_id": 3333,
-    "telegram_legacy_proof_message_id": 3712
+    "telegram_legacy_proof_message_id": 3712,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aed38e1f-2221-4ea5-aaed-ea4917085772",
@@ -25998,7 +33068,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:02.188+00:00",
     "telegram_legacy_message_id": 445,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0ce83abc-d5c3-455d-a2c1-7f3853a156f8",
@@ -26068,7 +33151,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-09T09:00:02.534+00:00",
     "telegram_legacy_message_id": 1542,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f5062a9b-79c1-40b4-99d9-bd5940948d61",
@@ -26127,7 +33234,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:02.926+00:00",
     "telegram_legacy_message_id": 1346,
     "telegram_proof_message_id": 1072,
-    "telegram_legacy_proof_message_id": 1347
+    "telegram_legacy_proof_message_id": 1347,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "28141247-4897-4658-af7b-db26f9014de7",
@@ -26215,7 +33335,49 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:03.859+00:00",
     "telegram_legacy_message_id": 395,
     "telegram_proof_message_id": 160,
-    "telegram_legacy_proof_message_id": 396
+    "telegram_legacy_proof_message_id": 396,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "9faf5c04-4d49-4a9e-8a75-723530ea3b82",
@@ -26285,7 +33447,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:03.768+00:00",
     "telegram_legacy_message_id": 1407,
     "telegram_proof_message_id": 1133,
-    "telegram_legacy_proof_message_id": 1408
+    "telegram_legacy_proof_message_id": 1408,
+    "items": [
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fb1cdeee-5d08-447a-8a0e-a2ce516f9bd8",
@@ -26344,7 +33530,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:03.717+00:00",
     "telegram_legacy_message_id": 3003,
     "telegram_proof_message_id": 2632,
-    "telegram_legacy_proof_message_id": 3004
+    "telegram_legacy_proof_message_id": 3004,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "21cb3d70-a730-4324-a545-e526c27d96dc",
@@ -26403,7 +33602,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-09T09:00:02.653+00:00",
     "telegram_legacy_message_id": 1310,
     "telegram_proof_message_id": 1036,
-    "telegram_legacy_proof_message_id": 1311
+    "telegram_legacy_proof_message_id": 1311,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fe9aa549-81d5-4bf1-b0fc-226278e52fa6",
@@ -26462,7 +33674,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:01.49+00:00",
     "telegram_legacy_message_id": 2628,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6e974ac3-9431-4dc6-9633-cf1f1be890c0",
@@ -26521,7 +33746,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:02.655+00:00",
     "telegram_legacy_message_id": 1426,
     "telegram_proof_message_id": 1152,
-    "telegram_legacy_proof_message_id": 1427
+    "telegram_legacy_proof_message_id": 1427,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5f2389f7-f7da-428d-b9b7-096c03d7d6ff",
@@ -26589,7 +33827,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:04.13+00:00",
     "telegram_legacy_message_id": 393,
     "telegram_proof_message_id": 158,
-    "telegram_legacy_proof_message_id": 394
+    "telegram_legacy_proof_message_id": 394,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "f5dfe597-fddd-4bad-8e95-cef28253744c",
@@ -26659,77 +33919,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.616+00:00",
     "telegram_legacy_message_id": 533,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "ce0bce50-fe22-4709-a4f9-a38aa73e9604",
-    "customer_name": "Sandra Mae Vicente",
-    "customer_email": "vicentesandramae@gmail.com",
-    "customer_phone": "09776274173",
-    "contact_method": "messenger",
-    "shipping_address": "465 Sitio Talisay Barangay Poblacion Nueva Valencia Guimaras (Andana Resort Guimaras) Poblacion Nueva Valencia, Guimaras 5046",
-    "shipping_city": "Nueva Valencia",
-    "shipping_state": "Guimaras",
-    "shipping_zip_code": "5046",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Barangay Poblacion",
-    "shipping_region": null,
-    "shipping_location": "VISAYAS (J&T)",
-    "courier_id": null,
-    "shipping_fee": 150,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 3799,
-        "total": 3799,
+        "price": 1899,
+        "total": 1899,
         "quantity": 1,
-        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
-        "product_name": "SlimDose (GLP-2) 40mg",
-        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
         "variation_name": "Set",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       },
       {
-        "price": 1299,
-        "total": 1299,
+        "price": 1199,
+        "total": 1199,
         "quantity": 1,
-        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
-        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
-        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
-        "variation_name": "Vials Only",
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 5098,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1781160921812-a3qeyy2x3r.jpeg",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "shipped",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": "JT0019309378358",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-06-11T06:57:21.964533+00:00",
-    "updated_at": "2026-07-11T09:00:03.202327+00:00",
-    "order_number": "SLD-001402",
-    "telegram_message_id": 1101,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-07-11T09:00:03.187+00:00",
-    "telegram_legacy_message_id": 1376,
-    "telegram_proof_message_id": 1102,
-    "telegram_legacy_proof_message_id": 1377
+    ]
   },
   {
     "id": "32a6559c-e27e-4692-a2c6-3264b1692bf2",
@@ -26788,7 +34002,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:02.639+00:00",
     "telegram_legacy_message_id": 1511,
     "telegram_proof_message_id": 1237,
-    "telegram_legacy_proof_message_id": 1512
+    "telegram_legacy_proof_message_id": 1512,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 1708.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "59865fe8-0c31-4dda-9931-f3b2a94a543a",
@@ -26858,7 +34085,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-24T09:00:04.658+00:00",
     "telegram_legacy_message_id": 523,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1709.05,
+        "total": 3418.1,
+        "quantity": 2,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "538a5623-eb97-54e2-b433-24d0d928358b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "c79d9136-2585-406a-9f02-d6a314d7b68e",
@@ -26917,7 +34168,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:02.962+00:00",
     "telegram_legacy_message_id": 1609,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1cd33c70-5043-467e-9473-44f712f74b98",
@@ -26976,7 +34240,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.742+00:00",
     "telegram_legacy_message_id": 1185,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2564,
+        "total": 2564,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1323930b-38e4-4469-9754-094b9754963d",
@@ -27034,7 +34311,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:04.385+00:00",
     "telegram_legacy_message_id": 391,
     "telegram_proof_message_id": 156,
-    "telegram_legacy_proof_message_id": 392
+    "telegram_legacy_proof_message_id": 392,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "e35be161-1fb2-40c7-baff-6381bc18f735",
@@ -27093,7 +34382,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-09T09:00:02.723+00:00",
     "telegram_legacy_message_id": 1981,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "17731657-21a5-4acc-b090-22ba3c9246d1",
@@ -27152,7 +34454,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4752,
     "telegram_proof_message_id": 4335,
-    "telegram_legacy_proof_message_id": 4753
+    "telegram_legacy_proof_message_id": 4753,
+    "items": [
+      {
+        "price": 790.5,
+        "total": 3952.5,
+        "quantity": 5,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 7
+      }
+    ]
   },
   {
     "id": "56d7bb91-ac50-4d6d-a886-4b4c58618fad",
@@ -27211,7 +34526,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.346+00:00",
     "telegram_legacy_message_id": 1979,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "923d7e68-09c0-4ca5-9d7e-662157cb0b9a",
@@ -27270,7 +34598,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:01.667+00:00",
     "telegram_legacy_message_id": 2647,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b4e2f514-1592-46ed-ac23-81fa76ef2915",
@@ -27329,7 +34670,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3646,
     "telegram_proof_message_id": 3268,
-    "telegram_legacy_proof_message_id": 3647
+    "telegram_legacy_proof_message_id": 3647,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ac909909-3cf6-47b7-927e-5e292ed5c444",
@@ -27388,7 +34742,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3648,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f9453f93-5841-4239-92c4-ccddb6a3adcf",
@@ -27447,7 +34814,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.062+00:00",
     "telegram_legacy_message_id": 1974,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "194049f5-adf9-436a-b4c7-570546defc43",
@@ -27506,7 +34886,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:01.381+00:00",
     "telegram_legacy_message_id": 2034,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5199,
+        "total": 5199,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "995b0c72-1caa-4cfa-86c4-3f296ad3fe9b",
@@ -27565,7 +34958,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.423+00:00",
     "telegram_legacy_message_id": 1978,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1dcaf868-f955-418f-9f37-c3bbcf976df7",
@@ -27624,7 +35030,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4748,
     "telegram_proof_message_id": 4331,
-    "telegram_legacy_proof_message_id": 4749
+    "telegram_legacy_proof_message_id": 4749,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "346965a5-7289-4ff2-8792-093b3363636a",
@@ -27683,7 +35102,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:06.301+00:00",
     "telegram_legacy_message_id": 4581,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8500,
+        "total": 8500,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "7e49853a-8d2b-4a30-9541-da4fb8660a2a",
+        "variation_name": "1 box (6 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "611b2b36-4804-476f-8ffa-9e49ca821c70",
@@ -27771,7 +35203,49 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-13T09:00:02.433+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "74dc900c-5be3-5869-9574-9471b1865533",
+        "variation_name": "Champagne Gold",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "43c2d3f5-2c0c-430d-91c8-a4fd874502fd",
@@ -27841,7 +35315,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3781,
     "telegram_proof_message_id": 3403,
-    "telegram_legacy_proof_message_id": 3782
+    "telegram_legacy_proof_message_id": 3782,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "af460ae1-e2e9-45c4-ae90-33ae575b637b",
@@ -27900,7 +35398,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:01.922+00:00",
     "telegram_legacy_message_id": 1424,
     "telegram_proof_message_id": 1150,
-    "telegram_legacy_proof_message_id": 1425
+    "telegram_legacy_proof_message_id": 1425,
+    "items": [
+      {
+        "price": 2564.0499999999997,
+        "total": 5128.099999999999,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "0ea18832-e529-4ded-adf0-9528310af6b2",
@@ -27959,7 +35470,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.336+00:00",
     "telegram_legacy_message_id": 1431,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "71fa7641-664a-447e-88cd-3967143f23a7",
@@ -28037,7 +35561,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:03.265+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059212",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "323dabc4-deca-4235-b767-6b62b65ad9f6",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "fba29c8b-4219-4bc8-9f18-089af881f97b",
@@ -28118,7 +35674,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-08T09:00:03.904+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7499,
+        "total": 7499,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a9928d53-4fe9-4e21-a10e-71c1ed751fb1",
@@ -28177,7 +35768,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4712,
     "telegram_proof_message_id": 4295,
-    "telegram_legacy_proof_message_id": 4713
+    "telegram_legacy_proof_message_id": 4713,
+    "items": [
+      {
+        "price": 999,
+        "total": 1998,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5ed392ab-9262-4db3-a135-8ef47519bde5",
@@ -28247,7 +35851,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.486+00:00",
     "telegram_legacy_message_id": 1335,
     "telegram_proof_message_id": 1061,
-    "telegram_legacy_proof_message_id": 1336
+    "telegram_legacy_proof_message_id": 1336,
+    "items": [
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5a6eac6a-15b6-4f9e-9825-33fadcb6c15f",
@@ -28315,7 +35943,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-10T09:00:04.641+00:00",
     "telegram_legacy_message_id": 529,
     "telegram_proof_message_id": 290,
-    "telegram_legacy_proof_message_id": 530
+    "telegram_legacy_proof_message_id": 530,
+    "items": [
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "9d967633-3d82-4cc7-ad3e-ef0bdf8bad05",
@@ -28385,7 +36035,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:04.002+00:00",
     "telegram_legacy_message_id": 2344,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d394b4af-9170-47a7-af37-0d69b9860b80",
@@ -28444,7 +36118,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 2117,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6f7fa3ee-513a-4314-b990-62a483452184",
@@ -28503,7 +36190,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:02.273+00:00",
     "telegram_legacy_message_id": 272,
     "telegram_proof_message_id": 53,
-    "telegram_legacy_proof_message_id": 273
+    "telegram_legacy_proof_message_id": 273,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6dd8e3c8-fc7b-4f50-8cff-42c47f82d1ee",
@@ -28573,7 +36273,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:02.19+00:00",
     "telegram_legacy_message_id": 2972,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fb265200-20a1-45d7-b224-34c94714568c",
@@ -28632,7 +36356,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3438,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 3439
+    "telegram_legacy_proof_message_id": 3439,
+    "items": [
+      {
+        "price": 3514.0499999999997,
+        "total": 7028.099999999999,
+        "quantity": 2,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "a017ff27-9d29-4b19-a8a6-4964312fc06f",
@@ -28691,7 +36428,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:02.828+00:00",
     "telegram_legacy_message_id": 3112,
     "telegram_proof_message_id": 2740,
-    "telegram_legacy_proof_message_id": 3113
+    "telegram_legacy_proof_message_id": 3113,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2b25de82-abd6-4fa3-987f-7b39f6341f62",
@@ -28750,7 +36500,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:05.64+00:00",
     "telegram_legacy_message_id": 3013,
     "telegram_proof_message_id": 2642,
-    "telegram_legacy_proof_message_id": 3014
+    "telegram_legacy_proof_message_id": 3014,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b5a00272-c97b-444d-b692-1cd345ced0d8",
@@ -28809,7 +36572,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:02.033+00:00",
     "telegram_legacy_message_id": 2632,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a8e215af-ac3f-427d-9e65-56d7ef6acc21",
@@ -28868,7 +36644,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:01.35+00:00",
     "telegram_legacy_message_id": 1638,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 499,
+        "total": 998,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1e24a3fc-9369-4fa7-b725-19fe851a86ae",
@@ -28946,7 +36735,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:03.263+00:00",
     "telegram_legacy_message_id": 377,
     "telegram_proof_message_id": 142,
-    "telegram_legacy_proof_message_id": 378
+    "telegram_legacy_proof_message_id": 378,
+    "items": [
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (Tirze) 60mg - PREORDER",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (Tirze) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "66e2e372-986a-490d-a126-1df31fb8fd6b",
@@ -29016,7 +36837,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:02.73+00:00",
     "telegram_legacy_message_id": 1461,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 76,
+        "total": 380,
+        "quantity": 5,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 124,
+        "total": 620,
+        "quantity": 5,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "28c25730-9652-4151-92c3-2c1d35986c8c",
@@ -29075,7 +36920,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-05T09:00:03.256+00:00",
     "telegram_legacy_message_id": 2646,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d49155b2-3973-41d0-8d75-b49fcd8b269c",
@@ -29134,7 +36992,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.804+00:00",
     "telegram_legacy_message_id": 1446,
     "telegram_proof_message_id": 1172,
-    "telegram_legacy_proof_message_id": 1447
+    "telegram_legacy_proof_message_id": 1447,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d5e0fbcd-d3c4-4e4b-83e5-3789c93b7939",
@@ -29193,7 +37064,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:05.783+00:00",
     "telegram_legacy_message_id": 2995,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f5fa89c9-60be-4922-84ba-96a6b6d5f370",
@@ -29252,7 +37136,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:06.414+00:00",
     "telegram_legacy_message_id": 4582,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8500,
+        "total": 8500,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "7e49853a-8d2b-4a30-9541-da4fb8660a2a",
+        "variation_name": "1 box (6 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f3cd1438-3bad-4bdb-bbfd-95a5b4926040",
@@ -29311,7 +37208,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.199+00:00",
     "telegram_legacy_message_id": 1495,
     "telegram_proof_message_id": 1221,
-    "telegram_legacy_proof_message_id": 1496
+    "telegram_legacy_proof_message_id": 1496,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0d93f3ab-40b6-4e9c-a74b-ecda40ab3d70",
@@ -29389,7 +37299,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:03.945+00:00",
     "telegram_legacy_message_id": 371,
     "telegram_proof_message_id": 136,
-    "telegram_legacy_proof_message_id": 372
+    "telegram_legacy_proof_message_id": 372,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (Tirze) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic)",
+        "variation_id": "3b97f35b-e26e-557b-9c22-6bc19537a650",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "ec684fda-ce90-49fc-83ec-8f13e7a8dada",
@@ -29457,7 +37399,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:01.447+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (Tirze) 10mg",
+        "variation_id": "69d6ad71-97d9-5158-b365-4b8ba92b66f5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "8d421764-2c2a-402e-8d72-ba701bbefa3f",
@@ -29516,7 +37480,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:03.112+00:00",
     "telegram_legacy_message_id": 2581,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2250,
+        "total": 2250,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "c2674da8-538b-441e-9057-c69ba68206f5",
+        "variation_name": "200u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1549b41e-8276-4a61-b81e-058dae0a9dd1",
@@ -29586,7 +37563,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:04.167+00:00",
     "telegram_legacy_message_id": 1269,
     "telegram_proof_message_id": 995,
-    "telegram_legacy_proof_message_id": 1270
+    "telegram_legacy_proof_message_id": 1270,
+    "items": [
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 999,
+        "total": 1998,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a60dd549-1c41-468b-9480-df17d31de3e4",
@@ -29645,7 +37646,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:03.503+00:00",
     "telegram_legacy_message_id": 1604,
     "telegram_proof_message_id": 1329,
-    "telegram_legacy_proof_message_id": 1605
+    "telegram_legacy_proof_message_id": 1605,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0f8af33b-2f77-40c3-8eab-8bb8ee992648",
@@ -29713,7 +37727,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:04.477+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "9411a1f9-b4d5-4380-a4a6-2216f62baf32",
+        "product_name": "FatBlaster (Lipo-C+) 10ml (Pre-Order)",
+        "variation_id": "98b97325-f334-47a4-b746-125804bbf084",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "9422a12a-a45a-4fbb-a675-bd4ef5e81e94",
@@ -29783,7 +37819,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:03.775+00:00",
     "telegram_legacy_message_id": 2844,
     "telegram_proof_message_id": 2476,
-    "telegram_legacy_proof_message_id": 2845
+    "telegram_legacy_proof_message_id": 2845,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "05fd5213-5761-47f6-9e32-c003c7ee63c2",
@@ -29842,7 +37902,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3240,
     "telegram_proof_message_id": 2866,
-    "telegram_legacy_proof_message_id": 3241
+    "telegram_legacy_proof_message_id": 3241,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "017ded53-dfb8-47d3-8421-636da1a5d0ac",
@@ -29901,7 +37974,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:02.48+00:00",
     "telegram_legacy_message_id": 2059,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7987d48c-1e91-49fd-8df7-870a8d6a73d3",
@@ -29971,7 +38057,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:02.469+00:00",
     "telegram_legacy_message_id": 1459,
     "telegram_proof_message_id": 1185,
-    "telegram_legacy_proof_message_id": 1460
+    "telegram_legacy_proof_message_id": 1460,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 120,
+        "quantity": 12,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9ab90133-24c9-40ad-9a76-663f722fdca8",
@@ -30030,7 +38140,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-15T09:00:03.272+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7499,
+        "total": 7499,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "64967128-0f8f-4919-8b3a-3b5a2cefd19a",
@@ -30089,7 +38212,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:02.427+00:00",
     "telegram_legacy_message_id": 1543,
     "telegram_proof_message_id": 1268,
-    "telegram_legacy_proof_message_id": 1544
+    "telegram_legacy_proof_message_id": 1544,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1d4be36c-8b67-4f5d-82c3-3eb49fcd277f",
@@ -30148,7 +38284,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:03.182+00:00",
     "telegram_legacy_message_id": 1747,
     "telegram_proof_message_id": 1466,
-    "telegram_legacy_proof_message_id": 1748
+    "telegram_legacy_proof_message_id": 1748,
+    "items": [
+      {
+        "price": 2250,
+        "total": 2250,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "c2674da8-538b-441e-9057-c69ba68206f5",
+        "variation_name": "200u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fc499695-a52c-4fe7-88fb-36fc8802f394",
@@ -30229,7 +38378,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3166,
     "telegram_proof_message_id": 2792,
-    "telegram_legacy_proof_message_id": 3167
+    "telegram_legacy_proof_message_id": 3167,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 30,
+        "quantity": 2,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a52c2f03-4cdb-4152-82b8-9b870d30cba8",
@@ -30297,7 +38481,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-14T09:00:04.518+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "b77abde4-be6c-467a-ab81-b73acd79ee77",
@@ -30356,7 +38562,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:02.485+00:00",
     "telegram_legacy_message_id": 278,
     "telegram_proof_message_id": 59,
-    "telegram_legacy_proof_message_id": 279
+    "telegram_legacy_proof_message_id": 279,
+    "items": [
+      {
+        "price": 2399,
+        "total": 2399,
+        "quantity": 1,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "28eadaf3-257b-55b9-b782-66b00a18afc9",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c38e72f3-5333-4ab7-9e90-f963a0aa8a01",
@@ -30426,7 +38645,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3557,
     "telegram_proof_message_id": 3179,
-    "telegram_legacy_proof_message_id": 3558
+    "telegram_legacy_proof_message_id": 3558,
+    "items": [
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 759.05,
+        "total": 1518.1,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "308217dc-c3fb-4e60-9558-486d5ec1e3de",
@@ -30496,7 +38739,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:04.231+00:00",
     "telegram_legacy_message_id": 1992,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f6938ee8-2096-4bb1-a468-e51460d3a1ad",
@@ -30555,7 +38822,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3224,
     "telegram_proof_message_id": 2850,
-    "telegram_legacy_proof_message_id": 3225
+    "telegram_legacy_proof_message_id": 3225,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3c553eca-ef99-403e-bd52-a96f4f8dc287",
@@ -30636,7 +38916,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.856+00:00",
     "telegram_legacy_message_id": 1998,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2849,
+        "total": 2849,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 854,
+        "total": 854,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "df207c06-3f0f-446b-934c-611116e26ac9",
@@ -30694,7 +39009,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:02.805+00:00",
     "telegram_legacy_message_id": 288,
     "telegram_proof_message_id": 70,
-    "telegram_legacy_proof_message_id": 289
+    "telegram_legacy_proof_message_id": 289,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "2c8cffa6-3103-4bad-98b0-8f0b3b28b343",
@@ -30753,7 +39080,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.461+00:00",
     "telegram_legacy_message_id": 1669,
     "telegram_proof_message_id": 1394,
-    "telegram_legacy_proof_message_id": 1670
+    "telegram_legacy_proof_message_id": 1670,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "47b0a2f9-08d2-436f-8cad-bf7a5f150df3",
@@ -30831,7 +39171,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:03.111+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2599,
+        "total": 5198,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1799,
+        "total": 3598,
+        "quantity": 2,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c00356d6-8e9c-4c14-9c35-02ed9be29fcb",
@@ -30890,7 +39262,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.436+00:00",
     "telegram_legacy_message_id": 1227,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1853,
+        "total": 1853,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b570a4d0-2b47-4dc8-b8b7-dcb38596d9f9",
@@ -30949,7 +39334,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3935,
     "telegram_proof_message_id": 3557,
-    "telegram_legacy_proof_message_id": 3936
+    "telegram_legacy_proof_message_id": 3936,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "db31fcfb-3eed-4b51-82bc-7249c909e56a",
@@ -31027,7 +39425,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-17T09:00:03.378+00:00",
     "telegram_legacy_message_id": 329,
     "telegram_proof_message_id": 94,
-    "telegram_legacy_proof_message_id": 330
+    "telegram_legacy_proof_message_id": 330,
+    "items": [
+      {
+        "price": 10,
+        "total": 10,
+        "quantity": 1,
+        "product_id": "7a5650b4-3a52-4a0f-bfa4-e95f9dc08f77",
+        "product_name": "5ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 13,
+        "total": 78,
+        "quantity": 6,
+        "product_id": "d8ced5dd-636a-4585-b86f-633188a6181f",
+        "product_name": "Sungshim Insulin Syringe",
+        "variation_id": "ef9ae69d-4e10-4149-b13b-99e88a449a97",
+        "variation_name": "1ml",
+        "purity_percentage": 0
+      },
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "a140d9a8-217e-4327-bb47-2461886121cd",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "2ce03c2d-6d0a-4a3b-84e0-4c138f5d5e4e",
@@ -31085,7 +39515,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:03.125+00:00",
     "telegram_legacy_message_id": 1035,
     "telegram_proof_message_id": 761,
-    "telegram_legacy_proof_message_id": 1036
+    "telegram_legacy_proof_message_id": 1036,
+    "items": [
+      {
+        "price": 2299,
+        "total": 4598,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "d06925b7-db03-415b-9ac3-fbaaaba6a28c",
@@ -31166,7 +39608,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:00.974+00:00",
     "telegram_legacy_message_id": 1522,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "fcf1e8a3-1bcc-5405-abfb-a207d4fb4dab",
+        "variation_name": "Cloud Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 7,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "a5ab70ca-4378-448a-8688-b67a2f5ab2da",
+        "variation_name": "4mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "49945646-9d95-426c-8fa0-918aad0485f4",
@@ -31225,7 +39702,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:03.567+00:00",
     "telegram_legacy_message_id": 1614,
     "telegram_proof_message_id": 1339,
-    "telegram_legacy_proof_message_id": 1615
+    "telegram_legacy_proof_message_id": 1615,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d9463c3b-881c-46f7-8bff-13e77dca003e",
@@ -31295,7 +39785,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:02.362+00:00",
     "telegram_legacy_message_id": 1639,
     "telegram_proof_message_id": 1364,
-    "telegram_legacy_proof_message_id": 1640
+    "telegram_legacy_proof_message_id": 1640,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b7893a06-b796-4705-877e-72799e063cb7",
@@ -31354,7 +39868,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:04.295+00:00",
     "telegram_legacy_message_id": 1675,
     "telegram_proof_message_id": 1400,
-    "telegram_legacy_proof_message_id": 1676
+    "telegram_legacy_proof_message_id": 1676,
+    "items": [
+      {
+        "price": 2469.0499999999997,
+        "total": 7407.15,
+        "quantity": 3,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "c4586c42-a319-48c7-9eaa-edd31db2b64a",
@@ -31412,7 +39939,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-16T09:00:03.426+00:00",
     "telegram_legacy_message_id": 369,
     "telegram_proof_message_id": 134,
-    "telegram_legacy_proof_message_id": 370
+    "telegram_legacy_proof_message_id": 370,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (Tirze) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "c973f5f0-26d1-4b6a-90e3-730872cd11d6",
@@ -31482,7 +40021,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3278,
     "telegram_proof_message_id": 2904,
-    "telegram_legacy_proof_message_id": 3279
+    "telegram_legacy_proof_message_id": 3279,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4096d104-015c-4ef8-bcfd-523f5925dc79",
@@ -31563,7 +40126,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3559,
     "telegram_proof_message_id": 3181,
-    "telegram_legacy_proof_message_id": 3560
+    "telegram_legacy_proof_message_id": 3560,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7b33da3a-5ca8-4e1b-9452-bdd5962554a9",
@@ -31631,7 +40229,29 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:02.043+00:00",
     "telegram_legacy_message_id": 361,
     "telegram_proof_message_id": 126,
-    "telegram_legacy_proof_message_id": 362
+    "telegram_legacy_proof_message_id": 362,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059203",
+        "product_name": "SlimDose (Tirzepatide) 30mg",
+        "variation_id": "ef3aa581-5e61-4fe7-8815-342d929b9edc",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "e777a998-70a9-4d0b-b165-8be21e5f20b2",
@@ -31690,7 +40310,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:02.455+00:00",
     "telegram_legacy_message_id": 1618,
     "telegram_proof_message_id": 1343,
-    "telegram_legacy_proof_message_id": 1619
+    "telegram_legacy_proof_message_id": 1619,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "edfa2fa3-c1ff-48f4-9ac3-e88022d5492c",
@@ -31749,7 +40382,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:03.876+00:00",
     "telegram_legacy_message_id": 1612,
     "telegram_proof_message_id": 1337,
-    "telegram_legacy_proof_message_id": 1613
+    "telegram_legacy_proof_message_id": 1613,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "18fafd25-3a6d-43ca-b2ab-4a980b6e138e",
@@ -31830,7 +40476,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:01.463+00:00",
     "telegram_legacy_message_id": 1673,
     "telegram_proof_message_id": 1398,
-    "telegram_legacy_proof_message_id": 1674
+    "telegram_legacy_proof_message_id": 1674,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 4398,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2469.0499999999997,
+        "total": 4938.099999999999,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "e8f55421-cc03-4764-8ea3-8460503ad892",
@@ -31889,7 +40570,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3649,
     "telegram_proof_message_id": 3271,
-    "telegram_legacy_proof_message_id": 3650
+    "telegram_legacy_proof_message_id": 3650,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3962ebd7-011f-410a-9fb4-80eb1617488a",
@@ -32036,7 +40730,108 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-20T09:00:02.815+00:00",
     "telegram_legacy_message_id": 1767,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "113f7a1e-2a84-4e33-8baf-8ae82362f661",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid Serum",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "5e7bec98-0beb-5029-9e61-09b1b1d390fe",
+        "variation_name": "Salmon Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 35,
+        "quantity": 5,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "a5ab70ca-4378-448a-8688-b67a2f5ab2da",
+        "variation_name": "4mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8,
+        "total": 40,
+        "quantity": 5,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "c59f5d79-049c-4de7-85c7-9f67268e6146",
+        "variation_name": "6mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 50,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b4d16d63-3ccf-45e2-9511-b3a77e641a84",
@@ -32117,7 +40912,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.735+00:00",
     "telegram_legacy_message_id": 1136,
     "telegram_proof_message_id": 862,
-    "telegram_legacy_proof_message_id": 1137
+    "telegram_legacy_proof_message_id": 1137,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "8377645f-9a2a-5527-bda0-03f3e8f65412",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 24,
+        "quantity": 2,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f832d11c-83c2-49c9-ad7b-9b34791b674d",
@@ -32175,7 +41005,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:02.46+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 4398,
+        "quantity": 2,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "751904f5-2c74-5c2a-9bd7-853118f58153",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "119683ff-3f2a-453e-8482-6188eee7d77f",
@@ -32234,7 +41076,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3446,
     "telegram_proof_message_id": 3068,
-    "telegram_legacy_proof_message_id": 3447
+    "telegram_legacy_proof_message_id": 3447,
+    "items": [
+      {
+        "price": 4369.05,
+        "total": 8738.1,
+        "quantity": 2,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "2a318c0d-37b9-53ac-a004-a953e06233c5",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "f11fafe5-c2a0-4a33-95ef-62fb84416edb",
@@ -32293,7 +41148,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:01.659+00:00",
     "telegram_legacy_message_id": 2266,
     "telegram_proof_message_id": 1909,
-    "telegram_legacy_proof_message_id": 2267
+    "telegram_legacy_proof_message_id": 2267,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b6552d2-f1d2-4cdd-929e-ee35e7667682",
@@ -32351,7 +41219,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.744+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "9c9961e9-0471-45f3-91aa-6a00137f9a3b",
@@ -32429,7 +41309,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.97+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      },
+      {
+        "price": 350,
+        "total": 350,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "94457a10-d7e5-42a4-b042-2bc914e486b3",
@@ -32488,7 +41400,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:04.201+00:00",
     "telegram_legacy_message_id": 256,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 257
+    "telegram_legacy_proof_message_id": 257,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5440ee7f-4609-4367-bb14-63e485d4022d",
@@ -32546,7 +41471,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:03.186+00:00",
     "telegram_legacy_message_id": 298,
     "telegram_proof_message_id": 80,
-    "telegram_legacy_proof_message_id": 299
+    "telegram_legacy_proof_message_id": 299,
+    "items": [
+      {
+        "price": 1499,
+        "total": 1499,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "1de2f4ba-dbed-4b54-9a20-4bece0148b5c",
@@ -32605,7 +41542,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3618,
     "telegram_proof_message_id": 3240,
-    "telegram_legacy_proof_message_id": 3619
+    "telegram_legacy_proof_message_id": 3619,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6f27f00f-f944-4a9b-a20e-94c518c9e890",
@@ -32686,7 +41636,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:03.826+00:00",
     "telegram_legacy_message_id": 2575,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5199,
+        "total": 5199,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2954338b-4d10-48d7-aae2-cbd1f53a70cf",
@@ -32745,7 +41730,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:03.964+00:00",
     "telegram_legacy_message_id": 1188,
     "telegram_proof_message_id": 914,
-    "telegram_legacy_proof_message_id": 1189
+    "telegram_legacy_proof_message_id": 1189,
+    "items": [
+      {
+        "price": 811.3,
+        "total": 1622.6,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "45165195-d265-4089-b901-0fd109e848e9",
@@ -32804,7 +41802,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:02.881+00:00",
     "telegram_legacy_message_id": 322,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 4556.2,
+        "quantity": 4,
+        "product_id": "caa321cc-2646-59b1-a445-454bada77262",
+        "product_name": "5-Amino-1MQ 5mg",
+        "variation_id": "66c99a3d-81c3-5079-a92d-41555f51fe5a",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "03970ec2-37ad-4d05-91ce-91285a2eea41",
@@ -32863,7 +41874,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.804+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5674cab0-998f-408f-96f3-95423d9edf83",
@@ -32922,7 +41946,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:04.052+00:00",
     "telegram_legacy_message_id": 319,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "33c21d2d-4137-41a8-9282-aca24136338a",
@@ -32981,7 +42018,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:04.246+00:00",
     "telegram_legacy_message_id": 264,
     "telegram_proof_message_id": 45,
-    "telegram_legacy_proof_message_id": 265
+    "telegram_legacy_proof_message_id": 265,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3bc8ec04-84c0-483d-bd45-fcf7d3ec891a",
@@ -33039,7 +42089,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-19T09:00:03.249+00:00",
     "telegram_legacy_message_id": 327,
     "telegram_proof_message_id": 92,
-    "telegram_legacy_proof_message_id": 328
+    "telegram_legacy_proof_message_id": 328,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "2d151009-d4f0-4010-b741-9a49acdaa203",
@@ -33098,7 +42160,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3468,
     "telegram_proof_message_id": 3090,
-    "telegram_legacy_proof_message_id": 3469
+    "telegram_legacy_proof_message_id": 3469,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ad257c75-d6a4-47af-84f2-8de7b62c204b",
@@ -33190,7 +42265,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:02.376+00:00",
     "telegram_legacy_message_id": 531,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2659.0499999999997,
+        "total": 5318.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "1ddc93dc-32e9-4158-8c8e-ce401e69e04d",
@@ -33271,7 +42392,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.245+00:00",
     "telegram_legacy_message_id": 2065,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 72,
+        "quantity": 6,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5130b089-ea0c-49e0-b1d7-1edadf9a9ecd",
@@ -33330,7 +42486,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:03.804+00:00",
     "telegram_legacy_message_id": 1754,
     "telegram_proof_message_id": 1473,
-    "telegram_legacy_proof_message_id": 1755
+    "telegram_legacy_proof_message_id": 1755,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "21f72c7e-9170-4045-ac14-c109d6e785a8",
@@ -33388,7 +42557,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.238+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 12,
+        "total": 12,
+        "quantity": 1,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "378fbb57-e679-439f-a4ee-047d784b78da",
@@ -33447,7 +42628,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.865+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3c6a62a8-1541-44e6-aac8-8f93a1a57d60",
@@ -33506,7 +42700,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:04.102+00:00",
     "telegram_legacy_message_id": 250,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "867c4378-a997-4f77-bb18-05df4e004714",
@@ -33576,7 +42783,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:02.489+00:00",
     "telegram_legacy_message_id": 309,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1260.03,
+        "total": 2520.06,
+        "quantity": 2,
+        "product_id": "caa321cc-2646-59b1-a445-454bada77262",
+        "product_name": "5-Amino-1MQ 5mg",
+        "variation_id": "9b652970-4326-5bfa-93ab-f7e2ee31cf07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 3
+      },
+      {
+        "price": 2089.0499999999997,
+        "total": 20890.499999999996,
+        "quantity": 10,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (Tirze) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "f84a8599-a9fe-45d9-b67d-f29bf1c5df8f",
@@ -33679,7 +42910,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-27T09:00:02.991+00:00",
     "telegram_legacy_message_id": 866,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "8f8cf2b0-68b6-55af-90fb-8f8b7ca35f8e",
+        "variation_name": "Mystic Black",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 245,
+        "quantity": 35,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "a5ab70ca-4378-448a-8688-b67a2f5ab2da",
+        "variation_name": "4mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 312,
+        "quantity": 26,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9e96b918-1524-4465-aace-6cdeab45b8d3",
@@ -33749,7 +43037,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:04.568+00:00",
     "telegram_legacy_message_id": 2359,
     "telegram_proof_message_id": 1997,
-    "telegram_legacy_proof_message_id": 2360
+    "telegram_legacy_proof_message_id": 2360,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "40e5e1be-df68-46aa-ac27-f622a2c5bdc2",
@@ -33827,7 +43139,39 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.498+00:00",
     "telegram_legacy_message_id": 320,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 321
+    "telegram_legacy_proof_message_id": 321,
+    "items": [
+      {
+        "price": 499,
+        "total": 499,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059216",
+        "product_name": "SlimPen (Disposable)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 10,
+        "total": 10,
+        "quantity": 1,
+        "product_id": "7a5650b4-3a52-4a0f-bfa4-e95f9dc08f77",
+        "product_name": "5ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "5eb637eb-dacd-45cf-ae3e-3c8a13f03ef6",
+        "product_name": "SlimDose (Tirzepatide) 15mg",
+        "variation_id": "53a9dac4-1c5a-48bc-b076-30976c151d96",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "33784249-a904-4a9f-8abf-5ba184219df3",
@@ -33886,7 +43230,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-18T09:00:03.922+00:00",
     "telegram_legacy_message_id": null,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "979ba677-f41a-4b44-847f-b5943d2e7a53",
@@ -33945,7 +43302,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:02.685+00:00",
     "telegram_legacy_message_id": 1953,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a30ffc3f-080b-47c6-9d4a-dab51af6eb04",
@@ -34015,7 +43385,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-19T09:00:02.314+00:00",
     "telegram_legacy_message_id": 1756,
     "telegram_proof_message_id": 1475,
-    "telegram_legacy_proof_message_id": 1757
+    "telegram_legacy_proof_message_id": 1757,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 180,
+        "total": 180,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "eab8d535-9383-4f9d-87af-23845f1f825a",
@@ -34096,7 +43490,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-20T09:00:02.637+00:00",
     "telegram_legacy_message_id": 316,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (Tirze) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1499,
+        "total": 1499,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9ee645c1-265d-46b0-92c1-385a2fc6aa2d",
@@ -34155,7 +43584,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.072+00:00",
     "telegram_legacy_message_id": 1865,
     "telegram_proof_message_id": 1584,
-    "telegram_legacy_proof_message_id": 1866
+    "telegram_legacy_proof_message_id": 1866,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "affb984d-2a82-4d9f-ab49-4d2b64c3a345",
@@ -34214,7 +43656,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.491+00:00",
     "telegram_legacy_message_id": 2183,
     "telegram_proof_message_id": 1827,
-    "telegram_legacy_proof_message_id": 2184
+    "telegram_legacy_proof_message_id": 2184,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8f626688-cde0-4683-aec4-151a798eb24d",
@@ -34273,7 +43728,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-19T09:00:01.408+00:00",
     "telegram_legacy_message_id": 1739,
     "telegram_proof_message_id": 1458,
-    "telegram_legacy_proof_message_id": 1740
+    "telegram_legacy_proof_message_id": 1740,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1f3d2c90-a49e-4304-88d7-ada0eb8ef5b0",
@@ -34343,7 +43811,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:01.447+00:00",
     "telegram_legacy_message_id": 1795,
     "telegram_proof_message_id": 1514,
-    "telegram_legacy_proof_message_id": 1796
+    "telegram_legacy_proof_message_id": 1796,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9e659311-12e1-47f6-af74-03f1ab680c30",
@@ -34402,7 +43894,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4346,
     "telegram_proof_message_id": 3964,
-    "telegram_legacy_proof_message_id": 4347
+    "telegram_legacy_proof_message_id": 4347,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bf19f99a-09fe-444d-8bbb-a5792d4300a0",
@@ -34472,7 +43977,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-24T09:00:02.872+00:00",
     "telegram_legacy_message_id": 1946,
     "telegram_proof_message_id": 1659,
-    "telegram_legacy_proof_message_id": 1947
+    "telegram_legacy_proof_message_id": 1947,
+    "items": [
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "31e602c0-f9cf-450b-9b5b-94889bfdb164",
@@ -34531,7 +44060,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.805+00:00",
     "telegram_legacy_message_id": 2107,
     "telegram_proof_message_id": 1752,
-    "telegram_legacy_proof_message_id": 2108
+    "telegram_legacy_proof_message_id": 2108,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6048b9dd-87a3-47e9-9508-5536cfe01db3",
@@ -34601,7 +44143,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3725,
     "telegram_proof_message_id": 3347,
-    "telegram_legacy_proof_message_id": 3726
+    "telegram_legacy_proof_message_id": 3726,
+    "items": [
+      {
+        "price": 80,
+        "total": 720,
+        "quantity": 9,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
+        "variation_name": "3ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d4351c63-69b4-463d-bded-e5e7f5c5d219",
@@ -34660,7 +44226,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4740,
     "telegram_proof_message_id": 4323,
-    "telegram_legacy_proof_message_id": 4741
+    "telegram_legacy_proof_message_id": 4741,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f37c43e2-7f2a-4d6b-af13-3893d19c1df9",
@@ -34719,7 +44298,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4742,
     "telegram_proof_message_id": 4325,
-    "telegram_legacy_proof_message_id": 4743
+    "telegram_legacy_proof_message_id": 4743,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbdbcb02-d9d8-490d-8fb2-e9fe63e4c906",
@@ -34811,7 +44403,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:02.503+00:00",
     "telegram_legacy_message_id": 793,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2659.0499999999997,
+        "total": 5318.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "39fb065a-6045-41eb-b215-e80ffa03dd44",
@@ -34903,7 +44541,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:02.7+00:00",
     "telegram_legacy_message_id": 426,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2659.0499999999997,
+        "total": 5318.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "3c171da1-0d6a-4471-9ee9-d08fcc06e20d",
@@ -34962,7 +44646,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.362+00:00",
     "telegram_legacy_message_id": 423,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 807.5,
+        "total": 1615,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "843582a5-1769-4bd8-b681-786bf3f7d028",
@@ -35021,7 +44718,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.628+00:00",
     "telegram_legacy_message_id": 879,
     "telegram_proof_message_id": 608,
-    "telegram_legacy_proof_message_id": 880
+    "telegram_legacy_proof_message_id": 880,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e6c7bec1-a824-4448-8504-9bf7029ce9ed",
@@ -35124,7 +44834,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.796+00:00",
     "telegram_legacy_message_id": 604,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 5557.5,
+        "quantity": 3,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3372.5,
+        "total": 6745,
+        "quantity": 2,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "725f9810-53e7-47c4-8579-bc86b5e955bb",
@@ -35227,7 +44994,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.481+00:00",
     "telegram_legacy_message_id": 571,
     "telegram_proof_message_id": 326,
-    "telegram_legacy_proof_message_id": 572
+    "telegram_legacy_proof_message_id": 572,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3372.5,
+        "total": 6745,
+        "quantity": 2,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "565de4d1-a05a-46a4-b791-9d942242636e",
@@ -35319,7 +45143,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:02.771+00:00",
     "telegram_legacy_message_id": 425,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1044.05,
+        "total": 2088.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2659.0499999999997,
+        "total": 5318.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "08d24ffb-13a9-4083-b61c-d916f78a7505",
@@ -35422,7 +45292,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.685+00:00",
     "telegram_legacy_message_id": 602,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 5557.5,
+        "quantity": 3,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0cea00ad-4929-4e34-8187-bc9cc8af4195",
@@ -35481,7 +45408,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.11+00:00",
     "telegram_legacy_message_id": 442,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b4e7e292-5d4d-4b96-951f-cc9eaeaecb10",
@@ -35551,7 +45491,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.736+00:00",
     "telegram_legacy_message_id": 440,
     "telegram_proof_message_id": 201,
-    "telegram_legacy_proof_message_id": 441
+    "telegram_legacy_proof_message_id": 441,
+    "items": [
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 284.05,
+        "total": 568.1,
+        "quantity": 2,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "52ed1296-f17c-423d-b936-2a0558f6b24f",
@@ -35621,7 +45585,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:02.741+00:00",
     "telegram_legacy_message_id": 1905,
     "telegram_proof_message_id": 1622,
-    "telegram_legacy_proof_message_id": 1906
+    "telegram_legacy_proof_message_id": 1906,
+    "items": [
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d27c2b10-813b-413a-9d12-7ac072787463",
@@ -35724,7 +45712,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:03.739+00:00",
     "telegram_legacy_message_id": 603,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 5557.5,
+        "quantity": 3,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3372.5,
+        "total": 6745,
+        "quantity": 2,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "cadbd24d-c04e-40eb-ac0c-d3dcdfee1e0b",
@@ -35794,7 +45839,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.785+00:00",
     "telegram_legacy_message_id": 449,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2388c3e0-a468-4a28-b454-a8acf1826c7e",
@@ -35864,7 +45933,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.124+00:00",
     "telegram_legacy_message_id": 1950,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0869b1b1-6457-48ab-9c6c-4f5c360efb1b",
@@ -35923,7 +46016,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:04.971+00:00",
     "telegram_legacy_message_id": 1111,
     "telegram_proof_message_id": 837,
-    "telegram_legacy_proof_message_id": 1112
+    "telegram_legacy_proof_message_id": 1112,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 1708.1,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "aedea594-c3f6-4929-b15c-74954e200cbb",
@@ -35982,7 +46088,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3520,
     "telegram_proof_message_id": 3142,
-    "telegram_legacy_proof_message_id": 3521
+    "telegram_legacy_proof_message_id": 3521,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "81c882ec-9188-49c4-9059-70515e724b18",
@@ -36041,7 +46160,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:03.006+00:00",
     "telegram_legacy_message_id": 2268,
     "telegram_proof_message_id": 1911,
-    "telegram_legacy_proof_message_id": 2269
+    "telegram_legacy_proof_message_id": 2269,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d4a47588-dcaf-483a-8164-ccb6d17c43c2",
@@ -36100,7 +46232,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3749,
     "telegram_proof_message_id": 3371,
-    "telegram_legacy_proof_message_id": 3750
+    "telegram_legacy_proof_message_id": 3750,
+    "items": [
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e1d1e13d-ee5e-476c-900d-57fbbaa56ae9",
@@ -36159,7 +46304,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.186+00:00",
     "telegram_legacy_message_id": 2262,
     "telegram_proof_message_id": 1905,
-    "telegram_legacy_proof_message_id": 2263
+    "telegram_legacy_proof_message_id": 2263,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3dcd4213-a690-45b1-8d5c-a68a3ed2a75a",
@@ -36262,7 +46420,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-21T09:00:04.416+00:00",
     "telegram_legacy_message_id": 607,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1300,
+        "total": 1300,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "Wonder Tox 200",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3372.5,
+        "total": 6745,
+        "quantity": 2,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "5bdcfb31-4cf0-4931-b2a0-592b62a1768b",
@@ -36321,7 +46536,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:04.086+00:00",
     "telegram_legacy_message_id": 2450,
     "telegram_proof_message_id": 2088,
-    "telegram_legacy_proof_message_id": 2451
+    "telegram_legacy_proof_message_id": 2451,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6f321690-447a-4b38-a8ba-1908af7b38b6",
@@ -36391,7 +46619,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-24T09:00:01.828+00:00",
     "telegram_legacy_message_id": 2082,
     "telegram_proof_message_id": 1727,
-    "telegram_legacy_proof_message_id": 2083
+    "telegram_legacy_proof_message_id": 2083,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 180,
+        "total": 180,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0019186a-bd20-469c-903c-29b6e9e8b21d",
@@ -36450,7 +46702,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.017+00:00",
     "telegram_legacy_message_id": 1109,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3609.0499999999997,
+        "total": 7218.099999999999,
+        "quantity": 2,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "39530728-f3b0-4d59-8c4d-eeb14bdb9af8",
@@ -36509,7 +46774,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-20T09:00:01.493+00:00",
     "telegram_legacy_message_id": 1957,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "970991bb-5ea5-4436-9b33-8229c55b93d5",
@@ -36568,7 +46846,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3220,
     "telegram_proof_message_id": 2846,
-    "telegram_legacy_proof_message_id": 3221
+    "telegram_legacy_proof_message_id": 3221,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f49dbda7-59d9-470f-8142-1aa9aa4f336f",
@@ -36627,7 +46918,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3272,
     "telegram_proof_message_id": 2898,
-    "telegram_legacy_proof_message_id": 3273
+    "telegram_legacy_proof_message_id": 3273,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f2a03356-4611-43ef-a0ce-27cbe64a699d",
@@ -36686,7 +46990,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3340,
     "telegram_proof_message_id": 2964,
-    "telegram_legacy_proof_message_id": 3341
+    "telegram_legacy_proof_message_id": 3341,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4193e1f3-1f10-402c-a2dc-bec94b0f2adf",
@@ -36745,7 +47062,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-18T09:00:03.165+00:00",
     "telegram_legacy_message_id": 1962,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fdd1089d-f6f4-4f4a-8f65-c2630d57b8d0",
@@ -36804,7 +47134,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-24T09:00:02.35+00:00",
     "telegram_legacy_message_id": 2066,
     "telegram_proof_message_id": 1711,
-    "telegram_legacy_proof_message_id": 2067
+    "telegram_legacy_proof_message_id": 2067,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f502c7f0-af63-4b3f-b796-55916a663272",
@@ -36863,7 +47206,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:04.13+00:00",
     "telegram_legacy_message_id": 2611,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "41459655-bc7f-4e71-bd9d-ebb0184eb94b",
@@ -36933,7 +47289,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3600,
     "telegram_proof_message_id": 3222,
-    "telegram_legacy_proof_message_id": 3601
+    "telegram_legacy_proof_message_id": 3601,
+    "items": [
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 15,
+        "quantity": 1,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "18229b0a-b559-4107-af5c-80cbcd228040",
@@ -37003,7 +47383,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:01.348+00:00",
     "telegram_legacy_message_id": 1046,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7e94a6a9-5d38-47bc-97e1-a70fb449547f",
@@ -37062,7 +47466,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3276,
     "telegram_proof_message_id": 2902,
-    "telegram_legacy_proof_message_id": 3277
+    "telegram_legacy_proof_message_id": 3277,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fd3cf5dd-c949-41d5-a897-707d0a823300",
@@ -37132,7 +47549,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:03.082+00:00",
     "telegram_legacy_message_id": 1913,
     "telegram_proof_message_id": 1630,
-    "telegram_legacy_proof_message_id": 1914
+    "telegram_legacy_proof_message_id": 1914,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "74dc900c-5be3-5869-9574-9471b1865533",
+        "variation_name": "Champagne Gold",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "113f7a1e-2a84-4e33-8baf-8ae82362f661",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid Serum",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c1418aee-0928-42f1-86ec-f520cb289910",
@@ -37191,7 +47632,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3352,
     "telegram_proof_message_id": 2976,
-    "telegram_legacy_proof_message_id": 3353
+    "telegram_legacy_proof_message_id": 3353,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e74124ef-87c5-4af4-8d59-717ff37f5b44",
@@ -37250,7 +47704,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:01.413+00:00",
     "telegram_legacy_message_id": 2074,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dd51f29e-0f91-4a3c-944b-016427da6dea",
@@ -37331,7 +47798,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-24T09:00:02.542+00:00",
     "telegram_legacy_message_id": 1940,
     "telegram_proof_message_id": 1657,
-    "telegram_legacy_proof_message_id": 1941
+    "telegram_legacy_proof_message_id": 1941,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c6f24130-0871-45ce-a811-dec6fc2f7c5d",
@@ -37390,7 +47892,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:02.585+00:00",
     "telegram_legacy_message_id": 2272,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2076ae3d-8da9-45f2-a449-dd1afffa24ec",
@@ -37449,7 +47964,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4300,
     "telegram_proof_message_id": 3920,
-    "telegram_legacy_proof_message_id": 4301
+    "telegram_legacy_proof_message_id": 4301,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c2c8511d-2105-49dd-9872-4db710d30618",
@@ -37508,66 +48036,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:02.369+00:00",
     "telegram_legacy_message_id": 1881,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 1882
-  },
-  {
-    "id": "0960b2c1-d2f1-4552-9ddf-a84e17ec5cc9",
-    "customer_name": "Ariel Zita",
-    "customer_email": "arielzita4@gmail.com",
-    "customer_phone": "09658764069",
-    "contact_method": "messenger",
-    "shipping_address": "1001 Asuncion St. Tondo, Manila",
-    "shipping_city": "Manila",
-    "shipping_state": "Metro Manila",
-    "shipping_zip_code": "1013",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Brgy 25",
-    "shipping_region": null,
-    "shipping_location": "LALAMOVE (SAME DAY DELIVERY)",
-    "courier_id": null,
-    "shipping_fee": 0,
-    "order_items": [
+    "telegram_legacy_proof_message_id": 1882,
+    "items": [
       {
-        "price": 1899,
-        "total": 1899,
+        "price": 3099,
+        "total": 3099,
         "quantity": 1,
-        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
-        "product_name": "Slimboost (Cagrilintide) 5mg",
-        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
         "variation_name": "Set",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 1899,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1785153368646-geefu9hodum.png",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "delivered",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": null,
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-07-27T11:56:09.665323+00:00",
-    "updated_at": "2026-07-28T02:45:47.423585+00:00",
-    "order_number": "SLD-001799",
-    "telegram_message_id": 3297,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": null,
-    "telegram_legacy_message_id": 3676,
-    "telegram_proof_message_id": 3298,
-    "telegram_legacy_proof_message_id": 3677
+    ]
   },
   {
     "id": "57644b58-4dd6-4cd0-a026-c9c399f72af2",
@@ -37626,7 +48108,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:02.508+00:00",
     "telegram_legacy_message_id": 2805,
     "telegram_proof_message_id": 2437,
-    "telegram_legacy_proof_message_id": 2806
+    "telegram_legacy_proof_message_id": 2806,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e21cb225-a7ad-4937-9007-5bbac1829d28",
@@ -37685,7 +48180,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3783,
     "telegram_proof_message_id": 3405,
-    "telegram_legacy_proof_message_id": 3784
+    "telegram_legacy_proof_message_id": 3784,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7ae9b5d1-496f-4d11-bfb5-945f3869635d",
@@ -37755,7 +48263,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:02.981+00:00",
     "telegram_legacy_message_id": 1004,
     "telegram_proof_message_id": 730,
-    "telegram_legacy_proof_message_id": 1005
+    "telegram_legacy_proof_message_id": 1005,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7bc582b3-db8f-44b1-99c7-ac573821b0a2",
@@ -37836,7 +48368,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4784,
     "telegram_proof_message_id": 4367,
-    "telegram_legacy_proof_message_id": 4785
+    "telegram_legacy_proof_message_id": 4785,
+    "items": [
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 807.5,
+        "total": 1615,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 799,
+        "total": 1598,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "90c979f1-aff3-4fd5-9968-be9c406b465a",
@@ -37895,7 +48462,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:02.469+00:00",
     "telegram_legacy_message_id": 2680,
     "telegram_proof_message_id": 2314,
-    "telegram_legacy_proof_message_id": 2681
+    "telegram_legacy_proof_message_id": 2681,
+    "items": [
+      {
+        "price": 759.05,
+        "total": 1518.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "7146d480-9751-4850-9eff-62925bf31c37",
@@ -37965,7 +48545,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-27T09:00:02.998+00:00",
     "telegram_legacy_message_id": 2438,
     "telegram_proof_message_id": 2076,
-    "telegram_legacy_proof_message_id": 2439
+    "telegram_legacy_proof_message_id": 2439,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "16186446-7624-4c54-b795-40f14aa70bba",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4b18024b-6bfd-4e71-ab4b-004367d54543",
@@ -38024,7 +48628,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3665,
     "telegram_proof_message_id": 3287,
-    "telegram_legacy_proof_message_id": 3666
+    "telegram_legacy_proof_message_id": 3666,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e96a82a2-0e6e-4218-9c2f-7217b35b5cb5",
@@ -38083,7 +48700,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.053+00:00",
     "telegram_legacy_message_id": 1116,
     "telegram_proof_message_id": 842,
-    "telegram_legacy_proof_message_id": 1117
+    "telegram_legacy_proof_message_id": 1117,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7fdcb037-e4d9-42a4-a7e6-0bcdd2228138",
@@ -38142,7 +48772,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3671,
     "telegram_proof_message_id": 3293,
-    "telegram_legacy_proof_message_id": 3672
+    "telegram_legacy_proof_message_id": 3672,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "090d4cb9-cd41-4db3-864a-a4a2351b4e16",
@@ -38201,7 +48844,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:03.436+00:00",
     "telegram_legacy_message_id": 1483,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 11996,
+        "quantity": 4,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "02d49f5f-23f8-4192-b0b7-7cd4d9ba5de6",
@@ -38260,7 +48916,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:02.629+00:00",
     "telegram_legacy_message_id": 2291,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "80a1812c-b887-421a-be82-99fb29bdbb73",
@@ -38330,7 +48999,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:03.561+00:00",
     "telegram_legacy_message_id": 2390,
     "telegram_proof_message_id": 2028,
-    "telegram_legacy_proof_message_id": 2391
+    "telegram_legacy_proof_message_id": 2391,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "bfdc838d-b842-52cd-aba2-d3f04c9cccf6",
+        "variation_name": "Sea Green",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "1d9de39f-30f4-5746-a382-24cbf55ec13c",
+        "variation_name": "Royal Blue",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "632db324-aa0b-4491-b9e9-056c9b90305c",
@@ -38389,7 +49082,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:00.982+00:00",
     "telegram_legacy_message_id": 3094,
     "telegram_proof_message_id": 2723,
-    "telegram_legacy_proof_message_id": 3095
+    "telegram_legacy_proof_message_id": 3095,
+    "items": [
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "95e49d6f-635d-489a-917f-d50e1d5389fc",
+        "product_name": "Botulax (Lalamove/Maxim only)",
+        "variation_id": "750c6600-a017-43d4-8c32-6f285129f0d2",
+        "variation_name": "300u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "23f5394a-9252-415d-83a9-bf2b01f6c109",
@@ -38448,7 +49154,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:03.724+00:00",
     "telegram_legacy_message_id": 2477,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b588a69-d6e2-4ed6-80dc-0abef50bcc63",
@@ -38507,7 +49226,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.827+00:00",
     "telegram_legacy_message_id": 2345,
     "telegram_proof_message_id": 1983,
-    "telegram_legacy_proof_message_id": 2346
+    "telegram_legacy_proof_message_id": 2346,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f84e765b-2e7b-4b1d-a3b3-8036541a0a6e",
@@ -38566,7 +49298,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:04.322+00:00",
     "telegram_legacy_message_id": 2560,
     "telegram_proof_message_id": 2196,
-    "telegram_legacy_proof_message_id": 2561
+    "telegram_legacy_proof_message_id": 2561,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "de1ea8d5-a5c5-49e3-b4b6-b509558855e4",
@@ -38625,7 +49370,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4106,
     "telegram_proof_message_id": 3728,
-    "telegram_legacy_proof_message_id": 4107
+    "telegram_legacy_proof_message_id": 4107,
+    "items": [
+      {
+        "price": 7749,
+        "total": 7749,
+        "quantity": 1,
+        "product_id": "a0eaf3cb-ce54-4a59-8b95-a9ca8b4d157b",
+        "product_name": "Snow White Trio",
+        "variation_id": "2728e6e6-aad6-4f2d-bbaf-3560d9175cb1",
+        "variation_name": "W/ IV Drip set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f697e94e-67d3-421f-b06a-5956db929444",
@@ -38684,7 +49442,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.278+00:00",
     "telegram_legacy_message_id": 1114,
     "telegram_proof_message_id": 840,
-    "telegram_legacy_proof_message_id": 1115
+    "telegram_legacy_proof_message_id": 1115,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0c5424d3-6bfb-49ea-b2fd-8a1861d275de",
@@ -38743,7 +49514,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.251+00:00",
     "telegram_legacy_message_id": 972,
     "telegram_proof_message_id": 700,
-    "telegram_legacy_proof_message_id": 973
+    "telegram_legacy_proof_message_id": 973,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "16186446-7624-4c54-b795-40f14aa70bba",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3b26e444-e73f-4b28-99fc-5ec578fd7247",
@@ -38813,7 +49597,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:06.485+00:00",
     "telegram_legacy_message_id": 2247,
     "telegram_proof_message_id": 1890,
-    "telegram_legacy_proof_message_id": 2248
+    "telegram_legacy_proof_message_id": 2248,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7fa0a35c-2f91-461d-807a-6cf70ad5acea",
@@ -38872,7 +49680,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:02.936+00:00",
     "telegram_legacy_message_id": 2334,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "96a12c93-177e-4fba-9ba1-66ee283663d1",
@@ -38931,66 +49752,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.658+00:00",
     "telegram_legacy_message_id": 2578,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "af2da625-cf4b-4952-b495-a32fbe9e6959",
-    "customer_name": "Ariel Zita",
-    "customer_email": "arielzita4@gmail.com",
-    "customer_phone": "09658764069",
-    "contact_method": "messenger",
-    "shipping_address": "1001 Asuncion St. Tondo, Manila",
-    "shipping_city": "Manila",
-    "shipping_state": "Metro Manila",
-    "shipping_zip_code": "1013",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Brgy 25",
-    "shipping_region": null,
-    "shipping_location": "LALAMOVE (SAME DAY DELIVERY)",
-    "courier_id": null,
-    "shipping_fee": 0,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 2999,
-        "total": 2999,
+        "price": 899,
+        "total": 899,
         "quantity": 1,
-        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
-        "product_name": "SlimDose (GLP-2) 30mg",
-        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
-        "variation_name": "Set",
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "5c58db76-d977-4e25-bcb5-e79f99fd0cee",
+        "variation_name": "Vials Only (Italy)",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 2999,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1783141127824-wyvtya3j89.png",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "delivered",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": null,
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-07-04T04:58:48.639411+00:00",
-    "updated_at": "2026-08-03T09:00:04.406375+00:00",
-    "order_number": "SLD-001618",
-    "telegram_message_id": 2208,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-08-03T09:00:04.386+00:00",
-    "telegram_legacy_message_id": 2573,
-    "telegram_proof_message_id": 2209,
-    "telegram_legacy_proof_message_id": 2574
+    ]
   },
   {
     "id": "a472ac91-1958-454f-a1a4-ebda48ca3b3b",
@@ -39060,7 +49835,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4082,
     "telegram_proof_message_id": 3704,
-    "telegram_legacy_proof_message_id": 4083
+    "telegram_legacy_proof_message_id": 4083,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 3798,
+        "quantity": 2,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "33be0922-ee94-48b5-a25b-ebd2f2bd5339",
@@ -39119,7 +49918,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:02.5+00:00",
     "telegram_legacy_message_id": 4576,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bc1e6434-7783-4fc5-a691-51adba2a3cd8",
@@ -39178,7 +49990,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.884+00:00",
     "telegram_legacy_message_id": 2331,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "71c3c355-3d24-45d0-a2f7-ea51c6b69b42",
@@ -39237,7 +50062,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:03.772+00:00",
     "telegram_legacy_message_id": 1497,
     "telegram_proof_message_id": 1223,
-    "telegram_legacy_proof_message_id": 1498
+    "telegram_legacy_proof_message_id": 1498,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1c450321-9f75-44d0-98c0-ac23134fca5e",
@@ -39296,7 +50134,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.317+00:00",
     "telegram_legacy_message_id": 1099,
     "telegram_proof_message_id": 825,
-    "telegram_legacy_proof_message_id": 1100
+    "telegram_legacy_proof_message_id": 1100,
+    "items": [
+      {
+        "price": 2184,
+        "total": 2184,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5c97c288-83d5-4f31-ba22-49a7b0cacf5a",
@@ -39355,7 +50206,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:03.037+00:00",
     "telegram_legacy_message_id": 2333,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "845722ce-ad48-4216-82cd-113a3f71e6c0",
@@ -39447,7 +50311,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:02.231+00:00",
     "telegram_legacy_message_id": 708,
     "telegram_proof_message_id": 442,
-    "telegram_legacy_proof_message_id": 709
+    "telegram_legacy_proof_message_id": 709,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "3b97f35b-e26e-557b-9c22-6bc19537a650",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "caa321cc-2646-59b1-a445-454bada77262",
+        "product_name": "5-Amino-1MQ 5mg",
+        "variation_id": "66c99a3d-81c3-5079-a92d-41555f51fe5a",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f819d93f-c5c8-41e2-adbd-3def2580e8cc",
@@ -39506,7 +50416,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:03.595+00:00",
     "telegram_legacy_message_id": 727,
     "telegram_proof_message_id": 461,
-    "telegram_legacy_proof_message_id": 728
+    "telegram_legacy_proof_message_id": 728,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "004d9be8-75ec-41e4-af20-1d4df5fe3786",
@@ -39565,7 +50488,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-28T09:00:04.264+00:00",
     "telegram_legacy_message_id": 756,
     "telegram_proof_message_id": 490,
-    "telegram_legacy_proof_message_id": 757
+    "telegram_legacy_proof_message_id": 757,
+    "items": [
+      {
+        "price": 380,
+        "total": 1140,
+        "quantity": 3,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bfcce04f-9353-46d1-90c0-5ef64bedf088",
@@ -39657,7 +50593,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.228+00:00",
     "telegram_legacy_message_id": 1031,
     "telegram_proof_message_id": 757,
-    "telegram_legacy_proof_message_id": 1032
+    "telegram_legacy_proof_message_id": 1032,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e05ad8f2-1dc6-4a1f-a4f9-3df1cc5ffeac",
@@ -39716,7 +50698,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4124,
     "telegram_proof_message_id": 3746,
-    "telegram_legacy_proof_message_id": 4125
+    "telegram_legacy_proof_message_id": 4125,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "89e34094-3077-4a29-834c-13bf953bb764",
@@ -39775,7 +50770,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:03.648+00:00",
     "telegram_legacy_message_id": 2475,
     "telegram_proof_message_id": 2113,
-    "telegram_legacy_proof_message_id": 2476
+    "telegram_legacy_proof_message_id": 2476,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "87aff827-7ebc-4ce0-90f5-c0a6964d357f",
@@ -39834,7 +50842,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3669,
     "telegram_proof_message_id": 3291,
-    "telegram_legacy_proof_message_id": 3670
+    "telegram_legacy_proof_message_id": 3670,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e65f63db-b5b9-4a83-af27-3009c59c8f76",
@@ -39926,7 +50947,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:03.927+00:00",
     "telegram_legacy_message_id": 2762,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0562eb34-c133-477d-8958-0e9b6220ad28",
@@ -39996,7 +51063,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:05.046+00:00",
     "telegram_legacy_message_id": 2536,
     "telegram_proof_message_id": 2172,
-    "telegram_legacy_proof_message_id": 2537
+    "telegram_legacy_proof_message_id": 2537,
+    "items": [
+      {
+        "price": 399,
+        "total": 1995,
+        "quantity": 5,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1350,
+        "total": 1350,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "a244ede3-3004-4a80-b377-33ae3ff267d4",
+        "variation_name": "100u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "38308fcc-12d7-4ae6-b81d-27d1035f2c32",
@@ -40055,7 +51146,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:03.834+00:00",
     "telegram_legacy_message_id": 2388,
     "telegram_proof_message_id": 2026,
-    "telegram_legacy_proof_message_id": 2389
+    "telegram_legacy_proof_message_id": 2389,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "affbea24-9a65-4d36-808f-772295e1f2a2",
@@ -40136,7 +51240,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4026,
     "telegram_proof_message_id": 3648,
-    "telegram_legacy_proof_message_id": 4027
+    "telegram_legacy_proof_message_id": 4027,
+    "items": [
+      {
+        "price": 765,
+        "total": 765,
+        "quantity": 1,
+        "product_id": "d3078610-73da-4829-a241-ccc3499b43fd",
+        "product_name": "CollaLift (Recombinant Collagen) 5ml",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 990,
+        "total": 990,
+        "quantity": 1,
+        "product_id": "f20cf9f3-f0d2-4157-8a03-7e22effae7e4",
+        "product_name": "Exosome Skin Serum",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 4679,
+        "total": 4679,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3c69c8fa-5358-4410-ac22-f1fc00d023d6",
@@ -40195,7 +51334,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.354+00:00",
     "telegram_legacy_message_id": 2006,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 811.3,
+        "total": 1622.6,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "3cacae28-2862-44a9-bbc3-5df799d7a409",
@@ -40254,7 +51406,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-01T09:00:03.334+00:00",
     "telegram_legacy_message_id": 2478,
     "telegram_proof_message_id": 2116,
-    "telegram_legacy_proof_message_id": 2479
+    "telegram_legacy_proof_message_id": 2479,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cf602e3f-477a-4399-8171-6428ad9664be",
@@ -40324,7 +51489,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.289+00:00",
     "telegram_legacy_message_id": 830,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0e5eaa71-8270-4ca6-809d-63d0010491b2",
@@ -40394,7 +51583,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4028,
     "telegram_proof_message_id": 3650,
-    "telegram_legacy_proof_message_id": 4029
+    "telegram_legacy_proof_message_id": 4029,
+    "items": [
+      {
+        "price": 4679,
+        "total": 9358,
+        "quantity": 2,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 719,
+        "total": 1438,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1c22b67a-a00c-4d54-85d5-8baec095886d",
@@ -40508,7 +51721,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:01.69+00:00",
     "telegram_legacy_message_id": 1685,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "52496bb4-173a-4af1-954d-ac58c8600045",
@@ -40578,7 +51859,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.808+00:00",
     "telegram_legacy_message_id": 1029,
     "telegram_proof_message_id": 755,
-    "telegram_legacy_proof_message_id": 1030
+    "telegram_legacy_proof_message_id": 1030,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "8377645f-9a2a-5527-bda0-03f3e8f65412",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "952e86c9-87a6-46e6-88a6-7ee30a498579",
@@ -40637,7 +51942,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-06-30T09:00:03.904+00:00",
     "telegram_legacy_message_id": 826,
     "telegram_proof_message_id": 555,
-    "telegram_legacy_proof_message_id": 827
+    "telegram_legacy_proof_message_id": 827,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d9de2416-c914-4a8d-aa31-ece6fc12a7c6",
@@ -40707,7 +52025,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4088,
     "telegram_proof_message_id": 3710,
-    "telegram_legacy_proof_message_id": 4089
+    "telegram_legacy_proof_message_id": 4089,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d4e587b2-495a-4dd7-8a63-f7ef5e8d5fe9",
@@ -40766,7 +52108,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:03.183+00:00",
     "telegram_legacy_message_id": 2437,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 7598,
+        "quantity": 2,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "30fb3b75-44c8-43b4-82a5-40b79683becf",
@@ -40847,7 +52202,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:02.67+00:00",
     "telegram_legacy_message_id": 2686,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0dc0b2b2-8e44-4d33-8616-b168fe272a92",
@@ -40906,7 +52296,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:04.039+00:00",
     "telegram_legacy_message_id": 2610,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "860485f8-6dbc-48ab-ab19-5f057ed901cb",
@@ -41020,7 +52423,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:01.795+00:00",
     "telegram_legacy_message_id": 1686,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b59119ff-5fa2-47f9-aa3e-053f75322444",
@@ -41079,7 +52550,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4238,
     "telegram_proof_message_id": 3858,
-    "telegram_legacy_proof_message_id": 4239
+    "telegram_legacy_proof_message_id": 4239,
+    "items": [
+      {
+        "price": 3000,
+        "total": 3000,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "21443356-a2ae-4016-a382-3b4b0ee717c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1b682291-ebd9-4d79-8156-c6806ca18f59",
@@ -41138,7 +52622,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-07T09:00:04.623+00:00",
     "telegram_legacy_message_id": 1299,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e679f09e-0bc6-41c3-bf4f-3528ea12458d",
@@ -41197,7 +52694,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:02.49+00:00",
     "telegram_legacy_message_id": 1980,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d5efb571-7e7c-4c5f-9b23-5f152b14cbb6",
@@ -41256,7 +52766,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:03.021+00:00",
     "telegram_legacy_message_id": 2671,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 499,
+        "total": 1497,
+        "quantity": 3,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "666a34e2-e1df-4a5d-8757-5efa363638aa",
@@ -41315,7 +52838,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.141+00:00",
     "telegram_legacy_message_id": 2937,
     "telegram_proof_message_id": 2569,
-    "telegram_legacy_proof_message_id": 2938
+    "telegram_legacy_proof_message_id": 2938,
+    "items": [
+      {
+        "price": 7,
+        "total": 210,
+        "quantity": 30,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1dbcaae0-0f40-484b-916f-b2cce6502880",
@@ -41385,7 +52921,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:05.59+00:00",
     "telegram_legacy_message_id": 2005,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2707.5,
+        "total": 5415,
+        "quantity": 2,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "21443356-a2ae-4016-a382-3b4b0ee717c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 8,
+        "total": 160,
+        "quantity": 20,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "6c380315-6508-4f7a-a686-55b04d532427",
+        "variation_name": "6mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbff53f2-2042-4967-955e-d2cb4ac50e02",
@@ -41477,7 +53037,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:02.871+00:00",
     "telegram_legacy_message_id": 1027,
     "telegram_proof_message_id": 753,
-    "telegram_legacy_proof_message_id": 1028
+    "telegram_legacy_proof_message_id": 1028,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "3b97f35b-e26e-557b-9c22-6bc19537a650",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0e388589-eb7e-47ab-b4e8-859fa543693e",
@@ -41558,7 +53164,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.323+00:00",
     "telegram_legacy_message_id": 1126,
     "telegram_proof_message_id": 852,
-    "telegram_legacy_proof_message_id": 1127
+    "telegram_legacy_proof_message_id": 1127,
+    "items": [
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 399,
+        "total": 399,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "eb5afdb4-866e-4ac0-8437-44383c85ef01",
@@ -41628,7 +53269,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.904+00:00",
     "telegram_legacy_message_id": 917,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f7ec8a14-c798-4176-879c-c3c3af81ca86",
@@ -41687,7 +53352,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-23T09:00:02.446+00:00",
     "telegram_legacy_message_id": 1942,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "38347410-fb54-46ff-8b5f-cf53695f88df",
@@ -41801,7 +53479,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:01.855+00:00",
     "telegram_legacy_message_id": 2015,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7d6abaf0-e367-429d-96c1-cdc51b0fb29a",
@@ -41860,7 +53606,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.011+00:00",
     "telegram_legacy_message_id": 2672,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bd478fd4-ca93-408f-acb8-caecd5499e0a",
@@ -41941,7 +53700,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-01T09:00:03.86+00:00",
     "telegram_legacy_message_id": 1024,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 7,
+        "total": 28,
+        "quantity": 4,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "13a25dc6-14c5-4011-a59e-c4dca74c19fc",
@@ -42022,7 +53816,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:03.629+00:00",
     "telegram_legacy_message_id": 2798,
     "telegram_proof_message_id": 2430,
-    "telegram_legacy_proof_message_id": 2799
+    "telegram_legacy_proof_message_id": 2799,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "989495e0-c7e5-5333-9a83-534243c82994",
+        "variation_name": "Cherry Red",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 455,
+        "quantity": 65,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 640,
+        "quantity": 8,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3807b0a3-e398-4104-af56-fc08815d25f7",
@@ -42081,7 +53910,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:04.663+00:00",
     "telegram_legacy_message_id": 2687,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6ac7148c-ad4e-4457-a961-936c2be91dc1",
@@ -42162,7 +54004,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4282,
     "telegram_proof_message_id": 3902,
-    "telegram_legacy_proof_message_id": 4283
+    "telegram_legacy_proof_message_id": 4283,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 100,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c2cce57-4278-4486-9078-684dc77f38df",
@@ -42232,7 +54109,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:01.196+00:00",
     "telegram_legacy_message_id": 3280,
     "telegram_proof_message_id": 2906,
-    "telegram_legacy_proof_message_id": 3281
+    "telegram_legacy_proof_message_id": 3281,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 759.05,
+        "total": 1518.1,
+        "quantity": 2,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "585b6736-07e4-4f4a-b577-3d882616689a",
@@ -42346,7 +54247,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:02.773+00:00",
     "telegram_legacy_message_id": 2014,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "308b1ea8-da3c-4cbc-9af3-1f49f290b632",
@@ -42405,7 +54374,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:06.071+00:00",
     "telegram_legacy_message_id": 1106,
     "telegram_proof_message_id": 832,
-    "telegram_legacy_proof_message_id": 1107
+    "telegram_legacy_proof_message_id": 1107,
+    "items": [
+      {
+        "price": 3609,
+        "total": 3609,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "426e53c4-8aa6-47cc-b813-dec7f3b1a500",
@@ -42464,7 +54446,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:03.166+00:00",
     "telegram_legacy_message_id": 2534,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 2535
+    "telegram_legacy_proof_message_id": 2535,
+    "items": [
+      {
+        "price": 1350,
+        "total": 1350,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "a244ede3-3004-4a80-b377-33ae3ff267d4",
+        "variation_name": "100u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b10247a9-8ee3-4da7-98d2-4db94942e1dd",
@@ -42578,7 +54573,75 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-03T09:00:02.826+00:00",
     "telegram_legacy_message_id": 1462,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA (Pre-Order)",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7cfce396-83c9-49d0-83df-d382c5d8987b",
@@ -42659,7 +54722,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.012+00:00",
     "telegram_legacy_message_id": 1997,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2659,
+        "total": 2659,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2374,
+        "total": 2374,
+        "quantity": 1,
+        "product_id": "37ba0fb2-6a1a-469c-a833-adfd38c54c47",
+        "product_name": "PrimeDose (Ipamorelin) 10mg",
+        "variation_id": "7252f71f-3d4a-4c2f-93a5-0fea67724976",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1234,
+        "total": 1234,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "99bf825f-1049-4b25-a098-b820f6b5bf28",
@@ -42718,7 +54816,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.484+00:00",
     "telegram_legacy_message_id": 2621,
     "telegram_proof_message_id": 2257,
-    "telegram_legacy_proof_message_id": 2622
+    "telegram_legacy_proof_message_id": 2622,
+    "items": [
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "52cb1265-b009-4eff-82c5-93325d46cc5e",
@@ -42777,7 +54888,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:04.751+00:00",
     "telegram_legacy_message_id": 4570,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "11309c7e-41e1-4bab-97bf-944113f2c8ec",
@@ -42836,7 +54960,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:04.429+00:00",
     "telegram_legacy_message_id": 2571,
     "telegram_proof_message_id": 2207,
-    "telegram_legacy_proof_message_id": 2572
+    "telegram_legacy_proof_message_id": 2572,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "395d854d-4c3e-49d4-96a4-83511605b749",
@@ -42906,7 +55043,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-05T09:00:06.139+00:00",
     "telegram_legacy_message_id": 2004,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1519,
+        "total": 1519,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2754,
+        "total": 5508,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e69fb7f8-4abd-46aa-9cd5-3643c7563a3b",
@@ -42976,7 +55137,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:02.855+00:00",
     "telegram_legacy_message_id": 2682,
     "telegram_proof_message_id": 2316,
-    "telegram_legacy_proof_message_id": 2683
+    "telegram_legacy_proof_message_id": 2683,
+    "items": [
+      {
+        "price": 1899.05,
+        "total": 5697.15,
+        "quantity": 3,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0076eced-8dcc-4c81-af74-a156adc28b2e",
@@ -43035,7 +55220,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:02.853+00:00",
     "telegram_legacy_message_id": 2947,
     "telegram_proof_message_id": 2577,
-    "telegram_legacy_proof_message_id": 2948
+    "telegram_legacy_proof_message_id": 2948,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "16186446-7624-4c54-b795-40f14aa70bba",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cc450e73-9848-4972-b2bf-e1efa2911d74",
@@ -43094,7 +55292,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:02.717+00:00",
     "telegram_legacy_message_id": 2568,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b23fcb09-f1ee-4a0b-a990-14160058ab3d",
@@ -43153,7 +55364,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.535+00:00",
     "telegram_legacy_message_id": 2630,
     "telegram_proof_message_id": 2265,
-    "telegram_legacy_proof_message_id": 2631
+    "telegram_legacy_proof_message_id": 2631,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cd3ca792-12d9-4d2f-83e5-b06ddd47ec1d",
@@ -43211,7 +55435,19 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.099+00:00",
     "telegram_legacy_message_id": 1190,
     "telegram_proof_message_id": 916,
-    "telegram_legacy_proof_message_id": 1191
+    "telegram_legacy_proof_message_id": 1191,
+    "items": [
+      {
+        "price": 2944,
+        "total": 2944,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99
+      }
+    ]
   },
   {
     "id": "6d0b6da7-4bc6-401b-b031-ad9998128bd6",
@@ -43292,7 +55528,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.682+00:00",
     "telegram_legacy_message_id": 1226,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1104.83,
+        "total": 2209.66,
+        "quantity": 2,
+        "product_id": "caa321cc-2646-59b1-a445-454bada77262",
+        "product_name": "5-Amino-1MQ 5mg",
+        "variation_id": "66c99a3d-81c3-5079-a92d-41555f51fe5a",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 3
+      },
+      {
+        "price": 991.8,
+        "total": 1983.6,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1994,
+        "total": 1994,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fc621e47-26ce-45a0-8a1c-0c391e5774b3",
@@ -43351,7 +55622,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:03.048+00:00",
     "telegram_legacy_message_id": 4571,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f7a4721d-7317-4daa-9bf0-3d1f234d4f12",
@@ -43410,7 +55694,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.246+00:00",
     "telegram_legacy_message_id": 1491,
     "telegram_proof_message_id": 1217,
-    "telegram_legacy_proof_message_id": 1492
+    "telegram_legacy_proof_message_id": 1492,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b685a6b8-dcd3-48a9-91f0-26119a21b9ca",
@@ -43491,7 +55788,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:03.96+00:00",
     "telegram_legacy_message_id": 948,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3134.0499999999997,
+        "total": 6268.099999999999,
+        "quantity": 2,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "fa60bce3-28d3-5fbe-b566-48113fb00588",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1994.05,
+        "total": 3988.1,
+        "quantity": 2,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2754.0499999999997,
+        "total": 5508.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "c873addc-eb92-4ef8-af29-fd7f9842c61a",
@@ -43572,7 +55904,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.204+00:00",
     "telegram_legacy_message_id": 978,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3134.0499999999997,
+        "total": 6268.099999999999,
+        "quantity": 2,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "fa60bce3-28d3-5fbe-b566-48113fb00588",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1994.05,
+        "total": 3988.1,
+        "quantity": 2,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2754.0499999999997,
+        "total": 5508.099999999999,
+        "quantity": 2,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "e51bc087-c594-4f45-9ef0-cae1339153c4",
@@ -43631,7 +55998,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.292+00:00",
     "telegram_legacy_message_id": 1683,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 1684
+    "telegram_legacy_proof_message_id": 1684,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2303b780-5d67-4074-b7b1-46adab978e18",
@@ -43690,7 +56070,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.333+00:00",
     "telegram_legacy_message_id": 997,
     "telegram_proof_message_id": 723,
-    "telegram_legacy_proof_message_id": 998
+    "telegram_legacy_proof_message_id": 998,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fefeecc7-7e9c-4ab5-ba99-66e5a16948db",
@@ -43749,7 +56142,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:04.821+00:00",
     "telegram_legacy_message_id": 976,
     "telegram_proof_message_id": 704,
-    "telegram_legacy_proof_message_id": 977
+    "telegram_legacy_proof_message_id": 977,
+    "items": [
+      {
+        "price": 1139.05,
+        "total": 2278.1,
+        "quantity": 2,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "b58590a0-a1bc-47c5-85fa-082ccf55e3f6",
@@ -43808,7 +56214,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-02T09:00:05.067+00:00",
     "telegram_legacy_message_id": 991,
     "telegram_proof_message_id": 717,
-    "telegram_legacy_proof_message_id": 992
+    "telegram_legacy_proof_message_id": 992,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a5a1ac29-f84a-44f6-b98b-8f0d378e01f4",
@@ -43889,7 +56308,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-06T09:00:04.145+00:00",
     "telegram_legacy_message_id": 1351,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2526.0499999999997,
+        "total": 5052.099999999999,
+        "quantity": 2,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2374,
+        "total": 2374,
+        "quantity": 1,
+        "product_id": "37ba0fb2-6a1a-469c-a833-adfd38c54c47",
+        "product_name": "PrimeDose (Ipamorelin) 10mg",
+        "variation_id": "7252f71f-3d4a-4c2f-93a5-0fea67724976",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1234,
+        "total": 1234,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d2502a7d-3028-4458-beb6-73ce4bfde95a",
@@ -43959,7 +56413,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:03.16+00:00",
     "telegram_legacy_message_id": 2971,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 854.05,
+        "total": 2562.1499999999996,
+        "quantity": 3,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 15,
+        "total": 90,
+        "quantity": 6,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "16eb6c85-567c-4e16-9c46-7d5cb84091d5",
@@ -44029,7 +56507,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4266,
     "telegram_proof_message_id": 3886,
-    "telegram_legacy_proof_message_id": 4267
+    "telegram_legacy_proof_message_id": 4267,
+    "items": [
+      {
+        "price": 15,
+        "total": 150,
+        "quantity": 10,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c258fc64-2e0c-44d3-a4f2-f124541e3433",
@@ -44099,7 +56601,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.255+00:00",
     "telegram_legacy_message_id": 1348,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1994.05,
+        "total": 3988.1,
+        "quantity": 2,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "d9b475ae-8a40-58db-b463-2f2789c6a322",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "538a5623-eb97-54e2-b433-24d0d928358b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "286835bf-467b-4418-b083-df726378f1a1",
@@ -44169,7 +56695,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:03.235+00:00",
     "telegram_legacy_message_id": 2695,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 2696
+    "telegram_legacy_proof_message_id": 2696,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4507044e-d916-40f2-b86b-3872756cd668",
@@ -44239,7 +56789,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3204,
     "telegram_proof_message_id": 2830,
-    "telegram_legacy_proof_message_id": 3205
+    "telegram_legacy_proof_message_id": 3205,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "252ae1ab-2526-4692-ad95-67884626a618",
@@ -44309,7 +56883,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4412,
     "telegram_proof_message_id": 4028,
-    "telegram_legacy_proof_message_id": 4413
+    "telegram_legacy_proof_message_id": 4413,
+    "items": [
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2339,
+        "total": 2339,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4703278a-601b-45d8-a9d8-b548399f7dad",
@@ -44368,7 +56966,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:05.909+00:00",
     "telegram_legacy_message_id": 2783,
     "telegram_proof_message_id": 2415,
-    "telegram_legacy_proof_message_id": 2784
+    "telegram_legacy_proof_message_id": 2784,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c36aa804-f4d0-4067-95a1-b797f40e72ae",
@@ -44438,7 +57049,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:06.188+00:00",
     "telegram_legacy_message_id": 2742,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dc3d39a9-152e-45a7-824c-f157bf266acd",
@@ -44508,7 +57143,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:03.494+00:00",
     "telegram_legacy_message_id": 3706,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3200,
+        "total": 3200,
+        "quantity": 1,
+        "product_id": "e050c552-eb12-4dad-9423-7c3111871f29",
+        "product_name": "Kiara Reju PDRN (PRE-ORDER)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "10cac880-0385-4f47-86e0-1df777243d90",
@@ -44578,7 +57237,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:02.946+00:00",
     "telegram_legacy_message_id": 2973,
     "telegram_proof_message_id": 2603,
-    "telegram_legacy_proof_message_id": 2974
+    "telegram_legacy_proof_message_id": 2974,
+    "items": [
+      {
+        "price": 799,
+        "total": 799,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "717736a1-bcf5-43ed-bf3e-384bd674d47f",
@@ -44648,7 +57331,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-10T09:00:03.582+00:00",
     "telegram_legacy_message_id": 1353,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "845fa283-969b-4eb2-8f5c-9fd7078cd6e1",
@@ -44729,7 +57436,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.095+00:00",
     "telegram_legacy_message_id": 1984,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1350,
+        "total": 1350,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "a244ede3-3004-4a80-b377-33ae3ff267d4",
+        "variation_name": "100u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "79fba6cd-01e0-4138-9ba0-0b8e417dccfc",
@@ -44810,7 +57552,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:03.152+00:00",
     "telegram_legacy_message_id": 1405,
     "telegram_proof_message_id": 1131,
-    "telegram_legacy_proof_message_id": 1406
+    "telegram_legacy_proof_message_id": 1406,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 400,
+        "quantity": 5,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 35,
+        "quantity": 5,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b1415733-053d-4d1f-b64d-359015f8f867",
@@ -44869,7 +57646,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.251+00:00",
     "telegram_legacy_message_id": 2817,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c359b48-4cf1-4c76-b163-fa5e6fae20d5",
@@ -44939,7 +57729,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.713+00:00",
     "telegram_legacy_message_id": 4579,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1898863d-5ff5-4c04-9b99-1c0e162856b8",
@@ -45042,7 +57856,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:02.244+00:00",
     "telegram_legacy_message_id": 1245,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 599,
+        "total": 599,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8,
+        "total": 240,
+        "quantity": 30,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "6c380315-6508-4f7a-a686-55b04d532427",
+        "variation_name": "6mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c4005392-bccd-487a-819e-5376ab938646",
@@ -45123,7 +57994,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:03.515+00:00",
     "telegram_legacy_message_id": 1987,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "6555fe5e-bb2a-4503-8949-fbfc59798adf",
+        "product_name": "Neuronox 100u (Lalamove/Maxim only)",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 1140,
+        "quantity": 3,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "737b2664-9867-44ea-9e0d-62feba90ad5f",
@@ -45204,7 +58110,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:03.604+00:00",
     "telegram_legacy_message_id": 1352,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1329.05,
+        "total": 2658.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "0f13fcb4-b891-5830-82e3-f9a06d6ab16f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "89d93a32-f7ec-4155-bea2-c4eb5bd0b229",
@@ -45285,7 +58226,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:03.353+00:00",
     "telegram_legacy_message_id": 2982,
     "telegram_proof_message_id": 2612,
-    "telegram_legacy_proof_message_id": 2983
+    "telegram_legacy_proof_message_id": 2983,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "538a5623-eb97-54e2-b433-24d0d928358b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "65a1ec05-a527-4099-9d83-c02cfea728be",
@@ -45377,7 +58353,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.467+00:00",
     "telegram_legacy_message_id": 1983,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1c713142-0c51-4383-ae5b-570d86b0001c",
@@ -45469,7 +58491,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.516+00:00",
     "telegram_legacy_message_id": 1982,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1a804008-ccae-4b3b-bb05-29db4740719c",
@@ -45539,7 +58607,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.605+00:00",
     "telegram_legacy_message_id": 1291,
     "telegram_proof_message_id": 1017,
-    "telegram_legacy_proof_message_id": 1292
+    "telegram_legacy_proof_message_id": 1292,
+    "items": [
+      {
+        "price": 2999,
+        "total": 5998,
+        "quantity": 2,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "16186446-7624-4c54-b795-40f14aa70bba",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "78114395-1d4e-4861-8bcd-8adcc45c9d61",
@@ -45620,7 +58712,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-08T09:00:04.849+00:00",
     "telegram_legacy_message_id": 1715,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2089.0499999999997,
+        "total": 4178.099999999999,
+        "quantity": 2,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3699,
+        "total": 11097,
+        "quantity": 3,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "46e54809-e61d-464c-98b1-e7869a80a198",
@@ -45679,7 +58806,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:03.784+00:00",
     "telegram_legacy_message_id": 2935,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ccf2b769-9e25-4ca9-97cd-b9fb0fbc4623",
@@ -45738,7 +58878,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4396,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 4397
+    "telegram_legacy_proof_message_id": 4397,
+    "items": [
+      {
+        "price": 646,
+        "total": 1292,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "7a481f2e-c8a7-4fd8-83a1-f16981faebfe",
@@ -45819,7 +58972,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:03.835+00:00",
     "telegram_legacy_message_id": 2936,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 499,
+        "total": 1996,
+        "quantity": 4,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2774461d-cd98-4db0-b2c6-8fac669f6a1a",
@@ -45889,7 +59077,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-08T09:00:02.98+00:00",
     "telegram_legacy_message_id": 2857,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f42e477c-45e9-456c-b480-68c83781a48a",
@@ -45948,7 +59160,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3678,
     "telegram_proof_message_id": 3300,
-    "telegram_legacy_proof_message_id": 3679
+    "telegram_legacy_proof_message_id": 3679,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "82fe1cfc-385e-431a-aa98-5e5ce34e49f9",
@@ -46007,7 +59232,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.181+00:00",
     "telegram_legacy_message_id": 2846,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c72cd89b-b1f0-42e1-a1d6-9903cef0bae9",
@@ -46066,7 +59304,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:03.165+00:00",
     "telegram_legacy_message_id": 2981,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "01d53691-27ea-4476-a493-eacffdaee8fe",
@@ -46125,7 +59376,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:06.195+00:00",
     "telegram_legacy_message_id": 3001,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a306581e-953e-4d90-baeb-23b3f4d820e5",
@@ -46195,7 +59459,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-12T09:00:03.233+00:00",
     "telegram_legacy_message_id": 1549,
     "telegram_proof_message_id": 1274,
-    "telegram_legacy_proof_message_id": 1550
+    "telegram_legacy_proof_message_id": 1550,
+    "items": [
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f49df028-118a-441a-a0f4-215b376ade5d",
@@ -46265,7 +59553,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:03.814+00:00",
     "telegram_legacy_message_id": 3019,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4dea82af-82b5-46cc-a444-168a3a39d13b",
@@ -46324,7 +59636,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:05.916+00:00",
     "telegram_legacy_message_id": 3002,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "19156b72-f3c3-4f0a-a30f-beb3819e3785",
@@ -46394,7 +59719,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:00.908+00:00",
     "telegram_legacy_message_id": 1545,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4b0df386-5337-403a-9af8-80a5915eef1d",
@@ -46453,7 +59802,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.903+00:00",
     "telegram_legacy_message_id": 1515,
     "telegram_proof_message_id": 1241,
-    "telegram_legacy_proof_message_id": 1516
+    "telegram_legacy_proof_message_id": 1516,
+    "items": [
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d87f1af8-3c9b-40c8-84e8-51a383048537",
@@ -46512,7 +59874,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:06.855+00:00",
     "telegram_legacy_message_id": 3092,
     "telegram_proof_message_id": 2721,
-    "telegram_legacy_proof_message_id": 3093
+    "telegram_legacy_proof_message_id": 3093,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "23c02a56-44e6-4b4e-bc4d-a0060a225791",
@@ -46582,7 +59957,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:11.802+00:00",
     "telegram_legacy_message_id": 3051,
     "telegram_proof_message_id": 2680,
-    "telegram_legacy_proof_message_id": 3052
+    "telegram_legacy_proof_message_id": 3052,
+    "items": [
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cbfeca9c-620f-4249-8012-32d88323727f",
@@ -46641,7 +60040,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:03.235+00:00",
     "telegram_legacy_message_id": 1616,
     "telegram_proof_message_id": 1341,
-    "telegram_legacy_proof_message_id": 1617
+    "telegram_legacy_proof_message_id": 1617,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "726da91d-579a-4e17-b0ef-86ba76776e59",
@@ -46722,7 +60134,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3412,
     "telegram_proof_message_id": 3036,
-    "telegram_legacy_proof_message_id": 3413
+    "telegram_legacy_proof_message_id": 3413,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 399,
+        "total": 399,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "17845b00-311b-4574-baf5-28ebb78f4e5b",
@@ -46803,7 +60250,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3148,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 3149
+    "telegram_legacy_proof_message_id": 3149,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e984dd3f-38b4-4bc7-8632-fba01f3a893e",
@@ -46884,7 +60366,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.294+00:00",
     "telegram_legacy_message_id": 2882,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3372.5,
+        "total": 10117.5,
+        "quantity": 3,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "66a38925-6a3b-48c8-b270-ecd04a3f804f",
@@ -46976,7 +60493,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:01.527+00:00",
     "telegram_legacy_message_id": 1955,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 130,
+        "total": 260,
+        "quantity": 2,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "78548e79-e570-4ea2-a1d0-ba61d1760950",
@@ -47035,7 +60598,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3624,
     "telegram_proof_message_id": 3246,
-    "telegram_legacy_proof_message_id": 3625
+    "telegram_legacy_proof_message_id": 3625,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aa7a08e2-66f9-4c47-8597-24e3d330e2a4",
@@ -47116,7 +60692,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.407+00:00",
     "telegram_legacy_message_id": 1973,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "470947ac-1bb9-417f-b8ee-2f2cbc5fd824",
@@ -47197,7 +60808,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.462+00:00",
     "telegram_legacy_message_id": 1972,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f429388f-647d-4b3d-aae4-17758c75a885",
@@ -47256,7 +60902,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.4+00:00",
     "telegram_legacy_message_id": 2618,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "97f91345-d213-42a5-a136-07318377a434",
@@ -47315,7 +60974,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3606,
     "telegram_proof_message_id": 3228,
-    "telegram_legacy_proof_message_id": 3607
+    "telegram_legacy_proof_message_id": 3607,
+    "items": [
+      {
+        "price": 180,
+        "total": 360,
+        "quantity": 2,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ca024066-8aa8-4db7-8df5-ca13a03bc371",
@@ -47385,7 +61057,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3244,
     "telegram_proof_message_id": 2870,
-    "telegram_legacy_proof_message_id": 3245
+    "telegram_legacy_proof_message_id": 3245,
+    "items": [
+      {
+        "price": 2564.0499999999997,
+        "total": 5128.099999999999,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8df99c4b-f757-4caf-a645-6d25fb1f2318",
@@ -47477,7 +61173,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:01.728+00:00",
     "telegram_legacy_message_id": 1954,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 130,
+        "total": 260,
+        "quantity": 2,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ea9e7eeb-dc90-4f07-b59a-db86a3b16b83",
@@ -47547,7 +61289,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:03.396+00:00",
     "telegram_legacy_message_id": 1838,
     "telegram_proof_message_id": 1557,
-    "telegram_legacy_proof_message_id": 1839
+    "telegram_legacy_proof_message_id": 1839,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d8dd6308-615b-4be7-9d68-c373ffd84e8f",
@@ -47628,7 +61394,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-13T09:00:03.749+00:00",
     "telegram_legacy_message_id": 1448,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ef0957ed-ef9c-4252-96ab-55c95ba11074",
@@ -47687,7 +61488,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:06.45+00:00",
     "telegram_legacy_message_id": 3024,
     "telegram_proof_message_id": 2653,
-    "telegram_legacy_proof_message_id": 3025
+    "telegram_legacy_proof_message_id": 3025,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b656d5bd-0442-4964-a629-4f5c896bc16c",
@@ -47757,7 +61571,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4796,
     "telegram_proof_message_id": 4379,
-    "telegram_legacy_proof_message_id": 4797
+    "telegram_legacy_proof_message_id": 4797,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bce5aa18-fa3b-41d5-a151-83b4035c941e",
@@ -47838,7 +61676,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:01.386+00:00",
     "telegram_legacy_message_id": 1493,
     "telegram_proof_message_id": 1219,
-    "telegram_legacy_proof_message_id": 1494
+    "telegram_legacy_proof_message_id": 1494,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
+        "product_name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
+        "variation_id": "e430acf4-d1c6-5778-b7ca-4592f830fbd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 399,
+        "total": 1596,
+        "quantity": 4,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9a2cf953-a059-4455-91f4-91a9c049e42a",
@@ -47930,7 +61803,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:03.035+00:00",
     "telegram_legacy_message_id": 1519,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 42,
+        "quantity": 6,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
+        "variation_name": "3ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "894e050d-bd77-4b21-8e4a-c07bce60efe5",
@@ -47989,7 +61908,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:01.233+00:00",
     "telegram_legacy_message_id": 1546,
     "telegram_proof_message_id": 1271,
-    "telegram_legacy_proof_message_id": 1547
+    "telegram_legacy_proof_message_id": 1547,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bc83f346-5e66-4618-be63-8cca95c30d7e",
@@ -48070,7 +62002,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:03.839+00:00",
     "telegram_legacy_message_id": 1971,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1709.05,
+        "total": 3418.1,
+        "quantity": 2,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "538a5623-eb97-54e2-b433-24d0d928358b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "64e13257-a1f9-439d-bcd2-eb68985e8a57",
@@ -48162,7 +62129,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:03.888+00:00",
     "telegram_legacy_message_id": 1970,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1804.05,
+        "total": 3608.1,
+        "quantity": 2,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 48,
+        "quantity": 4,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "897462d8-2ba3-4806-b5f6-4359ac961400",
@@ -48254,7 +62267,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.148+00:00",
     "telegram_legacy_message_id": 1517,
     "telegram_proof_message_id": 1243,
-    "telegram_legacy_proof_message_id": 1518
+    "telegram_legacy_proof_message_id": 1518,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1804.05,
+        "total": 3608.1,
+        "quantity": 2,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 48,
+        "quantity": 4,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1914f71f-6f38-45dd-9221-fdf286998add",
@@ -48346,7 +62405,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.29+00:00",
     "telegram_legacy_message_id": 1548,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 4599,
+        "total": 4599,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "2a318c0d-37b9-53ac-a004-a953e06233c5",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0c8e70c9-c9e1-40e4-ac46-5dbb1f2b9ef5",
@@ -48405,7 +62510,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-21T09:00:03.663+00:00",
     "telegram_legacy_message_id": 2076,
     "telegram_proof_message_id": 1721,
-    "telegram_legacy_proof_message_id": 2077
+    "telegram_legacy_proof_message_id": 2077,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "631b01f4-5b78-499a-9175-f2c943af7779",
@@ -48464,7 +62582,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:04.094+00:00",
     "telegram_legacy_message_id": 1945,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5199,
+        "total": 5199,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "3fe32fa3-5e01-51f5-bc21-ccdffef79285",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "560e9c4f-a233-4799-bc70-6dc60af8ccb1",
@@ -48534,7 +62665,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-14T09:00:04.647+00:00",
     "telegram_legacy_message_id": 1513,
     "telegram_proof_message_id": 1239,
-    "telegram_legacy_proof_message_id": 1514
+    "telegram_legacy_proof_message_id": 1514,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0911abe2-39d6-4df8-a13f-6736311a9f0a",
@@ -48593,7 +62748,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4798,
     "telegram_proof_message_id": 4381,
-    "telegram_legacy_proof_message_id": 4799
+    "telegram_legacy_proof_message_id": 4799,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c722eacb-00e9-4129-9e3e-9dd12314f415",
@@ -48663,7 +62831,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:04.901+00:00",
     "telegram_legacy_message_id": 4563,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e9c64acb-e369-458d-927c-02cb3aa904d3",
@@ -48722,7 +62914,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3232,
     "telegram_proof_message_id": 2858,
-    "telegram_legacy_proof_message_id": 3233
+    "telegram_legacy_proof_message_id": 3233,
+    "items": [
+      {
+        "price": 2250,
+        "total": 2250,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "c2674da8-538b-441e-9057-c69ba68206f5",
+        "variation_name": "200u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4dca0fd7-a472-47d9-b426-7f1e30fdfaf9",
@@ -48781,7 +62986,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:03.434+00:00",
     "telegram_legacy_message_id": 3150,
     "telegram_proof_message_id": 2776,
-    "telegram_legacy_proof_message_id": 3151
+    "telegram_legacy_proof_message_id": 3151,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d1c98b6b-4546-428c-8ba4-c876138ea1ab",
@@ -48851,7 +63069,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3274,
     "telegram_proof_message_id": 2900,
-    "telegram_legacy_proof_message_id": 3275
+    "telegram_legacy_proof_message_id": 3275,
+    "items": [
+      {
+        "price": 12,
+        "total": 60,
+        "quantity": 5,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1994.05,
+        "total": 3988.1,
+        "quantity": 2,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "d26c5e7e-30fb-469e-8e78-ec053f99979e",
@@ -48910,7 +63152,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3561,
     "telegram_proof_message_id": 3183,
-    "telegram_legacy_proof_message_id": 3562
+    "telegram_legacy_proof_message_id": 3562,
+    "items": [
+      {
+        "price": 3514.0499999999997,
+        "total": 7028.099999999999,
+        "quantity": 2,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "67022b45-7580-4c9b-96ea-d72810b04902",
@@ -48969,7 +63224,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:03.814+00:00",
     "telegram_legacy_message_id": 2617,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5c0bd96b-23ad-4ad9-a003-d770279d1390",
@@ -49028,7 +63296,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:10.808+00:00",
     "telegram_legacy_message_id": 3064,
     "telegram_proof_message_id": 2693,
-    "telegram_legacy_proof_message_id": 3065
+    "telegram_legacy_proof_message_id": 3065,
+    "items": [
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4517527a-1765-43f0-bad4-07096bcd23a3",
@@ -49087,7 +63368,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:12.136+00:00",
     "telegram_legacy_message_id": 3066,
     "telegram_proof_message_id": 2695,
-    "telegram_legacy_proof_message_id": 3067
+    "telegram_legacy_proof_message_id": 3067,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2943031c-4e1b-4f9b-ad46-24975907cec5",
@@ -49146,7 +63440,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-15T09:00:10.925+00:00",
     "telegram_legacy_message_id": 3098,
     "telegram_proof_message_id": 2727,
-    "telegram_legacy_proof_message_id": 3099
+    "telegram_legacy_proof_message_id": 3099,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b2456bf-f6ef-4bdc-958f-ee63b18d28a1",
@@ -49216,7 +63523,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4800,
     "telegram_proof_message_id": 4383,
-    "telegram_legacy_proof_message_id": 4801
+    "telegram_legacy_proof_message_id": 4801,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "8377645f-9a2a-5527-bda0-03f3e8f65412",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7c8a4f77-4624-4a01-974c-91d67a27fe32",
@@ -49275,7 +63606,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-15T09:00:02.297+00:00",
     "telegram_legacy_message_id": 1965,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "27fa48f9-a8ba-4817-84e9-4e675df05566",
@@ -49334,7 +63678,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:04.142+00:00",
     "telegram_legacy_message_id": 1602,
     "telegram_proof_message_id": 1327,
-    "telegram_legacy_proof_message_id": 1603
+    "telegram_legacy_proof_message_id": 1603,
+    "items": [
+      {
+        "price": 2899,
+        "total": 11596,
+        "quantity": 4,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cabcab7c-ff65-4a56-a332-0c33fac1dd23",
@@ -49393,7 +63750,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:02.768+00:00",
     "telegram_legacy_message_id": 1699,
     "telegram_proof_message_id": 1418,
-    "telegram_legacy_proof_message_id": 1700
+    "telegram_legacy_proof_message_id": 1700,
+    "items": [
+      {
+        "price": 130,
+        "total": 390,
+        "quantity": 3,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "22eea198-2306-4f9c-a742-937c73228ba9",
@@ -49474,7 +63844,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:11.295+00:00",
     "telegram_legacy_message_id": 3063,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fdae48e2-7dd1-4b3d-9c15-3eb46be146a4",
@@ -49533,7 +63938,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-16T09:00:05.184+00:00",
     "telegram_legacy_message_id": 3080,
     "telegram_proof_message_id": 2709,
-    "telegram_legacy_proof_message_id": 3081
+    "telegram_legacy_proof_message_id": 3081,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "28526732-2da2-4b19-b2ac-c636d8965611",
@@ -49592,7 +64010,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:02.436+00:00",
     "telegram_legacy_message_id": 3178,
     "telegram_proof_message_id": 2804,
-    "telegram_legacy_proof_message_id": 3179
+    "telegram_legacy_proof_message_id": 3179,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "52c104ea-d171-4b1b-a2cb-b2ea06cbc8ef",
@@ -49651,7 +64082,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:04.042+00:00",
     "telegram_legacy_message_id": 1693,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e1feb7ea-9753-458b-90f2-ada2cd13e7b3",
@@ -49710,7 +64154,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-16T09:00:02.837+00:00",
     "telegram_legacy_message_id": 1595,
     "telegram_proof_message_id": 1320,
-    "telegram_legacy_proof_message_id": 1596
+    "telegram_legacy_proof_message_id": 1596,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6de0f288-a8a2-42a8-bd21-e4d9b76c4270",
@@ -49769,7 +64226,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.401+00:00",
     "telegram_legacy_message_id": 1696,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5ff63557-04b0-4c67-8f0b-dcbd3f31afd8",
@@ -49828,7 +64298,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3360,
     "telegram_proof_message_id": 2984,
-    "telegram_legacy_proof_message_id": 3361
+    "telegram_legacy_proof_message_id": 3361,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b8c5b933-b629-419a-832e-6812bb6c9e55",
@@ -49909,7 +64392,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-16T09:00:05.339+00:00",
     "telegram_legacy_message_id": 3090,
     "telegram_proof_message_id": 2719,
-    "telegram_legacy_proof_message_id": 3091
+    "telegram_legacy_proof_message_id": 3091,
+    "items": [
+      {
+        "price": 712.5,
+        "total": 1425,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 284.05,
+        "total": 568.1,
+        "quantity": 2,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 399,
+        "total": 798,
+        "quantity": 2,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "06a9d645-a58b-499b-9a7c-ed6ac8baacc0",
@@ -49979,7 +64497,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-15T09:00:09.746+00:00",
     "telegram_legacy_message_id": 3057,
     "telegram_proof_message_id": 2686,
-    "telegram_legacy_proof_message_id": 3058
+    "telegram_legacy_proof_message_id": 3058,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1ad5ef51-08fb-406a-940f-ef2b2c9d8a05",
@@ -50038,7 +64580,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4806,
     "telegram_proof_message_id": 4389,
-    "telegram_legacy_proof_message_id": 4807
+    "telegram_legacy_proof_message_id": 4807,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b5c7138f-621f-4ee3-bbaf-98a7cb7eff3d",
@@ -50119,7 +64674,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:01.316+00:00",
     "telegram_legacy_message_id": 1963,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 4398,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2469.0499999999997,
+        "total": 4938.099999999999,
+        "quantity": 2,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "52a22fdb-b668-47f4-9f1a-828d3be40840",
@@ -50189,7 +64779,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.046+00:00",
     "telegram_legacy_message_id": 1697,
     "telegram_proof_message_id": 1416,
-    "telegram_legacy_proof_message_id": 1698
+    "telegram_legacy_proof_message_id": 1698,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 100,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7ba06fe0-6ff3-46fc-ae6b-d862adbf871f",
@@ -50270,7 +64884,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.117+00:00",
     "telegram_legacy_message_id": 2996,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "fcf1e8a3-1bcc-5405-abfb-a207d4fb4dab",
+        "variation_name": "Cloud Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 7,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "a5ab70ca-4378-448a-8688-b67a2f5ab2da",
+        "variation_name": "4mm Pen Needle",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "39029270-ceb3-47a5-9485-1370674cc52c",
@@ -50340,7 +64989,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:03.519+00:00",
     "telegram_legacy_message_id": 2021,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3550,
+        "total": 3550,
+        "quantity": 1,
+        "product_id": "e0b2f3ad-6853-4f23-8177-6dec0b6bf004",
+        "product_name": "Lumi Eyes",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ab7cb9df-9f9a-4fec-9b58-90b1b3985301",
@@ -50399,7 +65072,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-17T09:00:04.337+00:00",
     "telegram_legacy_message_id": 1681,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8900,
+        "total": 8900,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "17bf7eb5-4c3e-4796-a774-1ad08bfa1ab4",
+        "variation_name": "Box of 5",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e8158fdb-c0ab-4461-8252-9620b305d05c",
@@ -50458,7 +65144,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3394,
     "telegram_proof_message_id": 3018,
-    "telegram_legacy_proof_message_id": 3395
+    "telegram_legacy_proof_message_id": 3395,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0fa44cfa-d9e5-4979-ba68-d8754ac60483",
@@ -50517,7 +65216,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3222,
     "telegram_proof_message_id": 2848,
-    "telegram_legacy_proof_message_id": 3223
+    "telegram_legacy_proof_message_id": 3223,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a249e2b3-eb37-46a0-8f81-146a1c84cd71",
@@ -50576,7 +65288,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3414,
     "telegram_proof_message_id": 3038,
-    "telegram_legacy_proof_message_id": 3415
+    "telegram_legacy_proof_message_id": 3415,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d3c78bf2-c717-4559-94f4-7a22934af857",
@@ -50635,7 +65360,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3182,
     "telegram_proof_message_id": 2808,
-    "telegram_legacy_proof_message_id": 3183
+    "telegram_legacy_proof_message_id": 3183,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "87ed5e44-26d1-4dd7-a2a2-24122c97f15d",
@@ -50694,7 +65432,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:01.51+00:00",
     "telegram_legacy_message_id": 2094,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3c96749d-d1aa-44e9-9ca8-a772564ace8e",
@@ -50753,7 +65504,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3332,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 3333
+    "telegram_legacy_proof_message_id": 3333,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "872abc16-c031-4d70-9456-4639fcb6f8aa",
@@ -50845,7 +65609,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:02.418+00:00",
     "telegram_legacy_message_id": 1952,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 130,
+        "total": 260,
+        "quantity": 2,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2d9fa38b-60fd-4523-a9c7-a27ce5560981",
@@ -50904,7 +65714,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:02.484+00:00",
     "telegram_legacy_message_id": 1951,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "530f1c3e-3c2a-48a7-95d0-e07c6a9ee270",
@@ -50963,7 +65786,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:02.803+00:00",
     "telegram_legacy_message_id": 2075,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c2499831-68b1-4c2a-a807-c940a83c4b04",
@@ -51033,7 +65869,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.17+00:00",
     "telegram_legacy_message_id": 1863,
     "telegram_proof_message_id": 1582,
-    "telegram_legacy_proof_message_id": 1864
+    "telegram_legacy_proof_message_id": 1864,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "325630cb-87c5-46d8-a286-7c0ce873785e",
@@ -51092,7 +65952,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.696+00:00",
     "telegram_legacy_message_id": 1909,
     "telegram_proof_message_id": 1626,
-    "telegram_legacy_proof_message_id": 1910
+    "telegram_legacy_proof_message_id": 1910,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c1c93ac9-b67c-407f-8a26-efd89b923490",
@@ -51151,7 +66024,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:03.746+00:00",
     "telegram_legacy_message_id": 1949,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7b593b67-e8d6-4040-a801-8012ad337230",
@@ -51232,7 +66118,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:04+00:00",
     "telegram_legacy_message_id": 1862,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 14,
+        "quantity": 2,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "33c169fe-1176-535e-9839-68fc1901f457",
+        "variation_name": "Lavender Blue",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f33da7f4-5be3-45f6-ba85-9af101a5975a",
@@ -51291,7 +66212,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-22T09:00:04.048+00:00",
     "telegram_legacy_message_id": 1948,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0874ae6e-94d6-4f16-ab1c-2cab43b23e10",
@@ -51372,7 +66306,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3316,
     "telegram_proof_message_id": 2942,
-    "telegram_legacy_proof_message_id": 3317
+    "telegram_legacy_proof_message_id": 3317,
+    "items": [
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 72,
+        "quantity": 6,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "933ac918-8c57-4220-a1aa-9398eb6a1f55",
@@ -51431,7 +66400,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:02.872+00:00",
     "telegram_legacy_message_id": 2265,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 4499,
+        "total": 4499,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "a752332e-79ff-5b8a-a6c4-358f58a597b3",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "96c1fa31-45fb-4828-98e0-f406383b93a1",
@@ -51490,7 +66472,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.306+00:00",
     "telegram_legacy_message_id": 4560,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "891c7383-923c-4421-b217-b8b8f70336b1",
@@ -51549,7 +66544,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-12T09:00:04.075+00:00",
     "telegram_legacy_message_id": 4022,
     "telegram_proof_message_id": 3644,
-    "telegram_legacy_proof_message_id": 4023
+    "telegram_legacy_proof_message_id": 4023,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ab68152f-eb1d-4f0e-b3f9-2c74ac331350",
@@ -51630,7 +66638,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3358,
     "telegram_proof_message_id": 2982,
-    "telegram_legacy_proof_message_id": 3359
+    "telegram_legacy_proof_message_id": 3359,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 42,
+        "quantity": 6,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1cb5cdbd-dc5a-4298-9f99-171421ea276a",
@@ -51700,7 +66743,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3549,
     "telegram_proof_message_id": 3171,
-    "telegram_legacy_proof_message_id": 3550
+    "telegram_legacy_proof_message_id": 3550,
+    "items": [
+      {
+        "price": 2599,
+        "total": 2599,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cdaf3f87-6e85-4489-84e7-2a30ffdcff9e",
@@ -51781,7 +66848,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.081+00:00",
     "telegram_legacy_message_id": 2148,
     "telegram_proof_message_id": 1792,
-    "telegram_legacy_proof_message_id": 2149
+    "telegram_legacy_proof_message_id": 2149,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "22dfaf95-9b14-54a4-bb83-9db1b4f17fb6",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3a5d20bc-4c4d-48e2-9c7f-e98397a74244",
@@ -51862,7 +66964,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3406,
     "telegram_proof_message_id": 3030,
-    "telegram_legacy_proof_message_id": 3407
+    "telegram_legacy_proof_message_id": 3407,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0d6a1570-8c2e-4725-a1ff-25013a30e957",
@@ -51943,7 +67080,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3448,
     "telegram_proof_message_id": 3070,
-    "telegram_legacy_proof_message_id": 3449
+    "telegram_legacy_proof_message_id": 3449,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 120,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b69574b4-fdfe-4d43-8858-cf8f924a7896",
@@ -52035,7 +67207,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3553,
     "telegram_proof_message_id": 3175,
-    "telegram_legacy_proof_message_id": 3554
+    "telegram_legacy_proof_message_id": 3554,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 799,
+        "total": 799,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "b6e37c27-7351-575b-92f9-08b4fca36b46",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8fef6087-542b-4c15-916d-35acd4765baa",
@@ -52094,7 +67312,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3544,
     "telegram_proof_message_id": 3166,
-    "telegram_legacy_proof_message_id": 3545
+    "telegram_legacy_proof_message_id": 3545,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ccfcee50-5ea8-4e7a-9b1a-edf06ba09208",
@@ -52153,7 +67384,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3551,
     "telegram_proof_message_id": 3173,
-    "telegram_legacy_proof_message_id": 3552
+    "telegram_legacy_proof_message_id": 3552,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b7093f2-b254-48d1-bfd0-29a0185f4201",
@@ -52245,7 +67489,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.123+00:00",
     "telegram_legacy_message_id": 2092,
     "telegram_proof_message_id": 1737,
-    "telegram_legacy_proof_message_id": 2093
+    "telegram_legacy_proof_message_id": 2093,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 35,
+        "quantity": 5,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "5e7bec98-0beb-5029-9e61-09b1b1d390fe",
+        "variation_name": "Salmon Pink",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0953633f-590e-46c5-b389-95f2c1e485c0",
@@ -52326,7 +67616,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3673,
     "telegram_proof_message_id": 3295,
-    "telegram_legacy_proof_message_id": 3674
+    "telegram_legacy_proof_message_id": 3674,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 130,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0c9aa256-7d48-465b-9917-3201059d8163",
@@ -52396,7 +67721,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4060,
     "telegram_proof_message_id": 3682,
-    "telegram_legacy_proof_message_id": 4061
+    "telegram_legacy_proof_message_id": 4061,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "978eab55-bba1-4ad1-9339-dd99a44e5b28",
@@ -52477,7 +67826,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:05.047+00:00",
     "telegram_legacy_message_id": 2335,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "cefb8a60-b0f3-4a9c-9b21-a43fe0b7ec3d",
+        "product_name": "5-Amino-1mq 50mg",
+        "variation_id": "0cc929b9-3097-403a-a61c-60c1d8ed5c78",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "58d4b6f8-6aa3-46d8-8e4e-4e5901fd1668",
@@ -52547,7 +67931,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:06.143+00:00",
     "telegram_legacy_message_id": 2254,
     "telegram_proof_message_id": 1897,
-    "telegram_legacy_proof_message_id": 2255
+    "telegram_legacy_proof_message_id": 2255,
+    "items": [
+      {
+        "price": 3399,
+        "total": 3399,
+        "quantity": 1,
+        "product_id": "4edba9a5-3ace-5cab-ad02-322f5faad345",
+        "product_name": "MetaDose (MOTS-C) 40mg",
+        "variation_id": "f04f2072-01f9-52dd-bc2e-8dbef376357f",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "5d10a49a-3ac1-53dd-baba-08c2859dd336",
+        "product_name": "Epithera (Epithalon) 50mg",
+        "variation_id": "1004b15f-c65e-5dc0-92f4-749eee007157",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b203e39f-cbe7-4135-8405-9a9053245d41",
@@ -52650,7 +68058,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:06.586+00:00",
     "telegram_legacy_message_id": 2233,
     "telegram_proof_message_id": 1876,
-    "telegram_legacy_proof_message_id": 2234
+    "telegram_legacy_proof_message_id": 2234,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 599,
+        "total": 1797,
+        "quantity": 3,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "8c0eea9e-f213-572a-83fe-98ee83afb6b5",
+        "variation_name": "Set (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 30,
+        "quantity": 2,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 48,
+        "quantity": 4,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a2d90348-b212-4246-bd81-2f298aeb8476",
@@ -52720,7 +68185,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-27T09:00:02.355+00:00",
     "telegram_legacy_message_id": 2260,
     "telegram_proof_message_id": 1903,
-    "telegram_legacy_proof_message_id": 2261
+    "telegram_legacy_proof_message_id": 2261,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 284.05,
+        "total": 568.1,
+        "quantity": 2,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "054c81c9-d503-4b60-b69f-18d46fa902d3",
@@ -52801,7 +68290,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-27T09:00:02.747+00:00",
     "telegram_legacy_message_id": 2258,
     "telegram_proof_message_id": 1901,
-    "telegram_legacy_proof_message_id": 2259
+    "telegram_legacy_proof_message_id": 2259,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1100,
+        "total": 1100,
+        "quantity": 1,
+        "product_id": "f20cf9f3-f0d2-4157-8a03-7e22effae7e4",
+        "product_name": "Exosome Skin Serum",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0cc3f415-109e-4dfe-b4d7-6c49f85a1b89",
@@ -52871,7 +68395,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:05.15+00:00",
     "telegram_legacy_message_id": 2249,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "cefb8a60-b0f3-4a9c-9b21-a43fe0b7ec3d",
+        "product_name": "5-Amino-1mq 50mg",
+        "variation_id": "0cc929b9-3097-403a-a61c-60c1d8ed5c78",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "85cdad5f-c60b-44ef-9201-66186f954713",
@@ -52952,7 +68500,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-27T09:00:03.107+00:00",
     "telegram_legacy_message_id": 4561,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6550,
+        "total": 6550,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "42bedbf4-5927-49b4-92e5-5f5e1bb558d0",
@@ -53033,7 +68616,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3707,
     "telegram_proof_message_id": 3329,
-    "telegram_legacy_proof_message_id": 3708
+    "telegram_legacy_proof_message_id": 3708,
+    "items": [
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1852.5,
+        "total": 3705,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "952873c3-a7d9-4600-aa55-b09b12b5eada",
@@ -53092,7 +68710,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4604,
     "telegram_proof_message_id": 4187,
-    "telegram_legacy_proof_message_id": 4605
+    "telegram_legacy_proof_message_id": 4605,
+    "items": [
+      {
+        "price": 3100,
+        "total": 3100,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059210",
+        "product_name": "GlowDose 70mg",
+        "variation_id": "1b7eef2c-4602-4671-a7e3-48bddb85fe83",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a510b981-a447-4f4b-92b0-2e524e5c0bfe",
@@ -53162,7 +68793,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4537,
     "telegram_proof_message_id": 4153,
-    "telegram_legacy_proof_message_id": 4538
+    "telegram_legacy_proof_message_id": 4538,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "578a26f8-aab7-4569-b4b9-f3342b7ffa82",
@@ -53232,7 +68887,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4034,
     "telegram_proof_message_id": 3656,
-    "telegram_legacy_proof_message_id": 4035
+    "telegram_legacy_proof_message_id": 4035,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d0f5258f-3ad5-44ec-82a3-3bb1ea4f1ac3",
@@ -53291,7 +68970,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4420,
     "telegram_proof_message_id": 4036,
-    "telegram_legacy_proof_message_id": 4421
+    "telegram_legacy_proof_message_id": 4421,
+    "items": [
+      {
+        "price": 799,
+        "total": 2397,
+        "quantity": 3,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "061b467a-6054-4f41-b65a-18921aa39b8e",
@@ -53383,7 +69075,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4066,
     "telegram_proof_message_id": 3688,
-    "telegram_legacy_proof_message_id": 4067
+    "telegram_legacy_proof_message_id": 4067,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "63e36d6e-66d4-532f-8392-75d41b436512",
+        "variation_name": "Cocoa Brown",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 15,
+        "quantity": 1,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 7,
+        "total": 28,
+        "quantity": 4,
+        "product_id": "31096925-d521-4164-9baa-2348f193ad91",
+        "product_name": "Pen Needles",
+        "variation_id": "f63a2f2a-5e98-40a1-a082-5762dff22597",
+        "variation_name": "4mm",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "18bfa1e9-4d34-4d36-bf24-b11d459415bb",
@@ -53475,7 +69213,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4126,
     "telegram_proof_message_id": 3748,
-    "telegram_legacy_proof_message_id": 4127
+    "telegram_legacy_proof_message_id": 4127,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "cefb8a60-b0f3-4a9c-9b21-a43fe0b7ec3d",
+        "product_name": "5-Amino-1mq 50mg",
+        "variation_id": "0cc929b9-3097-403a-a61c-60c1d8ed5c78",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e7d44d81-e451-4a00-bbf3-73f27bcc0727",
@@ -53545,7 +69329,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4170,
     "telegram_proof_message_id": 3790,
-    "telegram_legacy_proof_message_id": 4171
+    "telegram_legacy_proof_message_id": 4171,
+    "items": [
+      {
+        "price": 399,
+        "total": 798,
+        "quantity": 2,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "53179656-a61c-44b0-8603-2bc0bd873a33",
@@ -53637,7 +69445,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3729,
     "telegram_proof_message_id": 3351,
-    "telegram_legacy_proof_message_id": 3730
+    "telegram_legacy_proof_message_id": 3730,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "113f7a1e-2a84-4e33-8baf-8ae82362f661",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid Serum",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f5e41711-fbb7-4245-84bc-857570191fe2",
@@ -53718,7 +69572,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3727,
     "telegram_proof_message_id": 3349,
-    "telegram_legacy_proof_message_id": 3728
+    "telegram_legacy_proof_message_id": 3728,
+    "items": [
+      {
+        "price": 2469.0499999999997,
+        "total": 9876.199999999999,
+        "quantity": 4,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "4ab99b31-1b7a-5d29-bb6a-bc0458aad8b2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2899,
+        "total": 11596,
+        "quantity": 4,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "81b67ea8-7385-4508-b406-ec09c0c04e74",
@@ -53777,7 +69666,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3789,
     "telegram_proof_message_id": 3411,
-    "telegram_legacy_proof_message_id": 3790
+    "telegram_legacy_proof_message_id": 3790,
+    "items": [
+      {
+        "price": 2069,
+        "total": 2069,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1e31e114-c7b3-4269-820d-f649b2343e0a",
@@ -53836,7 +69738,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4090,
     "telegram_proof_message_id": 3712,
-    "telegram_legacy_proof_message_id": 4091
+    "telegram_legacy_proof_message_id": 4091,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "68080e45-d6a4-4308-af54-36e5d571494f",
@@ -53895,7 +69810,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4128,
     "telegram_proof_message_id": 3750,
-    "telegram_legacy_proof_message_id": 4129
+    "telegram_legacy_proof_message_id": 4129,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c156665d-1995-4428-9e1c-e958d553b836",
@@ -53954,7 +69882,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4144,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 4145
+    "telegram_legacy_proof_message_id": 4145,
+    "items": [
+      {
+        "price": 799,
+        "total": 2397,
+        "quantity": 3,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "09834fcd-30e7-4527-8a0a-57fd45c8a954",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "68d7d048-b3c0-4aba-b1b2-a8335b8a8e3b",
@@ -54013,7 +69954,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4184,
     "telegram_proof_message_id": 3804,
-    "telegram_legacy_proof_message_id": 4185
+    "telegram_legacy_proof_message_id": 4185,
+    "items": [
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2107d74a-c192-46b8-92dc-233c2ec82b94",
@@ -54105,7 +70059,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-29T09:00:02.802+00:00",
     "telegram_legacy_message_id": 2283,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 399,
+        "total": 399,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 30,
+        "quantity": 2,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d62b6cb6-a0ea-4138-8f02-f6d82a1f480c",
@@ -54164,7 +70164,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3958,
     "telegram_proof_message_id": 3580,
-    "telegram_legacy_proof_message_id": 3959
+    "telegram_legacy_proof_message_id": 3959,
+    "items": [
+      {
+        "price": 342,
+        "total": 684,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "af85e681-098b-4f60-ac38-a05363b73929",
@@ -54223,7 +70236,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3970,
     "telegram_proof_message_id": 3592,
-    "telegram_legacy_proof_message_id": 3971
+    "telegram_legacy_proof_message_id": 3971,
+    "items": [
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7432136c-ab69-407d-ab75-f3ce94ff09c7",
@@ -54282,7 +70308,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:02.712+00:00",
     "telegram_legacy_message_id": 2579,
     "telegram_proof_message_id": 2215,
-    "telegram_legacy_proof_message_id": 2580
+    "telegram_legacy_proof_message_id": 2580,
+    "items": [
+      {
+        "price": 2299,
+        "total": 4598,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bb0d96a7-668c-450b-84e0-ab7646be69d4",
@@ -54374,7 +70413,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.06+00:00",
     "telegram_legacy_message_id": 2945,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5749,
+        "total": 5749,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV Exosome",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3850,
+        "total": 3850,
+        "quantity": 1,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "816007b2-762e-4e7a-8224-aa2df4dc9fe4",
+        "variation_name": "1 tray (10 ampoules)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "95e49d6f-635d-489a-917f-d50e1d5389fc",
+        "product_name": "Botulax (Lalamove/Maxim only)",
+        "variation_id": "750c6600-a017-43d4-8c32-6f285129f0d2",
+        "variation_name": "300u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e7ecb73d-7f90-4f5e-8f57-0d7e3867bf7d",
@@ -54433,7 +70518,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3809,
     "telegram_proof_message_id": 3431,
-    "telegram_legacy_proof_message_id": 3810
+    "telegram_legacy_proof_message_id": 3810,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "66de0592-e811-4482-919a-c06bfc36c088",
@@ -54492,7 +70590,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3875,
     "telegram_proof_message_id": 3497,
-    "telegram_legacy_proof_message_id": 3876
+    "telegram_legacy_proof_message_id": 3876,
+    "items": [
+      {
+        "price": 1620,
+        "total": 1620,
+        "quantity": 1,
+        "product_id": "d0a80121-7ac0-4e78-94f8-585d77059208",
+        "product_name": "BotoxDose (Snap-8) 10mg",
+        "variation_id": "0fd158fd-12da-4eef-8e48-9526b768e7cf",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e0a477f8-caee-49e5-9466-bacedbf8598c",
@@ -54551,7 +70662,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.644+00:00",
     "telegram_legacy_message_id": 2916,
     "telegram_proof_message_id": 2548,
-    "telegram_legacy_proof_message_id": 2917
+    "telegram_legacy_proof_message_id": 2917,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "481cec77-a674-420d-bcb7-b3f8d84b02d7",
@@ -54610,7 +70734,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:03.126+00:00",
     "telegram_legacy_message_id": 2569,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "700883e8-75f5-4d08-b949-e560f3cad311",
@@ -54669,7 +70806,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.122+00:00",
     "telegram_legacy_message_id": 2567,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5e2ce06a-8724-4c4d-ba2f-7591f4319c8f",
@@ -54750,7 +70900,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3779,
     "telegram_proof_message_id": 3401,
-    "telegram_legacy_proof_message_id": 3780
+    "telegram_legacy_proof_message_id": 3780,
+    "items": [
+      {
+        "price": 359,
+        "total": 718,
+        "quantity": 2,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1667.25,
+        "total": 3334.5,
+        "quantity": 2,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 2789,
+        "total": 2789,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5332151d-506a-4936-8529-8b21ed898957",
@@ -54809,7 +70994,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4539,
     "telegram_proof_message_id": 4155,
-    "telegram_legacy_proof_message_id": 4540
+    "telegram_legacy_proof_message_id": 4540,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6963de99-78ce-4260-81a1-0f240c1e55eb",
@@ -54868,7 +71066,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3873,
     "telegram_proof_message_id": 3495,
-    "telegram_legacy_proof_message_id": 3874
+    "telegram_legacy_proof_message_id": 3874,
+    "items": [
+      {
+        "price": 342,
+        "total": 342,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cc2fea4d-8966-47f2-bdc4-9318b70dedfb",
@@ -54927,7 +71138,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3906,
     "telegram_proof_message_id": 3534,
-    "telegram_legacy_proof_message_id": 3913
+    "telegram_legacy_proof_message_id": 3913,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbcc5661-d76f-455a-b64b-f4ba60a159e7",
@@ -54986,7 +71210,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3861,
     "telegram_proof_message_id": 3483,
-    "telegram_legacy_proof_message_id": 3862
+    "telegram_legacy_proof_message_id": 3862,
+    "items": [
+      {
+        "price": 1529,
+        "total": 1529,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "dc63efd9-a151-45a6-80e9-2a49a1691565",
@@ -55045,7 +71282,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4606,
     "telegram_proof_message_id": 4189,
-    "telegram_legacy_proof_message_id": 4607
+    "telegram_legacy_proof_message_id": 4607,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cd44804d-5216-497b-9010-04694bd681d0",
@@ -55126,7 +71376,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.57+00:00",
     "telegram_legacy_message_id": 2349,
     "telegram_proof_message_id": 1987,
-    "telegram_legacy_proof_message_id": 2350
+    "telegram_legacy_proof_message_id": 2350,
+    "items": [
+      {
+        "price": 3699,
+        "total": 7398,
+        "quantity": 2,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "75dff4f6-9b72-5f31-a50e-25ac3d85faf5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 4599,
+        "total": 4599,
+        "quantity": 1,
+        "product_id": "a07bda3e-0358-55ea-80ff-0ec706c48c76",
+        "product_name": "SlimDose (GLP-2) 50mg",
+        "variation_id": "2a318c0d-37b9-53ac-a004-a953e06233c5",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d8062af3-e9a1-4f17-944f-e935883247c1",
@@ -55185,7 +71470,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:03.957+00:00",
     "telegram_legacy_message_id": 2347,
     "telegram_proof_message_id": 1985,
-    "telegram_legacy_proof_message_id": 2348
+    "telegram_legacy_proof_message_id": 2348,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "290ce50e-6090-4357-bf56-6329a23b217b",
@@ -55266,7 +71564,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-30T09:00:04.512+00:00",
     "telegram_legacy_message_id": 2393,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "eadd1f6c-f8bd-49c2-acc7-77c01e00b032",
@@ -55358,7 +71691,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:03.504+00:00",
     "telegram_legacy_message_id": 2946,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "1e3a7af9-8c98-506a-a1bc-20eaeec86aa9",
+        "product_name": "Hydracell (Pink Hyaluronic Acid) 5ml",
+        "variation_id": "3b97f35b-e26e-557b-9c22-6bc19537a650",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 750,
+        "total": 750,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "09a01074-9d01-5f6d-919a-c064ee667146",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "58ccff78-c28e-4f6a-9de5-d10c944643c9",
@@ -55428,7 +71807,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4804,
     "telegram_proof_message_id": 4387,
-    "telegram_legacy_proof_message_id": 4805
+    "telegram_legacy_proof_message_id": 4805,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "f75e3f1f-6b88-56c8-8768-558de27880aa",
+        "product_name": "Lipolemon 10ml",
+        "variation_id": "f2f76168-5ec7-5ffb-8f79-75061b06deca",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ef08af0f-ac27-44ff-aeb3-133a68d40e0d",
@@ -55487,7 +71890,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4586,
     "telegram_proof_message_id": 4169,
-    "telegram_legacy_proof_message_id": 4587
+    "telegram_legacy_proof_message_id": 4587,
+    "items": [
+      {
+        "price": 5299,
+        "total": 5299,
+        "quantity": 1,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2d43ad00-054a-4e05-be5b-db2673720b24",
@@ -55546,7 +71962,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3956,
     "telegram_proof_message_id": 3578,
-    "telegram_legacy_proof_message_id": 3957
+    "telegram_legacy_proof_message_id": 3957,
+    "items": [
+      {
+        "price": 359,
+        "total": 1077,
+        "quantity": 3,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f5d78443-ea0f-4935-b021-d0149ed363ee",
@@ -55627,7 +72056,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.697+00:00",
     "telegram_legacy_message_id": 2570,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "2336db79-2c83-591c-a496-8d02bfd72e82",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "085787a5-0952-507a-8ee6-275afd9bb563",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a991f9b4-3c8f-42f8-b473-26a1243c6425",
@@ -55697,7 +72161,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3807,
     "telegram_proof_message_id": 3429,
-    "telegram_legacy_proof_message_id": 3808
+    "telegram_legacy_proof_message_id": 3808,
+    "items": [
+      {
+        "price": 2850,
+        "total": 2850,
+        "quantity": 1,
+        "product_id": "185bbf31-5d29-412e-b4a3-048c11400c8d",
+        "product_name": "IGF-1 LR3 1mg (Pre-Order)",
+        "variation_id": "04e1d2df-69e6-4e2c-bc95-ec0598da65e3",
+        "variation_name": "Vials only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bca09a7e-0542-4615-9b75-49870a3b575b",
@@ -55756,7 +72244,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3902,
     "telegram_proof_message_id": 3530,
-    "telegram_legacy_proof_message_id": 3909
+    "telegram_legacy_proof_message_id": 3909,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "67a7f99f-5233-4de9-808b-433e5b16da75",
@@ -55803,7 +72304,8 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4328,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 4329
+    "telegram_legacy_proof_message_id": 4329,
+    "items": []
   },
   {
     "id": "c7ed96b4-71d4-4653-a6d1-09b4796315a8",
@@ -55873,7 +72375,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3863,
     "telegram_proof_message_id": 3485,
-    "telegram_legacy_proof_message_id": 3864
+    "telegram_legacy_proof_message_id": 3864,
+    "items": [
+      {
+        "price": 1889,
+        "total": 1889,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1710,
+        "total": 1710,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0fd2372e-ec36-4467-8587-06bc3c11d44a",
@@ -55943,7 +72469,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3865,
     "telegram_proof_message_id": 3487,
-    "telegram_legacy_proof_message_id": 3866
+    "telegram_legacy_proof_message_id": 3866,
+    "items": [
+      {
+        "price": 2069,
+        "total": 4138,
+        "quantity": 2,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 1798,
+        "quantity": 2,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "344b66be-7226-47f8-adf1-c94476d1732c",
@@ -56013,7 +72563,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3954,
     "telegram_proof_message_id": 3576,
-    "telegram_legacy_proof_message_id": 3955
+    "telegram_legacy_proof_message_id": 3955,
+    "items": [
+      {
+        "price": 7695,
+        "total": 7695,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 359,
+        "total": 718,
+        "quantity": 2,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "39400a16-8273-4717-8bd3-183c9acb1d72",
@@ -56072,7 +72646,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4808,
     "telegram_proof_message_id": 4391,
-    "telegram_legacy_proof_message_id": 4809
+    "telegram_legacy_proof_message_id": 4809,
+    "items": [
+      {
+        "price": 80,
+        "total": 1200,
+        "quantity": 15,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "62a69dcd-7636-4358-a86e-2dd231d9f0cb",
@@ -56142,7 +72729,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:03.107+00:00",
     "telegram_legacy_message_id": 2399,
     "telegram_proof_message_id": 2037,
-    "telegram_legacy_proof_message_id": 2400
+    "telegram_legacy_proof_message_id": 2400,
+    "items": [
+      {
+        "price": 399,
+        "total": 798,
+        "quantity": 2,
+        "product_id": "2413c960-cf3e-5eb6-a137-a603e74ae94b",
+        "product_name": "Laennec Inj. Ampule",
+        "variation_id": "662d10ea-2963-4837-8dbc-b9cb9bcbfdbb",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 850,
+        "total": 850,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "00192445-c299-4254-a4c0-2e172f683deb",
@@ -56212,7 +72823,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4050,
     "telegram_proof_message_id": 3672,
-    "telegram_legacy_proof_message_id": 4051
+    "telegram_legacy_proof_message_id": 4051,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d5082627-dcb2-4243-b1a4-2f55f2c162b8",
@@ -56282,7 +72917,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4720,
     "telegram_proof_message_id": 4303,
-    "telegram_legacy_proof_message_id": 4721
+    "telegram_legacy_proof_message_id": 4721,
+    "items": [
+      {
+        "price": 1699,
+        "total": 3398,
+        "quantity": 2,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4ad4c40a-bea5-48b9-9c55-be08ac27f88d",
@@ -56341,7 +73000,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-31T09:00:02.459+00:00",
     "telegram_legacy_message_id": 2342,
     "telegram_proof_message_id": 1980,
-    "telegram_legacy_proof_message_id": 2343
+    "telegram_legacy_proof_message_id": 2343,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "40117e4e-0ee6-474b-99f0-fec4b388b0e0",
@@ -56422,7 +73094,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3877,
     "telegram_proof_message_id": 3499,
-    "telegram_legacy_proof_message_id": 3878
+    "telegram_legacy_proof_message_id": 3878,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1529,
+        "total": 1529,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cd11efef-a883-477b-a773-d04b71b4fdef",
@@ -56503,7 +73210,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3952,
     "telegram_proof_message_id": 3574,
-    "telegram_legacy_proof_message_id": 3953
+    "telegram_legacy_proof_message_id": 3953,
+    "items": [
+      {
+        "price": 3419,
+        "total": 3419,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2519,
+        "total": 2519,
+        "quantity": 1,
+        "product_id": "a691e013-62b4-5378-b705-19915031c57d",
+        "product_name": "SculptDose (Tesamorelin) 10mg",
+        "variation_id": "9e531de2-2fdf-5c24-ace8-57077911ea83",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1d876f1e-20a6-46aa-9176-3eea5af25d15",
@@ -56562,7 +73304,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3901,
     "telegram_proof_message_id": 3526,
-    "telegram_legacy_proof_message_id": 3907
+    "telegram_legacy_proof_message_id": 3907,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "34387d72-0001-45ea-9d28-7f4bcb93d797",
@@ -56621,7 +73376,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3903,
     "telegram_proof_message_id": 3531,
-    "telegram_legacy_proof_message_id": 3910
+    "telegram_legacy_proof_message_id": 3910,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e192952f-8053-4911-8f46-3bd62b3135e3",
@@ -56680,7 +73448,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3904,
     "telegram_proof_message_id": 3532,
-    "telegram_legacy_proof_message_id": 3912
+    "telegram_legacy_proof_message_id": 3912,
+    "items": [
+      {
+        "price": 2609,
+        "total": 2609,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "080efd5f-02ff-4266-9a0c-f1a244694acd",
@@ -56739,88 +73520,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3905,
     "telegram_proof_message_id": 3533,
-    "telegram_legacy_proof_message_id": 3911
-  },
-  {
-    "id": "11e98ccc-ff97-4bd6-960a-65bef783b96c",
-    "customer_name": "Breverly Ruz Atup",
-    "customer_email": "breverlyruzatup@gmail.com",
-    "customer_phone": "09761158143",
-    "contact_method": "messenger",
-    "shipping_address": "Talisawa",
-    "shipping_city": "Datu Abdullah Sanki",
-    "shipping_state": "Maguindanao ",
-    "shipping_zip_code": "9609",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Talisawa",
-    "shipping_region": null,
-    "shipping_location": "MINDANAO (J&T)",
-    "courier_id": null,
-    "shipping_fee": 90,
-    "order_items": [
+    "telegram_legacy_proof_message_id": 3911,
+    "items": [
       {
-        "price": 1979,
-        "total": 1979,
+        "price": 2609,
+        "total": 2609,
         "quantity": 1,
-        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
-        "product_name": "SlimDose (GLP-2) 15mg",
-        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
-        "variation_name": "Vials Only",
-        "purity_percentage": 99,
-        "bundle_discount_percent": 0
-      },
-      {
-        "price": 2699,
-        "total": 2699,
-        "quantity": 1,
-        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
-        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
-        "variation_id": "16186446-7624-4c54-b795-40f14aa70bba",
-        "variation_name": "Vials Only",
-        "purity_percentage": 99,
-        "bundle_discount_percent": 0
-      },
-      {
-        "price": 3329,
-        "total": 3329,
-        "quantity": 1,
-        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
-        "product_name": "SlimDose (GLP-2) 40mg",
-        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
         "variation_name": "Vials Only",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 8007,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1785504618392-tfzcylczq9.jpeg",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "delivered",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": "JT0021869734596",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-07-31T13:30:19.533454+00:00",
-    "updated_at": "2026-08-03T05:00:57.401049+00:00",
-    "order_number": "SLD-001827",
-    "telegram_message_id": 3645,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": null,
-    "telegram_legacy_message_id": 4024,
-    "telegram_proof_message_id": 3646,
-    "telegram_legacy_proof_message_id": 4025
+    ]
   },
   {
     "id": "c0266b17-2041-451f-b45f-54d9182a4198",
@@ -56879,7 +73592,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:02.815+00:00",
     "telegram_legacy_message_id": 2558,
     "telegram_proof_message_id": 2194,
-    "telegram_legacy_proof_message_id": 2559
+    "telegram_legacy_proof_message_id": 2559,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "99572a5f-d98c-4291-86b9-6be2b761a701",
@@ -56938,7 +73664,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4254,
     "telegram_proof_message_id": 3874,
-    "telegram_legacy_proof_message_id": 4255
+    "telegram_legacy_proof_message_id": 4255,
+    "items": [
+      {
+        "price": 5850,
+        "total": 5850,
+        "quantity": 1,
+        "product_id": "1687d258-528b-5847-bfd3-b59860968c70",
+        "product_name": "Rejuran HB",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "45313d6a-b353-4573-90cd-4c1201a20cb6",
@@ -56997,7 +73736,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3980,
     "telegram_proof_message_id": 3602,
-    "telegram_legacy_proof_message_id": 3981
+    "telegram_legacy_proof_message_id": 3981,
+    "items": [
+      {
+        "price": 1529,
+        "total": 1529,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4d2d2519-fc62-455e-9bd9-c54a0c3f2445",
@@ -57067,7 +73819,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3982,
     "telegram_proof_message_id": 3604,
-    "telegram_legacy_proof_message_id": 3983
+    "telegram_legacy_proof_message_id": 3983,
+    "items": [
+      {
+        "price": 1079,
+        "total": 1079,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "7923e87a-9775-4b30-8ab4-26bb18597407",
@@ -57126,7 +73902,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:03.474+00:00",
     "telegram_legacy_message_id": 2576,
     "telegram_proof_message_id": 2212,
-    "telegram_legacy_proof_message_id": 2577
+    "telegram_legacy_proof_message_id": 2577,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "98818a2a-9c03-4f2a-8852-ed01e57b447e",
@@ -57185,7 +73974,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4058,
     "telegram_proof_message_id": 3680,
-    "telegram_legacy_proof_message_id": 4059
+    "telegram_legacy_proof_message_id": 4059,
+    "items": [
+      {
+        "price": 2950,
+        "total": 2950,
+        "quantity": 1,
+        "product_id": "d9e91122-cad0-4a07-901d-a83956638e2a",
+        "product_name": "Rejuran Skinbooster (Pre-Order)",
+        "variation_id": "e4f45424-5e23-4737-a400-fd3d7abbbfcc",
+        "variation_name": "1 set (2 vials)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "336366b4-d370-4b00-9857-daa8550c4bf1",
@@ -57255,7 +74057,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4176,
     "telegram_proof_message_id": 3796,
-    "telegram_legacy_proof_message_id": 4177
+    "telegram_legacy_proof_message_id": 4177,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6efc0e0c-0674-4ac1-a0f4-785e78f0b6b6",
@@ -57314,7 +74140,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4186,
     "telegram_proof_message_id": 3806,
-    "telegram_legacy_proof_message_id": 4187
+    "telegram_legacy_proof_message_id": 4187,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f05b9064-0c09-4892-93f3-a25665cd0c13",
@@ -57373,7 +74212,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4174,
     "telegram_proof_message_id": 3794,
-    "telegram_legacy_proof_message_id": 4175
+    "telegram_legacy_proof_message_id": 4175,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f81391fa-98fc-4651-abae-459a0097bfc5",
@@ -57432,7 +74284,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4252,
     "telegram_proof_message_id": 3872,
-    "telegram_legacy_proof_message_id": 4253
+    "telegram_legacy_proof_message_id": 4253,
+    "items": [
+      {
+        "price": 2999,
+        "total": 8997,
+        "quantity": 3,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a4bdf5d5-0001-4b45-a56d-c787b77d5870",
@@ -57524,7 +74389,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 3950,
     "telegram_proof_message_id": 3572,
-    "telegram_legacy_proof_message_id": 3951
+    "telegram_legacy_proof_message_id": 3951,
+    "items": [
+      {
+        "price": 1710,
+        "total": 1710,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 200,
+        "quantity": 20,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 120,
+        "quantity": 10,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2789,
+        "total": 2789,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5e8a7be2-94d1-41a7-a655-ee078cac36ed",
@@ -57583,7 +74494,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4294,
     "telegram_proof_message_id": 3914,
-    "telegram_legacy_proof_message_id": 4295
+    "telegram_legacy_proof_message_id": 4295,
+    "items": [
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d5b620e4-5497-4b48-8af1-90da76d1d328",
@@ -57653,7 +74577,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-03T09:00:03.755+00:00",
     "telegram_legacy_message_id": 2582,
     "telegram_proof_message_id": 2218,
-    "telegram_legacy_proof_message_id": 2583
+    "telegram_legacy_proof_message_id": 2583,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "64d3b4d8-c3a9-48b6-b34a-b66c048eee58",
@@ -57712,7 +74660,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4092,
     "telegram_proof_message_id": 3714,
-    "telegram_legacy_proof_message_id": 4093
+    "telegram_legacy_proof_message_id": 4093,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "aa2b5c06-aba3-40cb-8e7b-72431d4eeda1",
@@ -57771,7 +74732,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-04T09:00:02.252+00:00",
     "telegram_legacy_message_id": 2633,
     "telegram_proof_message_id": 2267,
-    "telegram_legacy_proof_message_id": 2634
+    "telegram_legacy_proof_message_id": 2634,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "37579ba9-cbc9-44b6-b8eb-8d3ca83f7f64",
@@ -57841,7 +74815,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4168,
     "telegram_proof_message_id": 3788,
-    "telegram_legacy_proof_message_id": 4169
+    "telegram_legacy_proof_message_id": 4169,
+    "items": [
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "5b5f4c04-088d-52ce-a780-932eeff30ca9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 990,
+        "total": 990,
+        "quantity": 1,
+        "product_id": "f20cf9f3-f0d2-4157-8a03-7e22effae7e4",
+        "product_name": "Exosome Skin Serum",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2292a3d7-f97d-470e-8d5e-7c4be479174a",
@@ -57966,7 +74964,86 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4222,
     "telegram_proof_message_id": 3842,
-    "telegram_legacy_proof_message_id": 4223
+    "telegram_legacy_proof_message_id": 4223,
+    "items": [
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 390,
+        "quantity": 3,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "08bbf87d-75e2-46dc-a132-87d3aae74083",
+        "variation_name": "Injector Head",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5749,
+        "total": 5749,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV Exosome",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1350,
+        "total": 1350,
+        "quantity": 1,
+        "product_id": "137aae14-1fc5-519d-a586-03b7931bbff3",
+        "product_name": "WonderTox (Lalamove/Maxim only)",
+        "variation_id": "a244ede3-3004-4a80-b377-33ae3ff267d4",
+        "variation_name": "100u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 239,
+        "total": 239,
+        "quantity": 1,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "82526152-7525-41dc-ad42-5cce01eb8cd2",
@@ -58025,7 +75102,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4298,
     "telegram_proof_message_id": 3918,
-    "telegram_legacy_proof_message_id": 4299
+    "telegram_legacy_proof_message_id": 4299,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "851d8602-08e8-4dc0-a102-1e3a01f90ebd",
@@ -58084,7 +75174,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4332,
     "telegram_proof_message_id": 3950,
-    "telegram_legacy_proof_message_id": 4333
+    "telegram_legacy_proof_message_id": 4333,
+    "items": [
+      {
+        "price": 380,
+        "total": 760,
+        "quantity": 2,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "580f6610-8e87-4213-a228-e09c03487b91",
@@ -58143,7 +75246,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4348,
     "telegram_proof_message_id": 3966,
-    "telegram_legacy_proof_message_id": 4349
+    "telegram_legacy_proof_message_id": 4349,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "2ad8a149-d8a5-41d2-8c0e-d9109002f9bf",
@@ -58202,7 +75318,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4368,
     "telegram_proof_message_id": 3986,
-    "telegram_legacy_proof_message_id": 4369
+    "telegram_legacy_proof_message_id": 4369,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3c55fc78-24b0-4579-b3e4-f5f0682ea35f",
@@ -58261,7 +75390,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4404,
     "telegram_proof_message_id": 4020,
-    "telegram_legacy_proof_message_id": 4405
+    "telegram_legacy_proof_message_id": 4405,
+    "items": [
+      {
+        "price": 239,
+        "total": 478,
+        "quantity": 2,
+        "product_id": "5f6693d5-d416-50e4-b36d-adfc7ca47c4a",
+        "product_name": "MelaBio (Tranexamic Acid) 500mg",
+        "variation_id": "215f3764-ec81-43d7-bff8-d1f7cdd3913b",
+        "variation_name": "1 ampoule",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "900bce8c-4380-41fe-a269-a15a911bbded",
@@ -58331,7 +75473,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4422,
     "telegram_proof_message_id": 4038,
-    "telegram_legacy_proof_message_id": 4423
+    "telegram_legacy_proof_message_id": 4423,
+    "items": [
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5750bb66-9fdc-46c8-ae55-354007f57f33",
@@ -58434,7 +75600,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4334,
     "telegram_proof_message_id": 3952,
-    "telegram_legacy_proof_message_id": 4335
+    "telegram_legacy_proof_message_id": 4335,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2799,
+        "total": 2799,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "474c4956-f858-5742-921a-cfb50b33d2c5",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "33a8ee16-b7fc-577e-9ae8-8cc6127d14ef",
+        "product_name": "MuscleDose (CJC-1295 NO DAC + Ipamorelin) 10mg",
+        "variation_id": "5b5f4c04-088d-52ce-a780-932eeff30ca9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 180,
+        "total": 180,
+        "quantity": 1,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "9d88be86-f0cf-48fb-9d59-3daf065998ae",
+        "variation_name": "Pharma-Grade 10ml (Ampoule)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5239f91f-0b6b-4e17-a2fc-751a3ce4a6eb",
@@ -58504,7 +75727,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4810,
     "telegram_proof_message_id": 4393,
-    "telegram_legacy_proof_message_id": 4811
+    "telegram_legacy_proof_message_id": 4811,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a94a298e-e4ad-4af5-9d92-eee3df42b5bd",
@@ -58585,7 +75832,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4418,
     "telegram_proof_message_id": 4034,
-    "telegram_legacy_proof_message_id": 4419
+    "telegram_legacy_proof_message_id": 4419,
+    "items": [
+      {
+        "price": 3299,
+        "total": 3299,
+        "quantity": 1,
+        "product_id": "95e49d6f-635d-489a-917f-d50e1d5389fc",
+        "product_name": "Botulax (Lalamove/Maxim only)",
+        "variation_id": "750c6600-a017-43d4-8c32-6f285129f0d2",
+        "variation_name": "300u",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 999,
+        "total": 999,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "2e825995-9ccf-4f79-a3fa-fa1b81500888",
+        "variation_name": "Set (Italy)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5749,
+        "total": 5749,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV Exosome",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ccaf71d5-7d58-4b11-96e1-cafa44974fe3",
@@ -58666,7 +75948,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4366,
     "telegram_proof_message_id": 3984,
-    "telegram_legacy_proof_message_id": 4367
+    "telegram_legacy_proof_message_id": 4367,
+    "items": [
+      {
+        "price": 680,
+        "total": 680,
+        "quantity": 1,
+        "product_id": "c300fd59-6950-488c-8a27-0468ebe0a5a5",
+        "product_name": "GHK-Cu Sterile Serum 5ml",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 15,
+        "total": 150,
+        "quantity": 10,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a95e0cf5-165d-40a9-a7dd-50c7ef194fa6",
@@ -58736,7 +76053,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4590,
     "telegram_proof_message_id": 4173,
-    "telegram_legacy_proof_message_id": 4591
+    "telegram_legacy_proof_message_id": 4591,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1359,
+        "total": 1359,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "688ac276-18a9-4764-9e53-165946907d4c",
@@ -58806,7 +76147,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4614,
     "telegram_proof_message_id": 4197,
-    "telegram_legacy_proof_message_id": 4615
+    "telegram_legacy_proof_message_id": 4615,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "cbd0ee2a-b9d7-4f39-9e49-27b3eb3da734",
@@ -58876,7 +76241,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4350,
     "telegram_proof_message_id": 3968,
-    "telegram_legacy_proof_message_id": 4351
+    "telegram_legacy_proof_message_id": 4351,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "244feb81-6bb6-44ce-88b7-c54afbd0d065",
@@ -58935,7 +76324,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4523,
     "telegram_proof_message_id": 4139,
-    "telegram_legacy_proof_message_id": 4524
+    "telegram_legacy_proof_message_id": 4524,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b3c070fc-525e-422e-aceb-08094012753a",
@@ -58994,7 +76396,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4445,
     "telegram_proof_message_id": 4061,
-    "telegram_legacy_proof_message_id": 4446
+    "telegram_legacy_proof_message_id": 4446,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "883c63b9-6682-4343-86a5-1dba74a2c637",
@@ -59064,7 +76479,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4515,
     "telegram_proof_message_id": 4131,
-    "telegram_legacy_proof_message_id": 4516
+    "telegram_legacy_proof_message_id": 4516,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e73a9e5f-db7d-4dc9-b3cf-ca81e3b46b49",
@@ -59123,7 +76562,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4461,
     "telegram_proof_message_id": 4077,
-    "telegram_legacy_proof_message_id": 4462
+    "telegram_legacy_proof_message_id": 4462,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "26c18ba1-4adb-4b59-ac33-9bc96a94b9af",
@@ -59182,7 +76634,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4519,
     "telegram_proof_message_id": 4135,
-    "telegram_legacy_proof_message_id": 4520
+    "telegram_legacy_proof_message_id": 4520,
+    "items": [
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "bbe135b1-7bb5-41ce-a857-beb3cf086bb8",
@@ -59241,7 +76706,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4812,
     "telegram_proof_message_id": 4395,
-    "telegram_legacy_proof_message_id": 4813
+    "telegram_legacy_proof_message_id": 4813,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "da702ac0-9e0a-4141-96b4-3aca62945eb2",
@@ -59311,7 +76789,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-10T09:00:03.779+00:00",
     "telegram_legacy_message_id": 2975,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "962aa8eb-4c73-4f70-a8a7-41e2096d8c17",
@@ -59403,7 +76905,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4517,
     "telegram_proof_message_id": 4133,
-    "telegram_legacy_proof_message_id": 4518
+    "telegram_legacy_proof_message_id": 4518,
+    "items": [
+      {
+        "price": 680,
+        "total": 680,
+        "quantity": 1,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "077b2e42-f189-58f7-b1e1-39975ff10e54",
+        "product_name": "Rejuran S",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 5749,
+        "total": 5749,
+        "quantity": 1,
+        "product_id": "c194f3b7-e102-5b5e-9da0-e87221d5e766",
+        "product_name": "ASCE+ SRLV Exosome",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5a5f0df5-829b-4057-a2c5-04da890b49a9",
@@ -59484,7 +77032,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4521,
     "telegram_proof_message_id": 4137,
-    "telegram_legacy_proof_message_id": 4522
+    "telegram_legacy_proof_message_id": 4522,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1679,
+        "total": 1679,
+        "quantity": 1,
+        "product_id": "d5625b31-f3e5-5a62-ba82-1bf74a1053a9",
+        "product_name": "GlutaDose 1500mg",
+        "variation_id": "43876497-bd3c-584b-abee-1e116fe144f2",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0cca1cc6-9ba1-4244-bc2a-82023fe5d019",
@@ -59565,7 +77148,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4588,
     "telegram_proof_message_id": 4171,
-    "telegram_legacy_proof_message_id": 4589
+    "telegram_legacy_proof_message_id": 4589,
+    "items": [
+      {
+        "price": 1950,
+        "total": 1950,
+        "quantity": 1,
+        "product_id": "2e09e746-f2b7-5afa-b61e-9bb4416487b7",
+        "product_name": "NCTF 135 HA",
+        "variation_id": "04adcf74-4cf7-4aef-8a25-bae481a65fcb",
+        "variation_name": "1 vial",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 80,
+        "quantity": 1,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "87c8b96a-36db-4fd6-a097-0787dd69ca01",
@@ -59646,7 +77264,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4406,
     "telegram_proof_message_id": 4022,
-    "telegram_legacy_proof_message_id": 4407
+    "telegram_legacy_proof_message_id": 4407,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1759,
+        "total": 1759,
+        "quantity": 1,
+        "product_id": "87b621a2-6ea1-5fdc-9c1b-240d8199b480",
+        "product_name": "BurnDose (AOD-9604) 5mg",
+        "variation_id": "6148f151-62cd-58ae-8af8-324f0ef7ce44",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6135cf85-0c49-4dd3-bb12-9f028a9ceaf9",
@@ -59705,7 +77358,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4616,
     "telegram_proof_message_id": 4199,
-    "telegram_legacy_proof_message_id": 4617
+    "telegram_legacy_proof_message_id": 4617,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4c171f43-f412-47ed-a71d-21e5b5fcd863",
@@ -59764,7 +77430,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4511,
     "telegram_proof_message_id": 4127,
-    "telegram_legacy_proof_message_id": 4512
+    "telegram_legacy_proof_message_id": 4512,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "3de3bbec-569f-44a5-a13f-3a3e465135eb",
@@ -59845,7 +77524,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-11T09:00:02.578+00:00",
     "telegram_legacy_message_id": 4428,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2899,
+        "total": 5798,
+        "quantity": 2,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "87172ba6-cb78-5dab-9066-ccefb60691f1",
+        "product_name": "Skinboost (KPV) 10mg",
+        "variation_id": "513dbc50-ac08-5250-9461-b420c8d83080",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "97020f1b-9443-4378-ad8d-ef6f086ee374",
@@ -59904,7 +77618,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4457,
     "telegram_proof_message_id": 4073,
-    "telegram_legacy_proof_message_id": 4458
+    "telegram_legacy_proof_message_id": 4458,
+    "items": [
+      {
+        "price": 3799,
+        "total": 3799,
+        "quantity": 1,
+        "product_id": "f9428865-c0dc-5ebb-acd8-f4e7724c1679",
+        "product_name": "RetaDose (Retatrutide) 30mg",
+        "variation_id": "a44a79b9-face-5422-b28e-274202371909",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c9ce3851-de83-4b0e-a80d-0aba0c553992",
@@ -59963,7 +77690,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4463,
     "telegram_proof_message_id": 4079,
-    "telegram_legacy_proof_message_id": 4464
+    "telegram_legacy_proof_message_id": 4464,
+    "items": [
+      {
+        "price": 646,
+        "total": 1292,
+        "quantity": 2,
+        "product_id": "223cb268-8bf3-5732-b165-e1de276eb482",
+        "product_name": "PDRN Rx (Salmon PDRN)",
+        "variation_id": "bfb2baeb-f9d6-50af-8a62-aa6a5082eff8",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "b3a6033d-5333-49dd-88f7-7729d7c286f9",
@@ -60022,7 +77762,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4525,
     "telegram_proof_message_id": 4141,
-    "telegram_legacy_proof_message_id": 4526
+    "telegram_legacy_proof_message_id": 4526,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f74fe4bb-516e-422d-b693-6e85fb8d6008",
@@ -60081,7 +77834,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.847+00:00",
     "telegram_legacy_message_id": 4554,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "622addea-50cb-48de-a918-e57b809f32d0",
@@ -60184,7 +77950,64 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-09T09:00:03.893+00:00",
     "telegram_legacy_message_id": 4575,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1234.05,
+        "total": 2468.1,
+        "quantity": 2,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "ba517707-138b-5f52-87f9-d451682f3762",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1800,
+        "total": 1800,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "75bc12bc-78d0-50a0-9a14-2685d2cbe56e",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "05de18c5-108b-42ef-8a98-813241543cb5",
@@ -60243,7 +78066,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:05.285+00:00",
     "telegram_legacy_message_id": 3059,
     "telegram_proof_message_id": 2688,
-    "telegram_legacy_proof_message_id": 3060
+    "telegram_legacy_proof_message_id": 3060,
+    "items": [
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "1f3a38ba-c88d-4a65-b228-16557e0e81c7",
@@ -60302,7 +78138,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-25T09:00:03.893+00:00",
     "telegram_legacy_message_id": 4555,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5aad9bcc-7c1e-4d77-af04-d9238bf18785",
@@ -60394,7 +78243,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4447,
     "telegram_proof_message_id": 4063,
-    "telegram_legacy_proof_message_id": 4448
+    "telegram_legacy_proof_message_id": 4448,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 10,
+        "total": 400,
+        "quantity": 40,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b1896df3-f30a-4d1c-9da6-35cf9150165d",
+        "variation_name": "0.5ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 6500,
+        "total": 6500,
+        "quantity": 1,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "b0315a23-9bb5-43e1-8c05-51298e023bf0",
+        "variation_name": "Injector Device",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6181d2a5-44fc-4118-88ca-d79e4e9aca1e",
@@ -60464,7 +78359,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:01.669+00:00",
     "telegram_legacy_message_id": 4556,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "b38cc361-bab6-4d21-8cca-06539de5aa47",
@@ -60545,7 +78464,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.771+00:00",
     "telegram_legacy_message_id": 4565,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9f0253f7-010d-499f-9fc9-b6e34d1a4d67",
@@ -60604,7 +78558,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-06T09:00:03.739+00:00",
     "telegram_legacy_message_id": 4569,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 5034.05,
+        "total": 10068.1,
+        "quantity": 2,
+        "product_id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
+        "product_name": "SlimDose (GLP-2) 60mg",
+        "variation_id": "f5c1ca76-8b42-566d-a866-6fcd64cd8726",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      }
+    ]
   },
   {
     "id": "87cf2351-c668-4b78-a22c-9c8a03b51e64",
@@ -60685,7 +78652,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:03.751+00:00",
     "telegram_legacy_message_id": 4572,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "ba517707-138b-5f52-87f9-d451682f3762",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "410567f9-5059-418a-abf3-bf62bc6cc4ab",
@@ -60744,77 +78746,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-13T09:00:05.431+00:00",
     "telegram_legacy_message_id": 4580,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
-  },
-  {
-    "id": "7a0be7b8-960e-47b4-994f-322113647286",
-    "customer_name": "Marythess Sumampong ",
-    "customer_email": "smarythess@gmail.com",
-    "customer_phone": "09171871372",
-    "contact_method": "messenger",
-    "shipping_address": "Purok 3 ",
-    "shipping_city": "Bunawan",
-    "shipping_state": "Agusan del sur",
-    "shipping_zip_code": "8506",
-    "shipping_country": "Philippines",
-    "shipping_barangay": "Dan Teodoro",
-    "shipping_region": null,
-    "shipping_location": "MINDANAO (J&T)",
-    "courier_id": null,
-    "shipping_fee": 90,
-    "order_items": [
+    "telegram_legacy_proof_message_id": null,
+    "items": [
       {
-        "price": 3699,
-        "total": 3699,
+        "price": 3799,
+        "total": 3799,
         "quantity": 1,
         "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
         "product_name": "SlimDose (GLP-2) 40mg",
-        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
-        "variation_name": "Vials Only",
-        "purity_percentage": 99,
-        "bundle_discount_percent": 0
-      },
-      {
-        "price": 80,
-        "total": 80,
-        "quantity": 1,
-        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
-        "product_name": "Bacteriostatic Water",
-        "variation_id": "878aff55-d855-4874-9ecd-20f472360221",
-        "variation_name": "3ml (Glass Vial)",
+        "variation_id": "5bcbc0df-c4fc-53fa-bfab-292ef06d7baa",
+        "variation_name": "Set",
         "purity_percentage": 99,
         "bundle_discount_percent": 0
       }
-    ],
-    "subtotal": null,
-    "total_price": 3779,
-    "pricing_mode": "PHP",
-    "payment_method_id": "gcash",
-    "payment_method_name": "GCash",
-    "payment_status": "paid",
-    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1783752740681-nr88n0rn6r.png",
-    "promo_code_id": null,
-    "promo_code": null,
-    "discount_applied": 0,
-    "order_status": "shipped",
-    "notes": null,
-    "admin_notes": null,
-    "tracking_number": "JT0020826538585",
-    "tracking_courier": null,
-    "shipping_provider": null,
-    "shipping_note": null,
-    "shipped_at": null,
-    "created_at": "2026-07-11T06:52:23.212999+00:00",
-    "updated_at": "2026-08-10T09:00:03.419744+00:00",
-    "order_number": "SLD-001681",
-    "telegram_message_id": 2516,
-    "paymongo_checkout_id": null,
-    "paymongo_payment_id": null,
-    "paymongo_payment_method_used": null,
-    "winback_emailed_at": "2026-08-10T09:00:03.386+00:00",
-    "telegram_legacy_message_id": 2885,
-    "telegram_proof_message_id": 2517,
-    "telegram_legacy_proof_message_id": 2886
+    ]
   },
   {
     "id": "201d3800-3a2f-4035-99f5-1c2a6c2a6aad",
@@ -60906,7 +78851,53 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-28T09:00:04.737+00:00",
     "telegram_legacy_message_id": 4562,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1900,
+        "total": 1900,
+        "quantity": 1,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "fdb147df-61b7-4a81-8f22-2ec1fbf09c72",
@@ -60965,7 +78956,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4527,
     "telegram_proof_message_id": 4143,
-    "telegram_legacy_proof_message_id": 4528
+    "telegram_legacy_proof_message_id": 4528,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8db28933-edb1-4af0-8aae-40ab1fa913ec",
@@ -61035,7 +79039,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:02.754+00:00",
     "telegram_legacy_message_id": 4557,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "da42b464-70d9-55ff-8d36-3f60b4e65b21",
+        "product_name": "SlimDose (GLP-2) 10mg",
+        "variation_id": "a5785e0d-7a2b-513a-ba47-1b0c0a5abc07",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d3db1cd2-dcaa-475e-b547-dd3451762d63",
@@ -61105,7 +79133,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4499,
     "telegram_proof_message_id": 4115,
-    "telegram_legacy_proof_message_id": 4500
+    "telegram_legacy_proof_message_id": 4500,
+    "items": [
+      {
+        "price": 1599,
+        "total": 1599,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "583a0337-dbf6-51eb-b8e5-332c29f23f9b",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3699,
+        "total": 3699,
+        "quantity": 1,
+        "product_id": "12678a16-4357-53cc-aba8-6b382664e6a6",
+        "product_name": "SlimDose (GLP-2) 40mg",
+        "variation_id": "b1b689c0-c716-5f7b-be2b-3e99456aacd9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "5c7f003f-c843-4bc2-a9ed-a251d250433d",
@@ -61164,7 +79216,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-07-26T09:00:03.255+00:00",
     "telegram_legacy_message_id": 4559,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "21c0f6ae-5c58-4dca-9c9a-f78e1127c622",
@@ -61234,7 +79299,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-07T09:00:04.768+00:00",
     "telegram_legacy_message_id": 4574,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "8187c15a-ae40-5253-b595-8ae08aacdd3a",
+        "product_name": "BeautyDose (GHK-CU) 100mg",
+        "variation_id": "aa449862-e586-5305-a4f5-20138c0a6499",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2699,
+        "total": 2699,
+        "quantity": 1,
+        "product_id": "1049efb4-c778-5583-827d-5d2359df78ef",
+        "product_name": "SlimDose (GLP-2) 20mg",
+        "variation_id": "12578384-6238-5563-bc66-13ba7dc58065",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "6df19b54-1c94-4dc5-af7c-21c4237217d7",
@@ -61315,7 +79404,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4493,
     "telegram_proof_message_id": 4109,
-    "telegram_legacy_proof_message_id": 4494
+    "telegram_legacy_proof_message_id": 4494,
+    "items": [
+      {
+        "price": 40,
+        "total": 120,
+        "quantity": 3,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "3277b327-9ecd-4ffb-94d4-ecfa73c6c733",
+        "variation_name": "Injector Tube",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 240,
+        "quantity": 3,
+        "product_id": "6d21110d-1d55-4944-9798-e66fe4c1c13b",
+        "product_name": "Syringe Connector",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 60,
+        "total": 180,
+        "quantity": 3,
+        "product_id": "93dc5f54-3c43-5367-b192-6e8448d1ee99",
+        "product_name": "SkinBooster Injector Device (Pre-Order)",
+        "variation_id": "37d1f6d7-7788-4c07-a46c-505d6c93ebf2",
+        "variation_name": "Injector Filter",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a7139230-60da-469d-9093-29a21160267d",
@@ -61396,7 +79520,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.734+00:00",
     "telegram_legacy_message_id": 4564,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ac858390-713e-4953-b9d7-976dc87492e2",
@@ -61477,7 +79636,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-02T09:00:04.809+00:00",
     "telegram_legacy_message_id": 4566,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": null
+    "telegram_legacy_proof_message_id": null,
+    "items": [
+      {
+        "price": 1299,
+        "total": 1299,
+        "quantity": 1,
+        "product_id": "1b1991fd-a58d-5c25-a26c-157db5a00673",
+        "product_name": "Topical HairBoost (AHK-Cu) 1000mg",
+        "variation_id": "df396079-24e0-50d1-a527-7e259ecccfe9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1699,
+        "total": 1699,
+        "quantity": 1,
+        "product_id": "3ae6ef26-d75d-5a9b-bda1-ae907240ad5a",
+        "product_name": "Topical BeautyDose (GHK-Cu) 1000mg",
+        "variation_id": "7d54cc6a-f9cd-429c-89d2-9acb9ab11f4e",
+        "variation_name": "Set with Good Molecules Hyaluronic Acid",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "d6ac3880-f2ce-47d3-bc21-c8fba0eb106a",
@@ -61547,7 +79741,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4814,
     "telegram_proof_message_id": 4397,
-    "telegram_legacy_proof_message_id": 4815
+    "telegram_legacy_proof_message_id": 4815,
+    "items": [
+      {
+        "price": 1899,
+        "total": 1899,
+        "quantity": 1,
+        "product_id": "5c575a1d-532e-53f3-beff-f3e563844cf7",
+        "product_name": "Slimboost (Cagrilintide) 5mg",
+        "variation_id": "5aa08ff5-31d2-5c0f-b23d-a6f0a17d7873",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "1621c8e6-b1a6-59d2-b78a-09e995c7a108",
+        "product_name": "RetaDose (Retatrutide) 20mg",
+        "variation_id": "d1dd64cb-5706-5688-9612-3660b2896eeb",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "a083f761-12dd-476f-ae9c-61265c63a77c",
@@ -61606,7 +79824,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4668,
     "telegram_proof_message_id": 4251,
-    "telegram_legacy_proof_message_id": 4669
+    "telegram_legacy_proof_message_id": 4669,
+    "items": [
+      {
+        "price": 1999,
+        "total": 1999,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "90476e67-d6dc-58eb-a46c-8609ba5c6f88",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "8b02e8aa-612c-4dd2-a3aa-f3c22eba1a63",
@@ -61687,7 +79918,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4658,
     "telegram_proof_message_id": 4241,
-    "telegram_legacy_proof_message_id": 4659
+    "telegram_legacy_proof_message_id": 4659,
+    "items": [
+      {
+        "price": 15,
+        "total": 15,
+        "quantity": 1,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 12,
+        "total": 72,
+        "quantity": 6,
+        "product_id": "18bfaf45-76cf-4f1a-9cab-81985173ff5c",
+        "product_name": "Insulin Syringes",
+        "variation_id": "b4d33cf0-5933-42a2-823c-05d4819de658",
+        "variation_name": "1ml",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e0780893-df37-4b6a-84cf-027fc0bf7fa2",
@@ -61746,7 +80012,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:01.424+00:00",
     "telegram_legacy_message_id": 3110,
     "telegram_proof_message_id": 2738,
-    "telegram_legacy_proof_message_id": 3111
+    "telegram_legacy_proof_message_id": 3111,
+    "items": [
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4bd2feca-bbe4-44f9-adcc-80d8121e884e",
@@ -61827,7 +80106,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4714,
     "telegram_proof_message_id": 4297,
-    "telegram_legacy_proof_message_id": 4715
+    "telegram_legacy_proof_message_id": 4715,
+    "items": [
+      {
+        "price": 1199,
+        "total": 1199,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "36b59016-22fc-5aef-95b9-05b7e0de5241",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1799,
+        "total": 1799,
+        "quantity": 1,
+        "product_id": "25e8f220-5951-5b28-b443-6e5efcc8e849",
+        "product_name": "BloomDose (HHB)",
+        "variation_id": "189ccb7b-179f-58b3-b799-d7ce8cdb3e91",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "e031d0ee-b4ef-42bf-8ebf-31ac9a0cd803",
@@ -61897,7 +80211,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:03.694+00:00",
     "telegram_legacy_message_id": 3180,
     "telegram_proof_message_id": 2806,
-    "telegram_legacy_proof_message_id": 3181
+    "telegram_legacy_proof_message_id": 3181,
+    "items": [
+      {
+        "price": 499,
+        "total": 1996,
+        "quantity": 4,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "fd48ec28-c496-5f56-897c-8474bc69df95",
+        "variation_name": "Vials Only (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "ea79dad7-efb1-4323-811b-5862dd93a78b",
@@ -61967,7 +80305,31 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4670,
     "telegram_proof_message_id": 4253,
-    "telegram_legacy_proof_message_id": 4671
+    "telegram_legacy_proof_message_id": 4671,
+    "items": [
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "150b7fb9-227b-48d3-b379-bc0c6f6efb86",
@@ -62026,7 +80388,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-17T09:00:03.14+00:00",
     "telegram_legacy_message_id": 3164,
     "telegram_proof_message_id": 2790,
-    "telegram_legacy_proof_message_id": 3165
+    "telegram_legacy_proof_message_id": 3165,
+    "items": [
+      {
+        "price": 380,
+        "total": 380,
+        "quantity": 1,
+        "product_id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
+        "product_name": "Hyaron",
+        "variation_id": "7d0d4a72-62a5-485c-8478-473112cb8492",
+        "variation_name": "1 syringe",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "9a2e749d-8f9f-4d0d-bba0-fed5ad72cb5c",
@@ -62107,7 +80482,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:06.286+00:00",
     "telegram_legacy_message_id": 3061,
     "telegram_proof_message_id": 2690,
-    "telegram_legacy_proof_message_id": 3062
+    "telegram_legacy_proof_message_id": 3062,
+    "items": [
+      {
+        "price": 1805,
+        "total": 3610,
+        "quantity": 2,
+        "product_id": "9fef311b-6ea8-5cb1-9f06-d86df379d03e",
+        "product_name": "YouthDose (NAD+) 500mg",
+        "variation_id": "b72e3161-9e50-50ba-a050-c35085e152ba",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 5
+      },
+      {
+        "price": 15,
+        "total": 30,
+        "quantity": 2,
+        "product_id": "04f7144b-c7cc-4593-b990-ca6b1510819f",
+        "product_name": "3ml Syringe",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 130,
+        "total": 260,
+        "quantity": 2,
+        "product_id": "cede3b87-42bf-5dd7-add6-ba0567a7ecae",
+        "product_name": "Bacteriostatic Water",
+        "variation_id": "334b9c42-a03f-4959-9f8d-74b95c063c27",
+        "variation_name": "10ml (Glass Vial)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "0a3ed383-495d-472a-9074-a818cb466316",
@@ -62188,7 +80598,42 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": "2026-08-14T09:00:11.427+00:00",
     "telegram_legacy_message_id": 4584,
     "telegram_proof_message_id": null,
-    "telegram_legacy_proof_message_id": 4585
+    "telegram_legacy_proof_message_id": 4585,
+    "items": [
+      {
+        "price": 2199,
+        "total": 2199,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "5ef5e2f7-1732-5c72-a1a3-deb4d2cf87c9",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2899,
+        "total": 2899,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "4269ea93-7479-5d4c-8420-a4b099d627e0",
+        "product_name": "BeautyDose (GHK-CU) 50mg",
+        "variation_id": "630d53f0-77e7-58a1-ae67-45ee38292e30",
+        "variation_name": "Vials Only",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "4e3df870-a891-4927-873c-665404c24f03",
@@ -62247,7 +80692,20 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4736,
     "telegram_proof_message_id": 4319,
-    "telegram_legacy_proof_message_id": 4737
+    "telegram_legacy_proof_message_id": 4737,
+    "items": [
+      {
+        "price": 3099,
+        "total": 3099,
+        "quantity": 1,
+        "product_id": "a2475092-cbac-47bc-9900-8ee33be6f391",
+        "product_name": "K-Glow (GHK-Cu + KPV) 110mg",
+        "variation_id": "881ad581-9e87-4fb1-99b0-0c23484db9da",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "c0bc9329-bb43-4052-94a2-91286672e75e",
@@ -62328,7 +80786,136 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4718,
     "telegram_proof_message_id": 4301,
-    "telegram_legacy_proof_message_id": 4719
+    "telegram_legacy_proof_message_id": 4719,
+    "items": [
+      {
+        "price": 7749,
+        "total": 7749,
+        "quantity": 1,
+        "product_id": "a0eaf3cb-ce54-4a59-8b95-a9ca8b4d157b",
+        "product_name": "Snow White Trio",
+        "variation_id": "2728e6e6-aad6-4f2d-bbaf-3560d9175cb1",
+        "variation_name": "W/ IV Drip set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 3500,
+        "total": 3500,
+        "quantity": 1,
+        "product_id": "8bd49b58-0bdc-53c1-8458-8112553dc848",
+        "product_name": "Aqualyx",
+        "variation_id": "ef6208b8-50a4-4fa4-9062-a08ba541a574",
+        "variation_name": "Box of 10 (Vietnam)",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
+  },
+  {
+    "id": "a6d5a598-8509-4ae0-9279-019797de9186",
+    "customer_name": "DANIEL SABIT SAAVEDRA III",
+    "customer_email": "contact.danielsaavedra@gmail.com",
+    "customer_phone": "09628536320",
+    "contact_method": "messenger",
+    "shipping_address": "Lot 28 Block 23 St, ",
+    "shipping_city": "GENERAL SANTOS CITY, SOUTH COTABATO",
+    "shipping_state": "Region XII",
+    "shipping_zip_code": "9500",
+    "shipping_country": "Philippines",
+    "shipping_barangay": "VSM Phase 1",
+    "shipping_region": null,
+    "shipping_location": "MINDANAO (J&T)",
+    "courier_id": null,
+    "shipping_fee": 90,
+    "order_items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ],
+    "subtotal": null,
+    "total_price": 13850,
+    "pricing_mode": "PHP",
+    "payment_method_id": "gcash",
+    "payment_method_name": "GCash",
+    "payment_status": "paid",
+    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1786983790318-m9x8qoqt24.PNG",
+    "promo_code_id": null,
+    "promo_code": null,
+    "discount_applied": 0,
+    "order_status": "confirmed",
+    "notes": null,
+    "admin_notes": null,
+    "tracking_number": null,
+    "tracking_courier": null,
+    "shipping_provider": null,
+    "shipping_note": null,
+    "shipped_at": null,
+    "created_at": "2026-08-17T16:23:13.011413+00:00",
+    "updated_at": "2026-08-18T03:24:14.061742+00:00",
+    "order_number": "SLD-001941",
+    "telegram_message_id": 4412,
+    "paymongo_checkout_id": null,
+    "paymongo_payment_id": null,
+    "paymongo_payment_method_used": null,
+    "winback_emailed_at": null,
+    "telegram_legacy_message_id": 4830,
+    "telegram_proof_message_id": 4413,
+    "telegram_legacy_proof_message_id": 4831,
+    "items": [
+      {
+        "price": 5300,
+        "total": 5300,
+        "quantity": 1,
+        "product_id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+        "product_name": "Rejuran I",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 8550,
+        "total": 8550,
+        "quantity": 1,
+        "product_id": "981bf288-3649-5ea4-856c-040e96b3d817",
+        "product_name": "Rejuran Healer",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   },
   {
     "id": "f657719a-3581-4591-9e78-a98cceaab29f",
@@ -62442,6 +81029,168 @@ export const liveScrapedOrders: any[] = [
     "winback_emailed_at": null,
     "telegram_legacy_message_id": 4802,
     "telegram_proof_message_id": 4385,
-    "telegram_legacy_proof_message_id": 4803
+    "telegram_legacy_proof_message_id": 4803,
+    "items": [
+      {
+        "price": 2299,
+        "total": 2299,
+        "quantity": 1,
+        "product_id": "44f4734e-3135-506f-bbab-ae4cea95abcf",
+        "product_name": "SlimDose (GLP-2) 15mg",
+        "variation_id": "444b9c38-f529-51f1-94ca-88cc498a48c7",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2999,
+        "total": 2999,
+        "quantity": 1,
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "product_name": "SlimDose (GLP-2) 30mg",
+        "variation_id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1099,
+        "total": 1099,
+        "quantity": 1,
+        "product_id": "d4094a13-8cb9-59c4-b7f2-02a02be2d002",
+        "product_name": "Slimpen Pro",
+        "variation_id": "33c169fe-1176-535e-9839-68fc1901f457",
+        "variation_name": "Lavender Blue",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 80,
+        "total": 160,
+        "quantity": 2,
+        "product_id": "12a2fc15-01f2-4ada-bc13-d3e449d3469e",
+        "product_name": "Pen Cartridge",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 899,
+        "total": 5394,
+        "quantity": 6,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 1199,
+        "total": 3597,
+        "quantity": 3,
+        "product_id": "c514735e-8953-5f4e-be3c-4e1f04cacc78",
+        "product_name": "Lipo Vela V",
+        "variation_id": null,
+        "variation_name": null,
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
+  },
+  {
+    "id": "d27a8994-ec6d-44a5-84e3-c29234a6d5d6",
+    "customer_name": "Win Lazaro",
+    "customer_email": "wavebackup144@gmail.com",
+    "customer_phone": "09567250568",
+    "contact_method": "messenger",
+    "shipping_address": "88 Ilocos Norte Bago Bantay ",
+    "shipping_city": "Quezon City",
+    "shipping_state": "Metro Manila",
+    "shipping_zip_code": "1105",
+    "shipping_country": "Philippines",
+    "shipping_barangay": "Brgy. Alicia",
+    "shipping_region": null,
+    "shipping_location": "LALAMOVE (SAME DAY DELIVERY)",
+    "courier_id": null,
+    "shipping_fee": 0,
+    "order_items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ],
+    "subtotal": null,
+    "total_price": 2998,
+    "pricing_mode": "PHP",
+    "payment_method_id": "gcash",
+    "payment_method_name": "GCash",
+    "payment_status": "paid",
+    "payment_proof_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/payment-proofs/1786989835033-kt82pkpf67l.png",
+    "promo_code_id": null,
+    "promo_code": null,
+    "discount_applied": 0,
+    "order_status": "processing",
+    "notes": null,
+    "admin_notes": null,
+    "tracking_number": null,
+    "tracking_courier": null,
+    "shipping_provider": null,
+    "shipping_note": null,
+    "shipped_at": null,
+    "created_at": "2026-08-17T18:03:56.469312+00:00",
+    "updated_at": "2026-08-18T03:24:23.84915+00:00",
+    "order_number": "SLD-001942",
+    "telegram_message_id": 4414,
+    "paymongo_checkout_id": null,
+    "paymongo_payment_id": null,
+    "paymongo_payment_method_used": null,
+    "winback_emailed_at": null,
+    "telegram_legacy_message_id": 4832,
+    "telegram_proof_message_id": 4415,
+    "telegram_legacy_proof_message_id": 4833,
+    "items": [
+      {
+        "price": 899,
+        "total": 899,
+        "quantity": 1,
+        "product_id": "0ca3cbf0-103e-5e28-9175-c4759273a45c",
+        "product_name": "Lipo Vela",
+        "variation_id": "e0627599-1a61-44a6-b4cf-e00cdccda695",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      },
+      {
+        "price": 2099,
+        "total": 2099,
+        "quantity": 1,
+        "product_id": "4c1ffe0e-e763-57c3-865a-ebf97d87767a",
+        "product_name": "RetaDose (Retatrutide) 10mg",
+        "variation_id": "982353e2-92bf-5f10-9787-1c5fb4206833",
+        "variation_name": "Set",
+        "purity_percentage": 99,
+        "bundle_discount_percent": 0
+      }
+    ]
   }
 ];

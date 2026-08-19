@@ -39,6 +39,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fireToast } from './ToastNotification';
 import { ProductPeptideCalculator } from './ProductPeptideCalculator';
 import { ProductReviews } from './ProductReviews';
+import { ErrorBoundary } from './ErrorBoundary';
 import { COAModal } from './COAModal';
 
 interface ProductDetailModalProps {
@@ -1169,7 +1170,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
 
           {/* Product Reviews placed above Peptide Dosage Calculator */}
           <div className="w-full space-y-8">
-            <ProductReviews productId={product.id} productName={product.name} />
+            <ErrorBoundary name="Product Reviews">
+              <ProductReviews productId={product.id} productName={product.name} />
+            </ErrorBoundary>
             {biotechSectionsCommon}
           </div>
         </div>
@@ -1240,7 +1243,9 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           </div>
 
           <div className="mt-8 border-t border-charcoal-200 dark:border-slate-800 pt-8 space-y-8">
-            <ProductReviews productId={product.id} productName={product.name} />
+            <ErrorBoundary name="Product Reviews">
+              <ProductReviews productId={product.id} productName={product.name} />
+            </ErrorBoundary>
             {biotechSectionsCommon}
             <ImportantResearchNoticeSection />
           </div>

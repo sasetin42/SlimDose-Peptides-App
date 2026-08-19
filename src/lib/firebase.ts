@@ -3,6 +3,7 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  setLogLevel,
   collection,
   doc,
   getDocs,
@@ -21,6 +22,9 @@ import {
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
+// Silence non-critical internal SDK warnings (such as secondary tab lease acquisition)
+setLogLevel('error');
+
 const firebaseConfig = {
   apiKey: 'AIzaSyBYk8pxgUi5ZV10nUW91VTZ8lBGZYMJdkk',
   authDomain: 'slimdose-peptides.firebaseapp.com',
@@ -33,7 +37,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with multi-tab persistent offline cache
+// Initialize Firestore with persistent offline cache
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),

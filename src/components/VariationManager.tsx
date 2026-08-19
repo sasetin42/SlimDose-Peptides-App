@@ -23,7 +23,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import type { Product, ProductVariation } from '../types';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 
@@ -33,7 +33,7 @@ interface VariationManagerProps {
 }
 
 export default function VariationManager({ product, onClose }: VariationManagerProps) {
-  const { addVariation, updateVariation, deleteVariation, refreshProducts } = useMenu();
+  const { addVariation, updateVariation, deleteVariation, refreshProducts } = useMenuContext();
   const [localVariations, setLocalVariations] = useState<ProductVariation[]>(product.variations || []);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

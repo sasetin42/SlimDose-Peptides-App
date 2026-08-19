@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   mirrorCategoryCreate,
@@ -22,8 +22,8 @@ const DEFAULT_STANDARD_CATEGORIES: Category[] = liveScrapedCategories.map((c, id
   id: c.id,
   name: c.name,
   icon: c.icon || '🔬',
-  sort_order: c.display_order ?? idx,
-  active: true,
+  sort_order: c.sort_order ?? c.display_order ?? idx,
+  active: c.active ?? true,
   created_at: c.created_at
 }));
 
@@ -41,6 +41,18 @@ try {
   }
 } catch {}
 
+/** Write-through cache helper — updates both memoryCache and localStorage */
+const writeCache = (data: Category[]) => {
+  memoryCache = data;
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch {}
+};
+
+/** Invalidate the cache so next fetch is authoritative */
+const invalidateCache = () => {
+  memoryCache = null;
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
+};
+
 const getInitialCategories = (activeOnly: boolean): Category[] => {
   const base = memoryCache && memoryCache.length > 0 ? memoryCache : DEFAULT_STANDARD_CATEGORIES;
   return activeOnly ? base.filter((c) => c.active) : base;
@@ -52,28 +64,32 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
   const [loading, setLoading] = useState<boolean>(() => !memoryCache || memoryCache.length === 0);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      let query = supabase
-        .from('categories')
-        .select('*');
-
+      let query = supabase.from('categories').select('*');
       if (activeOnly) {
         query = query.eq('active', true);
       }
-
-      const { data, error: fetchError } = await query
-        .order('sort_order', { ascending: true });
-
+      const { data, error: fetchError } = await query.order('sort_order', { ascending: true });
       if (fetchError) throw fetchError;
 
       if (data && data.length > 0) {
-        memoryCache = data;
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        } catch {}
-        const filtered = activeOnly ? data.filter((c) => c.active) : data;
+        const normalized: Category[] = data.map((c: any) => ({
+          id: c.id,
+          name: c.name || '',
+          icon: c.icon || '🔬',
+          sort_order: c.sort_order ?? 0,
+          active: c.active ?? true,
+          created_at: c.created_at,
+          updated_at: c.updated_at,
+        }));
+        writeCache(normalized);
+        const filtered = activeOnly ? normalized.filter((c) => c.active) : normalized;
         setCategories(filtered);
+      } else if (data && data.length === 0) {
+        // Firestore returned genuinely empty — clear cache and show empty
+        writeCache([]);
+        setCategories([]);
       }
       setError(null);
     } catch (err) {
@@ -82,9 +98,21 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeOnly]);
 
   const addCategory = async (category: Omit<Category, 'created_at' | 'updated_at'>) => {
+    // Optimistic: add to local state immediately
+    const newCat: Category = {
+      ...category,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setCategories(prev => {
+      const next = activeOnly ? [...prev, newCat].filter(c => c.active) : [...prev, newCat];
+      writeCache(activeOnly ? [...(memoryCache || []), newCat] : next);
+      return next;
+    });
+
     try {
       const { data, error: insertError } = await supabase
         .from('categories')
@@ -93,7 +121,7 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
           name: category.name,
           icon: category.icon,
           sort_order: category.sort_order,
-          active: category.active
+          active: category.active,
         })
         .select()
         .single();
@@ -108,24 +136,38 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
         active: category.active,
       });
 
+      // Authoritative refresh
+      invalidateCache();
       await fetchCategories();
       return data;
     } catch (err) {
       console.error('Error adding category:', err);
+      // Rollback optimistic update
+      invalidateCache();
+      await fetchCategories();
       throw err;
     }
   };
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
+    // Optimistic: patch local state immediately
+    setCategories(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, ...updates } : c);
+      const fullCache = (memoryCache || []).map(c => c.id === id ? { ...c, ...updates } : c);
+      writeCache(fullCache);
+      return activeOnly ? next.filter(c => c.active) : next;
+    });
+
     try {
+      const patch: Record<string, any> = {};
+      if (updates.name !== undefined) patch.name = updates.name;
+      if (updates.icon !== undefined) patch.icon = updates.icon;
+      if (updates.sort_order !== undefined) patch.sort_order = updates.sort_order;
+      if (updates.active !== undefined) patch.active = updates.active;
+
       const { error: updateError } = await supabase
         .from('categories')
-        .update({
-          name: updates.name,
-          icon: updates.icon,
-          sort_order: updates.sort_order,
-          active: updates.active
-        })
+        .update(patch)
         .eq('id', id);
 
       if (updateError) throw updateError;
@@ -137,28 +179,41 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
         active: updates.active,
       });
 
-      await fetchCategories();
+      // Authoritative refresh in background (don't await to keep UI snappy)
+      invalidateCache();
+      fetchCategories();
     } catch (err) {
       console.error('Error updating category:', err);
+      // Rollback
+      invalidateCache();
+      await fetchCategories();
       throw err;
     }
   };
 
   const deleteCategory = async (id: string) => {
+    // Check if category has products
+    const { data: products, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('category', id)
+      .limit(1);
+
+    if (checkError) throw checkError;
+
+    if (products && products.length > 0) {
+      throw new Error('Cannot delete category that contains products. Please move or delete the products first.');
+    }
+
+    // Optimistic: remove from local state immediately
+    setCategories(prev => {
+      const next = prev.filter(c => c.id !== id);
+      const fullCache = (memoryCache || []).filter(c => c.id !== id);
+      writeCache(fullCache);
+      return next;
+    });
+
     try {
-      // Check if category has products
-      const { data: products, error: checkError } = await supabase
-        .from('products')
-        .select('id')
-        .eq('category', id)
-        .limit(1);
-
-      if (checkError) throw checkError;
-
-      if (products && products.length > 0) {
-        throw new Error('Cannot delete category that contains products. Please move or delete the products first.');
-      }
-
       const { error: deleteError } = await supabase
         .from('categories')
         .delete()
@@ -168,30 +223,35 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
 
       mirrorCategoryDelete(id);
 
+      invalidateCache();
       await fetchCategories();
     } catch (err) {
       console.error('Error deleting category:', err);
+      invalidateCache();
+      await fetchCategories();
       throw err;
     }
   };
 
   const reorderCategories = async (reorderedCategories: Category[]) => {
-    try {
-      const updates = reorderedCategories.map((cat, index) => ({
-        id: cat.id,
-        sort_order: index + 1
-      }));
+    // Optimistic
+    const updated = reorderedCategories.map((cat, index) => ({ ...cat, sort_order: index + 1 }));
+    writeCache(updated);
+    setCategories(activeOnly ? updated.filter(c => c.active) : updated);
 
-      for (const update of updates) {
+    try {
+      for (const [index, cat] of reorderedCategories.entries()) {
         await supabase
           .from('categories')
-          .update({ sort_order: update.sort_order })
-          .eq('id', update.id);
+          .update({ sort_order: index + 1 })
+          .eq('id', cat.id);
       }
-
+      invalidateCache();
       await fetchCategories();
     } catch (err) {
       console.error('Error reordering categories:', err);
+      invalidateCache();
+      await fetchCategories();
       throw err;
     }
   };
@@ -199,39 +259,25 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
   useEffect(() => {
     fetchCategories();
 
-    // Set up real-time subscription for category changes.
-    // Unique channel name per mount avoids "cannot add postgres_changes
-    // callbacks after subscribe()" when React StrictMode double-mounts.
-    const channelName = `categories-changes-${Math.random().toString(36).slice(2)}`;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const debouncedFetch = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        invalidateCache();
+        fetchCategories();
+      }, 500);
+    };
+
     const categoriesChannel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'categories'
-        },
-        (payload) => {
-          console.log('Category changed:', payload);
-          fetchCategories();
-        }
-      )
+      .channel('categories_realtime_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, debouncedFetch)
       .subscribe();
 
-    // Refetch data when window regains focus
-    const handleFocus = () => {
-      fetchCategories();
-    };
-
-    window.addEventListener('focus', handleFocus);
-
-    // Cleanup subscriptions on unmount
     return () => {
       supabase.removeChannel(categoriesChannel);
-      window.removeEventListener('focus', handleFocus);
+      if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, [activeOnly]);
+  }, [fetchCategories]);
 
   return {
     categories,
@@ -241,6 +287,6 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
     updateCategory,
     deleteCategory,
     reorderCategories,
-    refetch: fetchCategories
+    refetch: fetchCategories,
   };
 };

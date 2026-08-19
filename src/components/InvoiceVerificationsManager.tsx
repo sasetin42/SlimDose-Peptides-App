@@ -1187,7 +1187,7 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
                     <ShieldCheck className="w-3.5 h-3.5" />
                   </div>
                   <h3 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
-                    Receipt Verification — Order #{previewItem.orders?.order_number || previewItem.order_id.slice(0, 8)}
+                    Receipt Verification — Order #{previewItem.orders?.order_number || (previewItem.order_id ? String(previewItem.order_id).slice(0, 8) : 'REF')}
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-300 mt-0.5 truncate pl-8">

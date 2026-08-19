@@ -681,8 +681,8 @@ export default function CustomerCRMManager() {
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
-                              <span>ID: {c.id.slice(0, 8)}</span>
-                              {c.id.startsWith('guest_') && (
+                              <span>ID: {c.id ? String(c.id).slice(0, 8) : 'N/A'}</span>
+                              {c.id && String(c.id).startsWith('guest_') && (
                                 <span className="px-1 bg-slate-100 dark:bg-slate-800 rounded text-[9px] font-bold text-slate-500">
                                   Guest
                                 </span>

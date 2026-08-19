@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, Suspense, lazy } from 'react';
 import {
   Plus, Edit, Trash2, Save, X, ArrowLeft, TrendingUp, Package, Users, FolderOpen,
   CreditCard, Sparkles, Layers, Shield, ShieldCheck, AlertOctagon, RefreshCw, Warehouse,
@@ -10,36 +10,47 @@ import {
   Edit2, ExternalLink, Copy, Check, MessageCircle, Megaphone, Clock, ArrowUpRight,
   CheckCircle, Wallet, Receipt
 } from 'lucide-react';
-import type { Product, ProductBundleTier } from '../types';
+import type { Product } from '../types';
 import { supabase } from '../lib/supabase';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
 import { useCategories } from '../hooks/useCategories';
-import ImageUpload from './ImageUpload';
-import CategoryManager from './CategoryManager';
-import PaymentMethodManager from './PaymentMethodManager';
-import VariationManager from './VariationManager';
-import COAManager from './COAManager';
-import PeptideInventoryManager from './PeptideInventoryManager';
-import OrdersManager from './OrdersManager';
-import FAQManager from './FAQManager';
-import ShippingManager from './ShippingManager';
-import SiteSettingsManager from './SiteSettingsManager';
-import PromoCodeManager from './PromoCodeManager';
-import GlobalDiscountManager from './GlobalDiscountManager';
-import GuideManager from './GuideManager';
-import SalesAnalyticsManager from './SalesAnalyticsManager';
-import PopupManager from './PopupManager';
-import { PageContentsManager } from './PageContentsManager';
-import CustomerCRMManager from './CustomerCRMManager';
-import ProductReviewsManager from './ProductReviewsManager';
-import InvoiceVerificationsManager from './InvoiceVerificationsManager';
-import PeptalkVideosManager from './PeptalkVideosManager';
-import RestockRemindersManager from './RestockRemindersManager';
-import TopBannerManager from './TopBannerManager';
-import ProductModal from './ProductModal';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { fireToast } from './ToastNotification';
 import { liveScrapedOrders } from '../data/liveScrapedOrders';
+
+// Dynamic code-split lazy imports for all admin panel submodules
+const CategoryManager = lazy(() => import('./CategoryManager'));
+const PaymentMethodManager = lazy(() => import('./PaymentMethodManager'));
+const VariationManager = lazy(() => import('./VariationManager'));
+const COAManager = lazy(() => import('./COAManager'));
+const PeptideInventoryManager = lazy(() => import('./PeptideInventoryManager'));
+const OrdersManager = lazy(() => import('./OrdersManager'));
+const FAQManager = lazy(() => import('./FAQManager'));
+const ShippingManager = lazy(() => import('./ShippingManager'));
+const SiteSettingsManager = lazy(() => import('./SiteSettingsManager'));
+const PromoCodeManager = lazy(() => import('./PromoCodeManager'));
+const GlobalDiscountManager = lazy(() => import('./GlobalDiscountManager'));
+const GuideManager = lazy(() => import('./GuideManager'));
+const SalesAnalyticsManager = lazy(() => import('./SalesAnalyticsManager'));
+const PopupManager = lazy(() => import('./PopupManager'));
+const PageContentsManager = lazy(() => import('./PageContentsManager').then(m => ({ default: m.PageContentsManager })));
+const CustomerCRMManager = lazy(() => import('./CustomerCRMManager'));
+const ProductReviewsManager = lazy(() => import('./ProductReviewsManager'));
+const InvoiceVerificationsManager = lazy(() => import('./InvoiceVerificationsManager'));
+const PeptalkVideosManager = lazy(() => import('./PeptalkVideosManager'));
+const RestockRemindersManager = lazy(() => import('./RestockRemindersManager'));
+const TopBannerManager = lazy(() => import('./TopBannerManager'));
+const ProductModal = lazy(() => import('./ProductModal'));
+
+const AdminSectionSkeleton: React.FC = () => (
+  <div className="w-full min-h-[420px] flex flex-col items-center justify-center p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
+    <div className="w-11 h-11 rounded-2xl bg-[#3C6CA8]/10 border border-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] mb-3 animate-pulse">
+      <RefreshCw className="w-5 h-5 animate-spin text-[#3C6CA8]" />
+    </div>
+    <div className="h-4 w-44 bg-slate-200 dark:bg-slate-800 rounded-full mb-2 animate-pulse" />
+    <div className="h-3 w-64 bg-slate-100 dark:bg-slate-850 rounded-full animate-pulse" />
+  </div>
+);
 
 
 interface AdminSession {
@@ -74,6 +85,7 @@ const AdminDashboard: React.FC = () => {
       return true;
     }
   });
+  const [mobileMenuSearch, setMobileMenuSearch] = useState('');
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => {
@@ -84,7 +96,7 @@ const AdminDashboard: React.FC = () => {
       return next;
     });
   };
-  const { products, loading, addProduct, updateProduct, deleteProduct, refreshProducts } = useMenu();
+  const { products, loading, addProduct, updateProduct, deleteProduct, deleteMultipleProducts, refreshProducts } = useMenuContext();
   const { categories } = useCategories();
   const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'payments' | 'inventory' | 'orders' | 'shipping' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents' | 'top-banner' | 'crm' | 'verifications' | 'reviews' | 'restock-reminders' | 'peptalk-videos'>('dashboard');
 
@@ -103,16 +115,34 @@ const AdminDashboard: React.FC = () => {
       }
     }
 
-    const hash = window.location.hash.replace('#', '');
-    if (hash) {
+    const handleHash = (rawHash: string) => {
+      const hash = rawHash.replace('#', '');
+      if (!hash) return;
+      
+      const gatedViews = ['analytics', 'payments'];
+      if (gatedViews.includes(hash)) {
+        let isUnlocked = false;
+        try {
+          isUnlocked = sessionStorage.getItem(`section_gate_unlocked_${hash}`) === '1';
+        } catch {}
+        if (!isUnlocked) {
+          setPendingViewChange(hash as any);
+          setConfirmPasswordInput('');
+          setConfirmPasswordError('');
+          setIsPasswordConfirmOpen(true);
+          return;
+        }
+      }
       setCurrentView(hash as any);
+    };
+
+    const initialHash = window.location.hash;
+    if (initialHash) {
+      handleHash(initialHash);
     }
 
     const handleHashChange = () => {
-      const newHash = window.location.hash.replace('#', '');
-      if (newHash) {
-        setCurrentView(newHash as any);
-      }
+      handleHash(window.location.hash);
     };
 
     window.addEventListener('hashchange', handleHashChange);
@@ -263,13 +293,29 @@ const AdminDashboard: React.FC = () => {
 
   // Password Interceptor & Audit Logs States
   const [pendingViewChange, setPendingViewChange] = useState<typeof currentView | null>(null);
+  const [pendingDeleteProduct, setPendingDeleteProduct] = useState<Product | null>(null);
+  const [pendingBulkDelete, setPendingBulkDelete] = useState<boolean>(false);
   const [isPasswordConfirmOpen, setIsPasswordConfirmOpen] = useState(false);
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [confirmPasswordCallback, setConfirmPasswordCallback] = useState<(() => void) | null>(null);
 
+  // Fixed gate password for Sales Analytics & Payment Methods
+  const SECTION_GATE_PASSWORD = '123456#';
+  // Per-view session key so each protected section requires its own unlock
+  const sectionGateKey = (view: string) => `section_gate_unlocked_${view}`;
+
   const isSensitiveSessionValid = () => {
-    return true; // Password verification re-check disabled per user request
+    // Check if the pending view has already been unlocked this session
+    if (pendingViewChange) {
+      try {
+        return sessionStorage.getItem(sectionGateKey(pendingViewChange)) === '1';
+      } catch {
+        return false;
+      }
+    }
+    return false;
   };
 
   const verifyAdminPassword = async (pwd: string): Promise<boolean> => {
@@ -290,28 +336,109 @@ const AdminDashboard: React.FC = () => {
     return !!match;
   };
 
+  const handlePasswordConfirmCancel = () => {
+    const wasViewChange = pendingViewChange !== null;
+    setIsPasswordConfirmOpen(false);
+    setConfirmPasswordCallback(null);
+    setPendingViewChange(null);
+    setPendingDeleteProduct(null);
+    setPendingBulkDelete(false);
+    setConfirmPasswordInput('');
+    setConfirmPasswordError('');
+    if (wasViewChange) {
+      setCurrentView('dashboard');
+      try {
+        window.location.hash = 'dashboard';
+      } catch {}
+    }
+  };
+
+  useEffect(() => {
+    if (!isPasswordConfirmOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handlePasswordConfirmCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPasswordConfirmOpen, pendingViewChange]);
+
   const handlePasswordConfirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setConfirmPasswordError('');
     setIsProcessing(true);
     try {
-      const isValid = await verifyAdminPassword(confirmPasswordInput);
+      // Check fixed section gate password
+      const isValid = confirmPasswordInput === SECTION_GATE_PASSWORD;
       if (isValid) {
-        sessionStorage.setItem('admin_sensitive_verified_at', String(Date.now()));
+        // 1. Single product deletion
+        if (pendingDeleteProduct) {
+          const productToDelete = pendingDeleteProduct;
+          const id = productToDelete.id;
+          const confirmName = productToDelete.name ? `"${productToDelete.name}"` : 'product';
+          
+          setManagingVariationsProductId(null);
+          const result = await deleteProduct(id);
+          if (result.success) {
+            logAdminAction('delete_product', { id, name: productToDelete.name, data: productToDelete });
+            setSelectedProducts(prev => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+            fireToast(`Product ${confirmName} permanently deleted`, 'success');
+            setIsPasswordConfirmOpen(false);
+            setPendingDeleteProduct(null);
+            setConfirmPasswordInput('');
+            setConfirmPasswordError('');
+          } else {
+            setConfirmPasswordError(result.error || 'Failed to delete product.');
+          }
+          return;
+        }
+
+        // 2. Bulk products deletion
+        if (pendingBulkDelete) {
+          const count = selectedProducts.size;
+          const idsArray = Array.from(selectedProducts);
+          setManagingVariationsProductId(null);
+          const result = await deleteMultipleProducts(idsArray);
+          if (result.success) {
+            logAdminAction('bulk_delete_products', { count, ids: idsArray });
+            setSelectedProducts(new Set());
+            fireToast(`Successfully deleted ${count} product(s)`, 'success');
+            setIsPasswordConfirmOpen(false);
+            setPendingBulkDelete(false);
+            setConfirmPasswordInput('');
+            setConfirmPasswordError('');
+          } else {
+            setConfirmPasswordError(result.error || 'Failed to delete selected products.');
+          }
+          return;
+        }
+
+        // 3. View change
+        const targetView = pendingViewChange;
+        if (targetView) {
+          try { sessionStorage.setItem(sectionGateKey(targetView), '1'); } catch {}
+        }
         setIsPasswordConfirmOpen(false);
         setConfirmPasswordInput('');
+        setConfirmPasswordError('');
         if (confirmPasswordCallback) {
           confirmPasswordCallback();
           setConfirmPasswordCallback(null);
-        } else if (pendingViewChange) {
-          setCurrentView(pendingViewChange);
+        } else if (targetView) {
+          setCurrentView(targetView);
+          try { window.location.hash = targetView; } catch {}
           setPendingViewChange(null);
         }
       } else {
-        setConfirmPasswordError('Incorrect password. Access denied.');
+        setConfirmPasswordError('Incorrect password. Access strictly denied.');
       }
-    } catch (err) {
-      setConfirmPasswordError('An error occurred. Please try again.');
+    } catch (err: any) {
+      setConfirmPasswordError(err?.message || 'An error occurred. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -323,13 +450,22 @@ const AdminDashboard: React.FC = () => {
       const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
       if (disallowed.includes(view)) {
         alert('Access Denied: Your staff account role does not have permission to access this section.');
+        setCurrentView('dashboard');
+        try { window.location.hash = 'dashboard'; } catch {}
         return;
       }
     }
 
-    const sensitiveViews = ['add', 'analytics', 'promo-codes', 'payments', 'global-discount'];
-    if (sensitiveViews.includes(view)) {
-      if (!isSensitiveSessionValid()) {
+    // Password gate — only for analytics and payments
+    const gatedViews = ['analytics', 'payments'];
+    if (gatedViews.includes(view)) {
+      // Check if already unlocked this session for this specific view
+      let alreadyUnlocked = false;
+      try {
+        alreadyUnlocked = sessionStorage.getItem(sectionGateKey(view)) === '1';
+      } catch {}
+
+      if (!alreadyUnlocked) {
         setPendingViewChange(view);
         setConfirmPasswordCallback(action ? () => action() : null);
         setConfirmPasswordInput('');
@@ -343,9 +479,11 @@ const AdminDashboard: React.FC = () => {
       action();
     } else {
       setCurrentView(view);
+      try { window.location.hash = view; } catch {}
     }
     setIsMobileMenuOpen(false);
   };
+
 
   const logAdminAction = async (action: string, details?: any) => {
     try {
@@ -386,117 +524,13 @@ const AdminDashboard: React.FC = () => {
     : null;
 
   const variationManagerModal = variationManagerProduct ? (
-    <VariationManager
-      product={variationManagerProduct}
-      onClose={() => setManagingVariationsProductId(null)}
-    />
+    <Suspense fallback={null}>
+      <VariationManager
+        product={variationManagerProduct}
+        onClose={() => setManagingVariationsProductId(null)}
+      />
+    </Suspense>
   ) : null;
-
-  const [formData, setFormData] = useState<Partial<Product>>({
-    name: '',
-    slug: '',
-    description: '',
-    base_price: 0,
-    raw_price: 0,
-    category: 'research',
-    featured: false,
-    available: true,
-    purity_percentage: 99.0,
-    molecular_weight: '',
-    cas_number: '',
-    sequence: '',
-    storage_conditions: 'Store at -20°C',
-    stock_quantity: 0,
-    stock_manila: 0,
-    stock_davao: 0,
-    image_url: null,
-    safety_sheet_url: null,
-    coa_url: null,
-    discount_active: false,
-    inclusions: null,
-    pre_order_enabled: false,
-    pre_order_est_arrival: null,
-    pre_order_restock_date: null,
-    pre_order_note: null,
-    pre_order_max_qty: 10,
-    dosing_guide: '',
-    dosage_chart_url: '',
-    usage_notes: '',
-    linked_peptalk_id: null
-  });
-
-  type BundleTierDraft = { id?: string; min_quantity: number; discount_percentage: number; active: boolean; most_popular: boolean };
-  const [bundleTiers, setBundleTiers] = useState<BundleTierDraft[]>([]);
-
-  // Load existing bundle tiers when editing a product
-  useEffect(() => {
-    if (currentView !== 'edit' || !editingProduct) {
-      if (currentView === 'add') setBundleTiers([]);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from('product_bundle_tiers')
-        .select('*')
-        .eq('product_id', editingProduct.id)
-        .order('min_quantity', { ascending: true });
-      if (cancelled) return;
-      setBundleTiers(
-        ((data as ProductBundleTier[]) ?? []).map((t) => ({
-          id: t.id,
-          min_quantity: t.min_quantity,
-          discount_percentage: Number(t.discount_percentage),
-          active: t.active,
-          most_popular: t.most_popular ?? false,
-        }))
-      );
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [currentView, editingProduct]);
-
-  const slugify = (name: string) =>
-    name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-
-  const persistBundleTiers = async (productId: string) => {
-    // Replace strategy: delete tiers no longer present, upsert the rest
-    const { data: existing } = await supabase
-      .from('product_bundle_tiers')
-      .select('id')
-      .eq('product_id', productId);
-    const existingIds = new Set(((existing as { id: string }[]) ?? []).map((t) => t.id));
-    const keepIds = new Set(bundleTiers.filter((t) => t.id).map((t) => t.id as string));
-    const toDelete = [...existingIds].filter((id) => !keepIds.has(id));
-    if (toDelete.length > 0) {
-      await supabase.from('product_bundle_tiers').delete().in('id', toDelete);
-    }
-    if (bundleTiers.length > 0) {
-      // Enforce only one most_popular row at a time
-      let popularSeen = false;
-      const rows = bundleTiers.map((t) => {
-        const mp = t.most_popular && !popularSeen;
-        if (mp) popularSeen = true;
-        return {
-          ...(t.id ? { id: t.id } : {}),
-          product_id: productId,
-          min_quantity: Math.max(2, Math.floor(t.min_quantity)),
-          discount_percentage: Number(t.discount_percentage),
-          active: t.active,
-          most_popular: mp,
-          updated_at: new Date().toISOString(),
-        };
-      });
-      const { error } = await supabase
-        .from('product_bundle_tiers')
-        .upsert(rows, { onConflict: 'id' });
-      if (error) throw error;
-    }
-  };
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -512,71 +546,33 @@ const AdminDashboard: React.FC = () => {
     setManagingVariationsProductId(null);
   };
 
-  const handleDeleteProduct = async (id: string) => {
-    if (!isSensitiveSessionValid()) {
-      setConfirmPasswordCallback(() => handleDeleteProduct(id));
-      setConfirmPasswordInput('');
-      setConfirmPasswordError('');
-      setIsPasswordConfirmOpen(true);
-      return;
-    }
+  const handleDeleteProduct = (id: string) => {
+    const productToDelete = products.find(p => String(p.id) === String(id)) || null;
+    if (!productToDelete) return;
 
-    if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-      const productToDelete = products.find(p => p.id === id);
-      setManagingVariationsProductId(null);
-      try {
-        setIsProcessing(true);
-        const result = await deleteProduct(id);
-        if (result.success) {
-          logAdminAction('delete_product', { id, name: productToDelete?.name, data: productToDelete });
-        } else {
-          alert(result.error || 'Failed to delete product');
-        }
-      } catch (error) {
-        alert('Failed to delete product. Please try again.');
-      } finally {
-        setIsProcessing(false);
-      }
-    }
+    setPendingDeleteProduct(productToDelete);
+    setPendingBulkDelete(false);
+    setPendingViewChange(null);
+    setConfirmPasswordCallback(null);
+    setConfirmPasswordInput('');
+    setConfirmPasswordError('');
+    setIsPasswordConfirmOpen(true);
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedProducts.size === 0) {
-      alert('Please select products to delete');
+      fireToast('Please select products to delete', 'warning');
       return;
     }
 
-    if (confirm(`Are you sure you want to delete ${selectedProducts.size} product(s)? This action cannot be undone.`)) {
-      try {
-        setIsProcessing(true);
-        let successCount = 0;
-        let failedCount = 0;
-
-        for (const productId of selectedProducts) {
-          const result = await deleteProduct(productId);
-          if (result.success) {
-            successCount++;
-          } else {
-            failedCount++;
-          }
-        }
-
-        if (failedCount > 0) {
-          alert(`Deleted ${successCount} product(s). ${failedCount} failed.`);
-        } else {
-          alert(`Successfully deleted ${successCount} product(s)`);
-        }
-
-        setSelectedProducts(new Set());
-        setManagingVariationsProductId(null);
-      } catch (error) {
-        alert('Failed to delete products. Please try again.');
-      } finally {
-        setIsProcessing(false);
-      }
-    }
+    setPendingBulkDelete(true);
+    setPendingDeleteProduct(null);
+    setPendingViewChange(null);
+    setConfirmPasswordCallback(null);
+    setConfirmPasswordInput('');
+    setConfirmPasswordError('');
+    setIsPasswordConfirmOpen(true);
   };
-
 
   const toggleSelectProduct = (productId: string) => {
     const newSelected = new Set(selectedProducts);
@@ -589,943 +585,12 @@ const AdminDashboard: React.FC = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedProducts.size === products.length) {
+    if (selectedProducts.size > 0 && selectedProducts.size >= products.length) {
       setSelectedProducts(new Set());
       setManagingVariationsProductId(null);
     } else {
       setSelectedProducts(new Set(products.map(p => p.id)));
     }
-  };
-
-  const handleSaveProduct = async () => {
-    if (!isSensitiveSessionValid()) {
-      setConfirmPasswordCallback(() => handleSaveProduct());
-      setConfirmPasswordInput('');
-      setConfirmPasswordError('');
-      setIsPasswordConfirmOpen(true);
-      return;
-    }
-
-    if (!formData.name || !formData.description || !formData.base_price) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      setIsProcessing(true);
-
-      // Default slug from name if not provided
-      if (!formData.slug || !formData.slug.trim()) {
-        formData.slug = slugify(formData.name || '');
-      }
-
-      // Prepare data for saving - convert undefined to null for nullable fields
-      const prepareData = (data: Partial<Product>) => {
-        const prepared = { ...data };
-        // Convert undefined to null for nullable fields
-        if (prepared.image_url === undefined) prepared.image_url = null;
-        if (prepared.safety_sheet_url === undefined) prepared.safety_sheet_url = null;
-        if (prepared.coa_url === undefined) prepared.coa_url = null;
-        if (prepared.discount_price === undefined) prepared.discount_price = null;
-        if (prepared.molecular_weight === undefined) prepared.molecular_weight = null;
-        if (prepared.cas_number === undefined) prepared.cas_number = null;
-        if (prepared.sequence === undefined) prepared.sequence = null;
-        if (prepared.inclusions === undefined) prepared.inclusions = null;
-        if (prepared.pre_order_est_arrival === undefined) prepared.pre_order_est_arrival = null;
-        if (prepared.pre_order_restock_date === undefined) prepared.pre_order_restock_date = null;
-        if (prepared.pre_order_note === undefined) prepared.pre_order_note = null;
-        return prepared;
-      };
-
-      const pickProductDbFields = (data: Partial<Product>) => {
-        const allowedKeys: (keyof Product)[] = [
-          'name',
-          'slug',
-          'description',
-          'category',
-          'base_price',
-          'raw_price',
-          'discount_price',
-          'discount_active',
-          'purity_percentage',
-          'molecular_weight',
-          'cas_number',
-          'sequence',
-          'storage_conditions',
-          'stock_quantity',
-          'stock_manila',
-          'stock_davao',
-          'available',
-          'featured',
-          'image_url',
-          'safety_sheet_url',
-          'coa_url',
-          'pre_order_enabled',
-          'pre_order_est_arrival',
-          'pre_order_restock_date',
-          'pre_order_note',
-          'pre_order_max_qty',
-          'dosing_guide',
-          'dosage_chart_url',
-          'usage_notes',
-          'linked_peptalk_id',
-        ];
-
-        const dbPayload: Partial<Product> = {};
-        for (const key of allowedKeys) {
-          if (key in data) {
-            // @ts-expect-error index by key
-            dbPayload[key] = data[key];
-          }
-        }
-        return dbPayload;
-      };
-
-      if (editingProduct) {
-        // Remove read-only fields and relations before updating
-        const { id, created_at, updated_at, variations, ...updateData } = formData as Product;
-
-        // EXPLICITLY ensure image_url is included (even if it's null/undefined)
-        // Get image_url directly from formData to ensure we have the latest value
-        const imageUrlValue = formData.image_url !== undefined ? formData.image_url : null;
-
-        // Create update payload - ensure image_url is always included
-        const updatePayload: any = {
-          ...updateData,
-        };
-
-        // ALWAYS explicitly set image_url, even if it's null
-        updatePayload.image_url = imageUrlValue;
-
-        const preparedData = prepareData(updatePayload);
-
-        // Triple-check: Force image_url to be in the payload
-        preparedData.image_url = imageUrlValue;
-
-        // Strip out any fields that don't exist on the products table
-        const dbPayload = pickProductDbFields(preparedData);
-
-        // Log to verify it's included
-        console.log('🔍 Final payload check:', {
-          has_image_url: 'image_url' in dbPayload,
-          image_url_value: dbPayload.image_url,
-          image_url_type: typeof dbPayload.image_url,
-          all_keys: Object.keys(dbPayload)
-        });
-
-        console.log('💾 Saving product update:', {
-          id: editingProduct.id,
-          image_url: dbPayload.image_url,
-          image_url_type: typeof dbPayload.image_url,
-          image_url_length: dbPayload.image_url?.length || 0,
-          fullPayload: dbPayload
-        });
-
-        const result = await updateProduct(editingProduct.id, dbPayload);
-        if (!result.success) {
-          console.error('❌ Update failed:', result.error);
-          throw new Error(result.error || 'Failed to update product');
-        }
-        logAdminAction('update_product', { id: editingProduct.id, name: dbPayload.name, previous: editingProduct, new: dbPayload });
-
-        try {
-          await persistBundleTiers(editingProduct.id);
-        } catch (e) {
-          console.error('❌ Bundle tier save failed:', e);
-          alert(`Product saved but bundle tier update failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
-        }
-
-        // Verify the image was saved
-        if (result.data && result.data.image_url !== preparedData.image_url) {
-          console.warn('⚠️ Image URL mismatch after save:', {
-            sent: preparedData.image_url,
-            received: result.data.image_url
-          });
-        }
-
-        console.log('✅ Product updated successfully', {
-          saved_image_url: result.data?.image_url
-        });
-      } else {
-        // Remove non-creatable fields for new products
-        const { variations, ...createData } = formData as any;
-
-        // EXPLICITLY ensure image_url is included
-        const createPayload = {
-          ...createData,
-          image_url: formData.image_url !== undefined ? formData.image_url : null,
-        };
-
-        const preparedData = prepareData(createPayload);
-
-        // Strip out any fields that don't exist on the products table for insert
-        const dbPayload = pickProductDbFields(preparedData);
-        console.log('💾 Creating new product:', {
-          name: dbPayload.name,
-          image_url: dbPayload.image_url,
-          fullPayload: dbPayload
-        });
-
-        const result = await addProduct(dbPayload as Omit<Product, 'id' | 'created_at' | 'updated_at'>);
-        if (!result.success) {
-          throw new Error(result.error);
-        }
-        console.log('✅ Product created successfully');
-        logAdminAction('create_product', { name: dbPayload.name, data: dbPayload });
-
-        if (result.data?.id && bundleTiers.length > 0) {
-          try {
-            await persistBundleTiers(result.data.id);
-          } catch (e) {
-            console.error('❌ Bundle tier save failed:', e);
-            alert(`Product created but bundle tier save failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
-          }
-        }
-      }
-
-      // Refresh products to ensure UI is updated
-      console.log('🔄 Refreshing products after save...');
-      await refreshProducts();
-      console.log('✅ Products refreshed');
-
-      // If we were editing, verify the image was saved
-      if (editingProduct && formData.image_url) {
-        console.log('🔍 Verifying saved image URL:', formData.image_url);
-        // The refresh should have updated the products list with the new image
-      }
-
-      setCurrentView('products');
-      setEditingProduct(null);
-      setManagingVariationsProductId(null);
-    } catch (error) {
-      console.error('❌ Error saving product:', error);
-      alert(`Failed to save product: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setCurrentView(currentView === 'add' || currentView === 'edit' ? 'products' : 'dashboard');
-    setEditingProduct(null);
-    setManagingVariationsProductId(null);
-  };
-
-  const renderFormView = () => {
-    return (
-      <div className="max-w-5xl mx-auto px-1 sm:px-4 py-3 sm:py-6">
-        {/* Form Header with Save / Cancel */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-700 shrink-0"
-              title="Back to products"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-slate-800 truncate">
-                {currentView === 'edit' ? 'Edit Product' : 'Add New Product'}
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5 truncate">
-                {currentView === 'edit' ? `Editing: ${formData.name || 'Untitled'}` : 'Fill in the details below to create a new product'}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 justify-end w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex-1 sm:flex-initial px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
-            >
-              <span className="flex items-center gap-2">
-                <X className="w-4 h-4" />
-                Cancel
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveProduct}
-              disabled={isProcessing}
-              className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="flex items-center gap-2">
-                {isProcessing ? (
-                  <>
-                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    {currentView === 'edit' ? 'Save Changes' : 'Create Product'}
-                  </>
-                )}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
-          {/* Basic Information */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">📝</span>
-              Basic Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label htmlFor="admindashboard-product-name" className="block text-xs font-semibold text-slate-600 mb-1.5">Product Name *</label>
-                <input id="admindashboard-product-name" name="product_name" type="text"
-                  value={formData.name || ''}
-                  onChange={(e) => {
-                    const newName = e.target.value;
-                    setFormData((prev) => {
-                      const autoSlug = !prev.slug || prev.slug === slugify(prev.name || '');
-                      return {
-                        ...prev,
-                        name: newName,
-                        slug: autoSlug ? slugify(newName) : prev.slug,
-                      };
-                    });
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="e.g., BPC-157 5mg"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="admindashboard-url-slug" className="block text-xs font-semibold text-slate-600 mb-1.5">URL Slug</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-400">/</span>
-                  <input id="admindashboard-url-slug" name="url_slug" type="text"
-                    value={formData.slug || ''}
-                    onChange={(e) =>
-                      setFormData({ ...formData, slug: slugify(e.target.value) })
-                    }
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                    placeholder="bpc-157-5mg"
-                  />
-                </div>
-                <p className="text-[10px] text-slate-450 mt-1">
-                  Auto-generated from the name. Edit to customize the product URL.
-                </p>
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="admindashboard-description" className="block text-xs font-semibold text-slate-600 mb-1.5">Description *</label>
-                <textarea id="admindashboard-description" name="description" value={formData.description || ''}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="Detailed product description..."
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-category" className="block text-xs font-semibold text-slate-600 mb-1.5">Category *</label>
-                <select id="admindashboard-category" name="category" value={formData.category || ''}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800 bg-white"
-                >
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-base-price" className="block text-xs font-semibold text-slate-600 mb-1.5">Base Price (₱) *</label>
-                <input id="admindashboard-base-price" name="base_price" type="number"
-                  step="1"
-                  value={formData.base_price || ''}
-                  onChange={(e) => setFormData({ ...formData, base_price: Number(e.target.value) })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="0"
-                />
-                {editingProduct && editingProduct.variations && editingProduct.variations.length > 0 && (
-                  <p className="text-xs text-orange-605 mt-2 flex items-start gap-1.5 bg-orange-50/50 p-2.5 rounded-xl border border-orange-200">
-                    <span className="text-sm">⚠️</span>
-                    <span>This product has <strong>{editingProduct.variations.length} size variation(s)</strong>. Customers will see those prices instead of this base price. Use the <strong>"Manage Sizes"</strong> button to update the prices shown on the website.</span>
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-raw-price" className="block text-xs font-semibold text-slate-600 mb-1.5">Raw Price (₱)</label>
-                <input id="admindashboard-raw-price" name="raw_price" type="number"
-                  step="1"
-                  value={formData.raw_price ?? ''}
-                  onChange={(e) => setFormData({ ...formData, raw_price: Number(e.target.value) })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="0"
-                />
-                <p className="text-[10px] text-slate-450 mt-1">
-                  Wholesale / unit cost. Used in Sales Analytics to compute profit when a variation has no cost price.
-                </p>
-                {formData.base_price && formData.raw_price ? (
-                  <p className="text-[10px] text-emerald-600 mt-1 font-semibold">
-                    Margin: ₱{(Number(formData.base_price) - Number(formData.raw_price)).toLocaleString()} ({(((Number(formData.base_price) - Number(formData.raw_price)) / Number(formData.base_price)) * 100).toFixed(1)}%)
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </div>
-
-          {/* Scientific Details */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">🧪</span>
-              Scientific Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="admindashboard-purity" className="block text-xs font-semibold text-slate-650 mb-1.5">Purity (%)</label>
-                <input id="admindashboard-purity" name="purity" type="number"
-                  step="0.1"
-                  value={formData.purity_percentage || ''}
-                  onChange={(e) => setFormData({ ...formData, purity_percentage: Number(e.target.value) })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="99.0"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-molecular-weight" className="block text-xs font-semibold text-slate-650 mb-1.5">Molecular Weight</label>
-                <input id="admindashboard-molecular-weight" name="molecular_weight" type="text"
-                  value={formData.molecular_weight || ''}
-                  onChange={(e) => setFormData({ ...formData, molecular_weight: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="e.g., 1419.55 g/mol"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-cas-number" className="block text-xs font-semibold text-slate-650 mb-1.5">CAS Number</label>
-                <input id="admindashboard-cas-number" name="cas_number" type="text"
-                  value={formData.cas_number || ''}
-                  onChange={(e) => setFormData({ ...formData, cas_number: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="e.g., 137525-51-0"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-storage-conditions" className="block text-xs font-semibold text-slate-650 mb-1.5">Storage Conditions</label>
-                <input id="admindashboard-storage-conditions" name="storage_conditions" type="text"
-                  value={formData.storage_conditions || ''}
-                  onChange={(e) => setFormData({ ...formData, storage_conditions: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="Store at -20°C"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="admindashboard-sequence" className="block text-xs font-semibold text-slate-655 mb-1.5">Sequence</label>
-                <input id="admindashboard-sequence" name="sequence" type="text"
-                  value={formData.sequence || ''}
-                  onChange={(e) => setFormData({ ...formData, sequence: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="e.g., GEPPPGKPADDAGLV"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Complete Set Inclusions */}
-          <div className="bg-gradient-to-r from-amber-50/50 to-slate-50 border border-amber-100 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-base">📦</span>
-                Complete Set Inclusions
-              </h3>
-              <label htmlFor="admindashboard-if-e-target-checked-setformdat" className="flex items-center gap-2 cursor-pointer">
-                <input id="admindashboard-checkbox-2" name="checkbox_2" type="checkbox"
-                  checked={formData.inclusions !== null && formData.inclusions !== undefined}
-                  onChange={(e) => {
-                    if (!e.target.checked) {
-                      setFormData({ ...formData, inclusions: null });
-                    } else {
-                      setFormData({ ...formData, inclusions: formData.inclusions || [] });
-                    }
-                  }}
-                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                />
-                <span className="text-xs font-bold text-slate-700">This is a SET product</span>
-              </label>
-            </div>
-            {formData.inclusions !== null && formData.inclusions !== undefined ? (
-              <div>
-                <label htmlFor="admindashboard-if-e-target-checked-setformdat" className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  What's included in this set? (One item per line)
-                </label>
-                <textarea id="admindashboard-if-e-target-checked-setformdat" name="if_e_target_checked_setformdat" value={formData.inclusions?.join('\n') || ''}
-                  onChange={(e) => {
-                    const items = e.target.value.split('\n').filter(item => item.trim() !== '');
-                    setFormData({ ...formData, inclusions: items.length > 0 ? items : null });
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800 min-h-[80px]"
-                  placeholder="Example:&#10;Syringe for Reconstitution&#10;6 Insulin Syringes (7pcs for 30mg)&#10;10pcs Alcohol Pads..."
-                  rows={6}
-                />
-                <p className="text-xs text-slate-400 mt-2 flex items-start gap-1.5">
-                  <span className="text-blue-500 font-bold">💡</span>
-                  <span>Enter each item on a new line. These will be displayed as a checklist on the product detail page. Check "This is a SET product" above to enable this feature.</span>
-                </p>
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-xs text-slate-400 mb-2">Enable "This is a SET product" to add inclusions</p>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, inclusions: [] })}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
-                >
-                  Enable SET feature
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Pre-Order Configuration */}
-          <div className="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-base">🔄</span>
-                Pre-Order Configuration
-              </h3>
-              <label htmlFor="admindashboard-setformdata-formdata-pre-order" className="flex items-center gap-2 cursor-pointer">
-                <input id="admindashboard-checkbox-4" name="checkbox_4" type="checkbox"
-                  checked={formData.pre_order_enabled || false}
-                  onChange={(e) => setFormData({ ...formData, pre_order_enabled: e.target.checked })}
-                  className="w-4 h-4 text-blue-605 rounded border-slate-300 focus:ring-blue-500"
-                />
-                <span className="text-xs font-bold text-slate-700">Enable Pre-Order</span>
-              </label>
-            </div>
-            {formData.pre_order_enabled && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                <div>
-                  <label htmlFor="admindashboard-setformdata-formdata-pre-order" className="block text-xs font-semibold text-slate-650 mb-1.5">Estimated Arrival</label>
-                  <input id="admindashboard-setformdata-formdata-pre-order" name="setformdata_formdata_pre_order" type="text"
-                    value={formData.pre_order_est_arrival || ''}
-                    onChange={(e) => setFormData({ ...formData, pre_order_est_arrival: e.target.value || null })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                    placeholder="e.g., June 20, 2026"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="admindashboard-restock-date" className="block text-xs font-semibold text-slate-650 mb-1.5">Restock Date</label>
-                  <input id="admindashboard-restock-date" name="restock_date" type="date"
-                    value={formData.pre_order_restock_date || ''}
-                    onChange={(e) => setFormData({ ...formData, pre_order_restock_date: e.target.value || null })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="admindashboard-max-pre-order-quantity" className="block text-xs font-semibold text-slate-655 mb-1.5">Max Pre-Order Quantity</label>
-                  <input id="admindashboard-max-pre-order-quantity" name="max_pre_order_quantity" type="number"
-                    min={1}
-                    value={formData.pre_order_max_qty || 10}
-                    onChange={(e) => setFormData({ ...formData, pre_order_max_qty: Number(e.target.value) || 10 })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                    placeholder="10"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="admindashboard-pre-order-note" className="block text-xs font-semibold text-slate-655 mb-1.5">Pre-Order Note</label>
-                  <input id="admindashboard-pre-order-note" name="pre_order_note" type="text"
-                    value={formData.pre_order_note || ''}
-                    onChange={(e) => setFormData({ ...formData, pre_order_note: e.target.value || null })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                    placeholder="e.g., Limited batch — ships within 5-7 days"
-                  />
-                </div>
-              </div>
-            )}
-            {!formData.pre_order_enabled && (
-              <p className="text-xs text-slate-405 mt-1">
-                Enable pre-order to allow customers to reserve this product before stock arrives. A "Pre-Order" badge will appear on the product card.
-              </p>
-            )}
-          </div>
-
-          {/* Inventory */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">📦</span>
-              Inventory & Availability
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="admindashboard-manila-stock" className="block text-xs font-semibold text-slate-650 mb-1.5">Manila Stock</label>
-                <input id="admindashboard-manila-stock" name="manila_stock" type="number"
-                  value={formData.stock_manila ?? 0}
-                  onChange={(e) => {
-                    const manila = Number(e.target.value);
-                    const davao = formData.stock_davao ?? 0;
-                    setFormData({ 
-                      ...formData, 
-                      stock_manila: manila, 
-                      stock_quantity: manila + davao 
-                    });
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label htmlFor="admindashboard-davao-stock" className="block text-xs font-semibold text-slate-650 mb-1.5">Davao Stock</label>
-                <input id="admindashboard-davao-stock" name="davao_stock" type="number"
-                  value={formData.stock_davao ?? 0}
-                  onChange={(e) => {
-                    const davao = Number(e.target.value);
-                    const manila = formData.stock_manila ?? 0;
-                    setFormData({ 
-                      ...formData, 
-                      stock_davao: davao, 
-                      stock_quantity: manila + davao 
-                    });
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label htmlFor="admindashboard-total-stock-auto" className="block text-xs font-semibold text-slate-650 mb-1.5">Total Stock (Auto)</label>
-                <input id="admindashboard-total-stock-auto" name="total_stock_auto" type="number"
-                  value={(formData.stock_manila ?? 0) + (formData.stock_davao ?? 0)}
-                  disabled
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-gray-50 text-gray-500 text-sm cursor-not-allowed" autoComplete="off" />
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4">
-              <label htmlFor="admindashboard-setformdata-formdata-featured-" className="flex items-center gap-2 cursor-pointer">
-                <input id="admindashboard-checkbox-6" name="checkbox_6" type="checkbox"
-                  checked={formData.featured || false}
-                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                  className="w-4 h-4 text-blue-655 rounded border-slate-300 focus:ring-blue-500"
-                />
-                <span className="text-xs font-bold text-slate-700">⭐ Featured</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input id="admindashboard-setformdata-formdata-featured-" name="setformdata_formdata_featured_" type="checkbox"
-                  checked={formData.available ?? true}
-                  onChange={(e) => setFormData({ ...formData, available: e.target.checked })}
-                  className="w-4 h-4 text-emerald-650 rounded border-slate-300 focus:ring-emerald-500"
-                />
-                <span className="text-xs font-bold text-slate-700">✅ Available</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Discount */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">💰</span>
-              Discount Pricing
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="admindashboard-discount-price" className="block text-xs font-semibold text-slate-650 mb-1.5">Discount Price (₱)</label>
-                <input id="admindashboard-discount-price" name="discount_price" type="number"
-                  step="1"
-                  value={formData.discount_price || ''}
-                  onChange={(e) => setFormData({ ...formData, discount_price: Number(e.target.value) || null })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="flex items-center pt-0 md:pt-6">
-                <label htmlFor="admindashboard-enable-discount-checkbox" className="flex items-center gap-2 cursor-pointer">
-                  <input id="admindashboard-enable-discount-checkbox" name="discount_active" type="checkbox"
-                    checked={formData.discount_active || false}
-                    onChange={(e) => setFormData({ ...formData, discount_active: e.target.checked })}
-                    className="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"
-                  />
-                  <span className="text-xs font-bold text-slate-700">🏷️ Enable Discount</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Image */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">🖼️</span>
-              Product Image
-            </h3>
-            <p className="text-xs text-slate-404 mb-3">
-              Upload a product image (optional). This will appear on the customer-facing site.
-            </p>
-            <ImageUpload
-              currentImage={formData.image_url || undefined}
-              onImageChange={(imageUrl) => {
-                let newImageUrl: string | null = null;
-                if (imageUrl) {
-                  const trimmed = imageUrl.trim();
-                  newImageUrl = trimmed === '' ? null : trimmed;
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  image_url: newImageUrl,
-                }));
-              }}
-            />
-          </div>
-
-          {/* Certificate of Analysis (CoA) */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">📄</span>
-              Certificate of Analysis (COA)
-            </h3>
-            <p className="text-xs text-slate-404 mb-3">
-              Upload a COA PDF file or lab test report image, or provide a direct URL. Renders inline on the product page and as a "View COA" button beside Add to Cart.
-            </p>
-            <ImageUpload
-              currentImage={formData.coa_url || undefined}
-              onImageChange={(coaUrl) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  coa_url: coaUrl ? coaUrl.trim() : null,
-                }));
-              }}
-              folder="coa-images"
-              accept="image/*,.pdf,application/pdf"
-              title="Click to upload COA document or lab image"
-              subtitle="Supports PDF documents & all image formats (JPG, PNG, WebP) - max 10MB"
-              urlPlaceholder="https://example.com/coa.pdf"
-              urlLabel="Or enter direct COA URL (PDF or Image link)"
-            />
-          </div>
-
-          {/* Dosing Guide & Peptide Calculator */}
-          <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <span className="text-base">📋</span>
-                Dosing Guide, Instructions &amp; PepTalk Link
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleText = `• Reconstitution: Reconstitute lyophilized powder using 1.0 mL to 2.0 mL of Bacteriostatic Water (0.9% Benzyl Alcohol). Slowly drip down the glass vial wall; gently swirl and do not shake.\n• Dosing Protocol: Administer subcutaneously using a sterile calibrated U-100 insulin syringe according to target research protocol.\n• Storage: Lyophilized powder stores at -20°C. Once reconstituted, refrigerate at 2°C–8°C for up to 30 days.`;
-                  const sampleNotes = `Strictly for laboratory research and analytical in vitro purposes. Not for human consumption. Keep refrigerated and light-protected after reconstitution.`;
-                  setFormData(prev => ({
-                    ...prev,
-                    dosing_guide: prev.dosing_guide || sampleText,
-                    usage_notes: prev.usage_notes || sampleNotes
-                  }));
-                  fireToast('Standard peptide protocol populated!', 'info');
-                }}
-                className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>✨ Auto-Fill Standard Protocol</span>
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label htmlFor="admindashboard-linked-peptalk-protocol-video" className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  Linked PepTalk Protocol / Guide (Customer Redirect on &quot;Open Guide&quot;)
-                </label>
-                <select id="admindashboard-linked-peptalk-protocol-video" name="linked_peptalk_protocol_video" value={formData.linked_peptalk_id || ''}
-                  onChange={(e) => setFormData({ ...formData, linked_peptalk_id: e.target.value || null })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                >
-                  <option value="">Auto (Redirect to PepTalk search by compound name)</option>
-                  {peptalkArticles.length > 0 && (
-                    <optgroup label="📖 PepTalk Articles / Guides">
-                      {peptalkArticles.map(a => (
-                        <option key={`art-${a.id}`} value={a.id}>Article: {a.title}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {peptalkVideos.length > 0 && (
-                    <optgroup label="🎥 PepTalk Video Protocols">
-                      {peptalkVideos.map(v => (
-                        <option key={`vid-${v.id}`} value={v.id}>Video: {v.title}</option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Customers who click &quot;Open Guide&quot; will be automatically redirected to this interactive protocol in PepTalk.
-                </p>
-              </div>
-
-              <div className="md:col-span-2">
-                <label htmlFor="admindash-dosing-instructions" className="block text-xs font-semibold text-slate-600 mb-1.5">Dosing Instructions (Text Summary)</label>
-                <textarea id="admindash-dosing-instructions" name="dosing_guide" value={formData.dosing_guide || ''}
-                  onChange={(e) => setFormData({ ...formData, dosing_guide: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="Explain dosage cycles, reconstitution protocols, etc..."
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-dosage-reference-chart-image-u" className="block text-xs font-semibold text-slate-600 mb-1.5">Dosage Reference Chart Image URL</label>
-                <input id="admindashboard-dosage-reference-chart-image-u" name="dosage_reference_chart_image_u" type="url"
-                  value={formData.dosage_chart_url || ''}
-                  onChange={(e) => setFormData({ ...formData, dosage_chart_url: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="https://example.com/dosage-chart.png"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admindashboard-important-usage-notes" className="block text-xs font-semibold text-slate-600 mb-1.5">Important Usage &amp; Safety Notes</label>
-                <textarea id="admindashboard-important-usage-notes" name="important_usage_notes" value={formData.usage_notes || ''}
-                  onChange={(e) => setFormData({ ...formData, usage_notes: e.target.value })}
-                  rows={2}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-800"
-                  placeholder="e.g. For research purposes only. Reconstitute with Bacteriostatic Water."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Bundle Discounts */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-base">🎁</span>
-              Bundle Discounts (per-product quantity)
-            </h3>
-            <p className="text-xs text-slate-404 mb-3">
-              Auto-applied when a customer buys 2 or more of this product. Highest matching tier wins. Bundle discount can't be combined with promo codes.
-            </p>
-
-            <div className="space-y-2">
-              {bundleTiers.length === 0 && (
-                <p className="text-xs text-slate-404 italic">No bundle tiers — add one to enable bundle discounts.</p>
-              )}
-              {bundleTiers.map((tier, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 border border-slate-100 rounded-xl p-3">
-                  <div className="flex-1 grid grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="admindashboard-min-quantity" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Min quantity</label>
-                      <input id="admindashboard-min-quantity" name="min_quantity" type="number"
-                        min={2}
-                        value={tier.min_quantity}
-                        onChange={(e) => {
-                          const v = Math.max(2, Number(e.target.value) || 2);
-                          setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, min_quantity: v } : t)));
-                        }}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-800"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="admindashboard-discount" className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Discount %</label>
-                      <input id="admindashboard-discount" name="discount" type="number"
-                        min={0.1}
-                        max={100}
-                        step="0.1"
-                        value={tier.discount_percentage}
-                        onChange={(e) => {
-                          const v = Math.min(100, Math.max(0, Number(e.target.value) || 0));
-                          setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, discount_percentage: v } : t)));
-                        }}
-                        className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-800"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <label htmlFor="admindashboard-setbundletiers-bundletiers-map" className="flex items-center gap-1.5 text-xs font-semibold text-slate-650 cursor-pointer">
-                      <input id="admindashboard-checkbox-10" name="checkbox_10" type="checkbox"
-                        checked={tier.active}
-                        onChange={(e) =>
-                          setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, active: e.target.checked } : t)))
-                        }
-                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                      />
-                      Active
-                    </label>
-                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-650 cursor-pointer">
-                      <input id="admindashboard-setbundletiers-bundletiers-map" name="setbundletiers_bundletiers_map" type="checkbox"
-                        checked={tier.most_popular}
-                        onChange={(e) =>
-                          setBundleTiers(bundleTiers.map((t, i) => ({
-                            ...t,
-                            most_popular: i === idx ? e.target.checked : false,
-                          })))
-                        }
-                        className="w-4 h-4 text-blue-605 rounded border-slate-300 focus:ring-blue-500"
-                      />
-                      Most Popular
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setBundleTiers(bundleTiers.filter((_, i) => i !== idx))}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all ml-auto"
-                      title="Remove tier"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                const nextMin = bundleTiers.length === 0
-                  ? 2
-                  : Math.max(...bundleTiers.map((t) => t.min_quantity)) + 1;
-                setBundleTiers([...bundleTiers, { min_quantity: nextMin, discount_percentage: 5, active: true, most_popular: false }]);
-              }}
-              className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-slate-700 bg-white"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add bundle tier
-            </button>
-          </div>
-
-        </div>
-
-        {/* Sticky Footer Save / Cancel Bar */}
-        <div className="sticky bottom-0 z-10 mt-6 -mx-4 px-4 py-4 bg-white/90 backdrop-blur-md border-t border-slate-200 rounded-b-2xl">
-          <div className="flex items-center justify-between max-w-5xl mx-auto">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200"
-            >
-              <span className="flex items-center gap-2">
-                <X className="w-4 h-4" />
-                Cancel
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={handleSaveProduct}
-              disabled={isProcessing}
-              className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="flex items-center gap-2">
-                {isProcessing ? (
-                  <>
-                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    {currentView === 'edit' ? 'Save Changes' : 'Create Product'}
-                  </>
-                )}
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const renderProductsListView = () => {
@@ -1534,11 +599,42 @@ const AdminDashboard: React.FC = () => {
     const activeCount = products.filter(p => p.available).length;
     const inactiveCount = totalCount - activeCount;
     const featuredCount = products.filter(p => p.featured).length;
-    const lowStockCount = products.filter(p => (Number(p.stock_quantity) || 0) > 0 && (Number(p.stock_quantity) || 0) <= 5).length;
-    const outOfStockCount = products.filter(p => (Number(p.stock_quantity) || 0) === 0).length;
-    const totalInventoryValue = products.reduce((acc, p) => acc + ((Number(p.base_price) || 0) * (Number(p.stock_quantity) || 0)), 0);
-    const manilaStockTotal = products.reduce((sum, p) => sum + (Number(p.stock_manila) || 0), 0);
-    const davaoStockTotal = products.reduce((sum, p) => sum + (Number(p.stock_davao) || 0), 0);
+    const getProductRealStock = (p: Product) => {
+      const hasVars = !!(p.variations && p.variations.length > 0);
+      let s = Number(p.stock_quantity) || 0;
+      let m = Number(p.stock_manila) || 0;
+      let d = Number(p.stock_davao) || 0;
+
+      if (hasVars && p.variations) {
+        const vSum = p.variations.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0);
+        const vMnl = p.variations.reduce((sum, v) => sum + (Number((v as any).stock_manila) || 0), 0);
+        const vDvo = p.variations.reduce((sum, v) => sum + (Number((v as any).stock_davao) || 0), 0);
+        if (vSum > 0 || s === 0) s = vSum;
+        if (vMnl > 0 || vDvo > 0) {
+          m = vMnl;
+          d = vDvo;
+        } else if (s > 0 && m === 0 && d === 0) {
+          m = s;
+          d = 0;
+        }
+      } else if (s > 0 && m === 0 && d === 0) {
+        m = s;
+        d = 0;
+      }
+      return { total: s, mnl: m, dvo: d };
+    };
+
+    const lowStockCount = products.filter(p => {
+      const { total } = getProductRealStock(p);
+      return total > 0 && total <= 5;
+    }).length;
+    const outOfStockCount = products.filter(p => getProductRealStock(p).total === 0).length;
+    const totalInventoryValue = products.reduce((acc, p) => {
+      const { total } = getProductRealStock(p);
+      return acc + ((Number(p.base_price) || 0) * total);
+    }, 0);
+    const manilaStockTotal = products.reduce((sum, p) => sum + getProductRealStock(p).mnl, 0);
+    const davaoStockTotal = products.reduce((sum, p) => sum + getProductRealStock(p).dvo, 0);
 
     // Filter & search logic
     const filteredProducts = products.filter(product => {
@@ -1564,7 +660,7 @@ const AdminDashboard: React.FC = () => {
       if (catalogFilterFeatured === 'featured' && !product.featured) return false;
       if (catalogFilterFeatured === 'not-featured' && product.featured) return false;
       // Stock filter
-      const stock = Number(product.stock_quantity) || 0;
+      const stock = getProductRealStock(product).total;
       if (catalogFilterStock === 'low' && (stock === 0 || stock > 5)) return false;
       if (catalogFilterStock === 'out' && stock > 0) return false;
 
@@ -1575,9 +671,16 @@ const AdminDashboard: React.FC = () => {
     const sortedProducts = [...filteredProducts].sort((a, b) => {
       switch (catalogSortBy) {
         case 'newest': {
-          const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
-          const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
-          return timeB - timeA;
+          const timeA = Math.max(
+            a.updated_at ? new Date(a.updated_at).getTime() : 0,
+            a.created_at ? new Date(a.created_at).getTime() : 0
+          );
+          const timeB = Math.max(
+            b.updated_at ? new Date(b.updated_at).getTime() : 0,
+            b.created_at ? new Date(b.created_at).getTime() : 0
+          );
+          if (timeB !== timeA) return timeB - timeA;
+          return (a.name || '').localeCompare(b.name || '');
         }
         case 'oldest': {
           const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -1591,9 +694,9 @@ const AdminDashboard: React.FC = () => {
         case 'price-desc':
           return (Number(b.base_price) || 0) - (Number(a.base_price) || 0);
         case 'stock-asc':
-          return (Number(a.stock_quantity) || 0) - (Number(b.stock_quantity) || 0);
+          return getProductRealStock(a).total - getProductRealStock(b).total;
         case 'stock-desc':
-          return (Number(b.stock_quantity) || 0) - (Number(a.stock_quantity) || 0);
+          return getProductRealStock(b).total - getProductRealStock(a).total;
         case 'sales':
           return (Number(b.sales_count) || 0) - (Number(a.sales_count) || 0);
         default:
@@ -1918,7 +1021,7 @@ const AdminDashboard: React.FC = () => {
                 onChange={(e) => setCatalogSortBy(e.target.value as any)}
                 className="px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
-                <option value="newest">Newest First</option>
+                <option value="newest">Latest / Newest First</option>
                 <option value="oldest">Oldest First</option>
                 <option value="name">Name (A → Z)</option>
                 <option value="price-desc">Price (High → Low)</option>
@@ -2084,9 +1187,31 @@ const AdminDashboard: React.FC = () => {
                     const isDropdownActive = activeDropdownProductId === product.id;
                     const isNearBottom = index >= Math.max(1, sortedProducts.length - 2) && sortedProducts.length >= 2;
                     const categoryObj = categories.find(c => c.id === product.category);
-                    const stock = Number(product.stock_quantity) || 0;
-                    const mnlStock = Number(product.stock_manila) || 0;
-                    const dvoStock = Number(product.stock_davao) || 0;
+                    // Calculate real stock across variations or direct product allocations
+                    let stock = Number(product.stock_quantity) || 0;
+                    let mnlStock = Number(product.stock_manila) || 0;
+                    let dvoStock = Number(product.stock_davao) || 0;
+
+                    if (hasVariations && product.variations && product.variations.length > 0) {
+                      const totalVarStock = product.variations.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0);
+                      const totalVarMnl = product.variations.reduce((sum, v) => sum + (Number((v as any).stock_manila) || 0), 0);
+                      const totalVarDvo = product.variations.reduce((sum, v) => sum + (Number((v as any).stock_davao) || 0), 0);
+
+                      if (totalVarStock > 0 || stock === 0) {
+                        stock = totalVarStock;
+                      }
+                      if (totalVarMnl > 0 || totalVarDvo > 0) {
+                        mnlStock = totalVarMnl;
+                        dvoStock = totalVarDvo;
+                      } else if (stock > 0 && mnlStock === 0 && dvoStock === 0) {
+                        mnlStock = stock;
+                        dvoStock = 0;
+                      }
+                    } else if (stock > 0 && mnlStock === 0 && dvoStock === 0) {
+                      // Standalone product with total stock entered: assign available units to primary hub (Manila)
+                      mnlStock = stock;
+                      dvoStock = 0;
+                    }
 
                     return (
                       <React.Fragment key={product.id}>
@@ -2590,6 +1715,13 @@ const AdminDashboard: React.FC = () => {
                       >
                         {product.available ? <Eye className="w-3.5 h-3.5 text-emerald-600" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
                       </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition-colors cursor-pointer border border-rose-100"
+                        title="Delete Product"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -2981,7 +2113,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-mono font-bold text-slate-900 dark:text-white">
-                              {order.order_number || `#${order.id.slice(0, 8).toUpperCase()}`}
+                              {order.order_number || (order.id ? `#${String(order.id).slice(0, 8).toUpperCase()}` : '#ORDER')}
                             </span>
                             <span className="text-slate-400">•</span>
                             <span className="font-extrabold text-slate-700 dark:text-slate-200 truncate">
@@ -3252,7 +2384,7 @@ const AdminDashboard: React.FC = () => {
                           {verif.orders?.customer_name || 'Customer Proof'}
                         </span>
                         <span className="text-[10.5px] text-slate-400 font-mono">
-                          {verif.orders?.order_number || `Order #${verif.order_id.slice(0, 8).toUpperCase()}`}
+                          {verif.orders?.order_number || (verif.order_id ? `Order #${String(verif.order_id).slice(0, 8).toUpperCase()}` : 'Order')}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -3398,7 +2530,39 @@ const AdminDashboard: React.FC = () => {
       case 'categories':
         return <CategoryManager onBack={() => setCurrentView('dashboard')} adminEmail={adminSession?.email || 'admin@slimdose.ph'} adminRole={adminSession?.role || 'admin'} />;
       case 'payments':
-        return <PaymentMethodManager onBack={() => setCurrentView('dashboard')} adminEmail={adminSession?.email || 'admin@slimdose.ph'} adminRole={adminSession?.role || 'admin'} />;
+        if (typeof window !== 'undefined' && sessionStorage.getItem(sectionGateKey('payments')) !== '1') {
+          return (
+            <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl text-center space-y-4">
+              <div className="w-14 h-14 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20">
+                <Lock className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Payment Methods Protected</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                This section is protected by security authentication. Access is strictly denied until authorized.
+              </p>
+              <div className="pt-2 flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentView('dashboard');
+                    try { window.location.hash = 'dashboard'; } catch {}
+                  }}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-750 text-slate-655 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                >
+                  Return to Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewChange('payments')}
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/20 cursor-pointer"
+                >
+                  Authorize Access
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return <PaymentMethodManager onBack={() => { setCurrentView('dashboard'); try { window.location.hash = 'dashboard'; } catch {} }} adminEmail={adminSession?.email || 'admin@slimdose.ph'} adminRole={adminSession?.role || 'admin'} />;
       case 'inventory':
         return <PeptideInventoryManager onBack={() => setCurrentView('dashboard')} />;
       case 'crm':
@@ -3459,7 +2623,39 @@ const AdminDashboard: React.FC = () => {
           </div>
         );
       case 'analytics':
-        return <SalesAnalyticsManager onBack={() => setCurrentView('dashboard')} onNavigateView={(view) => setCurrentView(view as any)} />;
+        if (typeof window !== 'undefined' && sessionStorage.getItem(sectionGateKey('analytics')) !== '1') {
+          return (
+            <div className="max-w-xl mx-auto my-12 p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl text-center space-y-4">
+              <div className="w-14 h-14 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20">
+                <Lock className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Sales Analytics Protected</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                This section is protected by security authentication. Access is strictly denied until authorized.
+              </p>
+              <div className="pt-2 flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentView('dashboard');
+                    try { window.location.hash = 'dashboard'; } catch {}
+                  }}
+                  className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-750 text-slate-655 font-semibold text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                >
+                  Return to Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewChange('analytics')}
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/20 cursor-pointer"
+                >
+                  Authorize Access
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return <SalesAnalyticsManager onBack={() => { setCurrentView('dashboard'); try { window.location.hash = 'dashboard'; } catch {} }} onNavigateView={(view) => handleViewChange(view as any)} />;
       case 'popup':
         return (
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
@@ -3511,14 +2707,18 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Dashboard Stats
-  const totalProducts = products.length;
-  const featuredProducts = products.filter(p => p.featured).length;
-  const availableProducts = products.filter(p => p.available).length;
-  const categoryCounts = categories.map(cat => ({
-    ...cat,
-    count: products.filter(p => p.category === cat.id).length
-  }));
+  // Dashboard Stats (memoized to prevent layout re-computation)
+  const { totalProducts, featuredProducts, availableProducts, categoryCounts } = useMemo(() => {
+    return {
+      totalProducts: products.length,
+      featuredProducts: products.filter(p => p.featured).length,
+      availableProducts: products.filter(p => p.available).length,
+      categoryCounts: categories.map(cat => ({
+        ...cat,
+        count: products.filter(p => p.category === cat.id).length
+      }))
+    };
+  }, [products, categories]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -3898,6 +3098,29 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const getItemBadge = (view: string) => {
+    switch (view) {
+      case 'products':
+        return { text: `${products.length}`, color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' };
+      case 'orders': {
+        const orderCount = dashOrders.length > 0 ? dashOrders.length : liveScrapedOrders.length;
+        return { text: `${orderCount}`, color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
+      }
+      case 'verifications': {
+        const pendingCount = dashVerifications.filter(v => v.status === 'pending').length;
+        return pendingCount > 0 ? { text: `${pendingCount} new`, color: 'bg-amber-500/20 text-amber-300 border-amber-500/30 font-bold' } : null;
+      }
+      case 'crm':
+        return { text: '427', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
+      case 'inventory': {
+        const lowStockCount = products.filter(p => (p.stock_quantity ?? 0) <= 5).length;
+        return lowStockCount > 0 ? { text: `${lowStockCount} alert`, color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' } : null;
+      }
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       {variationManagerModal}
@@ -3906,43 +3129,41 @@ const AdminDashboard: React.FC = () => {
         {isMobileMenuOpen && (
           <div
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-md lg:hidden transition-opacity duration-300"
+            className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-md lg:hidden transition-opacity duration-300"
           />
         )}
 
         {/* Left Sidebar (Responsive Drawer on Mobile, Compact & Collapsible on Desktop) */}
         <aside
-          className={`bg-slate-900 text-slate-300 flex flex-col fixed top-0 bottom-0 left-0 z-50 border-r border-slate-800/80 shadow-2xl lg:shadow-none transition-all duration-300 ease-in-out ${
-            isSidebarCollapsed ? 'w-64 lg:w-[68px]' : 'w-64 lg:w-60'
+          className={`bg-slate-900 text-slate-300 flex flex-col fixed top-0 bottom-0 left-0 z-50 border-r border-slate-800/80 shadow-2xl transition-all duration-300 ease-in-out w-[290px] sm:w-[320px] max-w-[85vw] ${
+            isSidebarCollapsed ? 'lg:w-[68px]' : 'lg:w-64'
           } ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
         >
           {/* Sidebar Header */}
-          <div className={`p-3 border-b border-slate-800/80 flex items-center bg-slate-950/40 relative ${
-            isSidebarCollapsed ? 'flex-col gap-2.5 justify-center' : 'justify-between gap-2'
+          <div className={`p-3 sm:p-3.5 border-b border-slate-800/80 bg-slate-950/60 flex items-center ${
+            isSidebarCollapsed ? 'lg:flex-col lg:gap-2.5 lg:justify-center justify-between gap-3' : 'justify-between gap-3'
           }`}>
-            <div className={`flex items-center gap-2.5 min-w-0 ${isSidebarCollapsed ? 'justify-center w-full' : ''}`}>
-              <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-700/80 shadow-inner shrink-0 bg-white p-0.5">
+            <div className={`flex items-center gap-3 min-w-0 ${isSidebarCollapsed ? 'lg:justify-center lg:w-full' : ''}`}>
+              <div className="w-9 h-9 rounded-xl overflow-hidden border border-slate-700/80 shadow-inner shrink-0 bg-white p-0.5">
                 <img
                   src="/assets/logo.jpeg"
                   alt="SlimDose Peptides"
-                  className="w-full h-full object-cover rounded-md"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
-              {!isSidebarCollapsed && (
-                <div className="min-w-0">
-                  <h1 className="text-xs font-bold text-white tracking-wide truncate">
-                    SlimDose Peptides
-                  </h1>
-                  <p className="text-[10px] font-medium text-blue-400 truncate flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Admin Console
-                  </p>
-                </div>
-              )}
+              <div className={`min-w-0 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
+                <h1 className="text-xs sm:text-sm font-bold text-white tracking-wide truncate">
+                  SlimDose Peptides
+                </h1>
+                <p className="text-[10px] font-medium text-blue-400 truncate flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Admin Console
+                </p>
+              </div>
             </div>
 
-            {/* Desktop Collapse Toggle Button - Centered as a Divider in Mini Mode */}
-            <div className="hidden lg:block relative group w-full">
+            {/* Desktop Collapse Toggle Button */}
+            <div className="hidden lg:block relative group">
               <button
                 onClick={toggleSidebar}
                 className={`flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/90 transition-all cursor-pointer border border-transparent hover:border-slate-700 shrink-0 ${
@@ -3950,6 +3171,7 @@ const AdminDashboard: React.FC = () => {
                     ? 'w-full py-1.5 bg-slate-800/40 border-slate-800 hover:border-blue-500/40'
                     : 'p-1.5 w-auto'
                 }`}
+                title={isSidebarCollapsed ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)'}
               >
                 {isSidebarCollapsed ? (
                   <PanelLeftOpen className="w-4 h-4 text-blue-400" />
@@ -3958,51 +3180,80 @@ const AdminDashboard: React.FC = () => {
                 )}
               </button>
 
-              {/* Instant Floating Tooltip for Sidebar Toggle */}
+              {/* Instant Floating Tooltip for Sidebar Toggle on Desktop */}
               {isSidebarCollapsed && (
-                <div className="hidden lg:group-hover:flex fixed left-[72px] ml-2 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
+                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
                   <span>Expand Sidebar (Ctrl+B)</span>
                   <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
                 </div>
               )}
             </div>
 
-            {/* Close Button for Mobile Drawer */}
+            {/* Close Button for Mobile Drawer - Always visible on mobile screens */}
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              title="Close Menu"
+              className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition-all active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
+              title="Close Navigation"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
+          {/* Quick Menu Filter (Visible on Mobile & Expanded Desktop) */}
+          <div className={`px-3 pt-3 pb-1 ${isSidebarCollapsed ? 'lg:hidden' : 'block'}`}>
+            <div className="relative flex items-center">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+              <input
+                type="text"
+                value={mobileMenuSearch}
+                onChange={(e) => setMobileMenuSearch(e.target.value)}
+                placeholder="Jump to menu..."
+                style={{ paddingLeft: '2.35rem', paddingRight: '2rem' }}
+                className="w-full bg-slate-950/80 border border-slate-800 hover:border-slate-700 focus:border-blue-500 rounded-xl py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/25 transition-all shadow-inner"
+              />
+              {mobileMenuSearch && (
+                <button
+                  onClick={() => setMobileMenuSearch('')}
+                  className="absolute right-2.5 text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors cursor-pointer"
+                  title="Clear Search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Navigation Links */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-2.5 custom-scrollbar select-none">
+          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2.5 space-y-3 custom-scrollbar select-none">
             {(() => {
               const isStaff = adminSession?.role === 'content_editor' || adminSession?.role === 'order_manager';
               const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
+              const query = mobileMenuSearch.trim().toLowerCase();
 
               return menuCategories.map((category) => {
                 const filteredItems = category.items.filter(item => {
                   if (isStaff && disallowed.includes(item.view)) return false;
+                  if (query && !item.label.toLowerCase().includes(query) && !category.title.toLowerCase().includes(query)) {
+                    return false;
+                  }
                   return true;
                 });
 
                 if (filteredItems.length === 0) return null;
 
                 return (
-                  <div key={category.title} className="space-y-0.5">
-                    {!isSidebarCollapsed && (
-                      <div className="px-2.5 pb-1 text-[9px] font-extrabold tracking-wider text-slate-400 uppercase">
-                        {category.title}
-                      </div>
-                    )}
+                  <div key={category.title} className="space-y-1">
+                    <div className={`px-3 pt-2 pb-1 text-[9.5px] font-extrabold tracking-wider text-slate-400 uppercase ${
+                      isSidebarCollapsed ? 'lg:hidden' : 'block'
+                    }`}>
+                      {category.title}
+                    </div>
 
-                    <div className="space-y-0.5">
+                    <div className="space-y-1">
                       {filteredItems.map((item) => {
                         const Icon = item.icon;
                         const active = isItemActive(item);
+                        const badge = getItemBadge(item.view);
                         const hashHref = `#${item.view}`;
                         return (
                           <div key={item.label} className="relative group">
@@ -4010,7 +3261,6 @@ const AdminDashboard: React.FC = () => {
                               href={hashHref}
                               onClick={(e) => {
                                 e.preventDefault();
-                                window.location.hash = item.view;
                                 if (item.action) {
                                   handleViewChange(item.view, item.action);
                                 } else if (item.view) {
@@ -4018,23 +3268,34 @@ const AdminDashboard: React.FC = () => {
                                 }
                                 setIsMobileMenuOpen(false);
                               }}
-                              className={`w-full flex items-center ${
-                                isSidebarCollapsed ? 'lg:justify-center px-2 py-2' : 'gap-2.5 px-2.5 py-1.5'
-                              } rounded-lg text-left text-xs font-medium transition-all cursor-pointer ${
+                              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer ${
+                                isSidebarCollapsed ? 'lg:gap-0 lg:justify-center lg:px-2 lg:py-2' : 'gap-3 px-2.5 py-2'
+                              } ${
                                 active
-                                  ? 'bg-[#3C6CA8] text-white font-semibold shadow-xs shadow-[#3C6CA8]/30 ring-1 ring-[#3C6CA8]/40'
-                                  : 'hover:bg-slate-800/70 hover:text-slate-100 text-slate-400'
+                                  ? 'bg-gradient-to-r from-blue-600 to-[#294E7A] text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/40 font-bold'
+                                  : 'hover:bg-slate-800/80 hover:text-slate-100 text-slate-300 active:bg-slate-800'
                               }`}
                             >
-                              <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
-                              {!isSidebarCollapsed && (
-                                <span className="truncate text-xs">{item.label}</span>
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                                active
+                                  ? 'bg-white/20 text-white'
+                                  : 'bg-slate-800/70 text-slate-400 group-hover:bg-blue-600/20 group-hover:text-blue-400'
+                              }`}>
+                                <Icon className="w-4 h-4" />
+                              </div>
+                              <span className={`truncate text-xs flex-1 ${isSidebarCollapsed ? 'lg:hidden' : 'inline'}`}>
+                                {item.label}
+                              </span>
+                              {badge && (
+                                <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${badge.color} ${isSidebarCollapsed ? 'lg:hidden' : 'inline-block'}`}>
+                                  {badge.text}
+                                </span>
                               )}
                             </a>
 
                             {/* Instant Floating Tooltip on Desktop Collapsed Mode */}
                             {isSidebarCollapsed && (
-                              <div className="hidden lg:group-hover:flex fixed left-[72px] ml-2 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
+                              <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
                                 <span>{item.label}</span>
                                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
                               </div>
@@ -4050,75 +3311,82 @@ const AdminDashboard: React.FC = () => {
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-2.5 border-t border-slate-800/80 bg-slate-950/60 backdrop-blur-sm">
-            {!isSidebarCollapsed ? (
-              <>
-                <div className="flex items-center gap-2.5 mb-2.5 px-1">
-                  <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs shrink-0">
-                    {adminSession?.name ? adminSession.name[0].toUpperCase() : 'A'}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold text-slate-200 truncate">
-                      {adminSession?.name || 'Store Admin'}
-                    </p>
-                    <p className="text-[9.5px] text-slate-400 truncate">
-                      {adminSession?.email || 'admin@slimdose.ph'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Quick action buttons */}
-                <div className="flex items-center gap-1.5">
-                  <a
-                    href="/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-grow text-center py-1.5 px-2.5 rounded-lg border border-slate-800 bg-slate-900/90 text-[10.5px] font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-all shadow-xs"
-                  >
-                    View Site ↗
-                  </a>
-                  <button
-                    onClick={handleLogout}
-                    className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center shrink-0 border border-rose-500/20 cursor-pointer"
-                    title="Logout"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <div className="relative group">
-                  <a
-                    href="/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg border border-slate-800 bg-slate-900/90 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white transition-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                  <div className="hidden lg:group-hover:flex fixed left-[72px] ml-2 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                    <span>View Storefront</span>
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
-                  </div>
-                </div>
-
-                <div className="relative group">
-                  <button
-                    onClick={handleLogout}
-                    className="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center border border-rose-500/20 cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                  <div className="hidden lg:group-hover:flex fixed left-[72px] ml-2 px-3 py-1.5 bg-rose-950 text-rose-100 text-[11px] font-bold rounded-lg shadow-2xl border border-rose-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                    <span>Logout</span>
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-rose-950" />
-                  </div>
+          <div className="p-3 border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-sm">
+            {/* Desktop Collapsed View ONLY */}
+            <div className={`hidden ${isSidebarCollapsed ? 'lg:flex' : 'lg:hidden'} flex-col items-center gap-2`}>
+              <div className="relative group">
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-xl border border-slate-800 bg-slate-900 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white transition-all shadow-xs"
+                  title="View Storefront"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
+                  <span>View Storefront</span>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
                 </div>
               </div>
-            )}
+
+              <div className="relative group">
+                <button
+                  onClick={handleLogout}
+                  className="w-9 h-9 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center border border-rose-500/20 cursor-pointer shadow-xs"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-rose-950 text-rose-100 text-[11px] font-bold rounded-lg shadow-2xl border border-rose-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
+                  <span>Logout</span>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-rose-950" />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile (ALWAYS!) and Desktop Expanded View */}
+            <div className={`${isSidebarCollapsed ? 'block lg:hidden' : 'block'}`}>
+              <div className="flex items-center gap-3 mb-3 px-1">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-[#1E3A5E] border border-blue-400/30 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md shadow-blue-600/20">
+                  {adminSession?.name ? adminSession.name[0].toUpperCase() : 'A'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-slate-100 truncate">
+                    {adminSession?.name || 'Store Admin'}
+                  </p>
+                  <p className="text-[10.5px] text-slate-400 truncate">
+                    {adminSession?.email || 'admin@slimdose.ph'}
+                  </p>
+                </div>
+                <span className="px-2 py-0.5 rounded-md text-[9.5px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30 shrink-0">
+                  {adminSession?.role ? adminSession.role.replace('_', ' ') : 'Admin'}
+                </span>
+              </div>
+
+              {/* Quick action buttons */}
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-slate-800 bg-slate-900 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-white transition-all shadow-xs"
+                >
+                  <span>Storefront</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="py-2 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-600 text-rose-300 hover:text-white transition-all flex items-center justify-center gap-1.5 border border-rose-500/30 text-xs font-bold cursor-pointer active:scale-95"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
           </div>
         </aside>
+
 
         {/* Content Pane */}
         <div
@@ -4164,82 +3432,160 @@ const AdminDashboard: React.FC = () => {
           {/* Main Content Pane Scroll Area - Enhanced full-width layout with compact padding */}
           <main className="flex-1 p-2 sm:p-3 md:p-4 lg:p-5 w-full min-w-0 overflow-x-hidden">
             <div className="w-full max-w-[1700px] mx-auto min-w-0">
-              {renderActiveView()}
+              <Suspense fallback={<AdminSectionSkeleton />}>
+                {renderActiveView()}
+              </Suspense>
             </div>
           </main>
         </div>
       </div>
 
       {/* Product Create/Edit Modal with Beautiful Tabs */}
-      <ProductModal
-        isOpen={isProductModalOpen}
-        onClose={() => {
-          setIsProductModalOpen(false);
-          setEditingProduct(null);
-        }}
-        product={editingProduct}
-        categories={categories}
-        peptalkVideos={peptalkVideos}
-        peptalkArticles={peptalkArticles}
-        onSaveSuccess={async () => {
-          await refreshProducts();
-        }}
-        logAdminAction={logAdminAction}
-        addProduct={addProduct}
-        updateProduct={updateProduct}
-      />
+      {isProductModalOpen && (
+        <Suspense fallback={null}>
+          <ProductModal
+            isOpen={isProductModalOpen}
+            onClose={() => {
+              setIsProductModalOpen(false);
+              setEditingProduct(null);
+            }}
+            product={editingProduct}
+            categories={categories}
+            peptalkVideos={peptalkVideos}
+            peptalkArticles={peptalkArticles}
+            onSaveSuccess={async () => {
+              await refreshProducts();
+            }}
+            logAdminAction={logAdminAction}
+            addProduct={addProduct}
+            updateProduct={updateProduct}
+          />
+        </Suspense>
+      )}
 
       {/* Password Confirmation Modal */}
       {isPasswordConfirmOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/65 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-2xl transition-all duration-300 animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              handlePasswordConfirmCancel();
+            }
+          }}
+        >
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/10">
             <div className="text-center space-y-4">
-              <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto">
-                <Lock className="w-6 h-6" />
+              <div className={`w-14 h-14 ${
+                pendingDeleteProduct || pendingBulkDelete 
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' 
+                  : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+              } rounded-2xl flex items-center justify-center mx-auto border shadow-inner`}>
+                {pendingDeleteProduct || pendingBulkDelete ? (
+                  <Trash2 className="w-7 h-7" />
+                ) : (
+                  <Lock className="w-7 h-7" />
+                )}
               </div>
               
-              <div className="space-y-1">
-                <h3 className="text-lg font-bold text-slate-900">Security Verification</h3>
-                <p className="text-xs text-slate-500">
-                  Please enter your administrator password to unlock this protected action/section.
+              <div className="space-y-1.5">
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  pendingDeleteProduct || pendingBulkDelete
+                    ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20'
+                    : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20'
+                } border`}>
+                  {pendingDeleteProduct || pendingBulkDelete ? (
+                    <AlertTriangle className="w-3 h-3 text-rose-500" />
+                  ) : (
+                    <ShieldCheck className="w-3 h-3" />
+                  )}
+                  {pendingDeleteProduct || pendingBulkDelete ? 'Deletion Authorization' : 'Security Gate'}
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  {pendingDeleteProduct 
+                    ? `Delete Product Authorization` 
+                    : pendingBulkDelete 
+                    ? `Bulk Deletion Authorization` 
+                    : `🔒 ${pendingViewChange === 'analytics' ? 'Sales Analytics' : pendingViewChange === 'payments' ? 'Payment Methods' : 'Restricted Section'}`}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed px-2">
+                  {pendingDeleteProduct ? (
+                    <>
+                      Confirm permanent deletion of <span className="font-bold text-slate-800 dark:text-slate-200">"{pendingDeleteProduct.name}"</span>. Enter the Access Password to authorize this deletion.
+                    </>
+                  ) : pendingBulkDelete ? (
+                    <>
+                      Confirm permanent deletion of <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProducts.size} selected products</span>. Enter the Access Password to authorize.
+                    </>
+                  ) : (
+                    'This section is strictly protected. Enter the section authorization password to access this data.'
+                  )}
                 </p>
               </div>
 
-              <form onSubmit={handlePasswordConfirmSubmit} className="space-y-3.5 pt-2 text-left">
+              <form onSubmit={handlePasswordConfirmSubmit} className="space-y-4 pt-1 text-left">
                 <div>
-                  <label htmlFor="admindashboard-confirm-password" className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Confirm Password
+                  <label htmlFor="admindashboard-confirm-password" className="block text-[10.5px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    {pendingDeleteProduct || pendingBulkDelete ? 'Access Password to Confirm Deletion' : 'Section Authorization Password'}
                   </label>
-                  <input id="admindashboard-confirm-password" name="confirm_password" type="password"
-                    required
-                    value={confirmPasswordInput}
-                    autoComplete="new-password" onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                  />
+                  <div className="relative">
+                    <input 
+                      id="admindashboard-confirm-password" 
+                      name="confirm_password" 
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      autoFocus
+                      required
+                      value={confirmPasswordInput}
+                      autoComplete="new-password" 
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      placeholder="Enter access password"
+                      className="w-full pl-4 pr-11 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all font-mono"
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer transition-colors"
+                      title={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 {confirmPasswordError && (
-                  <p className="text-xs text-rose-600 font-semibold text-center">{confirmPasswordError}</p>
+                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-600 dark:text-rose-400 font-semibold text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{confirmPasswordError}</span>
+                  </div>
                 )}
 
-                <div className="flex gap-3 pt-1">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsPasswordConfirmOpen(false);
-                      setConfirmPasswordCallback(null);
-                      setPendingViewChange(null);
-                    }}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-655 font-semibold text-xs hover:bg-slate-50 transition-all cursor-pointer"
+                    onClick={handlePasswordConfirmCancel}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/10 cursor-pointer"
+                    disabled={isProcessing}
+                    className={`flex-1 py-2.5 rounded-xl ${
+                      pendingDeleteProduct || pendingBulkDelete
+                        ? 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 shadow-rose-600/25'
+                        : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-blue-600/25'
+                    } text-white font-bold text-xs transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5`}
                   >
-                    Verify Access
+                    {isProcessing ? (
+                      'Processing...'
+                    ) : pendingDeleteProduct || pendingBulkDelete ? (
+                      <>
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Authorize & Delete</span>
+                      </>
+                    ) : (
+                      'Verify & Enter'
+                    )}
                   </button>
                 </div>
               </form>

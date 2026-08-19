@@ -1,6 +1,5 @@
-import type { Product } from '../types';
-
-export const liveScrapedProducts: Product[] = [
+// Live Scraped Products from slimdoseph.com (2026-08-18T04:41:37.985Z)
+export const liveScrapedProducts = [
   {
     "id": "02ce13f5-15c0-4cea-bd62-7990e3ff41d2",
     "name": "Hyaron",
@@ -2222,7 +2221,7 @@ export const liveScrapedProducts: Product[] = [
         "price": 2099,
         "discount_price": null,
         "discount_active": false,
-        "stock_quantity": 12,
+        "stock_quantity": 10,
         "created_at": "2026-05-02T10:52:57.150686+00:00",
         "cost_price": 0
       }
@@ -2998,6 +2997,59 @@ export const liveScrapedProducts: Product[] = [
     "variations": []
   },
   {
+    "id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+    "name": "SlimDose (GLP-2) 30mg",
+    "description": "Tirzepatide is a dual-acting peptide (GIP and GLP-1 receptor agonist) that offers significant benefits, including substantial weight loss—up to 20% or more of body weight in trials—and improved glycemic control for type 2 diabetes. It reduces appetite, promotes satiety, lowers HbA1c levels, improves lipid profiles, and lowers blood pressure.",
+    "category": "84aaf270-46e9-53a9-9995-89953b778871",
+    "base_price": 2899,
+    "discount_price": null,
+    "discount_start_date": null,
+    "discount_end_date": null,
+    "discount_active": false,
+    "purity_percentage": 99,
+    "molecular_weight": null,
+    "cas_number": null,
+    "sequence": null,
+    "storage_conditions": "Store as directed",
+    "inclusions": [],
+    "stock_quantity": 140,
+    "available": true,
+    "featured": false,
+    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1777830311265-gvsz5vxl2xc.jpeg",
+    "safety_sheet_url": null,
+    "created_at": "2026-05-02T10:52:56.871548+00:00",
+    "updated_at": "2026-05-02T10:52:56.871548+00:00",
+    "slug": "slimdose-glp-2-30mg",
+    "coa_url": null,
+    "raw_price": 660.73,
+    "variations": [
+      {
+        "id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "name": "Vials Only",
+        "quantity_mg": 30,
+        "price": 2899,
+        "discount_price": null,
+        "discount_active": false,
+        "stock_quantity": 67,
+        "created_at": "2026-05-02T10:52:57.150686+00:00",
+        "cost_price": 0
+      },
+      {
+        "id": "5a223bd5-240c-532b-8830-99a915d0bad4",
+        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
+        "name": "Set",
+        "quantity_mg": 30,
+        "price": 2999,
+        "discount_price": null,
+        "discount_active": false,
+        "stock_quantity": 50,
+        "created_at": "2026-05-02T10:52:57.150686+00:00",
+        "cost_price": 0
+      }
+    ]
+  },
+  {
     "id": "223cb268-8bf3-5732-b165-e1de276eb482",
     "name": "PDRN Rx (Salmon PDRN)",
     "description": "PDRN",
@@ -3077,59 +3129,6 @@ export const liveScrapedProducts: Product[] = [
     "coa_url": null,
     "raw_price": 300,
     "variations": []
-  },
-  {
-    "id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
-    "name": "SlimDose (GLP-2) 30mg",
-    "description": "Tirzepatide is a dual-acting peptide (GIP and GLP-1 receptor agonist) that offers significant benefits, including substantial weight loss—up to 20% or more of body weight in trials—and improved glycemic control for type 2 diabetes. It reduces appetite, promotes satiety, lowers HbA1c levels, improves lipid profiles, and lowers blood pressure.",
-    "category": "84aaf270-46e9-53a9-9995-89953b778871",
-    "base_price": 2899,
-    "discount_price": null,
-    "discount_start_date": null,
-    "discount_end_date": null,
-    "discount_active": false,
-    "purity_percentage": 99,
-    "molecular_weight": null,
-    "cas_number": null,
-    "sequence": null,
-    "storage_conditions": "Store as directed",
-    "inclusions": [],
-    "stock_quantity": 140,
-    "available": true,
-    "featured": false,
-    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1777830311265-gvsz5vxl2xc.jpeg",
-    "safety_sheet_url": null,
-    "created_at": "2026-05-02T10:52:56.871548+00:00",
-    "updated_at": "2026-05-02T10:52:56.871548+00:00",
-    "slug": "slimdose-glp-2-30mg",
-    "coa_url": null,
-    "raw_price": 660.73,
-    "variations": [
-      {
-        "id": "7aa7c4a0-4042-5638-a83a-20aa47ea9781",
-        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
-        "name": "Vials Only",
-        "quantity_mg": 30,
-        "price": 2899,
-        "discount_price": null,
-        "discount_active": false,
-        "stock_quantity": 67,
-        "created_at": "2026-05-02T10:52:57.150686+00:00",
-        "cost_price": 0
-      },
-      {
-        "id": "5a223bd5-240c-532b-8830-99a915d0bad4",
-        "product_id": "6124fe18-6f0f-5cb1-a6a5-ee9eea9bdfe8",
-        "name": "Set",
-        "quantity_mg": 30,
-        "price": 2999,
-        "discount_price": null,
-        "discount_active": false,
-        "stock_quantity": 51,
-        "created_at": "2026-05-02T10:52:57.150686+00:00",
-        "cost_price": 0
-      }
-    ]
   },
   {
     "id": "12678a16-4357-53cc-aba8-6b382664e6a6",
@@ -3353,7 +3352,7 @@ export const liveScrapedProducts: Product[] = [
         "price": 899,
         "discount_price": null,
         "discount_active": false,
-        "stock_quantity": 77,
+        "stock_quantity": 76,
         "created_at": "2026-05-04T19:20:08.232166+00:00",
         "cost_price": 0
       },
@@ -3382,6 +3381,34 @@ export const liveScrapedProducts: Product[] = [
         "cost_price": 0
       }
     ]
+  },
+  {
+    "id": "7e4e67ae-e82d-5175-8404-010501c72e12",
+    "name": "Rejuran I",
+    "description": "\nRejuran I is a specialized skin booster designed specifically for the delicate under-eye area, using polynucleotides (PN) derived from salmon DNA to stimulate collagen, reduce fine lines, diminish dark circles, and improve skin elasticity. It offers a thinner texture than standard Rejuran to prevent lumping, providing a smoother, firmer, and more youthful appearance with minimal downtime.",
+    "category": "ace09b86-286a-5634-b7a6-7d776fd29992",
+    "base_price": 5300,
+    "discount_price": null,
+    "discount_start_date": null,
+    "discount_end_date": null,
+    "discount_active": false,
+    "purity_percentage": 99,
+    "molecular_weight": null,
+    "cas_number": null,
+    "sequence": null,
+    "storage_conditions": "Store as directed",
+    "inclusions": [],
+    "stock_quantity": 1,
+    "available": true,
+    "featured": false,
+    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1778007530186-5qglig81dh6.png",
+    "safety_sheet_url": null,
+    "created_at": "2026-05-02T10:52:56.871548+00:00",
+    "updated_at": "2026-05-02T10:52:56.871548+00:00",
+    "slug": "rejuran-i",
+    "coa_url": null,
+    "raw_price": 0,
+    "variations": []
   },
   {
     "id": "a2e6bcf7-fa35-57fc-91b6-20913a518a98",
@@ -3772,34 +3799,6 @@ export const liveScrapedProducts: Product[] = [
     "variations": []
   },
   {
-    "id": "981bf288-3649-5ea4-856c-040e96b3d817",
-    "name": "Rejuran Healer",
-    "description": "Rejuran Healer is an advanced Korean skin rejuvenation treatment that uses Polynucleotides (PN) derived from wild salmon DNA to repair, regenerate, and heal skin at a cellular level. Unlike fillers that add volume, Rejuran acts as a \"skin healer\" to improve skin texture, elasticity, and hydration.",
-    "category": "ace09b86-286a-5634-b7a6-7d776fd29992",
-    "base_price": 8550,
-    "discount_price": null,
-    "discount_start_date": null,
-    "discount_end_date": null,
-    "discount_active": false,
-    "purity_percentage": 99,
-    "molecular_weight": null,
-    "cas_number": null,
-    "sequence": null,
-    "storage_conditions": "Store as directed",
-    "inclusions": [],
-    "stock_quantity": 6,
-    "available": true,
-    "featured": false,
-    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1777846246227-kbqifrc6wr.png",
-    "safety_sheet_url": null,
-    "created_at": "2026-05-02T10:52:56.871548+00:00",
-    "updated_at": "2026-05-02T10:52:56.871548+00:00",
-    "slug": "rejuran-healer",
-    "coa_url": null,
-    "raw_price": 0,
-    "variations": []
-  },
-  {
     "id": "8549c957-5def-5ea1-89a7-b8a26ccff2c9",
     "name": "ImmunoBoost (Thymosin Alpha-1) 10mg",
     "description": "Thymosin Alpha-1 (TA-1) is a synthetic peptide that boosts and regulates the immune system, commonly used to treat chronic viral infections (hepatitis B/C, HIV), sepsis, and some cancers. It enhances T-cell function, reduces chronic inflammation, improves vaccine response, and aids in tissue repair",
@@ -3906,11 +3905,11 @@ export const liveScrapedProducts: Product[] = [
     ]
   },
   {
-    "id": "7e4e67ae-e82d-5175-8404-010501c72e12",
-    "name": "Rejuran I",
-    "description": "\nRejuran I is a specialized skin booster designed specifically for the delicate under-eye area, using polynucleotides (PN) derived from salmon DNA to stimulate collagen, reduce fine lines, diminish dark circles, and improve skin elasticity. It offers a thinner texture than standard Rejuran to prevent lumping, providing a smoother, firmer, and more youthful appearance with minimal downtime.",
+    "id": "981bf288-3649-5ea4-856c-040e96b3d817",
+    "name": "Rejuran Healer",
+    "description": "Rejuran Healer is an advanced Korean skin rejuvenation treatment that uses Polynucleotides (PN) derived from wild salmon DNA to repair, regenerate, and heal skin at a cellular level. Unlike fillers that add volume, Rejuran acts as a \"skin healer\" to improve skin texture, elasticity, and hydration.",
     "category": "ace09b86-286a-5634-b7a6-7d776fd29992",
-    "base_price": 5300,
+    "base_price": 8550,
     "discount_price": null,
     "discount_start_date": null,
     "discount_end_date": null,
@@ -3921,14 +3920,14 @@ export const liveScrapedProducts: Product[] = [
     "sequence": null,
     "storage_conditions": "Store as directed",
     "inclusions": [],
-    "stock_quantity": 2,
+    "stock_quantity": 5,
     "available": true,
     "featured": false,
-    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1778007530186-5qglig81dh6.png",
+    "image_url": "https://qqsvwakoergetbhkafnm.supabase.co/storage/v1/object/public/menu-images/1777846246227-kbqifrc6wr.png",
     "safety_sheet_url": null,
     "created_at": "2026-05-02T10:52:56.871548+00:00",
     "updated_at": "2026-05-02T10:52:56.871548+00:00",
-    "slug": "rejuran-i",
+    "slug": "rejuran-healer",
     "coa_url": null,
     "raw_price": 0,
     "variations": []

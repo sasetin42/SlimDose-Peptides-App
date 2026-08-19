@@ -16,6 +16,19 @@ export interface FormatOrderOptions {
   fallbackIndex?: number;
 }
 
+/**
+ * Converts old SDP####-format order numbers to the canonical SLD-######-format.
+ * e.g. "SDP0960" → "SLD-000960", "SDP0959" → "SLD-000959"
+ * Non-SDP values are returned unchanged.
+ */
+export const normalizeSdpToSld = (value: string): string => {
+  const match = value.match(/^SDP(\d+)$/i);
+  if (match) {
+    return `SLD-${match[1].padStart(6, '0')}`;
+  }
+  return value;
+};
+
 export const formatOrderId = (
   order?: OrderRefSource | string | null,
   options?: FormatOrderOptions
@@ -23,59 +36,57 @@ export const formatOrderId = (
   const includePrefix = options?.prefix ?? true;
   const prefixStr = includePrefix ? 'ID: ' : '';
 
+  // Helper: does a string look like a proper named reference (e.g. SLD-001834)?
+  const isKnownRef = (s: string) => /^[A-Z]+-\d+$/i.test(s);
+
   if (!order) {
     const seq = options?.fallbackIndex !== undefined ? String(options.fallbackIndex + 1).padStart(4, '0') : '0001';
-    return `${prefixStr}SDP${seq}`;
+    return `${prefixStr}SLD-${seq.padStart(6, '0')}`;
   }
 
   // If passed as a plain string
   if (typeof order === 'string') {
     const clean = order.replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
-    if (!clean) return `${prefixStr}SDP0001`;
-    if (clean.toUpperCase().startsWith('SDP')) {
-      return `${prefixStr}${clean.toUpperCase()}`;
-    }
-    if (/^\d+$/.test(clean)) {
-      return `${prefixStr}SDP${clean.padStart(4, '0')}`;
-    }
+    if (!clean) return `${prefixStr}SLD-000001`;
+    // Normalise SDP#### → SLD-######
+    const normalised = normalizeSdpToSld(clean);
+    if (isKnownRef(normalised)) return `${prefixStr}${normalised.toUpperCase()}`;
+    if (/^\d+$/.test(clean)) return `${prefixStr}SLD-${clean.padStart(6, '0')}`;
     if (options?.fallbackIndex !== undefined) {
-      return `${prefixStr}SDP${String(options.fallbackIndex + 1).padStart(4, '0')}`;
+      return `${prefixStr}SLD-${String(options.fallbackIndex + 1).padStart(6, '0')}`;
     }
-    return `${prefixStr}SDP${clean.slice(0, 6).toUpperCase()}`;
+    return `${prefixStr}${clean.slice(0, 10).toUpperCase()}`;
   }
 
   // If order object has explicit order_number
   if (order.order_number !== null && order.order_number !== undefined && String(order.order_number).trim() !== '') {
     const cleanNum = String(order.order_number).replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
-    if (cleanNum.toUpperCase().startsWith('SDP')) {
-      return `${prefixStr}${cleanNum.toUpperCase()}`;
-    }
-    if (/^\d+$/.test(cleanNum)) {
-      return `${prefixStr}SDP${cleanNum.padStart(4, '0')}`;
-    }
-    return `${prefixStr}SDP${cleanNum.toUpperCase()}`;
+    // Normalise SDP#### → SLD-######
+    const normalised = normalizeSdpToSld(cleanNum);
+    if (isKnownRef(normalised)) return `${prefixStr}${normalised.toUpperCase()}`;
+    if (/^\d+$/.test(cleanNum)) return `${prefixStr}SLD-${cleanNum.padStart(6, '0')}`;
+    return `${prefixStr}${cleanNum.toUpperCase()}`;
   }
 
   // Fallback to order.id or fallbackIndex
   const rawId = order.id ? String(order.id).trim() : '';
   if (options?.fallbackIndex !== undefined) {
-    const seq = String(options.fallbackIndex + 1).padStart(4, '0');
-    return `${prefixStr}SDP${seq}`;
+    const seq = String(options.fallbackIndex + 1).padStart(6, '0');
+    return `${prefixStr}SLD-${seq}`;
   }
 
   if (rawId) {
     const cleanId = rawId.replace(/^ID:\s*/i, '').replace(/^#/, '').replace(/^ORD-?/i, '').trim();
-    if (cleanId.toUpperCase().startsWith('SDP')) {
-      return `${prefixStr}${cleanId.toUpperCase()}`;
-    }
-    if (/^\d+$/.test(cleanId)) {
-      return `${prefixStr}SDP${cleanId.padStart(4, '0')}`;
-    }
-    return `${prefixStr}SDP${cleanId.slice(0, 6).toUpperCase()}`;
+    const normalised = normalizeSdpToSld(cleanId);
+    if (isKnownRef(normalised)) return `${prefixStr}${normalised.toUpperCase()}`;
+    if (/^\d+$/.test(cleanId)) return `${prefixStr}SLD-${cleanId.padStart(6, '0')}`;
+    return `${prefixStr}SLD-${cleanId.slice(0, 6).toUpperCase()}`;
   }
 
-  return `${prefixStr}SDP0001`;
+  return `${prefixStr}SLD-000001`;
 };
+
+
 
 /**
  * Builds a lookup map for a list of orders to assign stable sequential SDP IDs (e.g. SDP0001, SDP0002)

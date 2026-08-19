@@ -21,12 +21,13 @@ import {
   ChevronDown,
   ChevronUp,
   MessageCircle,
-  FileSpreadsheet
+  FileSpreadsheet,
+  CheckCheck
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 
-interface Review {
+export interface AdminReview {
   id: string;
   product_id: string;
   customer_name: string;
@@ -35,12 +36,13 @@ interface Review {
   profile_image_url: string | null;
   is_verified_purchase: boolean;
   review_date: string;
-  is_approved: boolean;
+  approved: boolean;
+  is_approved?: boolean;
   products?: { name: string } | null;
 }
 
 export default function ProductReviewsManager() {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -68,7 +70,7 @@ export default function ProductReviewsManager() {
       const [revRes, prodRes] = await Promise.all([
         supabase
           .from('product_reviews')
-          .select('*, products(name)')
+          .select('*')
           .order('review_date', { ascending: false }),
         supabase
           .from('products')
@@ -79,8 +81,25 @@ export default function ProductReviewsManager() {
       if (revRes.error) throw revRes.error;
       if (prodRes.error) throw prodRes.error;
 
-      setReviews(revRes.data || []);
-      setProducts(prodRes.data || []);
+      const prods = prodRes.data || [];
+      const prodMap = new Map<string, string>();
+      prods.forEach((p: any) => {
+        if (p.id && p.name) prodMap.set(p.id, p.name);
+      });
+
+      const normalizedReviews: AdminReview[] = (revRes.data || []).map((r: any) => {
+        const isAppr = r.approved !== undefined ? Boolean(r.approved) : Boolean(r.is_approved);
+        const prodName = prodMap.get(r.product_id) || r.products?.name || (r.product_id ? 'Peptide Item' : 'General Product');
+        return {
+          ...r,
+          approved: isAppr,
+          is_approved: isAppr,
+          products: { name: prodName }
+        };
+      });
+
+      setReviews(normalizedReviews);
+      setProducts(prods);
     } catch (err: any) {
       console.error('Error loading reviews:', err);
       if (!silent) {
@@ -102,7 +121,7 @@ export default function ProductReviewsManager() {
         { event: '*', schema: 'public', table: 'product_reviews' },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            fireToast('⭐ New customer review submitted for moderation!', 'info');
+            fireToast('⭐ New customer review received for moderation!', 'info');
           }
           loadData(true);
         }
@@ -125,18 +144,18 @@ export default function ProductReviewsManager() {
   };
 
   // Toggle Approval Status
-  const handleToggleApprove = async (review: Review) => {
+  const handleToggleApprove = async (review: AdminReview) => {
     try {
-      const nextStatus = !review.is_approved;
+      const nextStatus = !review.approved;
       const { error } = await supabase
         .from('product_reviews')
-        .update({ is_approved: nextStatus })
+        .update({ approved: nextStatus, is_approved: nextStatus })
         .eq('id', review.id);
 
       if (error) throw error;
 
       fireToast(
-        nextStatus ? 'Review approved & published live!' : 'Review unpublished to pending.',
+        nextStatus ? 'Review approved & published live!' : 'Review unpublished to pending status.',
         nextStatus ? 'success' : 'info'
       );
       await loadData(true);
@@ -145,9 +164,37 @@ export default function ProductReviewsManager() {
     }
   };
 
+  // Bulk Approve All Pending
+  const handleApproveAllPending = async () => {
+    const pendingList = reviews.filter(r => !r.approved);
+    if (pendingList.length === 0) return;
+
+    if (!confirm(`Are you sure you want to approve and publish all ${pendingList.length} pending reviews?`)) {
+      return;
+    }
+
+    try {
+      setIsRefreshing(true);
+      await Promise.all(
+        pendingList.map(r =>
+          supabase
+            .from('product_reviews')
+            .update({ approved: true, is_approved: true })
+            .eq('id', r.id)
+        )
+      );
+      fireToast(`All ${pendingList.length} pending reviews published live!`, 'success');
+      await loadData(true);
+    } catch (err: any) {
+      fireToast(`Batch approval error: ${err.message}`, 'error');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // Delete Review
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete review from "${name}"?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete review from "${name}"?`)) return;
     try {
       const { error } = await supabase
         .from('product_reviews')
@@ -166,7 +213,7 @@ export default function ProductReviewsManager() {
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProductId || !customerName.trim() || !reviewText.trim()) {
-      fireToast('Please select a product, customer name, and review text.', 'warning');
+      fireToast('Please select a product, customer name, and review comments.', 'warning');
       return;
     }
 
@@ -181,6 +228,7 @@ export default function ProductReviewsManager() {
           review_text: reviewText.trim(),
           profile_image_url: profileImageUrl.trim() || null,
           is_verified_purchase: Boolean(isVerified),
+          approved: true,
           is_approved: true,
           review_date: new Date().toISOString()
         }]);
@@ -213,7 +261,8 @@ export default function ProductReviewsManager() {
   };
 
   // Format Relative / Absolute Date
-  const formatDateDisplay = (dateString: string) => {
+  const formatDateDisplay = (dateString?: string) => {
+    if (!dateString) return 'Recent';
     const d = new Date(dateString);
     const now = new Date();
     const diffSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
@@ -233,13 +282,13 @@ export default function ProductReviewsManager() {
   // KPI Metrics Calculation
   const stats = useMemo(() => {
     const total = reviews.length;
-    const pending = reviews.filter(r => !r.is_approved);
-    const approved = reviews.filter(r => r.is_approved);
+    const pending = reviews.filter(r => !r.approved);
+    const approved = reviews.filter(r => r.approved);
     const verified = reviews.filter(r => r.is_verified_purchase);
 
     const ratingsSum = reviews.reduce((sum, r) => sum + Number(r.rating || 5), 0);
     const avgRating = total > 0 ? (ratingsSum / total).toFixed(1) : '5.0';
-    const fiveStarCount = reviews.filter(r => r.rating === 5).length;
+    const fiveStarCount = reviews.filter(r => Math.round(r.rating) === 5).length;
 
     return {
       total,
@@ -257,9 +306,9 @@ export default function ProductReviewsManager() {
       .filter(r => {
         if (selectedProductFilter !== 'all' && r.product_id !== selectedProductFilter) return false;
 
-        if (statusFilter === 'pending' && r.is_approved) return false;
-        if (statusFilter === 'approved' && !r.is_approved) return false;
-        if (statusFilter === '5-star' && r.rating !== 5) return false;
+        if (statusFilter === 'pending' && r.approved) return false;
+        if (statusFilter === 'approved' && !r.approved) return false;
+        if (statusFilter === '5-star' && Math.round(r.rating) !== 5) return false;
         if (statusFilter === 'verified' && !r.is_verified_purchase) return false;
 
         if (searchQuery.trim()) {
@@ -271,7 +320,7 @@ export default function ProductReviewsManager() {
         }
         return true;
       })
-      .sort((a, b) => new Date(b.review_date).getTime() - new Date(a.review_date).getTime());
+      .sort((a, b) => new Date(b.review_date || 0).getTime() - new Date(a.review_date || 0).getTime());
   }, [reviews, statusFilter, selectedProductFilter, searchQuery]);
 
   if (loading && reviews.length === 0) {
@@ -312,7 +361,7 @@ export default function ProductReviewsManager() {
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Moderate verified customer testimonials, star ratings &amp; clinical feedback.
+                Moderate customer testimonials, star ratings &amp; clinical feedback across all products.
               </p>
             </div>
           </div>
@@ -320,6 +369,18 @@ export default function ProductReviewsManager() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+          {stats.pendingCount > 0 && (
+            <button
+              onClick={handleApproveAllPending}
+              disabled={isRefreshing}
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+              title="Approve All Pending Reviews"
+            >
+              <CheckCheck className="w-4 h-4" />
+              <span>Approve All ({stats.pendingCount})</span>
+            </button>
+          )}
+
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
@@ -373,7 +434,7 @@ export default function ProductReviewsManager() {
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Pending Review</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Pending Moderation</span>
             <div className="w-8 h-8 rounded-xl bg-amber-100/70 text-amber-700 flex items-center justify-center font-bold">
               <Clock className="w-4 h-4" />
             </div>
@@ -382,7 +443,7 @@ export default function ProductReviewsManager() {
             <span className="text-2xl font-black text-slate-900 tracking-tight">{stats.pendingCount}</span>
             {stats.pendingCount > 0 && (
               <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full animate-pulse">
-                Needs Audit
+                Needs Review
               </span>
             )}
           </div>
@@ -444,14 +505,18 @@ export default function ProductReviewsManager() {
           {/* Search Input */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input id="productreviewsmanager-search" name="search" type="text"
+            <input
+              id="productreviewsmanager-search"
+              name="search"
+              type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by customer name, peptide product, or testimonial comment..."
+              placeholder="Search by customer name, peptide product, or review text..."
               className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-50/80 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]/20 focus:border-[#3C6CA8] transition-all text-slate-800 placeholder-slate-400"
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
               >
@@ -462,11 +527,14 @@ export default function ProductReviewsManager() {
 
           {/* Product Filter */}
           <div className="flex items-center gap-2 shrink-0">
-            <select id="productreviewsmanager-input-2" name="input_2" value={selectedProductFilter}
+            <select
+              id="productreviewsmanager-product-filter"
+              name="product_filter"
+              value={selectedProductFilter}
               onChange={(e) => setSelectedProductFilter(e.target.value)}
               className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 outline-none focus:ring-2 focus:ring-[#3C6CA8]/20 focus:border-[#3C6CA8] cursor-pointer"
             >
-              <option value="all">All Peptide Products</option>
+              <option value="all">All Products ({products.length})</option>
               {products.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
@@ -489,6 +557,7 @@ export default function ProductReviewsManager() {
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setStatusFilter(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                   active
@@ -529,6 +598,7 @@ export default function ProductReviewsManager() {
             </div>
 
             <button
+              type="button"
               onClick={() => setIsAdding(false)}
               className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
             >
@@ -550,15 +620,15 @@ export default function ProductReviewsManager() {
                   verified: true
                 },
                 {
-                  name: 'Clarissa M.',
+                  name: 'Ma. Theresa Santos, QC',
                   rating: 5,
-                  text: 'Noticeable energy improvement and appetite regulation on Semaglutide. Highly recommend!',
+                  text: 'Down 12kg after 8 weeks with Tirzepatide. Appetite suppression kicked in smoothly on day one with zero crashes.',
                   verified: true
                 },
                 {
-                  name: 'Kenzo Tan',
+                  name: 'Atty. James L., Makati',
                   rating: 5,
-                  text: 'Prompt customer support and genuine research peptides with verifiable COA documentation.',
+                  text: 'SlimPen Pro makes microdosing extremely easy and foolproof. Reconstitution is straightforward with BAC water.',
                   verified: true
                 }
               ].map((preset, idx) => (
@@ -566,140 +636,139 @@ export default function ProductReviewsManager() {
                   key={idx}
                   type="button"
                   onClick={() => applyPresetTestimonial(preset)}
-                  className="text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-700 font-medium transition-colors cursor-pointer"
+                  className="text-[11px] font-semibold bg-slate-100 hover:bg-[#3C6CA8]/10 hover:text-[#3C6CA8] border border-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                 >
-                  + Template: {preset.name}
+                  ⚡ {preset.name.split(' ')[0]}: "{preset.text.slice(0, 32)}..."
                 </button>
               ))}
             </div>
           </div>
 
+          {/* Input Form */}
           <form onSubmit={handleAddReview} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Product Select */}
               <div>
-                <label htmlFor="productreviewsmanager-target-product" className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Target Product *
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Target Product <span className="text-rose-500">*</span>
                 </label>
-                <select id="productreviewsmanager-target-product" name="target_product" required
+                <select
                   value={selectedProductId}
                   onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#3C6CA8]/20 focus:border-[#3C6CA8] outline-none"
+                  className="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none focus:ring-2 focus:ring-[#3C6CA8]"
+                  required
                 >
-                  <option value="">-- Select Peptide Product --</option>
+                  <option value="">Select a Product...</option>
                   {products.map(p => (
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
               </div>
 
+              {/* Customer Name */}
               <div>
-                <label htmlFor="productreviewsmanager-customer-reviewer-name" className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Customer / Reviewer Name *
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Customer / Reviewer Name <span className="text-rose-500">*</span>
                 </label>
-                <input id="productreviewsmanager-customer-reviewer-name" name="customer_reviewer_name" type="text"
-                  required
+                <input
+                  type="text"
                   value={customerName}
-                  autoComplete="name" onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="e.g. Dra. Sophia Lim"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#3C6CA8]/20 focus:border-[#3C6CA8] outline-none"
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="e.g. Dr. Roberto K. or Jane D."
+                  className="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none focus:ring-2 focus:ring-[#3C6CA8]"
+                  required
                 />
               </div>
 
+              {/* Star Rating */}
               <div>
-                <label htmlFor="productreviewsmanager-star-rating-1-to-5-1-2-3-4-5-m" className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Star Rating (1 to 5) *
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Star Rating (1 to 5)
                 </label>
-                <div className="flex items-center gap-1 mt-1">
-                  {[1, 2, 3, 4, 5].map((starVal) => (
+                <div className="flex items-center gap-1.5 py-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
                     <button
-                      key={starVal}
+                      key={s}
                       type="button"
-                      onClick={() => setRating(starVal)}
-                      className="p-1 text-amber-400 hover:scale-110 transition-transform cursor-pointer"
+                      onClick={() => setRating(s)}
+                      className="p-1 hover:scale-110 transition-transform cursor-pointer"
                     >
-                      <Star className={`w-5 h-5 ${starVal <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
+                      <Star
+                        className={`w-6 h-6 ${s <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                      />
                     </button>
                   ))}
-                  <span className="ml-2 text-xs font-bold text-slate-700">{rating} Stars</span>
+                  <span className="text-xs font-black text-slate-700 ml-2">{rating}.0 / 5.0</span>
                 </div>
+              </div>
+
+              {/* Verified Purchase Toggle */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Verified Buyer Status
+                </label>
+                <label className="flex items-center gap-2.5 cursor-pointer mt-1.5">
+                  <input
+                    type="checkbox"
+                    checked={isVerified}
+                    onChange={(e) => setIsVerified(e.target.checked)}
+                    className="w-4 h-4 text-[#3C6CA8] rounded-md focus:ring-0 cursor-pointer"
+                  />
+                  <span className="text-xs font-semibold text-slate-700">Mark as Verified Purchase</span>
+                </label>
               </div>
             </div>
 
+            {/* Review Comments */}
             <div>
-              <label htmlFor="productreviewsmanager-star-rating-1-to-5-1-2-3-4-5-m" className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Testimonial Narrative &amp; Feedback *
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                Testimonial / Review Comments <span className="text-rose-500">*</span>
               </label>
-              <textarea id="productreviewsmanager-star-rating-1-to-5-1-2-3-4-5-m" name="star_rating_1_to_5_1_2_3_4_5_m" required
-                rows={3}
+              <textarea
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
-                placeholder="Enter client testimonial, research observations, or recovery feedback..."
-                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#3C6CA8]/20 focus:border-[#3C6CA8] outline-none resize-none"
+                placeholder="Enter customer review observations, clinical benefits, weight loss results, or delivery experience..."
+                rows={3}
+                className="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-800 outline-none focus:ring-2 focus:ring-[#3C6CA8]"
+                required
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-              <div>
-                <label htmlFor="productreviewsmanager-profile-photo-url-optional" className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
-                  Profile Photo URL (Optional)
-                </label>
-                <input id="productreviewsmanager-profile-photo-url-optional" name="profile_photo_url_optional" type="url"
-                  value={profileImageUrl}
-                  onChange={(e) => setProfileImageUrl(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white outline-none"
-                />
-              </div>
-
-              <div className="flex items-center pt-2 sm:pt-4">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input id="productreviewsmanager-checkbox-4" name="checkbox_4" type="checkbox"
-                    checked={isVerified}
-                    onChange={(e) => setIsVerified(e.target.checked)}
-                    className="w-4 h-4 text-[#3C6CA8] rounded focus:ring-[#3C6CA8]"
-                  />
-                  <span className="text-xs font-bold text-slate-800">
-                    🛡️ Mark with "Verified Purchase" Badge
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-2">
+            {/* Action buttons */}
+            <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setIsAdding(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] text-white font-bold text-xs transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="px-6 py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                {isSubmitting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5 stroke-[3]" />}
-                <span>Publish Testimonial</span>
+                <Sparkles className="w-4 h-4" />
+                <span>{isSubmitting ? 'Publishing...' : 'Publish Testimonial Live'}</span>
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* ── Reviews Cards Grid ── */}
+      {/* ── Testimonials Grid ── */}
       {filteredReviews.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-xs border border-slate-200/90 p-12 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
-            <Star className="w-8 h-8" />
-          </div>
-          <h3 className="text-base font-bold text-slate-800">No Reviews Found</h3>
-          <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+        <div className="p-10 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+          <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <h3 className="text-sm font-black text-slate-800">No matching reviews found</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
             {searchQuery
-              ? `No customer testimonials matching "${searchQuery}".`
-              : 'Customer reviews submitted on product pages will appear here for verification.'}
+              ? 'Try modifying your search term or clearing filters.'
+              : 'There are no testimonials in this category yet.'}
           </p>
           <div className="mt-4 flex justify-center gap-2">
             <button
+              type="button"
               onClick={() => setIsAdding(true)}
               className="px-4 py-2 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-xs font-bold transition-all shadow-sm inline-flex items-center gap-1.5 cursor-pointer"
             >
@@ -722,8 +791,8 @@ export default function ProductReviewsManager() {
               <div
                 key={review.id}
                 className={`bg-white rounded-2xl shadow-xs border transition-all duration-200 p-4 sm:p-5 flex flex-col justify-between ${
-                  !review.is_approved
-                    ? 'border-amber-300 bg-amber-50/15'
+                  !review.approved
+                    ? 'border-amber-300 bg-amber-50/20'
                     : 'border-slate-200/90 hover:border-slate-300 hover:shadow-md'
                 }`}
               >
@@ -741,7 +810,7 @@ export default function ProductReviewsManager() {
                             onError={(e) => { (e.target as any).style.display = 'none'; }}
                           />
                         ) : (
-                          <span>{initials || 'U'}</span>
+                          <span>{initials || <User className="w-4 h-4" />}</span>
                         )}
                       </div>
 
@@ -749,8 +818,8 @@ export default function ProductReviewsManager() {
                         <h4 className="font-bold text-slate-900 text-xs sm:text-sm truncate">
                           {review.customer_name}
                         </h4>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.2">
-                          Target: <strong className="text-slate-700">{review.products?.name || 'General Product'}</strong>
+                        <p className="text-[10px] text-slate-500 truncate mt-0.2">
+                          Target: <strong className="text-slate-800">{review.products?.name || 'General Product'}</strong>
                         </p>
                       </div>
                     </div>
@@ -760,7 +829,7 @@ export default function ProductReviewsManager() {
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-3 h-3 ${i < review.rating ? 'text-amber-500 fill-amber-500' : 'text-slate-200'}`}
+                          className={`w-3 h-3 ${i < Math.round(review.rating) ? 'text-amber-500 fill-amber-500' : 'text-slate-200'}`}
                         />
                       ))}
                       <span className="text-[10px] font-black text-amber-700 ml-1">{review.rating}.0</span>
@@ -776,14 +845,14 @@ export default function ProductReviewsManager() {
                 {/* Footer Badges & Actions */}
                 <div className="flex items-center justify-between border-t border-slate-100 pt-3 flex-wrap gap-2 text-xs">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {review.is_approved ? (
+                    {review.approved ? (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
                         Live on Site
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-800 border border-amber-300 animate-pulse flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" />
-                        Pending Approval
+                        Pending Moderation
                       </span>
                     )}
 
@@ -801,19 +870,21 @@ export default function ProductReviewsManager() {
                   {/* Action Controls */}
                   <div className="flex items-center gap-1">
                     <button
+                      type="button"
                       onClick={() => handleToggleApprove(review)}
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
-                        review.is_approved
+                        review.approved
                           ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                           : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
                       }`}
-                      title={review.is_approved ? 'Unpublish Review' : 'Approve Review'}
+                      title={review.approved ? 'Unpublish Review' : 'Approve Review'}
                     >
                       <Check className="w-3 h-3" />
-                      <span>{review.is_approved ? 'Unpublish' : 'Approve'}</span>
+                      <span>{review.approved ? 'Unpublish' : 'Approve'}</span>
                     </button>
 
                     <button
+                      type="button"
                       onClick={() => handleDelete(review.id, review.customer_name)}
                       className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
                       title="Delete Review"

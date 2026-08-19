@@ -15,7 +15,11 @@ export function useMenu() {
   const [products, setProducts] = useState<Product[]>(() => {
     try {
       const cached = localStorage.getItem('slimdose_products_cache');
-      return cached ? JSON.parse(cached) : demoProducts;
+      const parsed = cached ? JSON.parse(cached) : null;
+      if (parsed && Array.isArray(parsed) && parsed.length >= demoProducts.length) {
+        return parsed;
+      }
+      return demoProducts;
     } catch {
       return demoProducts;
     }
@@ -30,21 +34,31 @@ export function useMenu() {
   const [error, setError] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const lastFetchRef = useRef<number>(0);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastOrderCountsFetchRef = useRef<number>(0);
+  const cachedSalesCountMapRef = useRef<Map<string, number> | null>(null);
 
   useEffect(() => {
     fetchProducts();
 
+    const debouncedFetch = () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = setTimeout(() => {
+        fetchProducts();
+      }, 500);
+    };
+
     // Supabase realtime for updates (products, variations, orders)
-    const channelId = `products-realtime-${Date.now()}`;
+    const channelId = `products_realtime_sync`;
     const productsChannel = supabase
       .channel(channelId)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variations' }, () => fetchProducts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => fetchProducts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'product_variations' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, debouncedFetch)
       .subscribe();
 
     const handleOrderConfirmed = () => {
-      fetchProducts();
+      debouncedFetch();
     };
 
     window.addEventListener('orderConfirmed', handleOrderConfirmed);
@@ -55,7 +69,7 @@ export function useMenu() {
       const now = Date.now();
       if (now - lastFetchRef.current < 30_000) return; // skip if fetched < 30s ago
       if (focusTimeout) clearTimeout(focusTimeout);
-      focusTimeout = setTimeout(fetchProducts, 2000); // increase from 1s to 2s
+      focusTimeout = setTimeout(fetchProducts, 2000);
     };
     const handleVisibility = () => {
       if (document.hidden || window.location.pathname === '/admin') return;
@@ -74,32 +88,42 @@ export function useMenu() {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
       if (focusTimeout) clearTimeout(focusTimeout);
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, []);
 
   const fetchOrderCounts = async (currentProducts: Product[]) => {
     try {
-      const salesCountMap = new Map<string, number>();
-      const { data: allOrders } = await supabase
-        .from('orders')
-        .select('order_items, order_status');
+      const now = Date.now();
+      let salesCountMap = cachedSalesCountMapRef.current;
 
-      const completedOrders = (allOrders || []).filter(o => !['cancelled', 'declined', 'failed', 'refunded'].includes(o.order_status));
+      // Only query all orders if cache is empty or older than 60 seconds
+      if (!salesCountMap || (now - lastOrderCountsFetchRef.current > 60_000)) {
+        salesCountMap = new Map<string, number>();
+        const { data: allOrders } = await supabase
+          .from('orders')
+          .select('order_items, order_status')
+          .limit(500);
 
-      for (const orderRow of completedOrders) {
-        const items = Array.isArray(orderRow.order_items) ? orderRow.order_items : [];
-        for (const item of items) {
-          const pId = item.product_id;
-          const pName = (item.product_name || item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-          const qty = Number(item.quantity ?? 1);
-          if (pId) salesCountMap.set(pId, (salesCountMap.get(pId) || 0) + qty);
-          if (pName) salesCountMap.set(`name:${pName}`, (salesCountMap.get(`name:${pName}`) || 0) + qty);
+        const completedOrders = (allOrders || []).filter(o => !['cancelled', 'declined', 'failed', 'refunded'].includes(o.order_status));
+
+        for (const orderRow of completedOrders) {
+          const items = Array.isArray(orderRow.order_items) ? orderRow.order_items : [];
+          for (const item of items) {
+            const pId = item.product_id;
+            const pName = (item.product_name || item.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const qty = Number(item.quantity ?? 1);
+            if (pId) salesCountMap.set(pId, (salesCountMap.get(pId) || 0) + qty);
+            if (pName) salesCountMap.set(`name:${pName}`, (salesCountMap.get(`name:${pName}`) || 0) + qty);
+          }
         }
+        cachedSalesCountMapRef.current = salesCountMap;
+        lastOrderCountsFetchRef.current = now;
       }
 
       const updated = currentProducts.map(product => {
         const pNameKey = `name:${(product.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
-        const liveSales = (salesCountMap.get(product.id) || 0) + (salesCountMap.get(pNameKey) || 0);
+        const liveSales = (salesCountMap!.get(product.id) || 0) + (salesCountMap!.get(pNameKey) || 0);
         return { ...product, sales_count: liveSales || 0 };
       });
       
@@ -125,16 +149,28 @@ export function useMenu() {
         .order('name', { ascending: true });
 
       if (!sbError && data && data.length > 0) {
-        // Fetch variations
+        // Fetch variations in chunks of 25 (safe for Firestore 'in' limit of 30)
         const productIds = data.map(p => p.id);
         const variationsByProduct = new Map<string, ProductVariation[]>();
-        const { data: allVariations } = await supabase
-          .from('product_variations')
-          .select('*')
-          .in('product_id', productIds)
-          .order('quantity_mg', { ascending: true });
+        
+        const chunkSize = 25;
+        const idChunks: string[][] = [];
+        for (let i = 0; i < productIds.length; i += chunkSize) {
+          idChunks.push(productIds.slice(i, i + chunkSize));
+        }
 
-        for (const v of allVariations || []) {
+        const variationPromises = idChunks.map(chunk =>
+          supabase
+            .from('product_variations')
+            .select('*')
+            .in('product_id', chunk)
+            .order('quantity_mg', { ascending: true })
+        );
+
+        const variationResults = await Promise.all(variationPromises);
+        const allVariations = variationResults.flatMap(r => r.data || []);
+
+        for (const v of allVariations) {
           const list = variationsByProduct.get(v.product_id) || [];
           list.push(v);
           variationsByProduct.set(v.product_id, list);
@@ -246,10 +282,34 @@ export function useMenu() {
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
       mirrorProductDelete(id);
-      setProducts(products.filter(p => p.id !== id));
+      setProducts(prev => {
+        const next = prev.filter(p => String(p.id) !== String(id));
+        try { localStorage.setItem('slimdose_products_cache', JSON.stringify(next)); } catch {}
+        return next;
+      });
       return { success: true };
     } catch (err) {
+      console.error('Failed to delete product:', err);
       return { success: false, error: err instanceof Error ? err.message : 'Failed to delete product' };
+    }
+  };
+
+  const deleteMultipleProducts = async (ids: string[]) => {
+    if (!ids || ids.length === 0) return { success: true, count: 0 };
+    try {
+      const { error } = await supabase.from('products').delete().in('id', ids);
+      if (error) throw error;
+      ids.forEach(id => mirrorProductDelete(id));
+      const idSet = new Set(ids.map(String));
+      setProducts(prev => {
+        const next = prev.filter(p => !idSet.has(String(p.id)));
+        try { localStorage.setItem('slimdose_products_cache', JSON.stringify(next)); } catch {}
+        return next;
+      });
+      return { success: true, count: ids.length };
+    } catch (err) {
+      console.error('Failed to delete multiple products:', err);
+      return { success: false, error: err instanceof Error ? err.message : 'Failed to delete products' };
     }
   };
 
@@ -299,6 +359,7 @@ export function useMenu() {
     addProduct,
     updateProduct,
     deleteProduct,
+    deleteMultipleProducts,
     addVariation,
     updateVariation,
     deleteVariation,

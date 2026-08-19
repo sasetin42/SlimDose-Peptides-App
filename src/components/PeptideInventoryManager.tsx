@@ -28,7 +28,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import type { Product, ProductVariation } from '../types';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
 import { useCategories } from '../hooks/useCategories';
 import { supabase } from '../lib/supabase';
 import { mirrorProductAdjustStock, mirrorVariationAdjustStock } from '../lib/convexMirror';
@@ -46,7 +46,7 @@ interface RestockSetting {
 }
 
 export default function PeptideInventoryManager({ onBack: _onBack }: PeptideInventoryManagerProps) {
-  const { products, loading, refreshProducts } = useMenu();
+  const { products, loading, refreshProducts } = useMenuContext();
   const { categories } = useCategories();
 
   // Filters & State

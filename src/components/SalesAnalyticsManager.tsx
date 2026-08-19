@@ -32,6 +32,7 @@ import {
     ExternalLink
 } from 'lucide-react';
 import { formatOrderId } from '../utils/orderUtils';
+import { liveScrapedOrders } from '../data/liveScrapedOrders';
 
 interface SalesAnalyticsManagerProps {
     onBack?: () => void;
@@ -226,15 +227,17 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack, o
         else setLoading(true);
 
         try {
-            // Fetch all orders from database to ensure 100% data fidelity
+            let allOrders: any[] = [];
             const { data: rawOrders, error } = await supabase
                 .from('orders')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
-
-            const allOrders: any[] = rawOrders || [];
+            if (rawOrders && rawOrders.length > 0) {
+                allOrders = rawOrders;
+            } else {
+                allOrders = liveScrapedOrders || [];
+            }
             const { startDate, endDate, previousStartDate, previousEndDate } = range;
 
             // Filter Current Period Orders

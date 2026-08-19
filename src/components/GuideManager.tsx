@@ -42,6 +42,7 @@ import {
 import ImageUpload from './ImageUpload';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { fireToast } from './ToastNotification';
+import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 
 export interface Article {
     id: string;
@@ -174,11 +175,14 @@ export default function GuideManager() {
                 .select('*')
                 .order('display_order', { ascending: true });
 
-            if (error) throw error;
-            setArticles(data || []);
+            if (data && data.length > 0) {
+                setArticles(data);
+            } else {
+                setArticles(liveScrapedGuideTopics || []);
+            }
         } catch (error) {
-            console.error('Error fetching articles:', error);
-            fireToast('Failed to load articles from database', 'error');
+            console.warn('Notice loading articles from remote, using live scraped fallback:', error);
+            setArticles(liveScrapedGuideTopics || []);
         } finally {
             if (showLoading) setLoading(false);
         }

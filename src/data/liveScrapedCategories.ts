@@ -1,14 +1,5 @@
-export interface LiveCategory {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  icon?: string;
-  display_order?: number;
-  created_at?: string;
-}
-
-export const liveScrapedCategories: LiveCategory[] = [
+// Live Scraped Categories from slimdoseph.com (2026-08-18T04:41:38.022Z)
+export const liveScrapedCategories = [
   {
     "id": "84aaf270-46e9-53a9-9995-89953b778871",
     "name": "Peptides",

@@ -33,10 +33,11 @@ import {
   Flame,
   Tag,
   ShieldCheck,
-  MoreVertical
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useMenu } from '../hooks/useMenu';
+import { useMenuContext } from '../contexts/MenuContext';
 import { fireToast } from './ToastNotification';
 import {
   mirrorOrderUpdateDetails,
@@ -166,7 +167,9 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [batchActionInProgress, setBatchActionInProgress] = useState<string | null>(null);
   const [activeDropdownOrderId, setActiveDropdownOrderId] = useState<string | null>(null);
-  const { refreshProducts } = useMenu();
+  const { refreshProducts } = useMenuContext();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(50);
 
   useEffect(() => {
     loadOrders();
@@ -244,14 +247,46 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       if (error) {
         console.warn('Notice loading orders from database, using live scraped orders:', error);
       }
-      if (data && data.length > 0) {
-        setOrders(data);
-      } else {
-        setOrders(liveScrapedOrders || []);
-      }
+      let loaded = (data && data.length > 0) ? data : (liveScrapedOrders || []);
+      // Filter out specifically removed test order (SLD-000959 / SDP0959 / admin@gmail.com) and any user deleted orders
+      loaded = loaded.filter((o: any) => {
+        const num = String(o.order_number || o.id || '').toUpperCase();
+        const email = String(o.customer_email || '').toLowerCase().trim();
+        const phone = String(o.customer_phone || '').replace(/[^0-9]/g, '');
+        if (num === 'SDP0959' || num === 'SLD-000959' || (email === 'admin@gmail.com' && phone === '639773590258')) {
+          return false;
+        }
+        return true;
+      });
+
+      try {
+        const deletedRaw = localStorage.getItem('slimdose_deleted_orders');
+        if (deletedRaw) {
+          const deletedIds = new Set(JSON.parse(deletedRaw));
+          loaded = loaded.filter((o: any) => !deletedIds.has(o.id) && !deletedIds.has(o.order_number));
+        }
+      } catch {}
+      setOrders(loaded);
     } catch (error) {
       console.warn('Error loading orders, falling back to scraped orders cache:', error);
-      setOrders(liveScrapedOrders || []);
+      let fallback = liveScrapedOrders || [];
+      fallback = fallback.filter((o: any) => {
+        const num = String(o.order_number || o.id || '').toUpperCase();
+        const email = String(o.customer_email || '').toLowerCase().trim();
+        const phone = String(o.customer_phone || '').replace(/[^0-9]/g, '');
+        if (num === 'SDP0959' || num === 'SLD-000959' || (email === 'admin@gmail.com' && phone === '639773590258')) {
+          return false;
+        }
+        return true;
+      });
+      try {
+        const deletedRaw = localStorage.getItem('slimdose_deleted_orders');
+        if (deletedRaw) {
+          const deletedIds = new Set(JSON.parse(deletedRaw));
+          fallback = fallback.filter((o: any) => !deletedIds.has(o.id) && !deletedIds.has(o.order_number));
+        }
+      } catch {}
+      setOrders(fallback);
     } finally {
       setLoading(false);
     }
@@ -455,6 +490,53 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     }
   };
 
+  const handleDeleteOrder = async (order: Order) => {
+    const orderRef = orderIdMap.get(order.id) || formatOrderId(order);
+    if (!confirm(`Are you sure you want to permanently delete order ${orderRef} (${order.customer_name})? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', order.id);
+
+      if (error) {
+        console.warn('Database delete warning:', error);
+      }
+
+      // Record in local cache of deleted IDs to ensure persistent deletion across fallbacks
+      try {
+        const deletedRaw = localStorage.getItem('slimdose_deleted_orders') || '[]';
+        const deletedList: string[] = JSON.parse(deletedRaw);
+        if (!deletedList.includes(order.id)) {
+          deletedList.push(order.id);
+          localStorage.setItem('slimdose_deleted_orders', JSON.stringify(deletedList));
+        }
+      } catch {}
+
+      setOrders(prev => prev.filter(o => o.id !== order.id));
+      if (selectedOrder && selectedOrder.id === order.id) {
+        setSelectedOrder(null);
+      }
+      setSelectedOrderIds(prev => {
+        const next = new Set(prev);
+        next.delete(order.id);
+        return next;
+      });
+
+      fireToast(`Order ${orderRef} deleted successfully! 🗑️`, 'success');
+    } catch (error: any) {
+      console.error('Error deleting order:', error);
+      fireToast(`Failed to delete order: ${error.message || 'Unknown error'}`, 'error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+
   const handleCopyOrderId = (orderRef: string) => {
     navigator.clipboard.writeText(orderRef.replace('#', ''));
     setCopiedId(orderRef);
@@ -592,6 +674,48 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       setBatchActionInProgress(null);
     }
   };
+
+  const handleBatchDelete = async () => {
+    const idsArray = Array.from(selectedOrderIds);
+    const count = idsArray.length;
+    if (count === 0) return;
+
+    if (!confirm(`Are you sure you want to permanently delete ${count} selected order(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setBatchActionInProgress('delete');
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .in('id', idsArray);
+
+      if (error) {
+        console.warn('Batch database delete error:', error);
+      }
+
+      // Record in local cache of deleted IDs
+      try {
+        const deletedRaw = localStorage.getItem('slimdose_deleted_orders') || '[]';
+        const deletedList: string[] = JSON.parse(deletedRaw);
+        for (const id of idsArray) {
+          if (!deletedList.includes(id)) deletedList.push(id);
+        }
+        localStorage.setItem('slimdose_deleted_orders', JSON.stringify(deletedList));
+      } catch {}
+
+      setOrders(prev => prev.filter(o => !selectedOrderIds.has(o.id)));
+      setSelectedOrderIds(new Set());
+      fireToast(`Successfully deleted ${count} orders! 🗑️`, 'success');
+    } catch (err: any) {
+      console.error('Error in batch delete:', err);
+      fireToast('Failed to delete selected orders.', 'error');
+    } finally {
+      setBatchActionInProgress(null);
+    }
+  };
+
 
   const classifyRegion = (state: string): string => {
     const s = (state || '').toLowerCase().trim();
@@ -739,6 +863,18 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     return filtered;
   }, [orders, statusFilter, regionFilter, searchQuery, sortMode]);
 
+  // Reset to page 1 when filter parameters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, regionFilter, sortMode, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const paginatedOrders = useMemo(() => {
+    if (pageSize >= 9999) return filteredOrders;
+    const start = (currentPage - 1) * pageSize;
+    return filteredOrders.slice(start, start + pageSize);
+  }, [filteredOrders, currentPage, pageSize]);
+
   const statusCounts = useMemo(() => {
     return {
       all: orders.length,
@@ -783,7 +919,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     const rows = filteredOrders.map(o => {
       const dt = formatDateDetails(o);
       return [
-        o.order_number || o.id.slice(0, 8),
+        o.order_number || (o.id ? String(o.id).slice(0, 8) : 'ORD'),
         dt.fullDate,
         dt.time,
         o.customer_name,
@@ -852,6 +988,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         order={selectedOrder}
         onBack={() => setSelectedOrder(null)}
         onConfirm={() => handleConfirmOrder(selectedOrder)}
+        onDelete={handleDeleteOrder}
         onUpdateStatus={handleUpdateOrderStatus}
         onUpdatePaymentStatus={handleUpdatePaymentStatus}
         onSaveTracking={handleSaveTracking}
@@ -1101,7 +1238,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
-                  {filteredOrders.map((order, index) => {
+                  {paginatedOrders.map((order, index) => {
                     const totalItems = (order.order_items || []).reduce((sum, item) => sum + item.quantity, 0);
                     const finalTotal = (order.total_price || 0) + (order.shipping_fee || 0);
                     const dateInfo = formatDateDetails(order);
@@ -1109,7 +1246,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                     const isNewOrder = order.order_status === 'new';
                     const isSelected = selectedOrderIds.has(order.id);
                     const isDropdownActive = activeDropdownOrderId === order.id;
-                    const isNearBottom = index >= Math.max(1, filteredOrders.length - 2) && filteredOrders.length >= 2;
+                    const isNearBottom = index >= Math.max(1, paginatedOrders.length - 2) && paginatedOrders.length >= 2;
                     const primaryProductsText = (order.order_items || []).map(i => {
                       const name = i.product_name || 'Product';
                       const variation = i.variation_name ? ` (${i.variation_name})` : '';
@@ -1138,14 +1275,33 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
                         {/* 1st Column: Product & Order */}
                         <td className="py-2.5 px-3 align-middle max-w-[280px]">
-                          <div className="space-y-1">
                             <div className="font-bold text-slate-900 text-[12px] tracking-tight line-clamp-2 leading-snug" title={primaryProductsText}>
                               {primaryProductsText}
                             </div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-mono font-bold text-slate-800 text-[11px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/80">
-                                {orderRef}
-                              </span>
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rawCode = order.order_number || order.id || '';
+                                    const textToCopy = rawCode.startsWith('SLD-') || rawCode.startsWith('SDP') ? rawCode : orderRef.replace(/^ID:\s*/i, '');
+                                    navigator.clipboard.writeText(textToCopy);
+                                    setCopiedId(order.id);
+                                    fireToast(`Copied Order ${orderRef} to clipboard! 📋`, 'success', 2000);
+                                    setTimeout(() => setCopiedId(null), 2000);
+                                  }}
+                                  className="font-mono font-bold text-slate-800 text-[11px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 px-2 py-0.5 rounded-md border border-slate-300/80 transition-all flex items-center gap-1 cursor-pointer group/id shadow-2xs hover:border-[#3C6CA8]"
+                                  title="Click to copy full Order ID code"
+                                >
+                                  <span>{orderRef}</span>
+                                  {copiedId === order.id ? (
+                                    <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                                  ) : (
+                                    <Copy className="w-2.5 h-2.5 text-slate-400 group-hover/id:text-[#3C6CA8] shrink-0" />
+                                  )}
+                                </button>
+                              </div>
                               {isNewOrder && (
                                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500 text-white shadow-xs animate-pulse">
                                   <Sparkles className="w-2.5 h-2.5" />
@@ -1162,8 +1318,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                                 {order.payment_status === 'paid' ? 'PAID' : 'PENDING'}
                               </span>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
                         {/* 2nd Column: Customer Details */}
                         <td className="py-2.5 px-3 align-middle">
@@ -1332,6 +1487,19 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                                       </button>
                                     ))}
                                   </div>
+
+                                  <div className="p-1 border-t border-slate-100">
+                                    <button
+                                      onClick={() => {
+                                        setActiveDropdownOrderId(null);
+                                        handleDeleteOrder(order);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                                      <span>Delete Order</span>
+                                    </button>
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -1364,7 +1532,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                   </span>
                 )}
               </div>
-              {filteredOrders.map((order) => {
+              {paginatedOrders.map((order) => {
                 const totalItems = (order.order_items || []).reduce((sum, item) => sum + item.quantity, 0);
                 const finalTotal = (order.total_price || 0) + (order.shipping_fee || 0);
                 const dateInfo = formatDateDetails(order);
@@ -1396,8 +1564,28 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                           <div className="font-bold text-slate-900 text-[12px] tracking-tight truncate">
                             {primaryProductsText}
                           </div>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="font-mono font-bold text-slate-800 text-xs">{orderRef}</span>
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rawCode = order.order_number || order.id || '';
+                                const textToCopy = rawCode.startsWith('SLD-') || rawCode.startsWith('SDP') ? rawCode : orderRef.replace(/^ID:\s*/i, '');
+                                navigator.clipboard.writeText(textToCopy);
+                                setCopiedId(order.id);
+                                fireToast(`Copied Order ${orderRef} 📋`, 'success', 1800);
+                                setTimeout(() => setCopiedId(null), 1800);
+                              }}
+                              className="font-mono font-bold text-slate-800 text-xs bg-slate-100 active:bg-slate-200 px-1.5 py-0.5 rounded border border-slate-300 flex items-center gap-1 cursor-pointer"
+                              title="Tap to copy Order ID"
+                            >
+                              <span>{orderRef}</span>
+                              {copiedId === order.id ? (
+                                <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                              ) : (
+                                <Copy className="w-2.5 h-2.5 text-slate-400 shrink-0" />
+                              )}
+                            </button>
                             {isNewOrder && (
                               <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-black bg-amber-500 text-white shadow-xs">
                                 NEW
@@ -1465,12 +1653,81 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                           <Eye className="w-3.5 h-3.5" />
                           <span>View</span>
                         </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order)}
+                          disabled={isProcessing}
+                          className="p-1.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors cursor-pointer"
+                          title="Delete Order"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Pagination Controls Bar */}
+            {filteredOrders.length > 0 && (
+              <div className="p-3.5 bg-slate-50/90 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-500">
+                    Showing <span className="font-bold text-slate-900">{Math.min(filteredOrders.length, (currentPage - 1) * pageSize + 1)}</span> to <span className="font-bold text-slate-900">{Math.min(filteredOrders.length, currentPage * pageSize)}</span> of <span className="font-bold text-slate-900">{filteredOrders.length}</span> orders
+                  </span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 outline-none focus:border-[#3C6CA8] cursor-pointer"
+                  >
+                    <option value={25}>25 per page</option>
+                    <option value={50}>50 per page</option>
+                    <option value={100}>100 per page</option>
+                    <option value={9999}>All orders</option>
+                  </select>
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      title="First Page"
+                    >
+                      «
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      title="Previous Page"
+                    >
+                      ‹ Prev
+                    </button>
+                    <span className="px-3 py-1 font-bold text-slate-800 bg-white border border-slate-200 rounded-lg">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      title="Next Page"
+                    >
+                      Next ›
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg font-bold hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      title="Last Page"
+                    >
+                      »
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -1552,11 +1809,21 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
               <button
                 onClick={() => handleBatchUpdateStatus('cancelled')}
                 disabled={batchActionInProgress !== null}
-                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
                 title="Cancel all selected orders"
               >
                 {batchActionInProgress === 'cancelled' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
                 <span>Cancel</span>
+              </button>
+
+              <button
+                onClick={handleBatchDelete}
+                disabled={batchActionInProgress !== null}
+                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95"
+                title="Permanently delete all selected orders"
+              >
+                {batchActionInProgress === 'delete' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>Delete</span>
               </button>
 
               <button
@@ -1580,6 +1847,7 @@ interface OrderDetailsViewProps {
   order: Order;
   onBack: () => void;
   onConfirm: () => void;
+  onDelete: (order: Order) => void;
   onUpdateStatus: (orderId: string, status: string) => void;
   onUpdatePaymentStatus: (orderId: string, paymentStatus: string) => void;
   onSaveTracking: (orderId: string, trackingNumber: string, shippingNote: string) => void;
@@ -1591,6 +1859,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
   order,
   onBack,
   onConfirm,
+  onDelete,
   onUpdateStatus,
   onUpdatePaymentStatus,
   onSaveTracking,
@@ -1758,13 +2027,24 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-              <span>Edit Details</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>Edit Details</span>
+              </button>
+              <button
+                onClick={() => onDelete(order)}
+                disabled={isProcessing}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition-all cursor-pointer disabled:opacity-50"
+                title="Delete this order"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>Delete</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -2076,7 +2356,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                       <span className="text-slate-400 flex items-center gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Contact Method</span>
                       <span className="font-bold text-blue-600 flex items-center gap-1">
                         <MessageCircle className="w-3 h-3" />
-                        {order.contact_method.charAt(0).toUpperCase() + order.contact_method.slice(1)}
+                        {String(order.contact_method).charAt(0).toUpperCase() + String(order.contact_method).slice(1)}
                       </span>
                     </div>
                   )}

@@ -1,4 +1,5 @@
-export const liveScrapedPromoCodes: any[] = [
+// Live Scraped Promo Codes from slimdoseph.com (2026-08-18T04:41:38.023Z)
+export const liveScrapedPromoCodes = [
   {
     "id": "280b8478-b1d0-4294-b245-6a440879f7c0",
     "code": "NEWMEMBER",

@@ -3,14 +3,18 @@ import { supabase } from '../lib/supabase';
 import { SiteSettings } from '../types';
 import { mirrorSiteSettingUpsert, mirrorSiteSettingsUpsertMany } from '../lib/convexMirror';
 
+let cachedSiteSettings: SiteSettings | null = null;
+
 export const useSiteSettings = () => {
-  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(() => cachedSiteSettings);
+  const [loading, setLoading] = useState(!cachedSiteSettings);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSiteSettings = async () => {
     try {
-      setLoading(true);
+      if (!cachedSiteSettings) {
+        setLoading(true);
+      }
       setError(null);
 
       const { data, error } = await supabase
@@ -88,6 +92,7 @@ export const useSiteSettings = () => {
         smtp_send_status_update: settingsData.find(s => s.id === 'smtp_send_status_update')?.value || 'true'
       };
 
+      cachedSiteSettings = settings;
       setSiteSettings(settings);
     } catch (err) {
       console.error('Error fetching site settings:', err);

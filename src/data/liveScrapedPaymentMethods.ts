@@ -1,4 +1,5 @@
-export const liveScrapedPaymentMethods: any[] = [
+// Live Scraped Payment Methods from slimdoseph.com (2026-08-18T04:41:38.022Z)
+export const liveScrapedPaymentMethods = [
   {
     "id": "bdo",
     "name": "BDO",

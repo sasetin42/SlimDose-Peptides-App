@@ -1,18 +1,16 @@
 # Slimdose
 
-E-commerce storefront and admin console for research-grade peptides. Built as a single-page React + TypeScript app on top of Supabase.
+E-commerce storefront and admin console for research-grade peptides. Built as a single-page React + TypeScript app fully dedicated to Firebase.
 
 ## Stack
 
 - **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, React Router 7
-- **Backend:** Supabase (Postgres, Auth, Storage, Realtime)
+- **Backend:** Google Firebase (Cloud Firestore, Firebase Authentication, Firebase Storage, Firebase Hosting)
 - **Icons / UI:** lucide-react, qrcode.react
 - **Analytics:** PostHog
-- **Deploy:** Vercel (`vercel.json` included)
+- **Deploy:** Firebase Hosting (`firebase.json` included)
 
 ## Features
-
-
 
 **Storefront**
 - Product catalog with categories, search, and variations (per-size pricing/stock)
@@ -39,24 +37,18 @@ E-commerce storefront and admin console for research-grade peptides. Built as a 
 src/
 ├── components/      # All UI — storefront + admin panels
 ├── hooks/           # Data hooks (useMenu, useCart, useSiteSettings, …)
-├── lib/             # Supabase client and shared services
+├── lib/             # Firebase SDK client, adapters, and shared services
 ├── types/           # Shared TypeScript types
 ├── utils/           # Helpers
 └── App.tsx          # Router and top-level layout
 
-supabase/
-└── migrations/      # Timestamped SQL migrations (source of truth for schema)
-
-email-templates/     # Transactional email HTML
 scripts/             # One-off maintenance scripts
 public/              # Static assets
 ```
 
-Top-level SQL files (`CREATE_*.sql`, `FIX_*.sql`, etc.) are legacy patches kept for reference; new schema changes go into `supabase/migrations/`.
-
 ## Setup
 
-Prereqs: Node 18+, a Supabase project.
+Prereqs: Node 18+, a Firebase project (`slimdose-peptides`).
 
 ```bash
 npm install

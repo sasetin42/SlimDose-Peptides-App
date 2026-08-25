@@ -161,9 +161,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
 
-      {/* Toast Container — top-right */}
+      {/* Toast Container — top-right (z-[999999] guarantees it renders above any modal/portal) */}
       <div
-        className="fixed top-4 right-4 z-[9999] flex flex-col items-end pointer-events-none"
+        className="fixed top-4 right-4 z-[999999] flex flex-col items-end pointer-events-none"
         aria-live="polite"
       >
         {toasts.map(t => (

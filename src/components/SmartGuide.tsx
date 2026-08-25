@@ -480,9 +480,10 @@ export default function SmartGuide() {
                               {article.title}
                             </h3>
                             {article.preview && (
-                              <p className="text-[11px] sm:text-xs text-gray-600 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 leading-relaxed mb-3 sm:mb-4">
-                                {article.preview}
-                              </p>
+                              <div
+                                className="text-[11px] sm:text-xs text-gray-600 dark:text-slate-400 line-clamp-2 sm:line-clamp-3 leading-relaxed mb-3 sm:mb-4 [&>p]:inline [&>p]:mb-0"
+                                dangerouslySetInnerHTML={{ __html: article.preview }}
+                              />
                             )}
 
                             {/* Meta Info */}

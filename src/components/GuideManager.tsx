@@ -37,7 +37,32 @@ import {
     ArrowUpDown,
     ImageIcon,
     Upload,
-    Loader2
+    Loader2,
+    Strikethrough,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    AlignJustify,
+    List,
+    ListOrdered,
+    Quote,
+    Table,
+    Link as LinkIcon,
+    AlertTriangle,
+    Info,
+    ShieldCheck,
+    Maximize2,
+    Minimize2,
+    Undo,
+    Redo,
+    Heading1,
+    Heading2,
+    Heading3,
+    Type,
+    Minus,
+    Tag,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import { useImageUpload } from '../hooks/useImageUpload';
@@ -95,6 +120,8 @@ export default function GuideManager() {
     // Modal state
     const [showModal, setShowModal] = useState(false);
     const [editingArticle, setEditingArticle] = useState<string | null>(null);
+    const [isFullscreenEditor, setIsFullscreenEditor] = useState(false);
+    const [isMetaDrawerOpen, setIsMetaDrawerOpen] = useState(true);
     const [modalData, setModalData] = useState<ModalData>({
         title: '',
         preview: '',
@@ -108,6 +135,7 @@ export default function GuideManager() {
     });
 
     const contentEditorRef = useRef<HTMLDivElement>(null);
+    const teaserEditorRef = useRef<HTMLDivElement>(null);
     const articleImageInputRef = useRef<HTMLInputElement>(null);
     const { uploadImage: uploadArticleImage, uploading: isUploadingArticleImage } = useImageUpload('article-body-images');
 
@@ -122,7 +150,7 @@ export default function GuideManager() {
                 if (contentEditorRef.current) {
                     contentEditorRef.current.focus();
                 }
-                const imageHtml = `<p><img src="${uploadedUrl}" alt="Article Illustration" style="max-width: 100%; height: auto; border-radius: 12px; margin: 12px 0; display: block; box-shadow: 0 4px 12px rgba(0,0,0,0.08);" /></p><p><br></p>`;
+                const imageHtml = `<p><img src="${uploadedUrl}" alt="Article Illustration" style="max-width: 100%; height: auto; border-radius: 12px; margin: 16px auto; display: block; box-shadow: 0 4px 14px rgba(0,0,0,0.08);" /></p><p><br></p>`;
                 document.execCommand('insertHTML', false, imageHtml);
                 handleContentChange();
                 fireToast('Image inserted into article! 📸', 'success');
@@ -197,11 +225,12 @@ export default function GuideManager() {
 
     // Calculate Reading Time
     const getReadingTime = (content: string) => {
-        const text = content.replace(/<[^>]*>/g, '');
-        const words = text.trim().split(/\s+/).length;
+        const text = (content || '').replace(/<[^>]*>/g, '');
+        const words = text.trim().split(/\s+/).filter(Boolean).length;
         const minutes = Math.ceil(words / 180);
         return minutes > 0 ? `${minutes} min read` : '1 min read';
     };
+    const calculateReadTime = getReadingTime;
 
     const handleContentChange = () => {
         if (contentEditorRef.current) {
@@ -212,11 +241,68 @@ export default function GuideManager() {
         }
     };
 
+    const handleTeaserChange = () => {
+        if (teaserEditorRef.current) {
+            setModalData(prev => ({
+                ...prev,
+                preview: teaserEditorRef.current?.innerHTML || ''
+            }));
+        }
+    };
+
     const applyFormat = (command: string, value: string | undefined = undefined) => {
         document.execCommand(command, false, value);
         handleContentChange();
         if (contentEditorRef.current) {
             contentEditorRef.current.focus();
+        }
+    };
+
+    const applyTeaserFormat = (command: string, value: string | undefined = undefined) => {
+        document.execCommand(command, false, value);
+        handleTeaserChange();
+        if (teaserEditorRef.current) {
+            teaserEditorRef.current.focus();
+        }
+    };
+
+    const insertCallout = (type: 'info' | 'warning' | 'success') => {
+        if (contentEditorRef.current) contentEditorRef.current.focus();
+        let calloutHtml = '';
+        if (type === 'info') {
+            calloutHtml = `<div class="peptalk-callout-info"><div><p style="margin:0;font-weight:700;">💡 Clinical Tip</p><p style="margin:4px 0 0 0;">Add your clinical research tip, guideline, or protocol recommendation here.</p></div></div><p><br></p>`;
+        } else if (type === 'warning') {
+            calloutHtml = `<div class="peptalk-callout-warning"><div><p style="margin:0;font-weight:700;">⚠️ Important Precaution</p><p style="margin:4px 0 0 0;">Highlight safety contraindications, reconstitution precautions, or dosage warnings here.</p></div></div><p><br></p>`;
+        } else {
+            calloutHtml = `<div class="peptalk-callout-success"><div><p style="margin:0;font-weight:700;">✅ Protocol Verified</p><p style="margin:4px 0 0 0;">Document best practice findings, standard storage parameters, or titration goals.</p></div></div><p><br></p>`;
+        }
+        document.execCommand('insertHTML', false, calloutHtml);
+        handleContentChange();
+        fireToast('Callout block inserted! 💡', 'success');
+    };
+
+    const insertClinicalTable = () => {
+        if (contentEditorRef.current) contentEditorRef.current.focus();
+        const tableHtml = `<table><thead><tr><th>Strength / Vial</th><th>BAC Reconstitution</th><th>Recommended Dose</th><th>Frequency</th></tr></thead><tbody><tr><td>5mg Vial</td><td>1.0 mL BAC Water</td><td>0.25mg (5 Units)</td><td>Once Weekly</td></tr><tr><td>10mg Vial</td><td>2.0 mL BAC Water</td><td>0.50mg (10 Units)</td><td>Once Weekly</td></tr><tr><td>15mg Vial</td><td>3.0 mL BAC Water</td><td>0.75mg (15 Units)</td><td>Once Weekly</td></tr></tbody></table><p><br></p>`;
+        document.execCommand('insertHTML', false, tableHtml);
+        handleContentChange();
+        fireToast('Clinical table inserted! 📊', 'success');
+    };
+
+    const insertQuote = () => {
+        if (contentEditorRef.current) contentEditorRef.current.focus();
+        const quoteHtml = `<blockquote>&ldquo;Consistency, gentle handling, and strict adherence to refrigeration standards maximize compound integrity.&rdquo;</blockquote><p><br></p>`;
+        document.execCommand('insertHTML', false, quoteHtml);
+        handleContentChange();
+        fireToast('Quote block inserted! ❝', 'success');
+    };
+
+    const insertLink = () => {
+        const url = prompt('Enter destination link URL (e.g. https://slimdose.com):');
+        if (url) {
+            document.execCommand('createLink', false, url);
+            handleContentChange();
+            fireToast('Link inserted! 🔗', 'success');
         }
     };
 
@@ -834,13 +920,17 @@ export default function GuideManager() {
                 </div>
             )}
 
-            {/* ── 2-COLUMN ARTICLE EDITOR & CREATION MODAL ── */}
+            {/* ── FULL-WIDTH EXPANSIVE ARTICLE EDITOR & CREATION MODAL ── */}
             {showModal && (
-                <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center z-50 p-3 sm:p-6 overflow-y-auto animate-fadeIn">
-                    <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-6xl w-full shadow-2xl my-auto border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden">
+                <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto animate-fadeIn">
+                    <div className={`bg-white dark:bg-slate-900 shadow-2xl my-auto border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden transition-all duration-200 ${
+                        isFullscreenEditor
+                            ? 'fixed inset-2 sm:inset-4 max-w-none max-h-none rounded-2xl z-[60]'
+                            : 'rounded-3xl max-w-6xl w-full max-h-[94vh]'
+                    }`}>
                         
-                        {/* Compact Header */}
-                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-950 shrink-0">
+                        {/* Modal Header */}
+                        <div className="px-5 sm:px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-950 shrink-0">
                             <div className="flex items-center gap-2.5">
                                 <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center font-bold">
                                     <BookOpen className="w-4 h-4" />
@@ -850,332 +940,574 @@ export default function GuideManager() {
                                         {editingArticle ? 'Edit Peptalk Article' : 'Create New Peptalk Article'}
                                     </h3>
                                     <p className="text-[11px] text-slate-400">
-                                        Compose article content, cover banner, author details, and associated peptide products.
+                                        Full-width composing canvas with real-time WYSIWYG preview and clinical formatting tools.
                                     </p>
                                 </div>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={closeModal}
-                                className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 text-slate-500 flex items-center justify-center transition-all cursor-pointer"
-                                aria-label="Close modal"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsFullscreenEditor(!isFullscreenEditor)}
+                                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all cursor-pointer"
+                                    title={isFullscreenEditor ? 'Exit Fullscreen' : 'Fullscreen Canvas'}
+                                >
+                                    {isFullscreenEditor ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 text-slate-500 transition-all cursor-pointer"
+                                    aria-label="Close modal"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
 
-                        {/* 2-Column Content Body */}
-                        <div className="p-5 sm:p-6 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
+                        {/* Modal Continuous Scrollable Canvas */}
+                        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
                             
-                            {/* Left Column (Primary Content: Title, Cover Image, Excerpt, Body Editor) */}
-                            <div className="lg:col-span-7 space-y-4">
-                                
-                                {/* Article Title */}
-                                <div className="space-y-1">
+                            {/* ── 1. Article Title (Full-Width Prominent) ── */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
                                     <label htmlFor="guidemanager-article-title" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                                         Article Title *
                                     </label>
-                                    <input id="guidemanager-article-title" name="article_title" type="text"
-                                        value={modalData.title}
-                                        onChange={(e) => setModalData({ ...modalData, title: e.target.value })}
-                                        className="w-full px-3.5 py-2 text-xs font-bold border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                                        placeholder="e.g. Understanding Reconstitution, Dosage Titration and Safety Protocols"
-                                    />
+                                    <span className="text-[10px] text-slate-400 font-mono">
+                                        {modalData.title.length} characters
+                                    </span>
                                 </div>
-
-                                {/* Cover Image Banner */}
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                        Cover Image (Hero Banner)
-                                    </label>
-                                    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3">
-                                        <ImageUpload
-                                            currentImage={modalData.cover_image || undefined}
-                                            onImageChange={(imageUrl) => setModalData({ ...modalData, cover_image: imageUrl || null })}
-                                            folder="article-covers"
-                                            title="Click to upload cover banner"
-                                            subtitle="Supports JPG, PNG, WebP, GIF, SVG - max 10MB"
-                                            urlPlaceholder="https://example.com/cover-image.jpg"
-                                            urlLabel="Or enter cover image URL"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Teaser Preview Text */}
-                                <div className="space-y-1">
-                                    <div className="flex items-center justify-between">
-                                        <label htmlFor="guidemanager-cover-image-hero-banner-setmod" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                            Teaser Excerpt Summary
-                                        </label>
-                                        <span className="text-[10px] text-slate-400">
-                                            {modalData.preview.length}/180 chars
-                                        </span>
-                                    </div>
-                                    <textarea id="guidemanager-cover-image-hero-banner-setmod" name="cover_image_hero_banner_setmod" value={modalData.preview}
-                                        onChange={(e) => setModalData({ ...modalData, preview: e.target.value })}
-                                        rows={2}
-                                        maxLength={180}
-                                        className="w-full px-3.5 py-2 text-xs border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none resize-none leading-relaxed"
-                                        placeholder="Brief 1-2 sentence overview shown in article card listings..."
-                                    />
-                                </div>
-
-                                {/* Rich Text Article Content Body */}
-                                <div className="space-y-1">
-                                    <div className="flex items-center justify-between">
-                                        <label htmlFor="guidemanager-article-body-content-visual-wy" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                            Article Body Content *
-                                        </label>
-                                        <span className="text-[10px] text-slate-400">
-                                            Visual WYSIWYG Formatter
-                                        </span>
-                                    </div>
-
-                                    {/* Formatting Toolbar */}
-                                    <div className="flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 border-b-0 rounded-t-xl flex-wrap text-slate-700 dark:text-slate-300">
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('bold')}
-                                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md font-bold text-xs"
-                                            title="Bold (Ctrl+B)"
-                                        >
-                                            <Bold className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('italic')}
-                                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs"
-                                            title="Italic (Ctrl+I)"
-                                        >
-                                            <Italic className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('underline')}
-                                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs"
-                                            title="Underline (Ctrl+U)"
-                                        >
-                                            <Underline className="w-3.5 h-3.5" />
-                                        </button>
-
-                                        <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
-
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('formatBlock', '<h2>')}
-                                            className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-bold"
-                                            title="Heading 2"
-                                        >
-                                            H2
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('formatBlock', '<h3>')}
-                                            className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-semibold"
-                                            title="Heading 3"
-                                        >
-                                            H3
-                                        </button>
-
-                                        <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
-
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('insertUnorderedList')}
-                                            className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium"
-                                            title="Bullet List"
-                                        >
-                                            • Bullet
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('insertOrderedList')}
-                                            className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium"
-                                            title="Numbered List"
-                                        >
-                                            1. List
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => applyFormat('insertHorizontalRule')}
-                                            className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium"
-                                            title="Insert Divider"
-                                        >
-                                            ― Line
-                                        </button>
-
-                                        <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
-
-                                        {/* Inline Photo/Image Upload Button */}
-                                        <input id="guidemanager-file-upload" name="file_upload" type="file"
-                                            ref={articleImageInputRef}
-                                            onChange={handleArticleImageSelect}
-                                            accept="image/*"
-                                            className="hidden"/>
-                                        <button
-                                            type="button"
-                                            onClick={() => articleImageInputRef.current?.click()}
-                                            disabled={isUploadingArticleImage}
-                                            className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#3C6CA8]/10 hover:bg-[#3C6CA8]/20 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-[#94BBE9] rounded-md text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
-                                            title="Upload and insert photo/image directly into article"
-                                        >
-                                            {isUploadingArticleImage ? (
-                                                <>
-                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                                    <span>Uploading...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <ImageIcon className="w-3.5 h-3.5" />
-                                                    <span>Insert Photo</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-
-                                    {/* Content Editable Body */}
-                                    <div
-                                        ref={contentEditorRef}
-                                        contentEditable
-                                        onInput={handleContentChange}
-                                        onBlur={handleContentChange}
-                                        dangerouslySetInnerHTML={{ __html: modalData.content }}
-                                        className="w-full px-3.5 py-2.5 border border-slate-300 dark:border-slate-700 rounded-b-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] min-h-[220px] max-h-[300px] overflow-y-auto text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none leading-relaxed [&>p]:mb-3 [&>h2]:text-sm [&>h2]:font-bold [&>h2]:mt-4 [&>h2]:mb-2 [&>h3]:text-xs [&>h3]:font-bold [&>h3]:mt-3 [&>h3]:mb-1 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:mb-3 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:mb-3 [&>hr]:my-3 [&>hr]:border-slate-200 dark:[&>hr]:border-slate-700"
-                                    />
-                                </div>
+                                <input id="guidemanager-article-title" name="article_title" type="text"
+                                    value={modalData.title}
+                                    onChange={(e) => setModalData({ ...modalData, title: e.target.value })}
+                                    className="w-full px-4 py-2.5 text-sm sm:text-base font-bold border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none shadow-2xs placeholder:font-normal placeholder:text-slate-400"
+                                    placeholder="e.g. Understanding Reconstitution, Dosage Titration and Safety Protocols"
+                                />
                             </div>
 
-                            {/* Right Column (Publishing Status, Author, Linked Products) */}
-                            <div className="lg:col-span-5 space-y-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-                                <h4 className="text-xs font-black text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-700 pb-2 uppercase tracking-wider flex items-center gap-1.5">
-                                    <Hash className="w-4 h-4 text-[#3C6CA8]" />
-                                    <span>Metadata & Visibility</span>
-                                </h4>
-
-                                {/* Author Name */}
-                                <div className="space-y-1">
-                                    <label htmlFor="guidemanager-article-body-content-visual-wy" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                        Author / Attribution
-                                    </label>
-                                    <input id="guidemanager-article-body-content-visual-wy" name="article_body_content_visual_wy" type="text"
-                                        value={modalData.author}
-                                        onChange={(e) => setModalData({ ...modalData, author: e.target.value })}
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                                        placeholder="e.g. SlimDose Medical Team"
-                                    />
-                                </div>
-
-                                {/* Published Date & Sort Order */}
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
-                                        <label htmlFor="guidemanager-publish-date" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                            Publish Date
-                                        </label>
-                                        <input id="guidemanager-publish-date" name="publish_date" type="date"
-                                            value={modalData.published_date}
-                                            onChange={(e) => setModalData({ ...modalData, published_date: e.target.value })}
-                                            className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label htmlFor="guidemanager-display-sort-order" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                            Display Sort Order
-                                        </label>
-                                        <input id="guidemanager-display-sort-order" name="display_sort_order" type="number"
-                                            value={modalData.display_order}
-                                            onChange={(e) => setModalData({ ...modalData, display_order: parseInt(e.target.value) || 0 })}
-                                            className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Publish Visibility Switch */}
-                                <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        id="modal_is_enabled"
-                                        checked={modalData.is_enabled}
-                                        onChange={(e) => setModalData({ ...modalData, is_enabled: e.target.checked })}
-                                        className="w-4 h-4 text-[#3C6CA8] rounded focus:ring-2 focus:ring-[#3C6CA8] cursor-pointer"
-                                    />
-                                    <div>
-                                        <label htmlFor="modal_is_enabled" className="text-xs font-bold text-slate-900 dark:text-white block cursor-pointer">
-                                            Publish to Public Website
-                                        </label>
-                                        <p className="text-[10px] text-slate-400">
-                                            {modalData.is_enabled ? 'Article is visible to all visitors' : 'Article is saved as an internal draft'}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Associated Products Multi-Select */}
-                                <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between">
-                                        <label htmlFor="guidemanager-filter-products" className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
-                                            <Package className="w-3.5 h-3.5 text-purple-600" />
-                                            <span>Link Products</span>
-                                        </label>
+                            {/* ── 2. Collapsible Article Metadata & Media Section ── */}
+                            <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden transition-all shadow-2xs">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMetaDrawerOpen(!isMetaDrawerOpen)}
+                                    className="w-full px-4 py-2.5 flex items-center justify-between bg-slate-100/70 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Hash className="w-4 h-4 text-[#3C6CA8]" />
+                                        <span className="text-xs font-bold uppercase tracking-wider">Banner &amp; Publishing Settings</span>
+                                        {modalData.is_enabled ? (
+                                            <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                Live Public
+                                            </span>
+                                        ) : (
+                                            <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                                Internal Draft
+                                            </span>
+                                        )}
                                         {modalData.related_product_ids.length > 0 && (
-                                            <span className="text-[10px] text-[#3C6CA8] font-bold bg-[#3C6CA8]/10 px-2 py-0.2 rounded-full">
-                                                {modalData.related_product_ids.length} selected
+                                            <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                                                {modalData.related_product_ids.length} Linked Products
                                             </span>
                                         )}
                                     </div>
+                                    <div className="flex items-center gap-1 text-slate-400 text-xs font-medium">
+                                        <span>{isMetaDrawerOpen ? 'Hide' : 'Show Settings'}</span>
+                                        {isMetaDrawerOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                    </div>
+                                </button>
 
-                                    {/* Product search */}
-                                    <input id="guidemanager-filter-products" name="filter_products" type="text"
-                                        placeholder="Filter products..."
-                                        value={productSearch}
-                                        onChange={(e) => setProductSearch(e.target.value)}
-                                        className="w-full px-2.5 py-1 text-xs border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                                    />
+                                {isMetaDrawerOpen && (
+                                    <div className="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 border-t border-slate-200 dark:border-slate-700">
+                                        {/* Cover Image Banner */}
+                                        <div className="lg:col-span-5 space-y-1.5">
+                                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                                Cover Image (Hero Banner)
+                                            </label>
+                                            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-2xs">
+                                                <ImageUpload
+                                                    currentImage={modalData.cover_image || undefined}
+                                                    onImageChange={(imageUrl) => setModalData({ ...modalData, cover_image: imageUrl || null })}
+                                                    folder="article-covers"
+                                                    title="Click to upload cover banner"
+                                                    subtitle="Supports JPG, PNG, WebP, GIF - max 10MB"
+                                                    urlPlaceholder="https://example.com/cover-image.jpg"
+                                                    urlLabel="Or enter cover image URL"
+                                                />
+                                            </div>
+                                        </div>
 
-                                    {/* Product List */}
-                                    <div className="border border-slate-200 dark:border-slate-700 rounded-xl max-h-40 overflow-y-auto bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700">
-                                        {filteredModalProducts.length === 0 ? (
-                                            <p className="text-[11px] text-slate-400 p-3">No matching products</p>
+                                        {/* Publishing Metadata & Products */}
+                                        <div className="lg:col-span-7 space-y-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                {/* Author */}
+                                                <div className="space-y-1 sm:col-span-2">
+                                                    <label htmlFor="guidemanager-article-author" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                                        Author / Attribution
+                                                    </label>
+                                                    <input id="guidemanager-article-author" name="article_author" type="text"
+                                                        value={modalData.author}
+                                                        onChange={(e) => setModalData({ ...modalData, author: e.target.value })}
+                                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
+                                                        placeholder="e.g. SlimDose Medical Team"
+                                                    />
+                                                </div>
+
+                                                {/* Publish Date */}
+                                                <div className="space-y-1">
+                                                    <label htmlFor="guidemanager-publish-date" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                                        Publish Date
+                                                    </label>
+                                                    <input id="guidemanager-publish-date" name="publish_date" type="date"
+                                                        value={modalData.published_date}
+                                                        onChange={(e) => setModalData({ ...modalData, published_date: e.target.value })}
+                                                        className="w-full px-2.5 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {/* Display Sort Order */}
+                                                <div className="space-y-1">
+                                                    <label htmlFor="guidemanager-display-sort-order" className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                                        Display Sort Order
+                                                    </label>
+                                                    <input id="guidemanager-display-sort-order" name="display_sort_order" type="number"
+                                                        value={modalData.display_order}
+                                                        onChange={(e) => setModalData({ ...modalData, display_order: parseInt(e.target.value) || 0 })}
+                                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
+                                                    />
+                                                </div>
+
+                                                {/* Public Visibility Toggle */}
+                                                <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="modal_is_enabled"
+                                                        checked={modalData.is_enabled}
+                                                        onChange={(e) => setModalData({ ...modalData, is_enabled: e.target.checked })}
+                                                        className="w-4 h-4 text-[#3C6CA8] rounded focus:ring-2 focus:ring-[#3C6CA8] cursor-pointer"
+                                                    />
+                                                    <div>
+                                                        <label htmlFor="modal_is_enabled" className="text-xs font-bold text-slate-900 dark:text-white block cursor-pointer">
+                                                            Publish Live
+                                                        </label>
+                                                        <p className="text-[10px] text-slate-400">
+                                                            {modalData.is_enabled ? 'Visible to public' : 'Internal draft'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Linked Products Picker */}
+                                            <div className="space-y-1.5 pt-1">
+                                                <div className="flex items-center justify-between">
+                                                    <label htmlFor="guidemanager-filter-products" className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1">
+                                                        <Package className="w-3.5 h-3.5 text-purple-600" />
+                                                        <span>Link Featured Products</span>
+                                                    </label>
+                                                    <input id="guidemanager-filter-products" name="filter_products" type="text"
+                                                        placeholder="Quick search products..."
+                                                        value={productSearch}
+                                                        onChange={(e) => setProductSearch(e.target.value)}
+                                                        className="px-2 py-0.5 text-[11px] border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white w-44"
+                                                    />
+                                                </div>
+
+                                                <div className="border border-slate-200 dark:border-slate-700 rounded-xl max-h-32 overflow-y-auto bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700">
+                                                    {filteredModalProducts.length === 0 ? (
+                                                        <p className="text-[11px] text-slate-400 p-2.5 text-center">No matching products</p>
+                                                    ) : (
+                                                        filteredModalProducts.map((product) => {
+                                                            const isSelected = modalData.related_product_ids.includes(product.id);
+                                                            return (
+                                                                <button
+                                                                    key={product.id}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const newIds = isSelected
+                                                                            ? modalData.related_product_ids.filter(id => id !== product.id)
+                                                                            : [...modalData.related_product_ids, product.id];
+                                                                        setModalData({ ...modalData, related_product_ids: newIds });
+                                                                    }}
+                                                                    className={`w-full flex items-center gap-2 p-1.5 px-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
+                                                                        isSelected ? 'bg-purple-50/60 dark:bg-purple-950/40' : ''
+                                                                    }`}
+                                                                >
+                                                                    <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
+                                                                        isSelected ? 'bg-[#3C6CA8] border-[#3C6CA8]' : 'border-slate-300'
+                                                                    }`}>
+                                                                        {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                                                    </div>
+                                                                    {product.image_url && (
+                                                                        <img src={product.image_url} alt="" className="w-5 h-5 rounded object-cover shrink-0" />
+                                                                    )}
+                                                                    <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                                                                        <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{product.name}</p>
+                                                                        <p className="text-[10px] text-slate-400 font-mono">₱{product.base_price.toLocaleString()}</p>
+                                                                    </div>
+                                                                </button>
+                                                            );
+                                                        })
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* ── 3. FULL-WIDTH TEASER EXCERPT SUMMARY (RICH TEXT WYSIWYG) ── */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                            Teaser Excerpt Summary
+                                        </label>
+                                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                                            Rich Text Formatter
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400">
+                                        Shown on article cards &amp; executive overview
+                                    </span>
+                                </div>
+
+                                {/* Teaser Formatting Toolbar */}
+                                <div className="flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 border-b-0 rounded-t-xl flex-wrap text-slate-700 dark:text-slate-300 text-xs">
+                                    <button
+                                        type="button"
+                                        onClick={() => applyTeaserFormat('bold')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md font-bold"
+                                        title="Bold (Ctrl+B)"
+                                    >
+                                        <Bold className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyTeaserFormat('italic')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Italic (Ctrl+I)"
+                                    >
+                                        <Italic className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyTeaserFormat('underline')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Underline (Ctrl+U)"
+                                    >
+                                        <Underline className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyTeaserFormat('strikeThrough')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Strikethrough"
+                                    >
+                                        <Strikethrough className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <div className="h-3.5 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+                                    <button
+                                        type="button"
+                                        onClick={() => applyTeaserFormat('removeFormat')}
+                                        className="px-2 py-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-[11px] font-medium"
+                                        title="Clear Formatting"
+                                    >
+                                        Clear Format
+                                    </button>
+                                </div>
+
+                                {/* Teaser Editable Body */}
+                                <div
+                                    ref={teaserEditorRef}
+                                    contentEditable
+                                    onInput={handleTeaserChange}
+                                    onBlur={handleTeaserChange}
+                                    dangerouslySetInnerHTML={{ __html: modalData.preview }}
+                                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-b-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] min-h-[85px] max-h-[140px] overflow-y-auto text-xs sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none leading-relaxed shadow-inner"
+                                />
+                            </div>
+
+                            {/* ── 4. FULL-WIDTH ARTICLE BODY CONTENT (ADVANCED WYSIWYG) ── */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                            Article Body Content *
+                                        </label>
+                                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                            Full WYSIWYG Editor
+                                        </span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400">
+                                        {calculateReadTime(modalData.content)} • {modalData.content.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length} words
+                                    </span>
+                                </div>
+
+                                {/* Comprehensive Formatting Toolbar */}
+                                <div className="sticky top-0 z-10 flex items-center gap-1 p-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 border-b-0 rounded-t-2xl flex-wrap text-slate-700 dark:text-slate-300 shadow-xs">
+                                    {/* Typography Blocks */}
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('formatBlock', '<p>')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-semibold"
+                                        title="Paragraph"
+                                    >
+                                        <Type className="w-3.5 h-3.5 inline mr-1" />
+                                        <span>P</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('formatBlock', '<h1>')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-black text-slate-900 dark:text-white"
+                                        title="Heading 1"
+                                    >
+                                        H1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('formatBlock', '<h2>')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-bold"
+                                        title="Heading 2"
+                                    >
+                                        H2
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('formatBlock', '<h3>')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-semibold"
+                                        title="Heading 3"
+                                    >
+                                        H3
+                                    </button>
+
+                                    <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+
+                                    {/* Inline Styles */}
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('bold')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md font-bold"
+                                        title="Bold (Ctrl+B)"
+                                    >
+                                        <Bold className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('italic')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Italic (Ctrl+I)"
+                                    >
+                                        <Italic className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('underline')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Underline (Ctrl+U)"
+                                    >
+                                        <Underline className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('strikeThrough')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Strikethrough"
+                                    >
+                                        <Strikethrough className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+
+                                    {/* Alignments */}
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('justifyLeft')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Align Left"
+                                    >
+                                        <AlignLeft className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('justifyCenter')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Align Center"
+                                    >
+                                        <AlignCenter className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('justifyRight')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Align Right"
+                                    >
+                                        <AlignRight className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('justifyFull')}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Justify"
+                                    >
+                                        <AlignJustify className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+
+                                    {/* Lists */}
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('insertUnorderedList')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium flex items-center gap-1"
+                                        title="Bullet List"
+                                    >
+                                        <List className="w-3.5 h-3.5" />
+                                        <span>Bullet</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('insertOrderedList')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium flex items-center gap-1"
+                                        title="Numbered List"
+                                    >
+                                        <ListOrdered className="w-3.5 h-3.5" />
+                                        <span>Numbered</span>
+                                    </button>
+
+                                    <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+
+                                    {/* Rich Clinical Elements */}
+                                    <button
+                                        type="button"
+                                        onClick={() => insertCallout('info')}
+                                        className="px-2 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-md text-xs font-bold flex items-center gap-1"
+                                        title="Insert Clinical Tip Callout Box"
+                                    >
+                                        <Info className="w-3.5 h-3.5" />
+                                        <span>Tip Box</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => insertCallout('warning')}
+                                        className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-md text-xs font-bold flex items-center gap-1"
+                                        title="Insert Precaution Warning Box"
+                                    >
+                                        <AlertTriangle className="w-3.5 h-3.5" />
+                                        <span>Warning Box</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => insertCallout('success')}
+                                        className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-md text-xs font-bold flex items-center gap-1"
+                                        title="Insert Verified Protocol Box"
+                                    >
+                                        <ShieldCheck className="w-3.5 h-3.5" />
+                                        <span>Protocol Box</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={insertClinicalTable}
+                                        className="px-2 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-md text-xs font-bold flex items-center gap-1"
+                                        title="Insert Clinical Table"
+                                    >
+                                        <Table className="w-3.5 h-3.5" />
+                                        <span>Table</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={insertQuote}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium flex items-center gap-1"
+                                        title="Insert Blockquote"
+                                    >
+                                        <Quote className="w-3.5 h-3.5" />
+                                        <span>Quote</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyFormat('insertHorizontalRule')}
+                                        className="px-2 py-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-xs font-medium flex items-center gap-1"
+                                        title="Insert Divider"
+                                    >
+                                        <Minus className="w-3.5 h-3.5" />
+                                        <span>Divider</span>
+                                    </button>
+
+                                    <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-0.5" />
+
+                                    {/* Links & Photo */}
+                                    <button
+                                        type="button"
+                                        onClick={insertLink}
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md"
+                                        title="Insert Hyperlink"
+                                    >
+                                        <LinkIcon className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <input id="guidemanager-file-upload" name="file_upload" type="file"
+                                        ref={articleImageInputRef}
+                                        onChange={handleArticleImageSelect}
+                                        accept="image/*"
+                                        className="hidden"/>
+                                    <button
+                                        type="button"
+                                        onClick={() => articleImageInputRef.current?.click()}
+                                        disabled={isUploadingArticleImage}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#3C6CA8] hover:bg-[#325a8c] text-white rounded-md text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                                        title="Upload and insert photo/image directly into article"
+                                    >
+                                        {isUploadingArticleImage ? (
+                                            <>
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                <span>Uploading...</span>
+                                            </>
                                         ) : (
-                                            filteredModalProducts.map((product) => {
-                                                const isSelected = modalData.related_product_ids.includes(product.id);
-                                                return (
-                                                    <button
-                                                        key={product.id}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const newIds = isSelected
-                                                                ? modalData.related_product_ids.filter(id => id !== product.id)
-                                                                : [...modalData.related_product_ids, product.id];
-                                                            setModalData({ ...modalData, related_product_ids: newIds });
-                                                        }}
-                                                        className={`w-full flex items-center gap-2 p-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${
-                                                            isSelected ? 'bg-purple-50/60 dark:bg-purple-950/40' : ''
-                                                        }`}
-                                                    >
-                                                        <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${
-                                                            isSelected ? 'bg-[#3C6CA8] border-[#3C6CA8]' : 'border-slate-300'
-                                                        }`}>
-                                                            {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
-                                                        </div>
-                                                        {product.image_url && (
-                                                            <img src={product.image_url} alt="" className="w-6 h-6 rounded object-cover shrink-0" />
-                                                        )}
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{product.name}</p>
-                                                            <p className="text-[10px] text-slate-400">₱{product.base_price.toLocaleString()}</p>
-                                                        </div>
-                                                    </button>
-                                                );
-                                            })
+                                            <>
+                                                <ImageIcon className="w-3.5 h-3.5" />
+                                                <span>Insert Photo</span>
+                                            </>
                                         )}
+                                    </button>
+
+                                    {/* Undo / Redo */}
+                                    <div className="ml-auto flex items-center gap-0.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => applyFormat('undo')}
+                                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-slate-500"
+                                            title="Undo"
+                                        >
+                                            <Undo className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => applyFormat('redo')}
+                                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md text-slate-500"
+                                            title="Redo"
+                                        >
+                                            <Redo className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 </div>
 
+                                {/* Full Width WYSIWYG Content Body with Matching Frontend Prose Styling */}
+                                <div
+                                    ref={contentEditorRef}
+                                    contentEditable
+                                    onInput={handleContentChange}
+                                    onBlur={handleContentChange}
+                                    dangerouslySetInnerHTML={{ __html: modalData.content }}
+                                    className="peptalk-article-content w-full px-5 py-4 border border-slate-300 dark:border-slate-700 rounded-b-2xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] min-h-[380px] max-h-[550px] overflow-y-auto text-xs sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 outline-none shadow-inner"
+                                />
                             </div>
                         </div>
 
-                        {/* Compact Footer */}
-                        <div className="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950 shrink-0">
+                        {/* Modal Footer */}
+                        <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950 shrink-0">
                             <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
                                 Changes are saved immediately and synced across the customer portal.
                             </span>
@@ -1183,20 +1515,20 @@ export default function GuideManager() {
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                                    className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={saveArticle}
-                                    className="px-5 py-2 bg-[#3C6CA8] hover:bg-[#325a8c] text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer"
+                                    className="px-5 py-2 text-xs font-bold text-white bg-[#3C6CA8] hover:bg-[#325a8c] rounded-xl transition-all shadow-md shadow-[#3C6CA8]/20 cursor-pointer flex items-center gap-1.5"
                                 >
-                                    {editingArticle ? 'Save & Update Article' : 'Create & Publish Article'}
+                                    <Check className="w-4 h-4" />
+                                    <span>{editingArticle ? 'Save & Update Article' : 'Publish Article'}</span>
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             )}

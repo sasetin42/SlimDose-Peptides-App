@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Printer, 
     X, 
@@ -53,6 +53,16 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         resultMgPerUnit,
         presetName
     } = data;
+
+    // Lock background scroll when modal is open
+    useEffect(() => {
+        if (!isOpen) return;
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, [isOpen]);
 
     // Editable preview metadata
     const [compoundName, setCompoundName] = useState(presetName || 'Research Peptide Compound');

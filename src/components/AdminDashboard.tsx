@@ -38,8 +38,8 @@ const CustomerCRMManager = lazy(() => import('./CustomerCRMManager'));
 const ProductReviewsManager = lazy(() => import('./ProductReviewsManager'));
 const InvoiceVerificationsManager = lazy(() => import('./InvoiceVerificationsManager'));
 const PeptalkVideosManager = lazy(() => import('./PeptalkVideosManager'));
-const RestockRemindersManager = lazy(() => import('./RestockRemindersManager'));
 const TopBannerManager = lazy(() => import('./TopBannerManager'));
+const EmailTemplateManager = lazy(() => import('./EmailTemplateManager'));
 const ProductModal = lazy(() => import('./ProductModal'));
 
 const AdminSectionSkeleton: React.FC = () => (
@@ -85,6 +85,16 @@ const AdminDashboard: React.FC = () => {
       return true;
     }
   });
+  const [collapsedTooltip, setCollapsedTooltip] = useState<{
+    label: string;
+    category?: string;
+    active?: boolean;
+    badge?: { text: string; color: string } | null;
+    top: number;
+    shortcut?: string;
+    variant?: 'default' | 'danger';
+    subtitle?: string;
+  } | null>(null);
   const [mobileMenuSearch, setMobileMenuSearch] = useState('');
 
   const toggleSidebar = () => {
@@ -98,7 +108,7 @@ const AdminDashboard: React.FC = () => {
   };
   const { products, loading, addProduct, updateProduct, deleteProduct, deleteMultipleProducts, refreshProducts } = useMenuContext();
   const { categories } = useCategories();
-  const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'payments' | 'inventory' | 'orders' | 'shipping' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents' | 'top-banner' | 'crm' | 'verifications' | 'reviews' | 'restock-reminders' | 'peptalk-videos'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'payments' | 'inventory' | 'orders' | 'shipping' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents' | 'top-banner' | 'crm' | 'verifications' | 'reviews' | 'peptalk-videos'>('dashboard');
 
   // Check for existing admin session on mount & sync deep-link URL hash
   useEffect(() => {
@@ -2573,8 +2583,6 @@ const AdminDashboard: React.FC = () => {
         return <InvoiceVerificationsManager onNavigateView={(view) => setCurrentView(view as any)} />;
       case 'peptalk-videos':
         return <PeptalkVideosManager />;
-      case 'restock-reminders':
-        return <RestockRemindersManager />;
       case 'orders':
         return <OrdersManager onBack={() => setCurrentView('dashboard')} />;
       case 'shipping':
@@ -2689,6 +2697,19 @@ const AdminDashboard: React.FC = () => {
             />
           </div>
         );
+      case 'email-templates':
+        return (
+          <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
+            <button
+              onClick={() => setCurrentView('dashboard')}
+              className="mb-4 text-slate-600 dark:text-slate-400 hover:text-[#3C6CA8] dark:hover:text-[#6A9BE0] transition-colors flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Dashboard</span>
+            </button>
+            <EmailTemplateManager onNavigateToSmtpSettings={() => setCurrentView('settings')} />
+          </div>
+        );
       case 'settings':
         return (
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
@@ -2699,7 +2720,7 @@ const AdminDashboard: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Dashboard</span>
             </button>
-            <SiteSettingsManager />
+            <SiteSettingsManager onNavigateToEmailTemplates={() => setCurrentView('email-templates')} />
           </div>
         );
       default:
@@ -2886,7 +2907,7 @@ const AdminDashboard: React.FC = () => {
             <div className="mt-8 pt-4 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
               <span className="flex items-center gap-1.5 font-medium">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Vite + Supabase v2.4
+                Vite + Firebase v12 Enterprise
               </span>
               <span>SlimDose Philippines © 2026</span>
             </div>
@@ -3008,7 +3029,6 @@ const AdminDashboard: React.FC = () => {
         { label: 'Orders Management', view: 'orders', icon: ShoppingCart },
         { label: 'Invoice Verifications', view: 'verifications', icon: FileCheck },
         { label: 'Customer CRM', view: 'crm', icon: Users },
-        { label: 'Restock Reminders', view: 'restock-reminders', icon: Mail },
         { label: 'Payment Methods', view: 'payments', icon: CreditCard },
         { label: 'Shipping Locations', view: 'shipping', icon: MapPin },
       ]
@@ -3016,6 +3036,7 @@ const AdminDashboard: React.FC = () => {
     {
       title: 'Marketing & Content',
       items: [
+        { label: 'Email Template Studio', view: 'email-templates', icon: Mail },
         { label: 'Top Header Banner', view: 'top-banner', icon: Megaphone },
         { label: 'Product Reviews', view: 'reviews', icon: Star },
         { label: 'Peptalk Videos', view: 'peptalk-videos', icon: Video },
@@ -3083,6 +3104,8 @@ const AdminDashboard: React.FC = () => {
         return 'Promo Codes';
       case 'global-discount':
         return 'Global Discount';
+      case 'email-templates':
+        return 'Email Template Studio';
       case 'guides':
         return 'Peptalk Articles';
       case 'popup':
@@ -3116,6 +3139,8 @@ const AdminDashboard: React.FC = () => {
         const lowStockCount = products.filter(p => (p.stock_quantity ?? 0) <= 5).length;
         return lowStockCount > 0 ? { text: `${lowStockCount} alert`, color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' } : null;
       }
+      case 'email-templates':
+        return { text: '9 ready', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold' };
       default:
         return null;
     }
@@ -3163,30 +3188,34 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Desktop Collapse Toggle Button */}
-            <div className="hidden lg:block relative group">
+            <div className="hidden lg:block relative z-20">
               <button
                 onClick={toggleSidebar}
+                onMouseEnter={(e) => {
+                  if (isSidebarCollapsed) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setCollapsedTooltip({
+                      label: 'Expand Sidebar',
+                      shortcut: 'Ctrl+B',
+                      top: rect.top + rect.height / 2,
+                    });
+                  }
+                }}
+                onMouseLeave={() => setCollapsedTooltip(null)}
                 className={`flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/90 transition-all cursor-pointer border border-transparent hover:border-slate-700 shrink-0 ${
                   isSidebarCollapsed
-                    ? 'w-full py-1.5 bg-slate-800/40 border-slate-800 hover:border-blue-500/40'
+                    ? 'w-full py-1.5 bg-slate-800/40 border-slate-800 hover:border-blue-500/40 hover:text-blue-400'
                     : 'p-1.5 w-auto'
                 }`}
-                title={isSidebarCollapsed ? 'Expand Sidebar (Ctrl+B)' : 'Collapse Sidebar (Ctrl+B)'}
+                title={isSidebarCollapsed ? undefined : 'Collapse Sidebar (Ctrl+B)'}
+                aria-label={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               >
                 {isSidebarCollapsed ? (
-                  <PanelLeftOpen className="w-4 h-4 text-blue-400" />
+                  <PanelLeftOpen className="w-4 h-4 text-blue-400 transition-transform duration-200 hover:scale-110" />
                 ) : (
                   <PanelLeftClose className="w-4 h-4 text-slate-400 hover:text-white" />
                 )}
               </button>
-
-              {/* Instant Floating Tooltip for Sidebar Toggle on Desktop */}
-              {isSidebarCollapsed && (
-                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                  <span>Expand Sidebar (Ctrl+B)</span>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
-                </div>
-              )}
             </div>
 
             {/* Close Button for Mobile Drawer - Always visible on mobile screens */}
@@ -3223,8 +3252,11 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2.5 space-y-3 custom-scrollbar select-none">
+          {/* Navigation Links - Fully Scrollable with Custom Scrollbar */}
+          <nav
+            onScroll={() => setCollapsedTooltip(null)}
+            className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2.5 space-y-3 custom-scrollbar select-none"
+          >
             {(() => {
               const isStaff = adminSession?.role === 'content_editor' || adminSession?.role === 'order_manager';
               const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
@@ -3256,19 +3288,33 @@ const AdminDashboard: React.FC = () => {
                         const badge = getItemBadge(item.view);
                         const hashHref = `#${item.view}`;
                         return (
-                          <div key={item.label} className="relative group">
+                          <div key={item.label} className="relative">
                             <a
                               href={hashHref}
+                              onMouseEnter={(e) => {
+                                if (isSidebarCollapsed) {
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setCollapsedTooltip({
+                                    label: item.label,
+                                    category: category.title,
+                                    active,
+                                    badge,
+                                    top: rect.top + rect.height / 2,
+                                  });
+                                }
+                              }}
+                              onMouseLeave={() => setCollapsedTooltip(null)}
                               onClick={(e) => {
                                 e.preventDefault();
+                                setCollapsedTooltip(null);
                                 if (item.action) {
-                                  handleViewChange(item.view, item.action);
+                                   handleViewChange(item.view, item.action);
                                 } else if (item.view) {
-                                  handleViewChange(item.view);
+                                   handleViewChange(item.view);
                                 }
                                 setIsMobileMenuOpen(false);
                               }}
-                              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer ${
+                              className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer group ${
                                 isSidebarCollapsed ? 'lg:gap-0 lg:justify-center lg:px-2 lg:py-2' : 'gap-3 px-2.5 py-2'
                               } ${
                                 active
@@ -3292,14 +3338,6 @@ const AdminDashboard: React.FC = () => {
                                 </span>
                               )}
                             </a>
-
-                            {/* Instant Floating Tooltip on Desktop Collapsed Mode */}
-                            {isSidebarCollapsed && (
-                              <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                                <span>{item.label}</span>
-                                <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
-                              </div>
-                            )}
                           </div>
                         );
                       })}
@@ -3311,37 +3349,52 @@ const AdminDashboard: React.FC = () => {
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-3 border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-sm">
+          <div className="p-3 border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-sm relative z-20">
             {/* Desktop Collapsed View ONLY */}
             <div className={`hidden ${isSidebarCollapsed ? 'lg:flex' : 'lg:hidden'} flex-col items-center gap-2`}>
-              <div className="relative group">
+              <div className="relative">
                 <a
                   href="/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl border border-slate-800 bg-slate-900 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white transition-all shadow-xs"
-                  title="View Storefront"
+                  onMouseEnter={(e) => {
+                    if (isSidebarCollapsed) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setCollapsedTooltip({
+                        label: 'View Storefront',
+                        subtitle: 'Opens live site in new tab',
+                        top: rect.top + rect.height / 2,
+                      });
+                    }
+                  }}
+                  onMouseLeave={() => setCollapsedTooltip(null)}
+                  className="w-9 h-9 rounded-xl border border-slate-800 bg-slate-900 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white transition-all shadow-xs group cursor-pointer"
+                  aria-label="View Storefront"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 transition-transform group-hover:scale-110 text-slate-300 group-hover:text-blue-400" />
                 </a>
-                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-slate-950 text-white text-[11px] font-bold rounded-lg shadow-2xl border border-slate-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                  <span>View Storefront</span>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-slate-950" />
-                </div>
               </div>
 
-              <div className="relative group">
+              <div className="relative">
                 <button
                   onClick={handleLogout}
-                  className="w-9 h-9 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center border border-rose-500/20 cursor-pointer shadow-xs"
-                  title="Logout"
+                  onMouseEnter={(e) => {
+                    if (isSidebarCollapsed) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setCollapsedTooltip({
+                        label: 'Log Out',
+                        subtitle: 'End admin session',
+                        variant: 'danger',
+                        top: rect.top + rect.height / 2,
+                      });
+                    }
+                  }}
+                  onMouseLeave={() => setCollapsedTooltip(null)}
+                  className="w-9 h-9 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white transition-all flex items-center justify-center border border-rose-500/20 cursor-pointer shadow-xs group"
+                  aria-label="Logout"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 transition-transform group-hover:scale-110" />
                 </button>
-                <div className="hidden lg:group-hover:flex absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 bg-rose-950 text-rose-100 text-[11px] font-bold rounded-lg shadow-2xl border border-rose-700/90 whitespace-nowrap z-[99999] pointer-events-none items-center">
-                  <span>Logout</span>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-rose-950" />
-                </div>
               </div>
             </div>
 
@@ -3385,6 +3438,61 @@ const AdminDashboard: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Viewport-Fixed High-Visibility Floating Tooltip for Desktop Collapsed Mode */}
+          {isSidebarCollapsed && collapsedTooltip && (
+            <div
+              style={{ top: `${collapsedTooltip.top}px` }}
+              className={`hidden lg:flex fixed left-[74px] -translate-y-1/2 px-3 py-2 ${
+                collapsedTooltip.variant === 'danger'
+                  ? 'bg-rose-950/95 border-rose-700/80 text-rose-100'
+                  : 'bg-slate-950/95 border-slate-700/80 text-white'
+              } backdrop-blur-xl rounded-xl shadow-2xl shadow-black/90 border whitespace-nowrap z-[99999] pointer-events-none items-center gap-2.5 transition-all duration-150 animate-in fade-in zoom-in-95`}
+            >
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  {collapsedTooltip.label === 'Expand Sidebar' && (
+                    <PanelLeftOpen className="w-3.5 h-3.5 text-blue-400" />
+                  )}
+                  <span className={`text-xs font-bold ${collapsedTooltip.variant === 'danger' ? 'text-rose-100' : 'text-slate-100'} tracking-tight`}>
+                    {collapsedTooltip.label}
+                  </span>
+                  {collapsedTooltip.shortcut && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
+                      {collapsedTooltip.shortcut}
+                    </span>
+                  )}
+                  {collapsedTooltip.active && (
+                    <span className="inline-flex items-center gap-1 text-[9.5px] font-semibold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded-md border border-blue-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                      Active
+                    </span>
+                  )}
+                  {collapsedTooltip.badge && (
+                    <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${collapsedTooltip.badge.color}`}>
+                      {collapsedTooltip.badge.text}
+                    </span>
+                  )}
+                </div>
+                {collapsedTooltip.category && (
+                  <span className="text-[10px] text-slate-400 font-medium">{collapsedTooltip.category}</span>
+                )}
+                {collapsedTooltip.subtitle && (
+                  <span className={`text-[10px] font-medium ${collapsedTooltip.variant === 'danger' ? 'text-rose-300/80' : 'text-slate-400'}`}>
+                    {collapsedTooltip.subtitle}
+                  </span>
+                )}
+              </div>
+
+              {/* Tooltip Arrow pointing to icon */}
+              <div className={`absolute right-full top-1/2 -translate-y-1/2 border-y-[6px] border-y-transparent border-r-[6px] ${
+                collapsedTooltip.variant === 'danger' ? 'border-r-rose-700/80' : 'border-r-slate-700/80'
+              }`} />
+              <div className={`absolute right-full top-1/2 -translate-y-1/2 border-y-[5px] border-y-transparent border-r-[5px] ${
+                collapsedTooltip.variant === 'danger' ? 'border-r-rose-950' : 'border-r-slate-950'
+              }`} />
+            </div>
+          )}
         </aside>
 
 

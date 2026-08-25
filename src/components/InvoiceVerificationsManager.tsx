@@ -356,34 +356,6 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
       // 3. Mirror status to Convex
       mirrorOrderUpdateStatus(v.order_id, { order_status: 'confirmed', payment_status: 'paid' });
 
-      // 4. Trigger Transactional Email Confirmation
-      if (v.orders?.customer_email) {
-        import('../services/emailService').then(({ sendOrderUpdateEmail }) => {
-          sendOrderUpdateEmail({
-            customerEmail: v.orders!.customer_email!,
-            customerName: v.orders!.customer_name || 'Valued Customer',
-            orderId: v.orders!.order_number || v.order_id,
-            newStatus: 'confirmed (Payment Verified)',
-            notes: 'Your payment receipt has been verified by our laboratory dispatch team. Your order is now confirmed for fulfillment.'
-          }).catch(e => console.warn('Transactional email notice:', e));
-        });
-      }
-
-      // 5. Fire Telegram Notification
-      try {
-        await fetch(`${supabase.supabaseUrl}/functions/v1/telegram-notify-order`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': supabase.supabaseKey,
-            'Authorization': `Bearer ${supabase.supabaseKey}`,
-          },
-          body: JSON.stringify({ order_id: v.order_id }),
-        });
-      } catch (tgErr) {
-        console.warn('Telegram notification notice:', tgErr);
-      }
-
       const formattedId = formatOrderId({ id: v.order_id, order_number: v.orders?.order_number });
       fireToast(`Receipt approved! Order ${formattedId} marked as Paid & Confirmed. ✨`, 'success');
 
@@ -475,19 +447,6 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
         .eq('id', rejectModalItem.order_id);
 
       mirrorOrderUpdateStatus(rejectModalItem.order_id, { payment_status: 'rejected' });
-
-      // Transactional Email for Rejection Notice
-      if (rejectModalItem.orders?.customer_email) {
-        import('../services/emailService').then(({ sendOrderUpdateEmail }) => {
-          sendOrderUpdateEmail({
-            customerEmail: rejectModalItem.orders!.customer_email!,
-            customerName: rejectModalItem.orders!.customer_name || 'Valued Customer',
-            orderId: rejectModalItem.orders!.order_number || rejectModalItem.order_id,
-            newStatus: 'Payment Verification Required',
-            notes: `We were unable to verify your submitted payment receipt: "${reasonText}". Please contact our support team on Telegram or re-upload a clear receipt.`
-          }).catch(e => console.warn('Transactional email rejection notice:', e));
-        });
-      }
 
       const formattedId = formatOrderId({ id: rejectModalItem.order_id, order_number: rejectModalItem.orders?.order_number });
       fireToast(`Payment proof for Order ${formattedId} marked as rejected.`, 'info');

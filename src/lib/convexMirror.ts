@@ -408,3 +408,54 @@ export function mirrorOrderUpdateDetails(id: string, updates: any) {
     client.mutation(api.orders.updateDetails, { id, ...updates }),
   );
 }
+
+// ---------- email_templates ----------
+export function mirrorEmailTemplateUpsert(data: {
+  id?: string;
+  template_key: string;
+  name: string;
+  subject: string;
+  description?: string;
+  category: string;
+  html_content: string;
+  variables?: Array<{ key: string; label: string; example: string }>;
+  is_customized?: boolean;
+  is_active?: boolean;
+  updated_by?: string;
+}) {
+  fire('emailTemplate.upsert', () =>
+    (client.mutation as any)(api.emailTemplates.upsertTemplate, data),
+  );
+}
+
+export function mirrorEmailTemplateUpdate(
+  id: string,
+  updates: {
+    subject?: string;
+    name?: string;
+    description?: string;
+    category?: string;
+    html_content?: string;
+    variables?: Array<{ key: string; label: string; example: string }>;
+    is_customized?: boolean;
+    is_active?: boolean;
+    updated_by?: string;
+  },
+) {
+  fire('emailTemplate.update', () =>
+    (client.mutation as any)(api.emailTemplates.updateTemplate, { id, ...updates }),
+  );
+}
+
+export function mirrorEmailTemplateRemove(id: string) {
+  fire('emailTemplate.remove', () =>
+    (client.mutation as any)(api.emailTemplates.remove, { id }),
+  );
+}
+
+export function mirrorEmailTemplateSeed(templates: any[]) {
+  fire('emailTemplate.seedDefaults', () =>
+    (client.mutation as any)(api.emailTemplates.seedDefaults, { templates }),
+  );
+}
+

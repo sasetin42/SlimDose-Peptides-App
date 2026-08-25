@@ -173,9 +173,11 @@ const ProductPage: React.FC = () => {
         console.warn('Supabase fetch failed:', err);
       }
 
-      // 2. Try demoProducts fallback
+      // 2. Try demoProducts fallback (excluding deleted items)
       if (!foundProduct) {
-        const matchedDemo = demoProducts.find((p) => p.slug === slug);
+        const { getDeletedIdsForTable } = await import('../lib/supabase');
+        const deletedIds = getDeletedIdsForTable('products');
+        const matchedDemo = demoProducts.find((p) => p.slug === slug && !deletedIds.has(String(p.id)));
         if (matchedDemo) {
           foundProduct = matchedDemo;
           isDemo = true;

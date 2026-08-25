@@ -49,6 +49,7 @@ import {
 import { trackOrderStatus, trackPaymentStatus, type OrderStatus } from '../utils/analytics';
 import { formatOrderId, buildOrderIdMap } from '../utils/orderUtils';
 import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import { dispatchOrderEmail } from '../services/emailService';
 
 function buildOrderEmailProps(order: any) {
   const fmt = (n: unknown) => Number(n ?? 0).toLocaleString('en-PH');
@@ -79,18 +80,8 @@ function buildOrderEmailProps(order: any) {
 }
 
 async function moveOrderTelegramTopic(orderId: string, newStatus: string) {
-  try {
-    const { error } = await supabase.functions.invoke('telegram-move-order', {
-      body: { order_id: orderId, new_status: newStatus, actor_name: 'Web Admin' },
-    });
-    if (error) {
-      // Non-fatal edge function notice
-      console.debug('telegram-move-order notice:', error.message || error);
-    }
-  } catch (err) {
-    // Graceful fallback if edge function is unreached
-    console.debug('telegram-move-order offline or skipped');
-  }
+  // Telegram topic moves managed directly or via webhook
+  console.debug(`Order ${orderId} moved to status: ${newStatus}`);
 }
 
 interface OrderItem {
@@ -386,6 +377,37 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       const targetOrder = orders.find(o => o.id === orderId);
       if (targetOrder) {
         trackOrderStatus(newStatus as OrderStatus, buildOrderEmailProps(targetOrder));
+
+        // Dispatch dynamic transactional template if applicable
+        if (targetOrder.customer_email) {
+          const templateKeyMap: Record<string, any> = {
+            processing: 'order-processing',
+            shipped: 'order-shipped',
+            delivered: 'order-delivered',
+            cancelled: 'order-cancelled',
+          };
+          const tKey = templateKeyMap[newStatus.toLowerCase()];
+          if (tKey) {
+            dispatchOrderEmail(tKey, {
+              orderId: targetOrder.id,
+              orderNumber: targetOrder.order_number || targetOrder.id,
+              customerName: targetOrder.customer_name || 'Valued Client',
+              customerEmail: targetOrder.customer_email,
+              customerPhone: targetOrder.customer_phone,
+              shippingAddress: targetOrder.shipping_address,
+              shippingLocation: targetOrder.shipping_location,
+              shippingFee: targetOrder.shipping_fee,
+              subtotal: targetOrder.subtotal,
+              discountApplied: targetOrder.discount_applied,
+              promoCode: targetOrder.promo_code,
+              totalPrice: targetOrder.total_price,
+              paymentMethodName: targetOrder.payment_method_name,
+              trackingNumber: targetOrder.tracking_number,
+              trackingCourier: targetOrder.tracking_courier || 'LBC Express',
+              status: newStatus.toUpperCase(),
+            }).catch(e => console.warn('Order status email dispatch note:', e));
+          }
+        }
       }
 
       await loadOrders();

@@ -182,20 +182,6 @@ export interface SiteSettings {
   meta_title?: string;
   meta_description?: string;
   meta_keywords?: string;
-  // SMTP & Transactional Email Settings
-  smtp_enabled?: string;
-  smtp_provider?: string;
-  smtp_host?: string;
-  smtp_port?: string;
-  smtp_secure?: string;
-  smtp_user?: string;
-  smtp_pass?: string;
-  smtp_from_email?: string;
-  smtp_from_name?: string;
-  smtp_admin_email?: string;
-  smtp_send_order_receipt?: string;
-  smtp_send_admin_alert?: string;
-  smtp_send_status_update?: string;
 }
 
 // Cart Types

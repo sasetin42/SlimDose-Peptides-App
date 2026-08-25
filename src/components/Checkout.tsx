@@ -24,12 +24,7 @@ import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
 import { computeCartPricing, resolveProductPricing } from '../utils/pricing';
 import { trackOrderStatus, identifyUser } from '../utils/analytics';
 import { fireToast } from './ToastNotification';
-import {
-  sendTransactionalEmail,
-  generateOrderReceiptHtml,
-  generateAdminOrderAlertHtml,
-  OrderEmailPayload
-} from '../services/emailService';
+import { dispatchOrderEmail } from '../services/emailService';
 
 interface CheckoutProps {
   cartItems: CartItem[];
@@ -625,46 +620,36 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
       console.log('✅ Order saved to database:', orderData);
 
-      // Trigger Asynchronous Transactional Email Delivery (Receipt & Admin Alert)
-      (async () => {
-        try {
-          const emailPayload: OrderEmailPayload = {
-            orderId: finalOrder.id || 'ORD-' + Date.now().toString(36).toUpperCase(),
-            customerName: fullName,
-            customerEmail: email,
-            customerPhone: phone,
-            shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`,
-            shippingLocation,
-            shippingFee,
-            totalPrice: Math.max(0, totalPrice - discountAmount),
-            discountApplied: discountAmount + bundleSavings,
-            paymentMethodName: paymentMethod?.name || 'Bank/Wallet Transfer',
-            contactMethod,
-            notes: notes.trim() || null,
-            items: orderItems
-          };
-
-          // 1. Customer Confirmation Receipt Email
-          if (email && email.includes('@')) {
-            const receiptHtml = generateOrderReceiptHtml(emailPayload);
-            sendTransactionalEmail({
-              to: email,
-              subject: `Order Confirmation #${emailPayload.orderId} — SlimDose Peptides`,
-              html: receiptHtml
-            }).catch((err) => console.warn('Customer receipt email note:', err));
-          }
-
-          // 2. Store Manager Alert Email
-          const adminAlertHtml = generateAdminOrderAlertHtml(emailPayload);
-          sendTransactionalEmail({
-            to: 'admin@slimdose.ph',
-            subject: `🚨 [NEW ORDER] #${emailPayload.orderId} (₱${emailPayload.totalPrice.toLocaleString()}) - ${fullName}`,
-            html: adminAlertHtml
-          }).catch((err) => console.warn('Admin alert email note:', err));
-        } catch (emailErr) {
-          console.warn('Asynchronous email trigger note:', emailErr);
-        }
-      })();
+      // Automated Transactional Customer Confirmation & Admin Alert via Active SMTP & Email Template Studio
+      try {
+        dispatchOrderEmail('order-confirmed', {
+          orderId: finalOrder.id || `ORD-${Date.now()}`,
+          orderNumber: finalOrder.order_number || finalOrder.id,
+          customerName: fullName,
+          customerEmail: email,
+          customerPhone: phone,
+          shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`.replace(/,\s*,/g, ','),
+          shippingLocation,
+          shippingFee,
+          subtotal,
+          discountApplied: discountAmount + bundleSavings,
+          promoCode: appliedPromo?.code,
+          totalPrice: Math.max(0, totalPrice - discountAmount),
+          paymentMethodName: paymentMethod?.name,
+          contactMethod,
+          notes: notes.trim() || null,
+          items: cartItems.map(item => ({
+            product_name: item.name,
+            variation_name: item.variation?.name || null,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.price * item.quantity
+          })),
+          status: 'Confirmed'
+        }).catch(e => console.warn('Transactional email trigger note:', e));
+      } catch (emailErr) {
+        console.warn('Could not dispatch confirmation email:', emailErr);
+      }
 
       // Save customer/shipping info to cookie for autofill on next checkout (1 year)
       try {

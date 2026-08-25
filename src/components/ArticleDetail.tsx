@@ -675,6 +675,16 @@ export default function ArticleDetail() {
               </div>
             </div>
 
+            {/* Executive Teaser Excerpt Summary (Rich HTML) */}
+            {article.preview && (
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/40 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-slate-700 dark:text-slate-300 leading-relaxed">
+                <div
+                  className="peptalk-article-content text-xs sm:text-sm"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.preview) }}
+                />
+              </div>
+            )}
+
             {/* Strengths Available Pills */}
             {parsedData?.strengths && parsedData.strengths.length > 0 && (
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
@@ -951,7 +961,7 @@ export default function ArticleDetail() {
             /* Fallback for standard HTML or narrative articles from admin */
             <article className="p-4 sm:p-7">
               <div
-                className="prose prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 leading-relaxed text-xs sm:text-sm font-normal space-y-3"
+                className="peptalk-article-content max-w-none text-slate-800 dark:text-slate-200 leading-relaxed text-xs sm:text-sm font-normal"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
               />
             </article>

@@ -37,11 +37,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with persistent offline cache
+// Initialize Firestore with persistent offline cache and stable HTTPS long-polling
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),
+  experimentalForceLongPolling: true,
 });
 
 // Initialize and export Auth and Storage services

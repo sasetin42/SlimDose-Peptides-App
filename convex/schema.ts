@@ -211,4 +211,44 @@ export default defineSchema({
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
   }).index("by_uuid", ["id"]),
+
+  email_templates: defineTable({
+    id: v.string(),
+    template_key: v.string(),
+    name: v.string(),
+    subject: v.string(),
+    description: v.optional(v.string()),
+    category: v.string(), // "orders" | "marketing" | "customer" | "system"
+    html_content: v.string(),
+    variables: v.optional(
+      v.array(
+        v.object({
+          key: v.string(),
+          label: v.string(),
+          example: v.string(),
+        })
+      )
+    ),
+    is_customized: v.optional(v.boolean()),
+    is_active: v.optional(v.boolean()),
+    created_at: v.optional(v.string()),
+    updated_at: v.optional(v.string()),
+    updated_by: v.optional(v.string()),
+  })
+    .index("by_uuid", ["id"])
+    .index("by_key", ["template_key"])
+    .index("by_category", ["category"]),
+
+  email_logs: defineTable({
+    recipient: v.string(),
+    subject: v.string(),
+    provider: v.string(),
+    message_id: v.string(),
+    status: v.string(),
+    smtp_host: v.optional(v.string()),
+    from_email: v.optional(v.string()),
+    error_message: v.optional(v.string()),
+    sent_at: v.optional(v.string()),
+  }).index("by_recipient", ["recipient"]),
 });
+

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, getDeletedIdsForTable } from '../lib/supabase';
 import type { Product, ProductVariation } from '../types';
 import { demoProducts } from '../data/demoProducts';
 import {
@@ -14,12 +14,13 @@ import {
 export function useMenu() {
   const [products, setProducts] = useState<Product[]>(() => {
     try {
+      const deletedIds = getDeletedIdsForTable('products');
       const cached = localStorage.getItem('slimdose_products_cache');
       const parsed = cached ? JSON.parse(cached) : null;
-      if (parsed && Array.isArray(parsed) && parsed.length >= demoProducts.length) {
-        return parsed;
+      if (parsed && Array.isArray(parsed)) {
+        return parsed.filter(p => !deletedIds.has(String(p.id)));
       }
-      return demoProducts;
+      return demoProducts.filter(p => !deletedIds.has(String(p.id)));
     } catch {
       return demoProducts;
     }
@@ -45,10 +46,10 @@ export function useMenu() {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = setTimeout(() => {
         fetchProducts();
-      }, 500);
+      }, 300);
     };
 
-    // Supabase realtime for updates (products, variations, orders)
+    // Realtime Firestore onSnapshot for products, variations, orders
     const channelId = `products_realtime_sync`;
     const productsChannel = supabase
       .channel(channelId)
@@ -61,7 +62,15 @@ export function useMenu() {
       debouncedFetch();
     };
 
+    const handleStorageChange = (e: StorageEvent | CustomEvent) => {
+      const deletedIds = getDeletedIdsForTable('products');
+      setProducts(prev => prev.filter(p => !deletedIds.has(String(p.id))));
+      debouncedFetch();
+    };
+
     window.addEventListener('orderConfirmed', handleOrderConfirmed);
+    window.addEventListener('storage', handleStorageChange as EventListener);
+    window.addEventListener('slimdose:products_updated', debouncedFetch);
 
     let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const handleFocus = () => {
@@ -194,15 +203,19 @@ export function useMenu() {
         return;
       }
 
-      // Fallback: inject demo products
-      console.info('📦 Using demo products (no Supabase data found)');
-      setProducts(demoProducts);
+      // Fallback: inject demo products (excluding deleted IDs)
+      const deletedIds = getDeletedIdsForTable('products');
+      const activeDemo = demoProducts.filter(p => !deletedIds.has(String(p.id)));
+      console.info('📦 Using filtered demo products:', activeDemo.length);
+      setProducts(activeDemo);
       setIsDemoMode(true);
       setError(null);
     } catch (err) {
       console.error('Error fetching products:', err);
-      // Always fall back to demo products on error
-      setProducts(demoProducts);
+      // Always fall back to active demo products on error
+      const deletedIds = getDeletedIdsForTable('products');
+      const activeDemo = demoProducts.filter(p => !deletedIds.has(String(p.id)));
+      setProducts(activeDemo);
       setIsDemoMode(true);
       setError(null);
     } finally {
@@ -287,6 +300,8 @@ export function useMenu() {
         try { localStorage.setItem('slimdose_products_cache', JSON.stringify(next)); } catch {}
         return next;
       });
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('slimdose:products_updated'));
       return { success: true };
     } catch (err) {
       console.error('Failed to delete product:', err);
@@ -306,6 +321,8 @@ export function useMenu() {
         try { localStorage.setItem('slimdose_products_cache', JSON.stringify(next)); } catch {}
         return next;
       });
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('slimdose:products_updated'));
       return { success: true, count: ids.length };
     } catch (err) {
       console.error('Failed to delete multiple products:', err);

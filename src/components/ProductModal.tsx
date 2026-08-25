@@ -119,6 +119,16 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [bundleTiers, setBundleTiers] = useState<BundleTierDraft[]>([]);
   const [isSetProduct, setIsSetProduct] = useState(false);
 
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   // Initialize or reset form state ONLY when modal transitions from closed to open or when product ID changes
   useEffect(() => {
     if (!isOpen) {

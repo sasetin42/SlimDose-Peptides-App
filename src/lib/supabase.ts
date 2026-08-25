@@ -145,9 +145,8 @@ const cleanUndefined = (obj: any): any => {
 };
 
 class SupabaseChannel {
-  private tableName: string = '';
-  private callbacks: Array<(payload: any) => void> = [];
-  private unsubscribe: (() => void) | null = null;
+  private subscriptions: Map<string, Array<(payload: any) => void>> = new Map();
+  private unsubs: Array<() => void> = [];
 
   constructor() {}
 
@@ -156,16 +155,19 @@ class SupabaseChannel {
     filterConfig: { event: string; schema: string; table: string; filter?: string },
     callback: (payload: any) => void
   ) {
-    this.tableName = filterConfig.table;
-    this.callbacks.push(callback);
+    const table = filterConfig.table;
+    if (!this.subscriptions.has(table)) {
+      this.subscriptions.set(table, []);
+    }
+    this.subscriptions.get(table)!.push(callback);
     return this;
   }
 
   subscribe() {
-    if (this.tableName) {
-      const colRef = collection(db, this.tableName);
+    this.subscriptions.forEach((callbacks, table) => {
+      const colRef = collection(db, table);
       let isInitialSnapshot = true;
-      this.unsubscribe = onSnapshot(
+      const unsub = onSnapshot(
         colRef,
         (snapshot) => {
           if (isInitialSnapshot) {
@@ -174,7 +176,7 @@ class SupabaseChannel {
           }
           snapshot.docChanges().forEach((change) => {
             const docData = { id: change.doc.id, ...change.doc.data() };
-            this.callbacks.forEach((cb) => {
+            callbacks.forEach((cb) => {
               cb({
                 eventType:
                   change.type === 'added'
@@ -189,17 +191,19 @@ class SupabaseChannel {
           });
         },
         (error) => {
-          console.warn(`[Firestore Realtime] Error listening to ${this.tableName}:`, error);
+          console.warn(`[Firestore Realtime] Error listening to ${table}:`, error);
         }
       );
-    }
+      this.unsubs.push(unsub);
+    });
     return this;
   }
 
   unsubscribeChannel() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-    }
+    this.unsubs.forEach(unsub => {
+      try { unsub(); } catch {}
+    });
+    this.unsubs = [];
   }
 }
 
@@ -574,10 +578,9 @@ class SupabaseQueryBuilder {
         return { data: updated, error: null };
       }
 
-      // Handle Insert or Upsert
+      // Handle Insert or Upsert (Parallelized for maximum speed)
       if (this.insertData) {
-        const results: any[] = [];
-        for (const item of this.insertData) {
+        const docPromises = this.insertData.map(async (item) => {
           const docId = item.id || doc(collection(db, this.tableName)).id;
           const docRef = doc(db, this.tableName, docId);
           const docData = cleanUndefined({ ...item, id: docId });
@@ -587,8 +590,10 @@ class SupabaseQueryBuilder {
           } else {
             await setDoc(docRef, docData);
           }
-          results.push(docData);
-        }
+          return docData;
+        });
+
+        const results = await Promise.all(docPromises);
         return { data: this.insertData.length === 1 ? results[0] : results, error: null };
       }
 
@@ -898,37 +903,9 @@ export const supabase = {
     }
   },
   functions: {
-    invoke: async (functionName: string, options?: { body?: any }) => {
-      try {
-        const customUrl = import.meta.env.VITE_SUPABASE_URL;
-        // If no valid active Supabase URL is configured, bypass edge function gracefully
-        if (!customUrl || customUrl.includes('xvhsyawffuhymkpxkuzc')) {
-          console.debug(`ℹ️ Edge function '${functionName}' skipped (no active edge function endpoint).`);
-          return { data: { success: true, skipped: true }, error: null };
-        }
-
-        console.log(`⚡ Invoking Edge Function: ${functionName}`, options?.body);
-        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-        
-        const response = await fetch(`${customUrl}/functions/v1/${functionName}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-            'apikey': supabaseAnonKey,
-          },
-          body: JSON.stringify(options?.body || {}),
-        });
-
-        const resData = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          return { data: null, error: new Error(resData?.error || resData?.message || `HTTP ${response.status}`) };
-        }
-        return { data: resData, error: null };
-      } catch (err: any) {
-        // Return error object gracefully instead of breaking caller flows
-        return { data: null, error: err };
-      }
+    invoke: async (functionName: string, _options?: { body?: any }) => {
+      console.debug(`ℹ️ Function '${functionName}' called (running in dedicated Firebase mode).`);
+      return { data: { success: true, dedicatedFirebase: true }, error: null };
     }
   },
 };

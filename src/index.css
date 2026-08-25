@@ -489,6 +489,215 @@ strong {
   }
 }
 
+/* ─── Standardized Peptalk Article & WYSIWYG Editor Styles ─── */
+.peptalk-article-content {
+  font-family: inherit;
+  line-height: 1.75;
+  color: #1e293b;
+}
+.dark .peptalk-article-content {
+  color: #e2e8f0;
+}
+
+.peptalk-article-content p {
+  margin-bottom: 0.85rem;
+}
+
+.peptalk-article-content h1 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 1.35rem;
+  margin-bottom: 0.65rem;
+  line-height: 1.3;
+}
+.dark .peptalk-article-content h1 {
+  color: #ffffff;
+}
+
+.peptalk-article-content h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 1.25rem;
+  margin-bottom: 0.55rem;
+  line-height: 1.35;
+}
+.dark .peptalk-article-content h2 {
+  color: #ffffff;
+}
+
+.peptalk-article-content h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 1rem;
+  margin-bottom: 0.45rem;
+  line-height: 1.4;
+}
+.dark .peptalk-article-content h3 {
+  color: #f1f5f9;
+}
+
+.peptalk-article-content ul {
+  list-style-type: disc;
+  padding-left: 1.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.peptalk-article-content ol {
+  list-style-type: decimal;
+  padding-left: 1.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.peptalk-article-content li {
+  margin-bottom: 0.35rem;
+}
+
+.peptalk-article-content hr {
+  border: 0;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 1.35rem 0;
+}
+.dark .peptalk-article-content hr {
+  background: #334155;
+}
+
+.peptalk-article-content blockquote {
+  border-left: 4px solid #3c6ca8;
+  background: rgba(60, 108, 168, 0.06);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #334155;
+}
+.dark .peptalk-article-content blockquote {
+  background: rgba(60, 108, 168, 0.15);
+  color: #cbd5e1;
+}
+
+.peptalk-article-content a {
+  color: #3c6ca8;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.peptalk-article-content a:hover {
+  color: #2b4d77;
+}
+.dark .peptalk-article-content a {
+  color: #60a5fa;
+}
+
+.peptalk-article-content table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.25rem 0;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.dark .peptalk-article-content table {
+  border-color: #334155;
+}
+
+.peptalk-article-content th {
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+.dark .peptalk-article-content th {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+.peptalk-article-content td {
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dark .peptalk-article-content td {
+  border-color: #1e293b;
+}
+
+.peptalk-article-content tr:last-child td {
+  border-bottom: none;
+}
+
+.peptalk-article-content tr:nth-child(even) {
+  background: #f8fafc;
+}
+.dark .peptalk-article-content tr:nth-child(even) {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+.peptalk-article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1rem auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: block;
+}
+
+/* Callout Alerts */
+.peptalk-callout-info {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-left: 4px solid #3b82f6;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  margin: 1rem 0;
+  color: #1e3a8a;
+}
+.dark .peptalk-callout-info {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+  border-left-color: #60a5fa;
+  color: #bfdbfe;
+}
+
+.peptalk-callout-warning {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-left: 4px solid #f59e0b;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  margin: 1rem 0;
+  color: #78350f;
+}
+.dark .peptalk-callout-warning {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  border-left-color: #fbbf24;
+  color: #fde68a;
+}
+
+.peptalk-callout-success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-left: 4px solid #10b981;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  margin: 1rem 0;
+  color: #064e3b;
+}
+.dark .peptalk-callout-success {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  border-left-color: #34d399;
+  color: #a7f3d0;
+}
+
 /* ==========================================================================
    Print Optimization for Clinical & Laboratory Protocol Summary Sheets
    ========================================================================== */

@@ -73,6 +73,16 @@ export const BannerEditModal: React.FC<BannerEditModalProps> = ({
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'appearance' | 'schedule'>('content');
 
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   // Load initialData when modal opens
   useEffect(() => {
     if (isOpen) {

@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
+import { auth, db } from '../lib/firebase';
+import { updatePassword as firebaseUpdatePassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 import { demoProducts } from '../data/demoProducts';
 
@@ -177,32 +180,18 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
     if (!file) return;
     try {
       setUploadingAvatar(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `avatar-${customer.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('menu-images')
-        .upload(filePath, file, { upsert: true });
-
-      let publicUrl = '';
-      if (!uploadError) {
-        const { data } = supabase.storage.from('menu-images').getPublicUrl(filePath);
-        publicUrl = data.publicUrl;
-      } else {
-        // Fallback to local Data URL preview if bucket upload is not configured
-        publicUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-      }
+      const publicUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
       setAvatarUrl(publicUrl);
       const updated = { ...customer, avatar_url: publicUrl };
       localStorage.setItem('slimdose_customer', JSON.stringify(updated));
 
-      // Persist in DB if available
+      // Persist in DB directly into customer record
       await supabase.from('customers').update({ avatar_url: publicUrl }).eq('id', customer.id);
       window.dispatchEvent(new Event('storage'));
       fireToast('Profile image updated successfully!', 'success');
@@ -480,10 +469,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
       // 4. Update Firebase Auth credential if current user is logged into Firebase Auth
       try {
-        const { auth, db } = await import('../lib/firebase');
-        const { updatePassword: firebaseUpdatePassword } = await import('firebase/auth');
-        const { doc, setDoc } = await import('firebase/firestore');
-
         if (auth.currentUser) {
           await firebaseUpdatePassword(auth.currentUser, newPassword);
           await setDoc(doc(db, 'users', auth.currentUser.uid), {
@@ -1335,59 +1320,42 @@ Shipping Target: ${deliveryAddr}
   const SecurityTab = () => (
     <div className="space-y-5">
       <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5">
-        <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2 mb-4"><Lock className="w-4 h-4 text-[#3C6CA8]" />Change Password</h3>
-        <form onSubmit={handlePasswordChange} className="space-y-3">
-          <div className="relative">
-            <label htmlFor="customerdashboard-current-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Current Password <span className="text-rose-500">*</span></label>
-            <input id="customerdashboard-current-password" name="current_password" type={showCurrentPw ? 'text' : 'password'} value={currentPassword} autoComplete="current-password" onChange={(e) => setCurrentPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" />
-            <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 cursor-pointer">{showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-[#3C6CA8] dark:text-blue-400">
+            <ShieldCheck className="w-5 h-5 text-emerald-500" />
           </div>
-          <div className="relative">
-            <label htmlFor="customerdashboard-new-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password <span className="text-rose-500">*</span></label>
-            <input id="customerdashboard-new-password" name="new_password" type={showNewPw ? 'text' : 'password'} value={newPassword} autoComplete="new-password" onChange={(e) => setNewPassword(e.target.value)} className="w-full text-sm px-3 py-2.5 pr-10 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all" placeholder="Min. 8 characters" />
-            <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 bottom-3 text-gray-400 hover:text-gray-600 cursor-pointer">{showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
-          </div>
-          {newPassword && (() => {
-            const pwStrength = getPasswordStrength(newPassword);
-            return (
-              <div className="space-y-1">
-                <div className="flex gap-1">{[1,2,3,4].map(i => <div key={i} className={`h-1.5 flex-1 rounded-full transition-all ${i <= pwStrength.score ? pwStrength.color : 'bg-gray-200 dark:bg-slate-700'}`} />)}</div>
-                <p className="text-[10px] text-gray-500">{pwStrength.label && `Strength: ${pwStrength.label}`}</p>
-              </div>
-            );
-          })()}
           <div>
-            <label htmlFor="customerdashboard-confirm-new-password" className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Confirm New Password <span className="text-rose-500">*</span></label>
-            <input id="customerdashboard-confirm-new-password" name="confirm_new_password" type="password" value={confirmPassword} autoComplete="new-password" onChange={(e) => setConfirmPassword(e.target.value)} className={`w-full text-sm px-3 py-2.5 border rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-200 transition-all ${confirmPassword && confirmPassword !== newPassword ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-slate-700'}`} />
-            {confirmPassword && confirmPassword !== newPassword && <p className="text-[10px] text-rose-500 mt-1">Passwords don't match.</p>}
+            <h3 className="font-bold text-gray-900 dark:text-white text-sm">
+              Passwordless One-Time PIN (OTP) Security
+            </h3>
+            <p className="text-[11px] text-gray-500 dark:text-slate-400">
+              Your account uses instant email OTP verification linked to <strong className="text-gray-700 dark:text-gray-200">{customer.email}</strong>.
+            </p>
           </div>
-          <button 
-            type="submit" 
-            disabled={isUpdatingPassword}
-            className="w-full py-2.5 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
-          >
-            {isUpdatingPassword ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Updating Password...</span>
-              </>
-            ) : (
-              <>
-                <Lock className="w-4 h-4" />
-                <span>Update Password</span>
-              </>
-            )}
-          </button>
-        </form>
+        </div>
+
+        <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200/80 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-semibold">
+            <span className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200">
+              <KeyRound className="w-3.5 h-3.5 text-[#3C6CA8]" /> Primary Sign-In Method
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider">
+              ● Active (Email OTP)
+            </span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+            Every time you sign in from a new browser or device, a single-use 6-digit verification code is securely dispatched to your registered email address. No password vulnerability or forgotten passwords.
+          </p>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5">
-        <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2 mb-4"><Smartphone className="w-4 h-4 text-[#3C6CA8]" />Active Sessions</h3>
+        <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2 mb-4"><Smartphone className="w-4 h-4 text-[#3C6CA8]" />Active Sessions &amp; Device Persistence</h3>
         <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/40 rounded-xl mb-3">
           <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"><Smartphone className="w-4 h-4 text-green-600" /></div>
           <div className="flex-1">
-            <p className="text-xs font-bold text-gray-800 dark:text-slate-200">Current Device</p>
-            <p className="text-[10px] text-gray-500 dark:text-slate-400">{navigator.userAgent.includes('Mobile') ? 'Mobile Browser' : 'Desktop Browser'} · Active now</p>
+            <p className="text-xs font-bold text-gray-800 dark:text-slate-200">Current Device (Persistent Session)</p>
+            <p className="text-[10px] text-gray-500 dark:text-slate-400">{navigator.userAgent.includes('Mobile') ? 'Mobile Browser' : 'Desktop Browser'} · Logged in until manual sign out</p>
           </div>
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
         </div>
@@ -1399,9 +1367,9 @@ Shipping Target: ${deliveryAddr}
         <div>
           <p className="text-xs font-bold text-amber-800 dark:text-amber-300">Security Tips</p>
           <ul className="text-[11px] text-amber-700 dark:text-amber-400 mt-1.5 space-y-1 leading-relaxed">
-            <li>• Use a strong, unique password (min. 8 characters)</li>
-            <li>• Never share your login credentials with anyone</li>
-            <li>• Log out from shared/public devices after use</li>
+            <li>• Ensure you have continuous access to your registered email address</li>
+            <li>• Never share your 6-digit One-Time PIN (OTP) with anyone</li>
+            <li>• You will remain logged in on this device unless you choose to sign out</li>
             <li>• Contact support immediately if you suspect unauthorized access</li>
           </ul>
         </div>

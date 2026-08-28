@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Video, Plus, Edit, Trash2, Play, Film, Search, X, Calendar, Tag, ExternalLink, Upload as UploadIcon, Image as ImageIcon, Link as LinkIcon, RefreshCw, CheckCircle2, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { uploadFileToStorage } from '../services/firebaseStorage';
 import ImageUpload from './ImageUpload';
 
 interface VideoItem {
@@ -131,47 +130,7 @@ export default function PeptalkVideosManager() {
             const localDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             setThumbnailUrl(localDataUrl);
             setThumbnailGenerated(true);
-
-            canvas.toBlob(async (blob) => {
-              if (!blob) {
-                done(localDataUrl);
-                return;
-              }
-
-              try {
-                const thumbFileName = `peptalk_thumb_${Date.now()}.jpg`;
-                const thumbFile = new File([blob], thumbFileName, { type: 'image/jpeg' });
-
-                // Try Supabase Storage first
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                  .from('peptalk-thumbnails')
-                  .upload(thumbFileName, thumbFile, { cacheControl: '3600', upsert: true });
-
-                if (!uploadError && uploadData) {
-                  const { data: publicUrlData } = supabase.storage
-                    .from('peptalk-thumbnails')
-                    .getPublicUrl(thumbFileName);
-
-                  if (publicUrlData?.publicUrl) {
-                    setThumbnailUrl(publicUrlData.publicUrl);
-                    done(publicUrlData.publicUrl);
-                    return;
-                  }
-                }
-
-                // Fallback to Firebase Storage
-                const fbUrl = await uploadFileToStorage(thumbFile, 'peptalk-thumbnails', thumbFileName);
-                if (fbUrl) {
-                  setThumbnailUrl(fbUrl);
-                  done(fbUrl);
-                } else {
-                  done(localDataUrl);
-                }
-              } catch (uploadErr) {
-                console.warn('Thumbnail storage upload failed, keeping local Data URL snapshot:', uploadErr);
-                done(localDataUrl);
-              }
-            }, 'image/jpeg', 0.85);
+            done(localDataUrl);
           } catch (e) {
             console.warn('Canvas snapshot capture failed:', e);
             done(null);
@@ -239,44 +198,25 @@ export default function PeptalkVideosManager() {
 
     try {
       setUploadingFile(true);
-      setUploadProgress(15);
+      setUploadProgress(25);
 
-      // 1. Immediately extract frame snapshot from local file before cloud upload
+      // 1. Immediately extract frame snapshot from local file
       const autoThumb = await captureVideoFrameAsThumbnail(file);
       if (autoThumb) {
         setThumbnailUrl(autoThumb);
       }
 
-      // 2. Try Supabase Storage upload
-      const fileExt = ext || 'mp4';
-      const fileName = `peptalk_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      setUploadProgress(60);
 
-      setUploadProgress(40);
+      // 2. Convert video file to Data URL for pure Firestore storage
+      const videoDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('peptalk-videos')
-        .upload(fileName, file, { cacheControl: '3600', upsert: true });
-
-      setUploadProgress(75);
-
-      let finalVideoUrl = '';
-
-      if (!uploadError && uploadData) {
-        const { data: publicUrlData } = supabase.storage
-          .from('peptalk-videos')
-          .getPublicUrl(fileName);
-
-        if (publicUrlData?.publicUrl) {
-          finalVideoUrl = publicUrlData.publicUrl;
-        }
-      }
-
-      if (!finalVideoUrl) {
-        // Fallback to Firebase Storage
-        finalVideoUrl = await uploadFileToStorage(file, 'peptalk-videos', fileName);
-      }
-
-      setVideoUrl(finalVideoUrl);
+      setVideoUrl(videoDataUrl);
       setUploadProgress(100);
     } catch (err: any) {
       console.error('Video upload error:', err);

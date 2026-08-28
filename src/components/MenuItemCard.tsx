@@ -3,6 +3,7 @@ import { Flame, Sparkles, Zap, Tag, Atom, ShieldCheck, Heart } from 'lucide-reac
 import { fireToast } from './ToastNotification';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier } from '../types';
 import { resolveProductPricing } from '../utils/pricing';
+import { useCategories } from '../hooks/useCategories';
 
 interface MenuItemCardProps {
   product: Product;
@@ -132,6 +133,10 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
     ? Math.round((1 - currentPrice / originalPrice) * 100)
     : 0;
 
+  const { categories } = useCategories({ activeOnly: false });
+  const matchedCategory = categories.find(c => c.id === product.category || c.name === product.category);
+  const categoryDisplayName = matchedCategory?.name || (product.category && !product.category.includes('-') ? product.category : 'Peptides');
+
   return (
     <div
       onClick={handleClick}
@@ -156,10 +161,10 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-start justify-between gap-1 pointer-events-none z-10">
             {/* Left Badge: Category / Featured / Pre-Order */}
             <div className="flex flex-wrap items-center gap-1 min-w-0 max-w-[68%]">
-              {product.category && (
+              {categoryDisplayName && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-[#3C6CA8] dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 backdrop-blur-md shadow-2xs truncate">
                   <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#3C6CA8] shrink-0" />
-                  <span className="truncate">{product.category}</span>
+                  <span className="truncate">{categoryDisplayName}</span>
                 </span>
               )}
               {product.featured && (

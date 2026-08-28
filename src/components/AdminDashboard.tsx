@@ -379,8 +379,9 @@ const AdminDashboard: React.FC = () => {
     setConfirmPasswordError('');
     setIsProcessing(true);
     try {
-      // Check fixed section gate password
-      const isValid = confirmPasswordInput === SECTION_GATE_PASSWORD;
+      // Check fixed section gate password OR current admin account password
+      const isAccountValid = await verifyAdminPassword(confirmPasswordInput);
+      const isValid = confirmPasswordInput === SECTION_GATE_PASSWORD || isAccountValid;
       if (isValid) {
         // 1. Single product deletion
         if (pendingDeleteProduct) {
@@ -2978,15 +2979,6 @@ const AdminDashboard: React.FC = () => {
                   <span>Access Dashboard</span>
                 </button>
               </form>
-
-              {/* Seed Demo Credentials Helper */}
-              <div className="mt-6 p-3.5 rounded-2xl bg-slate-950/50 border border-slate-800/80 text-[11px]">
-                <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">Quick Demo Login Credentials:</span>
-                <div className="text-slate-300 space-y-0.5 font-mono text-[10.5px]">
-                  <p>• Super Admin: <span className="text-blue-400">admin@gmail.com</span> / <span className="text-blue-400">123456#</span></p>
-                  <p>• Store Admin: <span className="text-blue-400">admin@slimdose.ph</span> / <span className="text-blue-400">admin2026</span></p>
-                </div>
-              </div>
             </div>
           </div>
 

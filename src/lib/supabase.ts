@@ -1,4 +1,4 @@
-import { db, auth, storage } from './firebase';
+import { db, auth } from './firebase';
 import {
   collection,
   doc,
@@ -16,11 +16,6 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import {
-  ref,
-  uploadBytes,
-  deleteObject,
-} from 'firebase/storage';
 
 import { liveScrapedProducts } from '../data/liveScrapedProducts';
 import { liveScrapedCategories } from '../data/liveScrapedCategories';
@@ -30,7 +25,6 @@ import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 import { liveScrapedPaymentMethods } from '../data/liveScrapedPaymentMethods';
 import { liveScrapedPromoCodes } from '../data/liveScrapedPromoCodes';
 import { liveScrapedProductReviews } from '../data/liveScrapedProductReviews';
-
 // Flatten variations from products
 const allLiveScrapedVariations = liveScrapedProducts.flatMap((p: any) => p.variations || []);
 
@@ -58,45 +52,6 @@ export const getLiveScrapedFallback = (table: string): any[] => {
     default:
       return [];
   }
-};
-
-// Helper to delete storage files by URL
-const deleteFileByUrl = async (url: string) => {
-  if (!url || typeof url !== 'string' || !url.includes('firebasestorage.googleapis.com')) return;
-  try {
-    const decodeUrl = decodeURIComponent(url);
-    const parts = decodeUrl.split('/o/');
-    if (parts.length > 1) {
-      const filePath = parts[1].split('?')[0];
-      const fileRef = ref(storage, filePath);
-      await deleteObject(fileRef);
-      console.log(`🗑️ Successfully cleaned up orphaned storage file: ${filePath}`);
-    }
-  } catch (error) {
-    console.warn(`Failed to clean up storage file: ${url}`, error);
-  }
-};
-
-// Helper to scan document data for storage URLs and clean them up
-const cleanupStorageFilesForDoc = async (docData: any) => {
-  if (!docData) return;
-  const promises: Promise<void>[] = [];
-  
-  const scanAndCleanup = (obj: any) => {
-    if (!obj) return;
-    if (typeof obj === 'string') {
-      if (obj.includes('firebasestorage.googleapis.com')) {
-        promises.push(deleteFileByUrl(obj));
-      }
-    } else if (Array.isArray(obj)) {
-      obj.forEach(scanAndCleanup);
-    } else if (typeof obj === 'object') {
-      Object.values(obj).forEach(scanAndCleanup);
-    }
-  };
-
-  scanAndCleanup(docData);
-  await Promise.all(promises);
 };
 
 const DELETED_ITEMS_KEY = 'slimdose_deleted_ids_by_table';
@@ -175,7 +130,11 @@ class SupabaseChannel {
             return;
           }
           snapshot.docChanges().forEach((change) => {
-            const docData = { id: change.doc.id, ...change.doc.data() };
+            const docId = change.doc.id;
+            const docData = { id: docId, ...change.doc.data() };
+            if (change.type === 'removed') {
+              markIdsAsDeleted(table, [docId]);
+            }
             callbacks.forEach((cb) => {
               cb({
                 eventType:
@@ -436,25 +395,17 @@ class SupabaseQueryBuilder {
         console.warn(`[Firestore Adapter] Query on ${this.tableName} using live scraped dataset:`, e);
       }
 
-      // Filter out deleted tombstone IDs from fallback
-      const deletedIds = getDeletedIdsForTable(this.tableName);
-      let fallback = getLiveScrapedFallback(this.tableName);
-      if (fallback && fallback.length > 0) {
-        if (deletedIds.size > 0) {
-          fallback = fallback.filter(f => !deletedIds.has(String(f.id || f.order_number)));
-        }
-        if (docsData.length === 0) {
+      // If Firestore returned data, it is the 100% authoritative live database.
+      // Fallback is ONLY used if Firestore query returned 0 documents (e.g. completely unseeded or offline).
+      if (docsData.length === 0) {
+        const deletedIds = getDeletedIdsForTable(this.tableName);
+        let fallback = getLiveScrapedFallback(this.tableName);
+        if (fallback && fallback.length > 0) {
+          if (deletedIds.size > 0) {
+            fallback = fallback.filter(f => !deletedIds.has(String(f.id || f.order_number)));
+          }
           docsData = [...fallback];
-        } else if (docsData.length < fallback.length) {
-          const existingIds = new Set(docsData.map(d => String(d.id || d.order_number)));
-          const missingFallback = fallback.filter(f => !existingIds.has(String(f.id || f.order_number)));
-          docsData = [...docsData, ...missingFallback];
         }
-      }
-
-      // Also ensure docsData contains no deleted tombstone items
-      if (deletedIds.size > 0) {
-        docsData = docsData.filter(d => !deletedIds.has(String(d.id || d.order_number)));
       }
 
       // Apply any fallback wheres client-side
@@ -531,7 +482,6 @@ class SupabaseQueryBuilder {
           if (!item.id) return;
           try {
             const docRef = doc(db, this.tableName, String(item.id));
-            await cleanupStorageFilesForDoc(item);
             await deleteDoc(docRef);
           } catch (delErr) {
             console.warn(`[Firestore Adapter] deleteDoc error for ${item.id}:`, delErr);
@@ -733,76 +683,26 @@ export const supabase = {
     }
   },
   storage: {
-    from: (bucketName: string) => ({
+    from: (_bucketName: string) => ({
       upload: async (path: string, file: File, _options?: any) => {
         try {
-          const cleanPath = path.startsWith(`${bucketName}/`) ? path : `${bucketName}/${path}`;
-          const fileRef = ref(storage, cleanPath);
-          const snapshot = await uploadBytes(fileRef, file);
-          let publicUrl = '';
-          try {
-            publicUrl = await getDownloadURL(snapshot.ref);
-          } catch {
-            const encodedPath = encodeURIComponent(snapshot.metadata.fullPath);
-            publicUrl = `https://firebasestorage.googleapis.com/v0/b/slimdose-peptides.firebasestorage.app/o/${encodedPath}?alt=media`;
-          }
-          return { data: { path: publicUrl, fullPath: snapshot.metadata.fullPath }, error: null };
+          const dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          return { data: { path: dataUrl, fullPath: path }, error: null };
         } catch (err: any) {
-          try {
-            const dataUrl = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
-            });
-            return { data: { path: dataUrl, fullPath: path }, error: null };
-          } catch (readErr) {
-            return { data: null, error: err };
-          }
+          return { data: null, error: err };
         }
       },
       getPublicUrl: (path: string) => {
         if (!path) return { data: { publicUrl: '' } };
-        if (path.startsWith('data:') || path.startsWith('http://') || path.startsWith('https://')) {
-          return { data: { publicUrl: path } };
-        }
-        const cleanPath = path.startsWith(`${bucketName}/`) ? path : `${bucketName}/${path}`;
-        const encodedPath = encodeURIComponent(cleanPath);
-        const publicUrl = `https://firebasestorage.googleapis.com/v0/b/slimdose-peptides.firebasestorage.app/o/${encodedPath}?alt=media`;
-        return { data: { publicUrl } };
+        return { data: { publicUrl: path } };
       },
-      remove: async (paths: string[]) => {
-        try {
-          const promises = paths.map((path) => {
-            if (!path || path.startsWith('data:')) return Promise.resolve();
-            let cleanPath = path;
-            if (path.includes('firebasestorage.googleapis.com')) {
-              try {
-                const parts = decodeURIComponent(path).split('/o/');
-                if (parts.length > 1) {
-                  cleanPath = parts[1].split('?')[0];
-                }
-              } catch {
-                cleanPath = path;
-              }
-            }
-            
-            // Clean up duplicated bucket prefixes (e.g. peptalk-thumbnails/peptalk-thumbnails/...)
-            cleanPath = cleanPath.replace(new RegExp(`^${bucketName}/${bucketName}/`), `${bucketName}/`);
-            if (!cleanPath.startsWith(`${bucketName}/`)) {
-              cleanPath = `${bucketName}/${cleanPath}`;
-            }
-
-            const fileRef = ref(storage, cleanPath);
-            return deleteObject(fileRef).catch(() => {
-              // Silently ignore storage deletion error
-            });
-          });
-          await Promise.all(promises);
-          return { data: null, error: null };
-        } catch {
-          return { data: null, error: null };
-        }
+      remove: async (_paths: string[]) => {
+        return { data: null, error: null };
       },
     }),
   },

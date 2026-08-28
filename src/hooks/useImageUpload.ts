@@ -114,64 +114,26 @@ export const useImageUpload = (folder: string = 'menu-images') => {
         setUploadProgress(prev => (prev >= 90 ? 90 : prev + 15));
       }, 80);
 
-      // 30s timeout guard
-      const uploadTimeoutPromise = new Promise<never>((_, reject) => {
-        uploadTimeout = setTimeout(() => {
-          reject(new Error('Upload timeout. Please check your connection and try again.'));
-        }, 30000);
+      // Convert compressed image directly to Base64 data URL
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(processedFile);
       });
-
-      const uploadPromise = supabase.storage
-        .from(folder)
-        .upload(fileName, processedFile, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: processedFile.type || 'image/jpeg'
-        });
-
-      const uploadResult: any = await Promise.race([
-        uploadPromise,
-        uploadTimeoutPromise
-      ]);
 
       if (uploadTimeout) clearTimeout(uploadTimeout);
       if (progressInterval) clearInterval(progressInterval);
       setUploadProgress(100);
 
-      if (uploadResult?.error) {
-        console.warn('⚠️ Storage upload warning, attempting Data URL fallback...', uploadResult.error);
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (e) => reject(e);
-          reader.readAsDataURL(processedFile);
-        });
-        return dataUrl;
-      }
-
-      if (!uploadResult?.data?.path) {
-        // Fallback to Data URL if path is missing
-        const dataUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = () => resolve('');
-          reader.readAsDataURL(processedFile);
-        });
-        return dataUrl;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from(folder)
-        .getPublicUrl(uploadResult.data.path);
-
-      console.log('✅ Image uploaded successfully:', { fileName, publicUrl });
-      return publicUrl;
+      console.log('✅ Image prepared successfully for Firestore storage (Base64 Data URL)');
+      return dataUrl;
     } catch (error: any) {
-      console.error('❌ Error uploading image:', error);
+      console.error('❌ Error processing image:', error);
       if (uploadTimeout) clearTimeout(uploadTimeout);
       if (progressInterval) clearInterval(progressInterval);
 
-      // Attempt emergency base64 fallback so checkout flow is never blocked
+      // Attempt raw base64 fallback so checkout flow is never blocked
       try {
         const fallbackDataUrl = await new Promise<string>((resolve) => {
           const reader = new FileReader();
@@ -185,24 +147,16 @@ export const useImageUpload = (folder: string = 'menu-images') => {
         }
       } catch {}
 
-      throw new Error(error?.message || 'Failed to upload image. Please try again.');
+      throw new Error(error?.message || 'Failed to process image. Please try again.');
     } finally {
       setUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
-  const deleteImage = async (imageUrl: string): Promise<void> => {
-    if (!imageUrl || imageUrl.startsWith('data:')) return;
-    try {
-      const urlParts = imageUrl.split('/');
-      const fileName = urlParts[urlParts.length - 1]?.split('?')[0];
-      if (fileName) {
-        await supabase.storage.from(folder).remove([fileName]);
-      }
-    } catch (error) {
-      console.warn('Image delete skipped:', error);
-    }
+  const deleteImage = async (_imageUrl: string): Promise<void> => {
+    // Pure Firestore Base64 images are managed directly within document records
+    return;
   };
 
   return {

@@ -34,6 +34,7 @@ import {
   Share2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { db, doc, setDoc } from '../lib/firebase';
 import { fireToast } from './ToastNotification';
 import { formatOrderId } from '../utils/orderUtils';
 import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
@@ -400,11 +401,7 @@ export default function CustomerCRMManager() {
     let successCount = 0;
     let skippedCount = 0;
     let failedCount = 0;
-
     try {
-      const { doc, setDoc, serverTimestamp } = await import('../lib/firebase');
-      const { db } = await import('../lib/firebase');
-
       // Process in batches for performance and responsive progress
       const batchSize = 10;
       for (let i = 0; i < total; i += batchSize) {
@@ -438,7 +435,7 @@ export default function CustomerCRMManager() {
                   total_spent: stats.totalSpent,
                   order_count: stats.orderCount,
                   default_password: DEFAULT_CUSTOMER_PASSWORD,
-                  synced_at: serverTimestamp(),
+                  synced_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
                 },
                 { merge: true }

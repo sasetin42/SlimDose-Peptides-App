@@ -20,7 +20,6 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
 
 // Silence non-critical internal SDK warnings (such as secondary tab lease acquisition)
 setLogLevel('error');
@@ -29,7 +28,6 @@ const firebaseConfig = {
   apiKey: 'AIzaSyBYk8pxgUi5ZV10nUW91VTZ8lBGZYMJdkk',
   authDomain: 'slimdose-peptides.firebaseapp.com',
   projectId: 'slimdose-peptides',
-  storageBucket: 'slimdose-peptides.firebasestorage.app',
   messagingSenderId: '1003572217504',
   appId: '1:1003572217504:web:8eebdd82710ab9fe7aabc5',
   measurementId: 'G-573TE9JRS5',
@@ -45,9 +43,8 @@ export const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
 });
 
-// Initialize and export Auth and Storage services
+// Initialize and export Auth service
 export const auth = getAuth(app);
-export const storage = getStorage(app);
 
 export {
   collection,

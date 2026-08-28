@@ -185,11 +185,18 @@ export function useMenu() {
           variationsByProduct.set(v.product_id, list);
         }
 
-        const productsWithVariations = data.map(product => ({
-          ...product,
-          sales_count: product.sales_count ?? 0,
-          variations: variationsByProduct.get(product.id) || [],
-        }));
+        const salesCountMap = cachedSalesCountMapRef.current;
+        const productsWithVariations = data.map(product => {
+          const pNameKey = `name:${(product.name || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+          const liveSales = salesCountMap
+            ? (salesCountMap.get(product.id) || 0) + (salesCountMap.get(pNameKey) || 0)
+            : Number(product.sales_count || 0);
+          return {
+            ...product,
+            sales_count: liveSales,
+            variations: variationsByProduct.get(product.id) || [],
+          };
+        });
 
         setProducts(productsWithVariations);
         try { localStorage.setItem('slimdose_products_cache', JSON.stringify(productsWithVariations)); } catch {}
@@ -198,7 +205,8 @@ export function useMenu() {
         setLoading(false);
         lastFetchRef.current = Date.now();
 
-        setTimeout(() => fetchOrderCounts(productsWithVariations), 0);
+        // Refresh live order counts in the background without causing a full jarring card re-render
+        fetchOrderCounts(productsWithVariations);
 
         return;
       }

@@ -147,14 +147,33 @@ export async function provisionCustomerAccount(
       email: cleanEmail,
       displayName,
       phone,
-      customerId,
+      customerId: customerId || user.uid,
       role: 'customer',
       emailVerified: user.emailVerified,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
 
+    // 1. Save to Firestore /users collection
     await setDoc(doc(db, 'users', user.uid), userProfile);
+
+    // 2. Save directly to Firestore /customers collection for CRM & orders sync
+    const targetCustId = customerId || user.uid;
+    const customerDoc = {
+      id: targetCustId,
+      full_name: displayName,
+      name: displayName,
+      email: cleanEmail,
+      phone: phone,
+      vip_tier: 'VIP Gold',
+      status: 'Active',
+      total_orders: 0,
+      total_spend: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      firebase_uid: user.uid,
+    };
+    await setDoc(doc(db, 'customers', targetCustId), customerDoc, { merge: true });
 
     return {
       status: 'created',
@@ -169,6 +188,11 @@ export async function provisionCustomerAccount(
       err?.message?.includes('auth/email-already-in-use') ||
       err?.message?.includes('already exists')
     ) {
+      // Sign in with existing credentials to activate auth.currentUser
+      try {
+        await signInWithEmailAndPassword(auth, cleanEmail, DEFAULT_CUSTOMER_PASSWORD);
+      } catch (_authErr) {}
+
       // Find existing user in Firestore /users collection by email
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('email', '==', cleanEmail));
@@ -188,6 +212,21 @@ export async function provisionCustomerAccount(
         };
 
         await setDoc(doc(db, 'users', uid), updatedFields, { merge: true });
+
+        // Also sync /customers doc
+        const custIdToUpdate = customerId || existingData.customerId || uid;
+        await setDoc(
+          doc(db, 'customers', custIdToUpdate),
+          {
+            id: custIdToUpdate,
+            full_name: displayName || existingData.displayName || cleanEmail.split('@')[0],
+            name: displayName || existingData.displayName || cleanEmail.split('@')[0],
+            email: cleanEmail,
+            phone: phone || existingData.phone || '',
+            updated_at: new Date().toISOString(),
+          },
+          { merge: true }
+        );
 
         return {
           status: 'existing',

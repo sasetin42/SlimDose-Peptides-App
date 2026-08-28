@@ -308,8 +308,6 @@ export const sendTransactionalEmail = async (params: {
   };
 
   const primaryEndpoints = [
-    'http://localhost:3055/api/send-email',
-    'http://127.0.0.1:3055/api/send-email',
     '/api/send-email',
   ];
 

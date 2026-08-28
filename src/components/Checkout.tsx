@@ -71,16 +71,16 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
   const getInitialValue = (key: string, fallbackKey?: string) => {
     try {
-      const draftRaw = localStorage.getItem('slimdose_checkout_draft');
-      if (draftRaw) {
-        const draft = JSON.parse(draftRaw);
-        if (draft && draft[key]) return draft[key];
-      }
       const customerRaw = localStorage.getItem('slimdose_customer');
       if (customerRaw) {
         const cust = JSON.parse(customerRaw);
         if (cust && cust[key]) return cust[key];
         if (fallbackKey && cust && cust[fallbackKey]) return cust[fallbackKey];
+      }
+      const draftRaw = localStorage.getItem('slimdose_checkout_draft');
+      if (draftRaw) {
+        const draft = JSON.parse(draftRaw);
+        if (draft && draft[key]) return draft[key];
       }
     } catch {}
     return '';
@@ -539,15 +539,19 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         };
       });
 
+      const normalizedEmail = email.trim().toLowerCase();
+      const currentCustomerId = customer?.id || null;
+
       const orderPayload = {
-        customer_name: fullName,
-        customer_email: email,
-        customer_phone: phone,
-        shipping_address: address,
-        shipping_barangay: barangay,
-        shipping_city: city,
-        shipping_state: state,
-        shipping_zip_code: zipCode,
+        customer_id: currentCustomerId,
+        customer_name: fullName.trim(),
+        customer_email: normalizedEmail,
+        customer_phone: phone.trim(),
+        shipping_address: address.trim(),
+        shipping_barangay: barangay.trim(),
+        shipping_city: city.trim(),
+        shipping_state: state.trim(),
+        shipping_zip_code: zipCode.trim(),
         order_items: orderItems,
         total_price: Math.max(0, totalPrice - discountAmount),
         shipping_fee: shippingFee,
@@ -620,6 +624,68 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
       console.log('✅ Order saved to database:', orderData);
 
+      // Ensure customer profile is properly stored & linked in Database
+      try {
+        if (normalizedEmail) {
+          const { data: existingCust } = await supabase
+            .from('customers')
+            .select('*')
+            .eq('email', normalizedEmail)
+            .maybeSingle();
+
+          if (existingCust) {
+            await supabase.from('customers').update({
+              full_name: fullName.trim() || existingCust.full_name,
+              phone: phone.trim() || existingCust.phone,
+              shipping_address: address.trim() || existingCust.shipping_address,
+              shipping_barangay: barangay.trim() || existingCust.shipping_barangay,
+              shipping_city: city.trim() || existingCust.shipping_city,
+              shipping_state: state.trim() || existingCust.shipping_state,
+              shipping_zip_code: zipCode.trim() || existingCust.shipping_zip_code,
+              updated_at: new Date().toISOString()
+            }).eq('id', existingCust.id);
+
+            // Update customer state if current user
+            const currentStored = localStorage.getItem('slimdose_customer');
+            if (currentStored) {
+              const parsed = JSON.parse(currentStored);
+              if (parsed.email === normalizedEmail || parsed.id === existingCust.id) {
+                localStorage.setItem('slimdose_customer', JSON.stringify({ ...parsed, ...existingCust, phone: phone.trim() || existingCust.phone }));
+              }
+            }
+          } else {
+            const newCustPayload = {
+              full_name: fullName.trim(),
+              email: normalizedEmail,
+              phone: phone.trim(),
+              shipping_address: address.trim() || null,
+              shipping_barangay: barangay.trim() || null,
+              shipping_city: city.trim() || null,
+              shipping_state: state.trim() || null,
+              shipping_zip_code: zipCode.trim() || null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            const { data: createdCust } = await supabase
+              .from('customers')
+              .insert([newCustPayload])
+              .select()
+              .single();
+
+            if (createdCust && !customer) {
+              localStorage.setItem('slimdose_customer', JSON.stringify(createdCust));
+              setCustomer(createdCust);
+            }
+          }
+
+          // Trigger customer order refresh event
+          window.dispatchEvent(new CustomEvent('slimdose:customer_order_placed', { detail: { orderId: finalOrder.id } }));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch (custErr) {
+        console.warn('Customer account association note:', custErr);
+      }
+
       // Automated Transactional Customer Confirmation & Admin Alert via Active SMTP & Email Template Studio
       try {
         dispatchOrderEmail('order-confirmed', {
@@ -672,7 +738,6 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         console.warn('Failed to save checkout cookie:', err);
       }
 
-      const normalizedEmail = email.trim().toLowerCase();
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
         identifyUser(normalizedEmail, { name: fullName || null });
         const itemsSummary = orderItems

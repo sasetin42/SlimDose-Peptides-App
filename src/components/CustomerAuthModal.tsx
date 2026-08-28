@@ -20,10 +20,11 @@ import {
   ArrowLeft,
   RefreshCw,
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, getDeletedIdsForTable } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 import { dispatchCustomerLoginOtpEmail } from '../services/emailService';
 import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
+import { provisionCustomerAccount } from '../services/firebaseAuth';
 
 interface CustomerAuthModalProps {
   onClose: () => void;
@@ -62,8 +63,8 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
     }
   }, [resendCooldown]);
 
-  // 1. Send OTP to Customer Email
-  const handleRequestOtp = async (e: React.FormEvent) => {
+  // 1. Instant Registration Flow (Direct Firestore & Firebase Auth Account Creation)
+  const handleRegisterAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
 
@@ -73,23 +74,21 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       return;
     }
 
-    if (mode === 'register') {
-      if (!fullName.trim()) {
-        fireToast('Please enter your full name.', 'warning');
-        return;
-      }
-      if (!phone.trim()) {
-        fireToast('Please enter your mobile phone number.', 'warning');
-        return;
-      }
+    if (!fullName.trim()) {
+      fireToast('Please enter your full name.', 'warning');
+      return;
+    }
+
+    if (!phone.trim()) {
+      fireToast('Please enter your mobile phone number.', 'warning');
+      return;
     }
 
     setLoading(true);
     setErrorMessage(null);
 
     try {
-      // Check if user already exists
-      let targetName = fullName.trim() || 'Valued Member';
+      // Check if user already exists in Firestore / customers table
       const { data: existingCustomer } = await supabase
         .from('customers')
         .select('*')
@@ -97,8 +96,135 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         .maybeSingle();
 
       if (existingCustomer) {
-        targetName = existingCustomer.full_name || existingCustomer.name || targetName;
+        const existsMsg = `An account with "${emailClean}" already exists. Please Sign In below.`;
+        setErrorMessage(existsMsg);
+        setMode('login');
+        fireToast(existsMsg, 'info');
+        setLoading(false);
+        return;
       }
+
+      // Create new customer record in Firestore
+      const newCustomerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const customerRecord = {
+        id: newCustomerId,
+        full_name: fullName.trim(),
+        name: fullName.trim(),
+        email: emailClean,
+        phone: phone.trim(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        vip_tier: 'VIP Gold',
+        status: 'Active',
+        total_orders: 0,
+        total_spend: 0,
+      };
+
+      // 1. Insert into Firestore /customers collection
+      await supabase.from('customers').insert([customerRecord]);
+
+      // 2. Provision into Firebase Authentication & Firestore /users collection
+      try {
+        await provisionCustomerAccount({
+          id: newCustomerId,
+          email: emailClean,
+          full_name: fullName.trim(),
+          phone: phone.trim(),
+        });
+      } catch (fbErr) {
+        console.warn('[Firebase Auth] Registration provisioning note:', fbErr);
+      }
+
+      // 3. Dispatch real-time events across the app and CRM Directory
+      window.dispatchEvent(new CustomEvent('slimdose:customer_registered', { detail: customerRecord }));
+      window.dispatchEvent(new Event('storage'));
+
+      fireToast(`🎉 VIP Account created successfully for ${fullName.trim()}! Please sign in with your email to receive your OTP.`, 'success', 8000);
+      setMode('login');
+      setErrorMessage(null);
+    } catch (err: any) {
+      console.error('Registration Error:', err);
+      const msg = err.message || 'Failed to create account. Please try again.';
+      setErrorMessage(msg);
+      fireToast(msg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. Send OTP to Customer Email for Sign In
+  const handleRequestOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
+
+    if (mode === 'register') {
+      return handleRegisterAccount(e);
+    }
+
+    const emailClean = email.trim().toLowerCase();
+    if (!emailClean || !emailClean.includes('@') || !emailClean.includes('.')) {
+      fireToast('Please enter a valid email address.', 'warning');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      // Check if user exists in Firestore / customers table
+      let existingCustomer: any = null;
+
+      const { data: dbCustomer } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('email', emailClean)
+        .maybeSingle();
+
+      if (dbCustomer) {
+        existingCustomer = dbCustomer;
+      }
+
+      // Check legacy scraped verified customers
+      if (!existingCustomer) {
+        const scraped = (liveScrapedCustomers as any[]).find(
+          (c) => c.email && c.email.toLowerCase().trim() === emailClean
+        );
+        if (scraped) {
+          existingCustomer = scraped;
+        }
+      }
+
+      // Check customer orders if guest previously ordered
+      if (!existingCustomer) {
+        const { data: orderWithEmail } = await supabase
+          .from('orders')
+          .select('customer_name, customer_email, customer_phone')
+          .eq('customer_email', emailClean)
+          .maybeSingle();
+
+        if (orderWithEmail) {
+          existingCustomer = {
+            id: `guest_${emailClean.replace(/[^a-z0-9]/g, '').slice(0, 10)}`,
+            full_name: orderWithEmail.customer_name || emailClean.split('@')[0],
+            email: emailClean,
+            phone: orderWithEmail.customer_phone || '',
+          };
+        }
+      }
+
+      // 🛑 STRICT SECURITY GATE: If in 'login' mode and Email is NOT found in Database, DENY OTP!
+      if (!existingCustomer) {
+        const denyMsg = 'NO Data for this Email Address, Please register to create account.';
+        setErrorMessage(denyMsg);
+        fireToast(denyMsg, 'warning');
+        setLoading(false);
+        return;
+      }
+
+      const targetName =
+        existingCustomer?.full_name ||
+        existingCustomer?.name ||
+        'Valued Member';
 
       // Generate secure random 6-digit PIN
       const pin = String(Math.floor(100000 + Math.random() * 900000));
@@ -114,7 +240,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         emailClean,
         pin,
         targetName,
-        mode === 'register'
+        false
       ).then((res) => {
         if (res.success) {
           fireToast(`6-Digit Verification PIN sent to ${emailClean}! 📬`, 'success');
@@ -186,11 +312,15 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         const customerRecord = {
           id: newCustomerId,
           full_name: fullName.trim() || emailClean.split('@')[0],
+          name: fullName.trim() || emailClean.split('@')[0],
           email: emailClean,
           phone: phone.trim() || '',
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           vip_tier: 'VIP Gold',
+          status: 'Active',
           total_orders: 0,
+          total_spend: 0,
         };
 
         const { data: inserted } = await supabase
@@ -218,7 +348,20 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         }
       }
 
-      // 2. Persist Customer Session in localStorage firmly (preventing accidental logout)
+      // 2. Provision & Store directly in Firebase Authentication & Firestore /users
+      try {
+        await provisionCustomerAccount({
+          id: finalCustomer.id,
+          email: emailClean,
+          full_name: finalCustomer.full_name || finalCustomer.name || fullName.trim(),
+          phone: finalCustomer.phone || phone.trim(),
+        });
+        console.info(`[Firebase Auth] ✅ Account provisioned and verified in Firebase Authentication for ${emailClean}`);
+      } catch (fbErr) {
+        console.warn('[Firebase Auth] Provisioning note:', fbErr);
+      }
+
+      // 3. Persist Customer Session in localStorage firmly (preventing accidental logout)
       localStorage.setItem('slimdose_customer', JSON.stringify(finalCustomer));
       window.dispatchEvent(new Event('storage'));
 
@@ -625,31 +768,57 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     />
                   </div>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-                    We'll email you a secure single-use 6-digit PIN to sign in instantly.
+                    {mode === 'login'
+                      ? "We'll email you a secure single-use 6-digit PIN to sign in instantly."
+                      : "Create your VIP account instantly. You will then sign in with your email."}
                   </p>
                 </div>
 
                 {errorMessage && (
-                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2 animate-fadeIn">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <div className="min-w-0 leading-relaxed font-medium">{errorMessage}</div>
+                  <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-700 dark:text-rose-300 text-xs flex flex-col gap-2 animate-fadeIn">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <div className="min-w-0 leading-relaxed font-semibold">{errorMessage}</div>
+                    </div>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMode('register');
+                          setErrorMessage(null);
+                        }}
+                        className="self-start inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[11px] transition-all cursor-pointer shadow-xs"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Register &amp; Create Account Now</span>
+                      </button>
+                    )}
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  disabled={loading || !email.trim()}
+                  disabled={loading || !email.trim() || (mode === 'register' && (!fullName.trim() || !phone.trim()))}
                   className="w-full py-3 sm:py-3.5 px-6 bg-[#3C6CA8] hover:bg-[#315A8E] text-white rounded-2xl font-extrabold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4 group focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Sending Security Code...</span>
+                      <span>{mode === 'login' ? 'Sending Security Code...' : 'Creating VIP Account...'}</span>
                     </>
                   ) : (
                     <>
-                      <span>{mode === 'login' ? 'Send 6-Digit Sign-In Code' : 'Continue with Email Verification'}</span>
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      {mode === 'login' ? (
+                        <>
+                          <span>Send 6-Digit Sign-In Code</span>
+                          <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" />
+                          <span>Create VIP Account</span>
+                        </>
+                      )}
                     </>
                   )}
                 </button>

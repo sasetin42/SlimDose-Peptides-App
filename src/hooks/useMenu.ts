@@ -17,7 +17,7 @@ export function useMenu() {
       const deletedIds = getDeletedIdsForTable('products');
       const cached = localStorage.getItem('slimdose_products_cache');
       const parsed = cached ? JSON.parse(cached) : null;
-      if (parsed && Array.isArray(parsed)) {
+      if (parsed && Array.isArray(parsed) && parsed.length > 0) {
         return parsed.filter(p => !deletedIds.has(String(p.id)));
       }
       return demoProducts.filter(p => !deletedIds.has(String(p.id)));

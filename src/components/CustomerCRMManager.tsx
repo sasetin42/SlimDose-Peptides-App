@@ -31,10 +31,11 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  Share2
+  Share2,
+  Trash2
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { db, doc, setDoc } from '../lib/firebase';
+import { supabase, getDeletedIdsForTable, markIdsAsDeleted } from '../lib/supabase';
+import { db, doc, setDoc, deleteDoc } from '../lib/firebase';
 import { fireToast } from './ToastNotification';
 import { formatOrderId } from '../utils/orderUtils';
 import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
@@ -104,6 +105,12 @@ export default function CustomerCRMManager() {
   useEffect(() => {
     loadData();
 
+    const handleReload = () => loadData(false);
+    window.addEventListener('storage', handleReload);
+    window.addEventListener('slimdose:customer_registered', handleReload);
+    window.addEventListener('orderConfirmed', handleReload);
+    window.addEventListener('focus', handleReload);
+
     // Setup Supabase Realtime Live-Sync for customers and orders
     const channel = supabase
       .channel('crm_realtime_sync')
@@ -117,6 +124,10 @@ export default function CustomerCRMManager() {
 
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener('storage', handleReload);
+      window.removeEventListener('slimdose:customer_registered', handleReload);
+      window.removeEventListener('orderConfirmed', handleReload);
+      window.removeEventListener('focus', handleReload);
     };
   }, []);
 
@@ -138,19 +149,23 @@ export default function CustomerCRMManager() {
       const knownEmails = new Set<string>();
       const combinedCustomers: Customer[] = [];
 
+      const deletedIds = getDeletedIdsForTable('customers');
+
       // 1. Supabase customers
       fetchedCustomers.forEach(c => {
         const email = (c.email || '').toLowerCase().trim();
-        if (email && !knownEmails.has(email)) {
+        const idStr = String(c.id || '');
+        if (email && !knownEmails.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
           knownEmails.add(email);
           combinedCustomers.push(c);
         }
       });
 
-      // 2. liveScrapedCustomers (ensure all 433 pre-loaded customer accounts are present)
+      // 2. liveScrapedCustomers (ensure pre-loaded customer accounts are present unless deleted)
       (liveScrapedCustomers as Customer[]).forEach(c => {
         const email = (c.email || '').toLowerCase().trim();
-        if (email && !knownEmails.has(email)) {
+        const idStr = String(c.id || '');
+        if (email && !knownEmails.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
           knownEmails.add(email);
           combinedCustomers.push(c);
         }
@@ -159,7 +174,7 @@ export default function CustomerCRMManager() {
       // 3. Guest checkout orders
       fetchedOrders.forEach(o => {
         const email = String(o.customer_email || '').trim().toLowerCase();
-        if (!email || knownEmails.has(email)) return;
+        if (!email || knownEmails.has(email) || deletedIds.has(email)) return;
 
         knownEmails.add(email);
         combinedCustomers.push({
@@ -182,10 +197,64 @@ export default function CustomerCRMManager() {
       setLastSyncTime(new Date());
     } catch (err) {
       console.error('Error loading CRM data, using scraped live cache:', err);
-      setCustomers(liveScrapedCustomers as Customer[]);
+      const deletedIds = getDeletedIdsForTable('customers');
+      const filteredScraped = (liveScrapedCustomers as Customer[]).filter(
+        c => !deletedIds.has(String(c.id)) && !deletedIds.has(c.email.toLowerCase().trim())
+      );
+      setCustomers(filteredScraped);
       setOrders(liveScrapedOrders as CustomerOrder[]);
     } finally {
       if (showLoading) setLoading(false);
+    }
+  };
+
+  // ── Permanent Delete Customer from System & Database ──
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+    setIsDeleting(true);
+    const emailKey = customerToDelete.email.toLowerCase().trim();
+    const idKey = String(customerToDelete.id || '');
+
+    try {
+      // 1. Mark in tombstone registry so it never reappears in fallback cache
+      markIdsAsDeleted('customers', [idKey, emailKey]);
+
+      // 2. Delete from Supabase / Firestore customers table
+      if (idKey && !idKey.startsWith('guest_')) {
+        await supabase.from('customers').delete().eq('id', idKey);
+      }
+      await supabase.from('customers').delete().eq('email', emailKey);
+
+      // 3. Delete directly from Firestore /customers collection & /users collection
+      try {
+        if (idKey) {
+          await deleteDoc(doc(db, 'customers', idKey));
+        }
+        await deleteDoc(doc(db, 'customers', emailKey));
+        await deleteDoc(doc(db, 'users', idKey));
+        await deleteDoc(doc(db, 'users', `email_${emailKey.replace(/[^a-zA-Z0-9]/g, '_')}`));
+      } catch (fbErr) {
+        console.warn('Firestore direct delete note:', fbErr);
+      }
+
+      // 4. Update UI state immediately
+      setCustomers(prev => prev.filter(c => c.id !== customerToDelete.id && c.email.toLowerCase().trim() !== emailKey));
+      if (activeCustomer?.id === customerToDelete.id || activeCustomer?.email.toLowerCase().trim() === emailKey) {
+        setActiveCustomer(null);
+      }
+      setCustomerToDelete(null);
+
+      // 5. Broadcast deletion across all browser windows
+      window.dispatchEvent(new Event('storage'));
+      fireToast(`Customer ${customerToDelete.full_name || emailKey} totally removed from system and database! 🗑️`, 'success');
+    } catch (err: any) {
+      console.error('Delete customer error:', err);
+      fireToast(`Failed to delete customer: ${err.message || 'Error'}`, 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -987,16 +1056,26 @@ export default function CustomerCRMManager() {
                         )}
                       </td>
 
-                      {/* Action Arrow */}
-                      <td className="py-3.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => setActiveCustomer(c)}
-                          className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#3C6CA8] hover:text-white text-slate-500 transition-all cursor-pointer shadow-xs"
-                          title="View customer profile & credentials"
-                        >
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
+                      {/* Action Buttons (View + Delete) */}
+                      <td className="py-3.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setActiveCustomer(c)}
+                            className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#3C6CA8] hover:text-white text-slate-500 transition-all cursor-pointer shadow-xs"
+                            title="View customer profile & credentials"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCustomerToDelete(c)}
+                            className="p-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/60 transition-all cursor-pointer shadow-xs"
+                            title="Totally delete customer from system & database"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1454,9 +1533,14 @@ export default function CustomerCRMManager() {
 
             {/* Modal Footer */}
             <div className="px-5 py-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400 font-medium">
-                Customer Record: {activeCustomer.email}
-              </span>
+              <button
+                type="button"
+                onClick={() => setCustomerToDelete(activeCustomer)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800 text-xs font-bold transition-all cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Customer</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setActiveCustomer(null)}
@@ -1466,6 +1550,72 @@ export default function CustomerCRMManager() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* ── 🗑️ PERMANENT DELETE CUSTOMER CONFIRMATION MODAL ── */}
+      {customerToDelete && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col text-left">
+            <div className="p-5 bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center font-bold text-white shadow-xs shrink-0">
+                <Trash2 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white leading-tight">
+                  Permanent Delete Customer
+                </h3>
+                <p className="text-xs text-rose-100 font-medium mt-0.5">
+                  Complete removal from system &amp; Database
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs text-slate-700 dark:text-slate-300">
+              <p>
+                Are you sure you want to permanently delete customer <strong className="text-slate-900 dark:text-white font-bold">{customerToDelete.full_name || customerToDelete.email}</strong>?
+              </p>
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 rounded-2xl border border-rose-200/80 dark:border-rose-900/60 space-y-1.5">
+                <p className="font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" /> Permanent Database Action
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400 text-[11px]">
+                  <li>Removes profile from Firestore <code className="font-mono bg-white dark:bg-slate-800 px-1 py-0.5 rounded">customers</code> &amp; <code className="font-mono bg-white dark:bg-slate-800 px-1 py-0.5 rounded">users</code>.</li>
+                  <li>Adds permanent tombstone so it never restores from legacy caches.</li>
+                  <li>Customer account will be blocked from automatic fallback login.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setCustomerToDelete(null)}
+                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={confirmDeleteCustomer}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-md disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting from Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Total Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

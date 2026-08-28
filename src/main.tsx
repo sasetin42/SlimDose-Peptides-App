@@ -7,6 +7,26 @@ import './index.css';
 
 import posthog from 'posthog-js';
 
+// Filter out non-fatal Firebase multi-tab synchronization messages
+if (typeof window !== 'undefined') {
+  const origError = console.error;
+  const origWarn = console.warn;
+  console.error = (...args: any[]) => {
+    const str = args.map(a => String(a?.message || a || '')).join(' ');
+    if (str.includes('Failed to obtain primary lease') || str.includes('primary lease')) {
+      return;
+    }
+    origError.apply(console, args);
+  };
+  console.warn = (...args: any[]) => {
+    const str = args.map(a => String(a?.message || a || '')).join(' ');
+    if (str.includes('Failed to obtain primary lease') || str.includes('primary lease')) {
+      return;
+    }
+    origWarn.apply(console, args);
+  };
+}
+
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY as string | undefined;
 const POSTHOG_HOST =
   (import.meta.env.VITE_PUBLIC_POSTHOG_HOST as string | undefined) ||

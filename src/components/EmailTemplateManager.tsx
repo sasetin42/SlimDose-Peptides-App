@@ -170,6 +170,9 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
       setTemplates(updatedList);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('slimdose_email_templates_updated', { detail: updatedList }));
+      }
     } catch (e) {
       console.error('Failed to save email templates to storage:', e);
     }
@@ -362,7 +365,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
 
       setLiveViewerData({
         recipientEmail: testRecipientEmail,
-        senderEmail: config.fromEmail || 'info@slimdoseph.com',
+        senderEmail: config.fromEmail || 'noreply@slimdoseph.com',
         senderName: config.fromName || 'SlimDose Peptides',
         subject: testSubj,
         htmlContent: renderedPreviewHtml,

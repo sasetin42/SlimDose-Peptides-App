@@ -289,29 +289,31 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
       let testHtml: string;
       let testSubject: string;
 
+      const sampleVariables = {
+        customer_name: 'SMTP Test Recipient',
+        customer_email: testEmailRecipient,
+        order_number: verifyCode,
+        order_id: verifyCode,
+        order_status: '✅ SMTP Verified',
+        items_summary: `• Hostinger SMTP Relay — smtp.hostinger.com:465 (SSL/TLS)\n• Sender: ${formData.smtp_from_email || 'noreply@slimdoseph.com'}\n• Recipient: ${testEmailRecipient}\n• Ref: ${verifyCode}\n• Dispatched: ${timestamp} (PHT)`,
+        subtotal: '0.00',
+        shipping_fee: '0.00',
+        discount: '0.00',
+        promo_code: verifyCode,
+        total_price: '0.00',
+        payment_method: 'Hostinger Business Email',
+        shipping_address: `Delivered to: ${testEmailRecipient}`,
+        shipping_provider: 'Hostinger Business Email',
+        tracking_number: verifyCode,
+        tracking_url: 'https://slimdoseph.com',
+        site_url: 'https://slimdoseph.com',
+        support_email: formData.smtp_from_email || 'noreply@slimdoseph.com',
+      };
+
       if (studioTemplate && studioTemplate.html_content) {
         // Render with sample SMTP verification data injected into template variables
-        testHtml = renderEmailTemplate(studioTemplate.html_content, {
-          customer_name: 'SMTP Test Recipient',
-          customer_email: testEmailRecipient,
-          order_number: verifyCode,
-          order_id: verifyCode,
-          order_status: '✅ SMTP Verified',
-          items_summary: `• Hostinger SMTP Relay — smtp.hostinger.com:465 (SSL/TLS)\n• Sender: ${formData.smtp_from_email || 'info@slimdoseph.com'}\n• Recipient: ${testEmailRecipient}\n• Ref: ${verifyCode}\n• Dispatched: ${timestamp} (PHT)`,
-          subtotal: '0.00',
-          shipping_fee: '0.00',
-          discount: '0.00',
-          promo_code: verifyCode,
-          total_price: '0.00',
-          payment_method: 'SMTP Configuration Test',
-          shipping_address: `Delivered to: ${testEmailRecipient}`,
-          shipping_provider: 'Hostinger Business Email',
-          tracking_number: verifyCode,
-          tracking_url: 'https://slimdoseph.com',
-          site_url: 'https://slimdoseph.com',
-          support_email: formData.smtp_from_email || 'info@slimdoseph.com',
-        });
-        testSubject = `✅ [SlimDose] SMTP Connection Verified — ${verifyCode}`;
+        testHtml = renderEmailTemplate(studioTemplate.html_content, sampleVariables);
+        testSubject = renderEmailSubject(studioTemplate.subject, sampleVariables) || `✅ [SlimDose] SMTP Connection Verified — ${verifyCode}`;
       } else {
         // Fallback to branded diagnostic template if no studio template found
         testHtml = generateSmtpTestEmailHtml(smtpConfig, testEmailRecipient);
@@ -321,7 +323,7 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
       // Populate Live Outbound Inspector & Open
       setLiveViewerData({
         recipientEmail: testEmailRecipient,
-        senderEmail: formData.smtp_from_email || 'info@slimdoseph.com',
+        senderEmail: formData.smtp_from_email || 'noreply@slimdoseph.com',
         senderName: formData.smtp_from_name || 'SlimDose Peptides',
         subject: testSubject,
         htmlContent: testHtml,
@@ -1487,7 +1489,7 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
                       <ul className="list-disc list-inside text-[11px] text-rose-200/90 space-y-0.5 ml-1">
                         <li>Ensure <strong>Host</strong> is <code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">smtp.hostinger.com</code></li>
                         <li>Ensure <strong>Port</strong> is <code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">465</code> (SSL/TLS enabled)</li>
-                        <li>Ensure <strong>Username</strong> matches full mailbox email (<code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">info@slimdoseph.com</code>)</li>
+                        <li>Ensure <strong>Username</strong> matches full mailbox email (<code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">noreply@slimdoseph.com</code>)</li>
                         <li>Confirm the password matches your Hostinger Webmail login exactly</li>
                       </ul>
                       <div className="pt-1 flex justify-end">

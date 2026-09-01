@@ -490,7 +490,30 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         } : null);
       }
 
-      fireToast('Tracking information saved successfully! 🚚', 'success');
+      // Automatically dispatch transactional order-shipped email template to customer
+      const targetOrder = orders.find(o => o.id === orderId) || selectedOrder;
+      if (targetOrder && targetOrder.customer_email && trackingNumber) {
+        dispatchOrderEmail('order-shipped', {
+          orderId: targetOrder.id,
+          orderNumber: targetOrder.order_number || targetOrder.id,
+          customerName: targetOrder.customer_name || 'Valued Client',
+          customerEmail: targetOrder.customer_email,
+          customerPhone: targetOrder.customer_phone,
+          shippingAddress: targetOrder.shipping_address,
+          shippingLocation: targetOrder.shipping_location,
+          shippingFee: targetOrder.shipping_fee,
+          subtotal: targetOrder.subtotal,
+          discountApplied: targetOrder.discount_applied,
+          promoCode: targetOrder.promo_code,
+          totalPrice: targetOrder.total_price,
+          paymentMethodName: targetOrder.payment_method_name,
+          trackingNumber: trackingNumber,
+          trackingCourier: targetOrder.tracking_courier || 'LBC Express',
+          status: 'SHIPPED',
+        }).catch(e => console.warn('[OrdersManager] Shipping email dispatch note:', e));
+      }
+
+      fireToast('Tracking information saved & shipping email dispatched! 🚚', 'success');
     } catch (error) {
       console.error('Error saving tracking info:', error);
       fireToast('Failed to save tracking information.', 'error');

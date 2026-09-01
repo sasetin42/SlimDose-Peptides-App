@@ -576,103 +576,25 @@ export async function dispatchPasswordResetOtpEmail(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const config = getActiveSmtpConfig();
   const name = customerName || 'Valued Customer';
-  const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+  const template = getStoredTemplateByKey('password-reset-otp');
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SlimDose Password Reset Code</title>
-</head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center" style="padding: 36px 16px;">
-        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
-          <!-- Header Banner -->
-          <tr>
-            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
-                      SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
-                    </p>
-                    <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
-                      Account Security &amp; Verification
-                    </p>
-                  </td>
-                  <td align="right" valign="top">
-                    <span style="display: inline-block; padding: 6px 12px; background-color: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 9999px; color: #FCA5A5; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
-                      🔒 Password Reset
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+  const variables: Record<string, any> = {
+    customer_name: name,
+    otp_code: pin,
+    expiry_minutes: '15',
+    support_email: config.fromEmail || 'info@slimdoseph.com',
+    site_url: 'https://slimdoseph.com',
+    account_url: 'https://slimdoseph.com',
+  };
 
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 32px 32px 16px;">
-              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
-                Your Account Recovery Code
-              </h1>
-              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
-                Hello <strong>${name}</strong>,<br>
-                We received a request to reset your SlimDose Portal password. Use the single-use 6-digit verification code below to authorize your password change.
-              </p>
-            </td>
-          </tr>
-
-          <!-- Verification Code Box -->
-          <tr>
-            <td style="padding: 12px 32px 24px;" align="center">
-              <div style="background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border: 2px dashed #94A3B8; border-radius: 16px; padding: 24px; text-align: center; max-width: 380px;">
-                <p style="margin: 0 0 8px; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.15em;">
-                  6-Digit Verification PIN
-                </p>
-                <div style="font-family: 'Courier New', monospace, Courier; font-size: 38px; font-weight: 900; letter-spacing: 0.35em; color: #1E3A8A; padding-left: 0.35em; margin: 8px 0;">
-                  ${pin}
-                </div>
-                <p style="margin: 10px 0 0; font-size: 11px; color: #64748B; font-weight: 600;">
-                  ⏱️ Valid for <strong>15 minutes</strong> &middot; Do not share with anyone
-                </p>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Security Note -->
-          <tr>
-            <td style="padding: 0 32px 28px;">
-              <div style="background-color: #FEF3C7; border: 1px solid #FCD34D; border-radius: 12px; padding: 14px 16px;">
-                <p style="margin: 0; font-size: 12px; color: #92400E; line-height: 1.6;">
-                  <strong>Didn't request this?</strong> If you did not initiate this reset request, you can safely ignore this email. Your existing password will remain secure and unchanged.
-                </p>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
-                © SlimDose Peptides Philippines &middot; High Purity Research Solutions &middot; Dispatched at ${timestamp}
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+  const renderedHtml = renderEmailTemplate(template.html_content, variables);
+  const renderedSubject = renderEmailSubject(template.subject, variables);
 
   return sendTransactionalEmail({
     to: recipientEmail,
-    subject: `🔐 [SlimDose] Your Password Reset Code: ${pin}`,
-    html,
+    subject: renderedSubject,
+    html: renderedHtml,
+    smtpConfig: config,
     isTest: true,
   });
 }
@@ -689,102 +611,20 @@ export async function dispatchCustomerLoginOtpEmail(
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const config = getActiveSmtpConfig();
   const name = customerName || (recipientEmail.split('@')[0] || 'Valued Customer');
-  const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+  const templateKey = isNewAccount ? 'customer-welcome-registration' : 'customer-otp-login';
+  const template = getStoredTemplateByKey(templateKey);
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SlimDose Security Code</title>
-</head>
-<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center" style="padding: 36px 16px;">
-        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
-          <!-- Header Banner -->
-          <tr>
-            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
-                      SlimDose <span style="color: #60A5FA; font-weight: 700;">Portal</span>
-                    </p>
-                    <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
-                      One-Time Sign In Verification
-                    </p>
-                  </td>
-                  <td align="right" valign="top">
-                    <span style="display: inline-block; padding: 6px 12px; background-color: rgba(59, 130, 246, 0.2); border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 9999px; color: #93C5FD; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
-                      ⚡ Instant Access
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
+  const variables: Record<string, any> = {
+    customer_name: name,
+    otp_code: pin,
+    expiry_minutes: '15',
+    support_email: config.fromEmail || 'info@slimdoseph.com',
+    site_url: 'https://slimdoseph.com',
+    account_url: 'https://slimdoseph.com',
+  };
 
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 32px 32px 16px;">
-              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
-                ${isNewAccount ? 'Activate Your SlimDose Account' : 'Your 6-Digit Sign-In Code'}
-              </h1>
-              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
-                Hello <strong>${name}</strong>,<br>
-                ${
-                  isNewAccount
-                    ? 'Thank you for joining SlimDose. Please use the 6-digit verification code below to verify your email and activate your account.'
-                    : 'We received a sign-in request for your SlimDose account. Enter the 6-digit verification code below to securely log into your portal.'
-                }
-              </p>
-            </td>
-          </tr>
-
-          <!-- Verification Code Box -->
-          <tr>
-            <td style="padding: 12px 32px 24px;" align="center">
-              <div style="background: linear-gradient(135deg, #F0F7FF 0%, #E0EFFE 100%); border: 2px dashed #60A5FA; border-radius: 16px; padding: 24px; text-align: center; max-width: 380px;">
-                <p style="margin: 0 0 8px; font-size: 11px; font-weight: 800; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.15em;">
-                  Your One-Time PIN (OTP)
-                </p>
-                <div style="font-family: 'Courier New', monospace, Courier; font-size: 40px; font-weight: 900; letter-spacing: 0.35em; color: #1E3A8A; padding-left: 0.35em; margin: 8px 0;">
-                  ${pin}
-                </div>
-                <p style="margin: 10px 0 0; font-size: 11px; color: #475569; font-weight: 600;">
-                  ⏱️ Valid for <strong>15 minutes</strong> &middot; Keep your code confidential
-                </p>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Quick Tip -->
-          <tr>
-            <td style="padding: 0 32px 28px;">
-              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px 16px;">
-                <p style="margin: 0; font-size: 12px; color: #64748B; line-height: 1.6;">
-                  🔒 <strong>Passwordless Security:</strong> SlimDose uses direct email OTP verification to protect your account discounts, order history, and lab certificates without cumbersome passwords.
-                </p>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
-                © SlimDose Peptides Philippines &middot; High Purity Research Solutions &middot; Dispatched at ${timestamp}
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+  const renderedHtml = renderEmailTemplate(template.html_content, variables);
+  const renderedSubject = renderEmailSubject(template.subject, variables);
 
   // Also trigger Google Firebase Auth native email notification in parallel (100% deliverability from Google)
   try {
@@ -793,8 +633,9 @@ export async function dispatchCustomerLoginOtpEmail(
 
   return sendTransactionalEmail({
     to: recipientEmail,
-    subject: `🔑 [SlimDose] Your Sign-In Code: ${pin}`,
-    html,
+    subject: renderedSubject,
+    html: renderedHtml,
+    smtpConfig: config,
     isTest: true,
   });
 }

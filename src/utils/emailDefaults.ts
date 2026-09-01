@@ -50,10 +50,22 @@ export const COMMON_VARIABLES: Record<string, EmailVariableDefinition[]> = {
     { key: 'support_email', label: 'Support Email', example: 'support@slimdoseph.com' },
   ],
   customer: [
-    { key: 'customer_name', label: 'Customer Name', example: 'Dr. Michael Chen' },
+    { key: 'customer_name', label: 'Customer Name', example: 'Maria Santos' },
+    { key: 'otp_code', label: '6-Digit OTP PIN', example: '849201' },
+    { key: 'expiry_minutes', label: 'Expiry (Minutes)', example: '15' },
     { key: 'account_url', label: 'Account URL', example: 'https://slimdoseph.com' },
-    { key: 'support_email', label: 'Support Email', example: 'support@slimdoseph.com' },
+    { key: 'support_email', label: 'Support Email', example: 'info@slimdoseph.com' },
     { key: 'site_url', label: 'Store URL', example: 'https://slimdoseph.com' },
+  ],
+  system: [
+    { key: 'customer_name', label: 'Customer Name', example: 'Maria Santos' },
+    { key: 'customer_email', label: 'Customer Email', example: 'maria.santos@gmail.com' },
+    { key: 'order_number', label: 'Order Number', example: 'SD-84920' },
+    { key: 'total_price', label: 'Total Amount', example: '₱7,200.00' },
+    { key: 'payment_method', label: 'Payment Method', example: 'GCash / Bank Transfer' },
+    { key: 'admin_dashboard_url', label: 'Admin Dashboard URL', example: 'https://slimdoseph.com/admin' },
+    { key: 'support_email', label: 'Support Email', example: 'info@slimdoseph.com' },
+    { key: 'site_url', label: 'Site URL', example: 'https://slimdoseph.com' },
   ],
 };
 
@@ -853,6 +865,238 @@ export const DEFAULT_EMAIL_TEMPLATES: EmailTemplateData[] = [
           <tr>
             <td style="padding: 20px 28px; background-color: #F8FAFD; border-top: 1px solid #EFEFEF; text-align: center;">
               <p style="margin: 0; font-size: 12px; color: #8A8A8A;">© SlimDose Peptides &middot; <a href="{{ site_url }}" style="color: #3C6CA8;">{{ site_url }}</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
+    id: 'tmpl-customer-otp-login',
+    template_key: 'customer-otp-login',
+    name: 'Customer Sign-In OTP Code',
+    subject: '🔑 [SlimDose] Your 6-Digit Sign-In Code: {{ otp_code }}',
+    description: 'Instant passwordless authentication code sent when a member signs in.',
+    category: 'customer',
+    variables: COMMON_VARIABLES.customer,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlimDose Sign-In Code</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 36px 16px;">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+          <tr>
+            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
+                      SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
+                    </p>
+                    <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
+                      Member Access &amp; Authentication
+                    </p>
+                  </td>
+                  <td align="right" valign="top">
+                    <span style="display: inline-block; padding: 6px 12px; background-color: rgba(59, 130, 246, 0.2); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 9999px; color: #93C5FD; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
+                      🔑 Secure Login
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 32px 16px;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
+                Your Single-Use Sign-In Code
+              </h1>
+              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
+                Hello <strong>{{ customer_name }}</strong>,<br>
+                Use the 6-digit verification code below to authorize your sign-in to the SlimDose Portal.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 32px 24px;" align="center">
+              <div style="background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border: 2px dashed #94A3B8; border-radius: 16px; padding: 24px; text-align: center; max-width: 380px;">
+                <p style="margin: 0 0 8px; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.15em;">
+                  6-Digit One-Time PIN
+                </p>
+                <div style="font-family: 'Courier New', monospace, Courier; font-size: 38px; font-weight: 900; letter-spacing: 0.35em; color: #1E3A8A; padding-left: 0.35em; margin: 8px 0;">
+                  {{ otp_code }}
+                </div>
+                <p style="margin: 10px 0 0; font-size: 11px; color: #64748B; font-weight: 600;">
+                  ⏱️ Valid for <strong>{{ expiry_minutes }} minutes</strong> &middot; Do not share with anyone
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 0 32px 28px;">
+              <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px 16px;">
+                <p style="margin: 0; font-size: 12px; color: #64748B; line-height: 1.6;">
+                  🔒 <strong>Passwordless Security:</strong> SlimDose uses direct email OTP verification to protect your account discounts, order history, and lab certificates.
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
+                © SlimDose Peptides Philippines &middot; Support: <a href="mailto:{{ support_email }}" style="color: #3C6CA8;">{{ support_email }}</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
+    id: 'tmpl-customer-welcome-registration',
+    template_key: 'customer-welcome-registration',
+    name: 'Customer Welcome & Verification PIN',
+    subject: '🎉 Welcome to SlimDose — Your 6-Digit Code: {{ otp_code }}',
+    description: 'Sent when a new user creates an account and receives their first verification PIN.',
+    category: 'customer',
+    variables: COMMON_VARIABLES.customer,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to SlimDose</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 36px 16px;">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+          <tr>
+            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
+              <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
+                SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
+              </p>
+              <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
+                Account Registration &amp; Activation
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 32px 16px;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
+                Welcome to SlimDose, {{ customer_name }}! 🎉
+              </h1>
+              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
+                Thank you for creating your account. Please enter the single-use 6-digit security code below to complete your registration and activate your Gold Tier benefits.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 32px 24px;" align="center">
+              <div style="background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border: 2px dashed #94A3B8; border-radius: 16px; padding: 24px; text-align: center; max-width: 380px;">
+                <p style="margin: 0 0 8px; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.15em;">
+                  6-Digit Activation PIN
+                </p>
+                <div style="font-family: 'Courier New', monospace, Courier; font-size: 38px; font-weight: 900; letter-spacing: 0.35em; color: #1E3A8A; padding-left: 0.35em; margin: 8px 0;">
+                  {{ otp_code }}
+                </div>
+                <p style="margin: 10px 0 0; font-size: 11px; color: #64748B; font-weight: 600;">
+                  ⏱️ Valid for <strong>{{ expiry_minutes }} minutes</strong>
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
+                © SlimDose Peptides Philippines &middot; Support: <a href="mailto:{{ support_email }}" style="color: #3C6CA8;">{{ support_email }}</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
+    id: 'tmpl-password-reset-otp',
+    template_key: 'password-reset-otp',
+    name: 'Password Recovery Code',
+    subject: '🔐 [SlimDose] Your Password Reset Code: {{ otp_code }}',
+    description: 'Sent when a user requests password reset or account recovery.',
+    category: 'customer',
+    variables: COMMON_VARIABLES.customer,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlimDose Password Recovery</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 36px 16px;">
+        <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+          <tr>
+            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
+              <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
+                SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
+              </p>
+              <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
+                Account Recovery &amp; Security
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 32px 16px;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
+                Password Reset Code
+              </h1>
+              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
+                Hello <strong>{{ customer_name }}</strong>,<br>
+                We received a request to recover your SlimDose account. Use the code below to proceed:
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 32px 24px;" align="center">
+              <div style="background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%); border: 2px dashed #94A3B8; border-radius: 16px; padding: 24px; text-align: center; max-width: 380px;">
+                <div style="font-family: 'Courier New', monospace, Courier; font-size: 38px; font-weight: 900; letter-spacing: 0.35em; color: #1E3A8A; padding-left: 0.35em; margin: 8px 0;">
+                  {{ otp_code }}
+                </div>
+                <p style="margin: 10px 0 0; font-size: 11px; color: #64748B; font-weight: 600;">
+                  ⏱️ Valid for <strong>{{ expiry_minutes }} minutes</strong>
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
+                © SlimDose Peptides Philippines &middot; Support: <a href="mailto:{{ support_email }}" style="color: #3C6CA8;">{{ support_email }}</a>
+              </p>
             </td>
           </tr>
         </table>

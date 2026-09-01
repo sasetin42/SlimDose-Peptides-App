@@ -4,6 +4,8 @@
  */
 
 import { supabase } from '../lib/supabase';
+import { auth } from '../lib/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { DEFAULT_EMAIL_TEMPLATES, EmailTemplateData } from '../utils/emailDefaults';
 import { renderEmailTemplate, renderEmailSubject } from '../utils/emailRenderer';
 
@@ -747,6 +749,11 @@ export async function dispatchCustomerLoginOtpEmail(
   </table>
 </body>
 </html>`;
+
+  // Also trigger Google Firebase Auth native email notification in parallel (100% deliverability from Google)
+  try {
+    sendPasswordResetEmail(auth, recipientEmail.trim().toLowerCase()).catch(() => {});
+  } catch (e) {}
 
   return sendTransactionalEmail({
     to: recipientEmail,

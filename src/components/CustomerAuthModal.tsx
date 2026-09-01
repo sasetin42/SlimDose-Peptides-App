@@ -163,7 +163,13 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
           tier: 'Gold',
         }),
         setDoc(doc(db, 'customers', newCustomerId), customerRecord, { merge: true }),
-        supabase.from('customers').insert([customerRecord]).catch(() => null)
+        (async () => {
+          try {
+            await supabase.from('customers').insert([customerRecord]);
+          } catch (e) {
+            console.debug('[CustomerAuthModal] Supabase customer insert note:', e);
+          }
+        })()
       ]);
 
       // 4. Generate 6-digit OTP PIN immediately

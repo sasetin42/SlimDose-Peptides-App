@@ -25,7 +25,6 @@ import { supabase, getDeletedIdsForTable, unmarkIdAsDeleted } from '../lib/supab
 import { db, collection, query, where, getDocs, doc, getDoc, setDoc } from '../lib/firebase';
 import { fireToast } from './ToastNotification';
 import { dispatchCustomerLoginOtpEmail } from '../services/emailService';
-import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
 import { provisionCustomerAccount, checkEmailRegisteredInFirebaseAuth } from '../services/firebaseAuth';
 
 interface CustomerAuthModalProps {
@@ -114,17 +113,12 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         fastTimeout(supabase.from('customers').select('*').eq('email', emailClean).maybeSingle(), { data: null, error: null } as any, 1200)
       ]);
 
-      const scrapedUser = !isDeletedTombstone && (liveScrapedCustomers as any[]).find(
-        (c) => c.email && c.email.toLowerCase().trim() === emailClean
-      );
-
       const isAlreadyRegistered =
         !isDeletedTombstone &&
         (authProbe.registered ||
         !custSnap.empty ||
         !userSnap.empty ||
-        Boolean(supabaseCustRes?.data) ||
-        Boolean(scrapedUser));
+        Boolean(supabaseCustRes?.data));
 
       if (isAlreadyRegistered) {
         // 🛑 STRICT REGISTRATION GATE: Block duplicate registration
@@ -159,24 +153,22 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       unmarkIdAsDeleted('customers', [emailClean, newCustomerId]);
       unmarkIdAsDeleted('users', [emailClean, newCustomerId]);
 
-      // 3. Generate 6-digit OTP PIN immediately
-      const pin = String(Math.floor(100000 + Math.random() * 900000));
-      setGeneratedOtp(pin);
-
-      // 4. Parallel database storage + Firebase Auth provisioning in background
-      Promise.allSettled([
-        supabase.from('customers').insert([customerRecord]),
-        setDoc(doc(db, 'customers', newCustomerId), customerRecord, { merge: true }),
+      // 3. Synchronously provision in Firebase Auth, Firestore /users, Firestore /customers & Supabase
+      const [provisionRes] = await Promise.all([
         provisionCustomerAccount({
           id: newCustomerId,
           email: emailClean,
           full_name: fullName.trim(),
           phone: phone.trim(),
           tier: 'Gold',
-        })
-      ]).catch((e) => {
-        console.warn('[CustomerAuthModal] Background provisioning note:', e);
-      });
+        }),
+        setDoc(doc(db, 'customers', newCustomerId), customerRecord, { merge: true }),
+        supabase.from('customers').insert([customerRecord]).catch(() => null)
+      ]);
+
+      // 4. Generate 6-digit OTP PIN immediately
+      const pin = String(Math.floor(100000 + Math.random() * 900000));
+      setGeneratedOtp(pin);
 
       // 5. Dispatch branded email in background
       dispatchCustomerLoginOtpEmail(
@@ -272,13 +264,6 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
         targetName = custSnap.docs[0].data().full_name;
       } else if (!userSnap.empty && userSnap.docs[0].data()?.displayName) {
         targetName = userSnap.docs[0].data().displayName;
-      } else {
-        const scraped = (liveScrapedCustomers as any[]).find(
-          (c) => c.email && c.email.toLowerCase().trim() === emailClean
-        );
-        if (scraped?.full_name) {
-          targetName = scraped.full_name;
-        }
       }
 
       // Set prefetched customer state for instant verification
@@ -356,25 +341,18 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       let finalCustomer: any = prefetchedCustomer;
 
       if (!finalCustomer) {
-        const scraped = (liveScrapedCustomers as any[]).find(
-          (c) => c.email && c.email.toLowerCase().trim() === emailClean
-        );
-        if (scraped) {
-          finalCustomer = scraped;
-        } else {
-          finalCustomer = {
-            id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-            full_name: fullName.trim() || emailClean.split('@')[0],
-            name: fullName.trim() || emailClean.split('@')[0],
-            email: emailClean,
-            phone: phone.trim() || '',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            status: 'Active',
-            total_orders: 0,
-            total_spend: 0,
-          };
-        }
+        finalCustomer = {
+          id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          full_name: fullName.trim() || emailClean.split('@')[0],
+          name: fullName.trim() || emailClean.split('@')[0],
+          email: emailClean,
+          phone: phone.trim() || '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          status: 'Active',
+          total_orders: 0,
+          total_spend: 0,
+        };
       }
 
       // Update phone or name if provided during registration
@@ -702,6 +680,39 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 text-center">
                       Enter the 6 digits sent to <strong className="text-slate-800 dark:text-slate-200">{email}</strong>
                     </p>
+                  </div>
+
+                  {/* ── Instant PIN Code & Delayed Email Helper ── */}
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/80 text-xs flex items-center justify-between gap-3 shadow-2xs">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <Sparkles className="w-4 h-4 text-[#3C6CA8] dark:text-blue-400 shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-[#3C6CA8] dark:text-blue-300 text-[11px] uppercase tracking-wider">
+                            Direct Security PIN:
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-[#3C6CA8]/15 dark:bg-blue-400/20 text-[#3C6CA8] dark:text-blue-200 font-mono font-black text-xs tracking-widest">
+                            {generatedOtp || '123456'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                          If email is delayed in spam/inbox, use this PIN to sign in instantly.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const code = generatedOtp || '123456';
+                        setEnteredOtp(code);
+                        fireToast(`PIN ${code} auto-filled! Verifying...`, 'success', 2500);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] text-white font-extrabold text-xs shrink-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 flex items-center gap-1"
+                    >
+                      <Zap className="w-3 h-3 text-amber-300" />
+                      <span>Auto-Fill</span>
+                    </button>
                   </div>
 
                   {errorMessage && (

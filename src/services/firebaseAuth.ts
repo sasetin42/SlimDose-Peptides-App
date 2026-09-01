@@ -206,12 +206,24 @@ export async function checkEmailRegisteredInFirebaseAuth(
   }
 
   try {
-    const [userSnap, custSnap, custDirectDoc] = await Promise.all([
+    const apiKey = firebaseConfig.apiKey;
+    const [authProbeDirect, userSnap, custSnap, custDirectDoc] = await Promise.all([
+      fetch(`https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: cleanEmail,
+          continueUri: typeof window !== 'undefined' ? window.location.origin : 'https://slimdose-peptides.web.app',
+        }),
+      }).then(r => r.ok ? r.json() : null).catch(() => null),
       getDocs(query(collection(db, 'users'), where('email', '==', cleanEmail))),
       getDocs(query(collection(db, 'customers'), where('email', '==', cleanEmail))),
       getDoc(doc(db, 'customers', cleanEmail))
     ]);
 
+    if (authProbeDirect && authProbeDirect.registered === true) {
+      return { registered: true, uid: `auth_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`, source: 'firebase_auth_live' };
+    }
     if (!userSnap.empty) {
       return { registered: true, uid: userSnap.docs[0].id, source: 'firestore_users' };
     }

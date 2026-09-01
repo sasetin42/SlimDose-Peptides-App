@@ -890,7 +890,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
                   type="text"
                   value={newTemplateName}
                   onChange={(e) => setNewTemplateName(e.target.value)}
-                  placeholder="e.g. VIP Member Special Offer"
+                  placeholder="e.g. Member Special Offer"
                   className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
                 />
               </div>
@@ -903,7 +903,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
                   type="text"
                   value={newTemplateKey}
                   onChange={(e) => setNewTemplateKey(e.target.value)}
-                  placeholder="e.g. vip-member-offer"
+                  placeholder="e.g. member-offer"
                   className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 font-mono"
                 />
               </div>

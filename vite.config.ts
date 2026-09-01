@@ -4,6 +4,24 @@ import nodemailer from 'nodemailer';
 import { IncomingMessage, ServerResponse } from 'http';
 
 function smtpDevServerPlugin(): Plugin {
+  // Shared persistent pooled transporter for sub-second delivery
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.hostinger.com',
+    port: 465,
+    secure: true,
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    rateLimit: 14,
+    auth: {
+      user: process.env.SMTP_USER || 'info@slimdoseph.com',
+      pass: process.env.SMTP_PASS || '',
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+
   const handler = async (req: IncomingMessage, res: ServerResponse) => {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -47,7 +65,7 @@ function smtpDevServerPlugin(): Plugin {
           smtpHost = 'smtp.hostinger.com',
           smtpPort = 465,
           smtpUser = 'info@slimdoseph.com',
-          smtpPass = '+f9NVWT>g',
+          smtpPass = '',
           secure = true,
         } = data;
 
@@ -62,53 +80,50 @@ function smtpDevServerPlugin(): Plugin {
           return;
         }
 
-        // Use pooled and cached Nodemailer transporter for instant sub-second delivery
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: Number(smtpPort) || 465,
-          secure: secure === true || Number(smtpPort) === 465,
-          pool: true,
-          maxConnections: 5,
-          maxMessages: 100,
-          rateLimit: 14, // Safe delivery throughput
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-          tls: {
-            rejectUnauthorized: false,
-          },
-        });
+        // Use active pooled transporter or fallback
+        const activeTransporter =
+          smtpUser === 'info@slimdoseph.com' && smtpHost === 'smtp.hostinger.com'
+            ? transporter
+            : nodemailer.createTransport({
+                host: smtpHost,
+                port: Number(smtpPort) || 465,
+                secure: secure === true || Number(smtpPort) === 465,
+                auth: { user: smtpUser, pass: smtpPass },
+                tls: { rejectUnauthorized: false },
+              });
 
-        // Send actual mail directly without blocking verify handshake
-        const info = await transporter.sendMail({
+        const info = await activeTransporter.sendMail({
           from: `"${fromName}" <${fromEmail}>`,
           to: toRecipient,
           subject: emailSubject,
           html: emailHtml,
         });
 
-        console.log(`[Vite SMTP Relay] Message delivered successfully! MessageID: ${info.messageId}`);
+        console.log(`[Vite SMTP Relay] ✅ Delivered to ${toRecipient}! MessageID: ${info.messageId}`);
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({
-          success: true,
-          messageId: info.messageId,
-          provider: `Hostinger SMTP (${smtpHost}:${smtpPort})`,
-          response: info.response,
-        }));
+        res.end(
+          JSON.stringify({
+            success: true,
+            messageId: info.messageId,
+            provider: `Hostinger SMTP (${smtpHost}:${smtpPort})`,
+            response: info.response,
+          })
+        );
       } catch (error: any) {
         console.error('[Vite SMTP Relay Error]:', error);
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({
-          success: false,
-          error: error.message || 'SMTP delivery failed',
-          code: error.code,
-          command: error.command,
-          response: error.response,
-        }));
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: error.message || 'SMTP delivery failed',
+            code: error.code,
+            command: error.command,
+            response: error.response,
+          })
+        );
       }
     });
   };

@@ -203,17 +203,38 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   // Profile state
   const [editingProfile, setEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [fullName, setFullName] = useState(customer.full_name || '');
-  const [phone, setPhone] = useState(customer.phone || '');
-  const [profileEmail] = useState(customer.email || '');
-  const [address, setAddress] = useState(customer.shipping_address || '');
-  const [barangay, setBarangay] = useState(customer.shipping_barangay || '');
-  const [city, setCity] = useState(customer.shipping_city || '');
-  const [provinceState, setProvinceState] = useState(customer.shipping_state || '');
-  const [zipCode, setZipCode] = useState(customer.shipping_zip_code || '');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(customer.avatar_url || null);
+  const [fullName, setFullName] = useState(customer?.full_name || customer?.name || '');
+  const [phone, setPhone] = useState(customer?.phone || '');
+  const [profileEmail, setProfileEmail] = useState(customer?.email || '');
+  const [address, setAddress] = useState(customer?.shipping_address || '');
+  const [barangay, setBarangay] = useState(customer?.shipping_barangay || '');
+  const [city, setCity] = useState(customer?.shipping_city || '');
+  const [provinceState, setProvinceState] = useState(customer?.shipping_state || '');
+  const [zipCode, setZipCode] = useState(customer?.shipping_zip_code || '');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(customer?.avatar_url || null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync profile fields whenever active customer changes
+  useEffect(() => {
+    setFullName(customer?.full_name || customer?.name || '');
+    setPhone(customer?.phone || '');
+    setProfileEmail(customer?.email || '');
+    setAddress(customer?.shipping_address || '');
+    setBarangay(customer?.shipping_barangay || '');
+    setCity(customer?.shipping_city || '');
+    setProvinceState(customer?.shipping_state || '');
+    setZipCode(customer?.shipping_zip_code || '');
+    setAvatarUrl(customer?.avatar_url || null);
+
+    // Sync sub-collections per unique customer ID
+    try {
+      setSavedAddresses(JSON.parse(localStorage.getItem(`slimdose_addresses_${customer?.id || customer?.email}`) || '[]'));
+      setNotifications(JSON.parse(localStorage.getItem(`slimdose_notifs_${customer?.id || customer?.email}`) || '[]'));
+      setWishlist(JSON.parse(localStorage.getItem(`slimdose_wishlist_${customer?.id || customer?.email}`) || '[]'));
+      setTickets(JSON.parse(localStorage.getItem(`slimdose_tickets_${customer?.id || customer?.email}`) || '[]'));
+    } catch {}
+  }, [customer?.id, customer?.email]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -232,7 +253,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
       localStorage.setItem('slimdose_customer', JSON.stringify(updated));
 
       // Persist in DB directly into customer record
-      await supabase.from('customers').update({ avatar_url: publicUrl }).eq('id', customer.id);
+      if (customer?.id) {
+        await supabase.from('customers').update({ avatar_url: publicUrl }).eq('id', customer.id);
+      }
       window.dispatchEvent(new Event('storage'));
       fireToast('Profile image updated successfully!', 'success');
     } catch {
@@ -259,20 +282,20 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   // Addresses state
   const [savedAddresses, setSavedAddresses] = useState<Address[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_addresses_${customer.id}`) || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_addresses_${customer?.id || customer?.email}`) || '[]'); } catch { return []; }
   });
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
 
   // Notifications state
   const [notifications, setNotifications] = useState<Notification[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_notifs_${customer.id}`) || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_notifs_${customer?.id || customer?.email}`) || '[]'); } catch { return []; }
   });
   const [notifFilter, setNotifFilter] = useState<string>('all');
 
   // Wishlist state
   const [wishlist, setWishlist] = useState<WishlistItem[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_wishlist_${customer.id}`) || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_wishlist_${customer?.id || customer?.email}`) || '[]'); } catch { return []; }
   });
 
   // Support state
@@ -280,13 +303,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   const [ticketCategory, setTicketCategory] = useState('General');
   const [ticketMessage, setTicketMessage] = useState('');
   const [tickets, setTickets] = useState<SupportTicket[]>(() => {
-    try { return JSON.parse(localStorage.getItem(`slimdose_tickets_${customer.id}`) || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_tickets_${customer?.id || customer?.email}`) || '[]'); } catch { return []; }
   });
 
   // Preferences state
   const [prefs, setPrefs] = useState(() => {
     const defaults = { emailOrders: true, emailShipping: true, emailPromo: false, smsOrders: true, smsShipping: true, smsPromo: false };
-    try { return JSON.parse(localStorage.getItem(`slimdose_prefs_${customer.id}`) || JSON.stringify(defaults)); } catch { return defaults; }
+    try { return JSON.parse(localStorage.getItem(`slimdose_prefs_${customer?.id || customer?.email}`) || JSON.stringify(defaults)); } catch { return defaults; }
   });
 
   useEffect(() => {
@@ -332,10 +355,10 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [customer?.id, customer?.email, customer?.phone]);
+  }, [customer?.id, customer?.email]);
 
   const loadCustomerOrders = async () => {
-    if (!customer?.id && !customer?.email && !customer?.phone) {
+    if (!customer?.id && !customer?.email) {
       setOrders([]);
       setLoadingOrders(false);
       return;
@@ -343,7 +366,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
     const cEmail = (customer?.email || '').toLowerCase().trim();
     const cId = String(customer?.id || '');
-    const cPhoneClean = String(customer?.phone || '').replace(/\D/g, '').slice(-10);
 
     // Safety timeout in case Supabase hangs or takes longer than 3.5s
     const timeoutTimer = setTimeout(() => {
@@ -359,15 +381,13 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
       const allOrders = data || [];
       
-      // Match orders accurately by email (case-insensitive), customer_id, or phone
+      // Strictly match orders ONLY by unique email or exact customer_id (no phone overlap)
       const matchingOrders = allOrders.filter((o: any) => {
         const orderEmail = (o.customer_email || '').toLowerCase().trim();
         const orderCustId = String(o.customer_id || '');
-        const orderPhoneClean = String(o.customer_phone || '').replace(/\D/g, '').slice(-10);
 
         if (cEmail && orderEmail && orderEmail === cEmail) return true;
         if (cId && orderCustId && orderCustId === cId) return true;
-        if (cPhoneClean && orderPhoneClean && cPhoneClean.length >= 7 && orderPhoneClean === cPhoneClean) return true;
         return false;
       });
 
@@ -813,7 +833,7 @@ Shipping Target: ${deliveryAddr}
     const itemCount = itemsList.reduce((s: number, i: any) => s + (i.quantity || 0), 0);
     const orderRef = getOrderRef(order);
     const { date: dateOnly, time: timeOnly } = getOrderDateParts(order.created_at || order.createdAt);
-    const customerDisplayName = order.customer_name || customer.full_name || 'VIP Client';
+    const customerDisplayName = order.customer_name || customer.full_name || 'Customer';
     const customerDisplayEmail = order.customer_email || customer.email || '';
     const paymentMethodLabel = order.payment_method_name || order.payment_method || 'Online';
 

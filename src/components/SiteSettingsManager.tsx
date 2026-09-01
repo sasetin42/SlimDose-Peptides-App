@@ -178,7 +178,7 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
         smtp_port: siteSettings.smtp_port || '465',
         smtp_secure: siteSettings.smtp_secure || 'true',
         smtp_user: siteSettings.smtp_user || 'info@slimdoseph.com',
-        smtp_pass: siteSettings.smtp_pass || '+f9NVWT>g',
+        smtp_pass: siteSettings.smtp_pass || '',
         smtp_from_email: siteSettings.smtp_from_email || 'info@slimdoseph.com',
         smtp_from_name: siteSettings.smtp_from_name || 'SlimDose Peptides',
         smtp_admin_email: siteSettings.smtp_admin_email || 'info@slimdoseph.com',

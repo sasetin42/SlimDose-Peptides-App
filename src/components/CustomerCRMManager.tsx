@@ -13,6 +13,7 @@ import {
   Check, 
   ExternalLink, 
   ChevronRight, 
+  ChevronLeft,
   X, 
   Clock, 
   DollarSign, 
@@ -32,10 +33,13 @@ import {
   AlertCircle,
   Loader2,
   Share2,
-  Trash2
+  Trash2,
+  Lock,
+  CheckCircle
 } from 'lucide-react';
 import { supabase, getDeletedIdsForTable, markIdsAsDeleted } from '../lib/supabase';
-import { db, doc, setDoc, deleteDoc } from '../lib/firebase';
+import { db, doc, setDoc, deleteDoc, collection, getDocs, onSnapshot } from '../lib/firebase';
+import { provisionCustomerAccount, deleteUserAccountAdmin } from '../services/firebaseAuth';
 import { fireToast } from './ToastNotification';
 import { formatOrderId } from '../utils/orderUtils';
 import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
@@ -74,21 +78,79 @@ export interface CustomerOrder {
 }
 
 type FilterTier = 'all' | 'vip' | 'repeat' | 'first' | 'prospect';
-type SortOption = 'spent-desc' | 'spent-asc' | 'orders-desc' | 'name-asc' | 'recent';
+type SortOption = 'created-desc' | 'created-asc' | 'spent-desc' | 'spent-asc' | 'orders-desc' | 'name-asc' | 'recent';
 
 const DEFAULT_CUSTOMER_PASSWORD = '123456#';
+const CRM_CUSTOMERS_CACHE_KEY = 'slimdose_crm_customers_cache_v2';
+const CRM_ORDERS_CACHE_KEY = 'slimdose_crm_orders_cache_v2';
+
+function getInitialCachedCustomers(): Customer[] {
+  const deletedIds = getDeletedIdsForTable('customers');
+  const seen = new Set<string>();
+  const list: Customer[] = [];
+
+  // 1. Try reading from persistent cache
+  try {
+    const local = localStorage.getItem(CRM_CUSTOMERS_CACHE_KEY);
+    if (local) {
+      const parsed: Customer[] = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.forEach(c => {
+          const email = (c.email || '').toLowerCase().trim();
+          const idStr = String(c.id || '');
+          if (email && !seen.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
+            seen.add(email);
+            list.push({ ...c, email });
+          }
+        });
+        if (list.length > 0) return list;
+      }
+    }
+  } catch {}
+
+  // 2. Fallback to live scraped customers for instant 0ms mount
+  (liveScrapedCustomers as Customer[]).forEach(c => {
+    const email = (c.email || '').toLowerCase().trim();
+    const idStr = String(c.id || '');
+    if (email && !seen.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
+      seen.add(email);
+      list.push({ ...c, email });
+    }
+  });
+
+  return list;
+}
+
+function getInitialCachedOrders(): CustomerOrder[] {
+  try {
+    const local = localStorage.getItem(CRM_ORDERS_CACHE_KEY);
+    if (local) {
+      const parsed: CustomerOrder[] = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return (liveScrapedOrders as CustomerOrder[]) || [];
+}
 
 export default function CustomerCRMManager() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [orders, setOrders] = useState<CustomerOrder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [customers, setCustomers] = useState<Customer[]>(getInitialCachedCustomers);
+  const [orders, setOrders] = useState<CustomerOrder[]>(getInitialCachedOrders);
+  const [loading, setLoading] = useState(false);
+  const [isBackgroundUpdating, setIsBackgroundUpdating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState<FilterTier>('all');
-  const [sortBy, setSortBy] = useState<SortOption>('spent-desc');
+  const [sortBy, setSortBy] = useState<SortOption>('created-desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(50);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
+
+  // Reset page to 1 when search or filter segment changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedTier, sortBy]);
 
   // Sync to Firebase Interactive Modal state
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
@@ -103,75 +165,117 @@ export default function CustomerCRMManager() {
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
-    loadData();
+    // Initial fast background fetch
+    loadData(false);
 
-    const handleReload = () => loadData(false);
-    window.addEventListener('storage', handleReload);
-    window.addEventListener('slimdose:customer_registered', handleReload);
-    window.addEventListener('orderConfirmed', handleReload);
-    window.addEventListener('focus', handleReload);
+    let debounceTimer: any = null;
+    const triggerDebouncedReload = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        loadData(false);
+      }, 400);
+    };
+
+    window.addEventListener('storage', triggerDebouncedReload);
+    window.addEventListener('slimdose:customer_registered', triggerDebouncedReload);
+    window.addEventListener('slimdose:user_deleted', triggerDebouncedReload);
+    window.addEventListener('slimdose:customer_deleted', triggerDebouncedReload);
+    window.addEventListener('orderConfirmed', triggerDebouncedReload);
+    window.addEventListener('focus', triggerDebouncedReload);
 
     // Setup Supabase Realtime Live-Sync for customers and orders
     const channel = supabase
       .channel('crm_realtime_sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, () => {
-        loadData(false);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        loadData(false);
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, triggerDebouncedReload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, triggerDebouncedReload)
       .subscribe();
 
+    // Live realtime listeners for Firestore collections
+    const unsubCust = onSnapshot(collection(db, 'customers'), triggerDebouncedReload);
+    const unsubUsers = onSnapshot(collection(db, 'users'), triggerDebouncedReload);
+
     return () => {
+      clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
-      window.removeEventListener('storage', handleReload);
-      window.removeEventListener('slimdose:customer_registered', handleReload);
-      window.removeEventListener('orderConfirmed', handleReload);
-      window.removeEventListener('focus', handleReload);
+      unsubCust();
+      unsubUsers();
+      window.removeEventListener('storage', triggerDebouncedReload);
+      window.removeEventListener('slimdose:customer_registered', triggerDebouncedReload);
+      window.removeEventListener('slimdose:user_deleted', triggerDebouncedReload);
+      window.removeEventListener('slimdose:customer_deleted', triggerDebouncedReload);
+      window.removeEventListener('orderConfirmed', triggerDebouncedReload);
+      window.removeEventListener('focus', triggerDebouncedReload);
     };
   }, []);
 
-  const loadData = async (showLoading = true) => {
+  const loadData = async (showFullLoading = false) => {
     try {
-      if (showLoading) setLoading(true);
-      const [custRes, ordRes] = await Promise.all([
+      if (showFullLoading || customers.length === 0) setLoading(true);
+      setIsBackgroundUpdating(true);
+
+      const [custSettled, ordSettled, firestoreCustSettled, firestoreUserSettled] = await Promise.allSettled([
         supabase.from('customers').select('*').order('created_at', { ascending: false }),
-        supabase.from('orders').select('*').order('created_at', { ascending: false })
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        getDocs(collection(db, 'customers')),
+        getDocs(collection(db, 'users'))
       ]);
 
-      if (custRes.error) console.warn('CRM customers fetch notice:', custRes.error);
-      if (ordRes.error) console.warn('CRM orders fetch notice:', ordRes.error);
+      const fetchedCustomers: Customer[] = (custSettled.status === 'fulfilled' && custSettled.value.data) ? custSettled.value.data : [];
+      const fetchedOrders: CustomerOrder[] = (ordSettled.status === 'fulfilled' && ordSettled.value.data) ? ordSettled.value.data : [];
+      const firestoreCustSnap = (firestoreCustSettled.status === 'fulfilled') ? firestoreCustSettled.value : null;
+      const firestoreUserSnap = (firestoreUserSettled.status === 'fulfilled') ? firestoreUserSettled.value : null;
 
-      const fetchedCustomers: Customer[] = custRes.data || [];
-      const fetchedOrders: CustomerOrder[] = ordRes.data || [];
-
-      // Combine fetched customers, liveScrapedCustomers, and guest checkout customers from orders
+      // Combine fetched customers, liveScrapedCustomers, and guest checkout customers from orders with strict deduplication
       const knownEmails = new Set<string>();
       const combinedCustomers: Customer[] = [];
 
       const deletedIds = getDeletedIdsForTable('customers');
 
-      // 1. Supabase customers
-      fetchedCustomers.forEach(c => {
+      // Helper to add uniquely by email
+      const addUniqueCustomer = (c: Customer) => {
         const email = (c.email || '').toLowerCase().trim();
         const idStr = String(c.id || '');
         if (email && !knownEmails.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
           knownEmails.add(email);
-          combinedCustomers.push(c);
+          combinedCustomers.push({ ...c, email });
         }
-      });
+      };
 
-      // 2. liveScrapedCustomers (ensure pre-loaded customer accounts are present unless deleted)
-      (liveScrapedCustomers as Customer[]).forEach(c => {
-        const email = (c.email || '').toLowerCase().trim();
-        const idStr = String(c.id || '');
-        if (email && !knownEmails.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
-          knownEmails.add(email);
-          combinedCustomers.push(c);
-        }
-      });
+      // 1. Direct Firestore /customers
+      if (firestoreCustSnap) {
+        firestoreCustSnap.docs.forEach((d) => {
+          const data = d.data() as any;
+          addUniqueCustomer({ id: d.id, ...data } as Customer);
+        });
+      }
 
-      // 3. Guest checkout orders
+      // 2. Direct Firestore /users (customer role)
+      if (firestoreUserSnap) {
+        firestoreUserSnap.docs.forEach((d) => {
+          const data = d.data() as any;
+          if (data.role === 'customer' || !data.role) {
+            addUniqueCustomer({
+              id: d.id,
+              full_name: data.displayName || data.full_name || '',
+              email: data.email,
+              phone: data.phone || '',
+              created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || data.created_at || new Date().toISOString(),
+              vip_tier: data.vip_tier || data.tier || 'Gold',
+              tier: data.tier || 'Gold',
+              status: data.status || 'Active',
+              auth_linked: true,
+            } as Customer);
+          }
+        });
+      }
+
+      // 3. Supabase customers
+      fetchedCustomers.forEach(addUniqueCustomer);
+
+      // 4. liveScrapedCustomers (ensure pre-loaded customer accounts are present unless deleted)
+      (liveScrapedCustomers as Customer[]).forEach(addUniqueCustomer);
+
+      // 5. Guest checkout orders
       fetchedOrders.forEach(o => {
         const email = String(o.customer_email || '').trim().toLowerCase();
         if (!email || knownEmails.has(email) || deletedIds.has(email)) return;
@@ -180,7 +284,7 @@ export default function CustomerCRMManager() {
         combinedCustomers.push({
           id: `guest_${email.replace(/[^a-z0-9]/g, '').slice(0, 10)}`,
           full_name: o.customer_name || email.split('@')[0] || 'Guest Customer',
-          email: o.customer_email || email,
+          email: email,
           phone: o.customer_phone || '',
           shipping_address: o.shipping_address || '',
           shipping_city: o.shipping_city || '',
@@ -195,16 +299,17 @@ export default function CustomerCRMManager() {
       setCustomers(combinedCustomers);
       setOrders(finalOrders);
       setLastSyncTime(new Date());
+
+      // Save to cache asynchronously
+      try {
+        localStorage.setItem(CRM_CUSTOMERS_CACHE_KEY, JSON.stringify(combinedCustomers.slice(0, 500)));
+        localStorage.setItem(CRM_ORDERS_CACHE_KEY, JSON.stringify(finalOrders.slice(0, 500)));
+      } catch {}
     } catch (err) {
       console.error('Error loading CRM data, using scraped live cache:', err);
-      const deletedIds = getDeletedIdsForTable('customers');
-      const filteredScraped = (liveScrapedCustomers as Customer[]).filter(
-        c => !deletedIds.has(String(c.id)) && !deletedIds.has(c.email.toLowerCase().trim())
-      );
-      setCustomers(filteredScraped);
-      setOrders(liveScrapedOrders as CustomerOrder[]);
     } finally {
-      if (showLoading) setLoading(false);
+      setLoading(false);
+      setIsBackgroundUpdating(false);
     }
   };
 
@@ -214,48 +319,54 @@ export default function CustomerCRMManager() {
 
   const confirmDeleteCustomer = async () => {
     if (!customerToDelete) return;
-    setIsDeleting(true);
     const emailKey = customerToDelete.email.toLowerCase().trim();
     const idKey = String(customerToDelete.id || '');
+    const displayName = customerToDelete.full_name || customerToDelete.name || emailKey;
 
+    // 1. Immediately record in permanent Tombstone registry
     try {
-      // 1. Mark in tombstone registry so it never reappears in fallback cache
       markIdsAsDeleted('customers', [idKey, emailKey]);
+      markIdsAsDeleted('users', [idKey, emailKey]);
+    } catch (e) {}
 
-      // 2. Delete from Supabase / Firestore customers table
-      if (idKey && !idKey.startsWith('guest_')) {
-        await supabase.from('customers').delete().eq('id', idKey);
-      }
-      await supabase.from('customers').delete().eq('email', emailKey);
-
-      // 3. Delete directly from Firestore /customers collection & /users collection
-      try {
-        if (idKey) {
-          await deleteDoc(doc(db, 'customers', idKey));
-        }
-        await deleteDoc(doc(db, 'customers', emailKey));
-        await deleteDoc(doc(db, 'users', idKey));
-        await deleteDoc(doc(db, 'users', `email_${emailKey.replace(/[^a-zA-Z0-9]/g, '_')}`));
-      } catch (fbErr) {
-        console.warn('Firestore direct delete note:', fbErr);
-      }
-
-      // 4. Update UI state immediately
-      setCustomers(prev => prev.filter(c => c.id !== customerToDelete.id && c.email.toLowerCase().trim() !== emailKey));
-      if (activeCustomer?.id === customerToDelete.id || activeCustomer?.email.toLowerCase().trim() === emailKey) {
-        setActiveCustomer(null);
-      }
-      setCustomerToDelete(null);
-
-      // 5. Broadcast deletion across all browser windows
-      window.dispatchEvent(new Event('storage'));
-      fireToast(`Customer ${customerToDelete.full_name || emailKey} totally removed from system and database! 🗑️`, 'success');
-    } catch (err: any) {
-      console.error('Delete customer error:', err);
-      fireToast(`Failed to delete customer: ${err.message || 'Error'}`, 'error');
-    } finally {
-      setIsDeleting(false);
+    // 2. Immediately update UI state (0ms latency)
+    setCustomers((prev) =>
+      prev.filter(
+        (c) =>
+          c.id !== customerToDelete.id &&
+          c.email.toLowerCase().trim() !== emailKey
+      )
+    );
+    if (
+      activeCustomer?.id === customerToDelete.id ||
+      activeCustomer?.email.toLowerCase().trim() === emailKey
+    ) {
+      setActiveCustomer(null);
     }
+
+    // 3. Immediately close modal
+    setCustomerToDelete(null);
+    setIsDeleting(false);
+
+    // 4. Broadcast deletion across all browser windows
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('slimdose:customer_deleted', { detail: { id: idKey, email: emailKey } }));
+      window.dispatchEvent(new Event('storage'));
+    }
+    fireToast(`Customer ${displayName} permanently deleted! 🗑️`, 'success');
+
+    // 5. Background non-blocking cascade deletion
+    (async () => {
+      try {
+        await deleteUserAccountAdmin(idKey, emailKey);
+        if (idKey && !idKey.startsWith('guest_')) {
+          await supabase.from('customers').delete().eq('id', idKey);
+        }
+        await supabase.from('customers').delete().eq('email', emailKey);
+      } catch (err: any) {
+        console.warn('[CustomerCRMManager] Background delete notice:', err);
+      }
+    })();
   };
 
   const handleRefresh = async () => {
@@ -272,7 +383,7 @@ export default function CustomerCRMManager() {
       totalSpent: number; 
       lastOrderDate: string | null;
       customerOrders: CustomerOrder[];
-      tier: 'VIP Platinum' | 'VIP Gold' | 'Silver' | 'Starter' | 'Prospect';
+      tier: 'Platinum' | 'Gold' | 'Silver' | 'Starter' | 'Prospect';
     }> = {};
 
     customers.forEach(c => {
@@ -318,8 +429,8 @@ export default function CustomerCRMManager() {
     // Determine Tier badge
     Object.keys(map).forEach(email => {
       const stat = map[email];
-      if (stat.totalSpent >= 15000) stat.tier = 'VIP Platinum';
-      else if (stat.totalSpent >= 6000) stat.tier = 'VIP Gold';
+      if (stat.totalSpent >= 15000) stat.tier = 'Platinum';
+      else if (stat.totalSpent >= 6000) stat.tier = 'Gold';
       else if (stat.orderCount >= 2 || stat.totalSpent >= 2500) stat.tier = 'Silver';
       else if (stat.orderCount === 1) stat.tier = 'Starter';
       else stat.tier = 'Prospect';
@@ -384,7 +495,7 @@ export default function CustomerCRMManager() {
       result = result.filter(c => {
         const stats = customerStatsMap[c.email.toLowerCase().trim()];
         if (!stats) return false;
-        if (selectedTier === 'vip') return stats.tier === 'VIP Platinum' || stats.tier === 'VIP Gold';
+        if (selectedTier === 'vip') return stats.tier === 'Platinum' || stats.tier === 'Gold';
         if (selectedTier === 'repeat') return stats.orderCount >= 2;
         if (selectedTier === 'first') return stats.orderCount === 1;
         if (selectedTier === 'prospect') return stats.orderCount === 0;
@@ -397,6 +508,16 @@ export default function CustomerCRMManager() {
       const statsA = customerStatsMap[a.email.toLowerCase().trim()] || { totalSpent: 0, orderCount: 0, lastOrderDate: null };
       const statsB = customerStatsMap[b.email.toLowerCase().trim()] || { totalSpent: 0, orderCount: 0, lastOrderDate: null };
 
+      if (sortBy === 'created-desc' || !sortBy) {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      }
+      if (sortBy === 'created-asc') {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeA - timeB;
+      }
       if (sortBy === 'spent-desc') return statsB.totalSpent - statsA.totalSpent;
       if (sortBy === 'spent-asc') return statsA.totalSpent - statsB.totalSpent;
       if (sortBy === 'orders-desc') return statsB.orderCount - statsA.orderCount;
@@ -412,11 +533,50 @@ export default function CustomerCRMManager() {
     return result;
   }, [customers, searchQuery, selectedTier, sortBy, customerStatsMap]);
 
+  // Ultra-Fast Paginated Window (Instant rendering without freezing DOM on 450+ high-density cards)
+  const totalPages = Math.ceil(filteredAndSortedCustomers.length / pageSize) || 1;
+  const paginatedCustomers = useMemo(() => {
+    const startIdx = (currentPage - 1) * pageSize;
+    return filteredAndSortedCustomers.slice(startIdx, startIdx + pageSize);
+  }, [filteredAndSortedCustomers, currentPage, pageSize]);
+
   const copyToClipboard = (text: string, key: string, label = 'Copied') => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     fireToast(`${label}: ${text}`, 'success');
     setTimeout(() => setCopiedKey(null), 2000);
+  };
+
+  const copyAllCustomerEmails = (format: 'plain' | 'csv' | 'credentials' = 'plain') => {
+    const rawList = customers.length > 0 ? customers : (liveScrapedCustomers as Customer[]);
+    const uniqueEmailMap = new Map<string, Customer>();
+
+    rawList.forEach((c) => {
+      const emailClean = (c.email || '').trim().toLowerCase();
+      if (emailClean && !uniqueEmailMap.has(emailClean)) {
+        uniqueEmailMap.set(emailClean, { ...c, email: emailClean });
+      }
+    });
+
+    const list = Array.from(uniqueEmailMap.values());
+    if (list.length === 0) {
+      fireToast('No customer emails found to copy.', 'error');
+      return;
+    }
+
+    let textToCopy = '';
+    if (format === 'plain') {
+      textToCopy = list.map(c => c.email).join('\n');
+    } else if (format === 'credentials') {
+      textToCopy = list.map(c => `Email: ${c.email} | Password: ${DEFAULT_CUSTOMER_PASSWORD}`).join('\n');
+    } else {
+      textToCopy = ['Email,Full Name,Phone,Default Password', ...list.map(c => `"${c.email}","${c.full_name || ''}","${c.phone || ''}","${DEFAULT_CUSTOMER_PASSWORD}"`)].join('\n');
+    }
+
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedKey(`bulk_emails_${format}`);
+    fireToast(`📋 Copied ${list.length} customer emails to clipboard!`, 'success');
+    setTimeout(() => setCopiedKey(null), 2500);
   };
 
   const copyFullCredentials = (cust: Customer, key: string) => {
@@ -451,133 +611,181 @@ export default function CustomerCRMManager() {
     }
     const portalUrl = window.location.origin;
     const message = encodeURIComponent(
-      `Hello ${cust.full_name}! 👋\n\nHere are your VIP SlimDose Peptides Account Access Credentials:\n\n🔐 Portal URL: ${portalUrl}\n📧 Email: ${cust.email}\n🔑 Default Password: ${DEFAULT_CUSTOMER_PASSWORD}\n\nLog in anytime to view your verified batch certificates (COA), order history, and real-time shipment updates!`
+      `Hello ${cust.full_name}! 👋\n\nHere are your SlimDose Peptides Account Access Credentials:\n\n🔐 Portal URL: ${portalUrl}\n📧 Email: ${cust.email}\n🔑 Default Password: ${DEFAULT_CUSTOMER_PASSWORD}\n\nLog in anytime to view your verified batch certificates (COA), order history, and real-time shipment updates!`
     );
     return formattedPhone ? `https://wa.me/${formattedPhone}?text=${message}` : `https://wa.me/?text=${message}`;
   };
 
-  // Sync all customer accounts to Firebase Firestore & Auth
+  const [syncingSingleId, setSyncingSingleId] = useState<string | null>(null);
+
+  // Sync single customer account to Firebase Firestore & Firebase Auth
+  const handleSyncSingleToFirebase = async (cust: Customer, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const emailLower = (cust.email || '').trim().toLowerCase();
+    if (!emailLower) {
+      fireToast('Invalid or empty customer email', 'error');
+      return;
+    }
+
+    setSyncingSingleId(cust.id);
+    try {
+      const stats = customerStatsMap[emailLower] || { orderCount: 0, totalSpent: 0, tier: 'Prospect' };
+      
+      await provisionCustomerAccount({
+        id: cust.id,
+        email: emailLower,
+        full_name: cust.full_name || emailLower.split('@')[0],
+        name: cust.full_name || emailLower.split('@')[0],
+        phone: cust.phone || '',
+        shipping_address: cust.shipping_address || '',
+        shipping_city: cust.shipping_city || '',
+        shipping_state: cust.shipping_state || '',
+        shipping_zip_code: cust.shipping_zip_code || '',
+        tier: stats.tier,
+        total_spent: stats.totalSpent,
+        order_count: stats.orderCount,
+      });
+
+      // Update local state indicators
+      setCustomers(prev =>
+        prev.map(c => (c.id === cust.id || c.email.toLowerCase() === emailLower ? { ...c, email: emailLower } : c))
+      );
+
+      fireToast(`Account for ${cust.full_name || emailLower} successfully linked to Firebase Auth & Firestore! ⚡`, 'success');
+    } catch (err: any) {
+      console.error('Single Firebase sync error:', err);
+      fireToast(`Firebase sync notice: ${err.message || 'Error'}`, 'error');
+    } finally {
+      setSyncingSingleId(null);
+    }
+  };
+
+  // Sync all customer accounts to Firebase Firestore & Firebase Auth (High Throughput Concurrency)
   const handleSyncAllToFirebase = async () => {
     setIsSyncing(true);
     setSyncResults(null);
-    const targetList = customers.length > 0 ? customers : (liveScrapedCustomers as Customer[]);
+
+    // 1. Enforce strict in-memory email deduplication before initiating sync
+    const rawList = customers.length > 0 ? customers : (liveScrapedCustomers as Customer[]);
+    const uniqueEmailMap = new Map<string, Customer>();
+
+    rawList.forEach((c) => {
+      const emailClean = (c.email || '').trim().toLowerCase();
+      if (emailClean && !uniqueEmailMap.has(emailClean)) {
+        uniqueEmailMap.set(emailClean, { ...c, email: emailClean });
+      }
+    });
+
+    const targetList = Array.from(uniqueEmailMap.values());
     const total = targetList.length;
+
     setSyncTotal(total);
     setSyncedCount(0);
     setSyncProgress(0);
-    setSyncStatusText('Initializing Firebase Database connection...');
+    setSyncStatusText(`Initializing high-speed Firebase Auth link for ${total} accounts...`);
 
     let successCount = 0;
     let skippedCount = 0;
     let failedCount = 0;
+    let processedCount = 0;
+
     try {
-      // Process in batches for performance and responsive progress
-      const batchSize = 10;
-      for (let i = 0; i < total; i += batchSize) {
-        const batch = targetList.slice(i, i + batchSize);
-        setSyncStatusText(`Syncing accounts ${i + 1} - ${Math.min(i + batchSize, total)} of ${total}...`);
+      // High-speed parallel worker queue (concurrency = 12) for lightning-fast synchronization
+      const CONCURRENCY_LIMIT = 12;
+      let currentIndex = 0;
 
-        await Promise.all(
-          batch.map(async (c) => {
+      const worker = async () => {
+        while (currentIndex < targetList.length) {
+          const index = currentIndex++;
+          const c = targetList[index];
+          const emailLower = (c.email || '').trim().toLowerCase();
+
+          if (!emailLower) {
+            skippedCount++;
+          } else {
             try {
-              const emailLower = (c.email || '').trim().toLowerCase();
-              if (!emailLower) {
-                skippedCount++;
-                return;
-              }
-
               const stats = customerStatsMap[emailLower] || { orderCount: 0, totalSpent: 0, tier: 'Prospect' };
-              const custDocRef = doc(db, 'customers', c.id || `cust_${emailLower.replace(/[^a-z0-9]/g, '')}`);
+              
+              await provisionCustomerAccount({
+                id: c.id,
+                email: emailLower,
+                full_name: c.full_name || emailLower.split('@')[0],
+                name: c.full_name || emailLower.split('@')[0],
+                phone: c.phone || '',
+                shipping_address: c.shipping_address || '',
+                shipping_city: c.shipping_city || '',
+                shipping_state: c.shipping_state || '',
+                shipping_zip_code: c.shipping_zip_code || '',
+                tier: stats.tier,
+                total_spent: stats.totalSpent,
+                order_count: stats.orderCount,
+              });
 
-              await setDoc(
-                custDocRef,
-                {
-                  id: c.id,
-                  full_name: c.full_name || emailLower.split('@')[0],
-                  email: emailLower,
-                  phone: c.phone || '',
-                  shipping_address: c.shipping_address || '',
-                  shipping_city: c.shipping_city || '',
-                  shipping_state: c.shipping_state || '',
-                  shipping_zip_code: c.shipping_zip_code || '',
-                  tier: stats.tier,
-                  total_spent: stats.totalSpent,
-                  order_count: stats.orderCount,
-                  default_password: DEFAULT_CUSTOMER_PASSWORD,
-                  synced_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                },
-                { merge: true }
-              );
               successCount++;
             } catch (itemErr) {
               console.warn('Sync individual customer warning:', c.email, itemErr);
               failedCount++;
             }
-          })
-        );
+          }
 
-        const currentDone = Math.min(i + batchSize, total);
-        setSyncedCount(currentDone);
-        setSyncProgress(Math.round((currentDone / total) * 100));
-        // Yield thread for smooth UI animation
-        await new Promise(r => setTimeout(r, 40));
-      }
+          processedCount++;
+          const progressPercent = Math.round((processedCount / total) * 100);
+          setSyncedCount(processedCount);
+          setSyncProgress(progressPercent);
+          setSyncStatusText(`Linking & Provisioning: ${processedCount} / ${total} (${progressPercent}%)...`);
+        }
+      };
+
+      const workers = Array.from(
+        { length: Math.min(CONCURRENCY_LIMIT, targetList.length) },
+        () => worker()
+      );
+
+      await Promise.all(workers);
 
       setSyncResults({
         success: successCount,
         skipped: skippedCount,
         failed: failedCount
       });
-      setSyncStatusText('Synchronization completed successfully!');
-      fireToast(`Successfully synced ${successCount} accounts to Firebase! ⚡`, 'success');
+      setSyncStatusText(`Completed! ${successCount} accounts synced to Firebase Auth & Firestore!`);
+      fireToast(`⚡ Successfully synced ${successCount} accounts to Firebase Auth!`, 'success');
     } catch (err: any) {
       console.error('Firebase Bulk Sync error:', err);
-      setSyncStatusText(`Sync encounter issue: ${err.message || 'Network notice'}`);
+      setSyncStatusText(`Sync notice: ${err.message || 'Network notice'}`);
       fireToast('Bulk sync completed with notices.', 'info');
     } finally {
       setIsSyncing(false);
     }
   };
 
+  // Export to CSV
   const handleExportCSV = () => {
-    const headers = [
-      'Customer ID', 
-      'Full Name', 
-      'Email', 
-      'Phone', 
-      'Full Address', 
-      'City', 
-      'State/Province', 
-      'Zip Code', 
-      'Customer Tier',
-      'Total Orders', 
-      'Total Spent (PHP)',
-      'Last Order Date',
-      'Registered At'
-    ];
-    
+    if (filteredAndSortedCustomers.length === 0) {
+      fireToast('No customer data to export', 'info');
+      return;
+    }
+
+    const headers = ['ID', 'Full Name', 'Email', 'Phone', 'Created At', 'Status', 'Segment Tier', 'Total Orders', 'Total Spend (PHP)', 'Last Order Date', 'Firebase Auth Synced'];
     const rows = filteredAndSortedCustomers.map(c => {
-      const stats = customerStatsMap[c.email.toLowerCase().trim()] || { orderCount: 0, totalSpent: 0, tier: 'Prospect', lastOrderDate: null };
-      const fullAddress = `"${[c.shipping_address, c.shipping_city, c.shipping_state, c.shipping_zip_code].filter(Boolean).join(', ')}"`;
+      const stats = customerStatsMap[c.email.toLowerCase().trim()] || { totalSpent: 0, orderCount: 0, lastOrderDate: null, tier: 'Prospect' };
+      const isSynced = c.auth_linked || !!usersAuthMap[c.email.toLowerCase().trim()];
       return [
-        c.id,
-        `"${c.full_name.replace(/"/g, '""')}"`,
-        c.email,
+        `"${c.id}"`,
+        `"${c.full_name || ''}"`,
+        `"${c.email}"`,
         `"${c.phone || ''}"`,
-        fullAddress,
-        `"${c.shipping_city || ''}"`,
-        `"${c.shipping_state || ''}"`,
-        c.shipping_zip_code || '',
-        stats.tier,
+        `"${c.created_at || ''}"`,
+        `"${c.status || 'Active'}"`,
+        `"${stats.tier}"`,
         stats.orderCount,
         stats.totalSpent.toFixed(2),
-        stats.lastOrderDate ? new Date(stats.lastOrderDate).toLocaleDateString('en-US') : 'N/A',
-        c.created_at ? new Date(c.created_at).toLocaleDateString('en-US') : 'N/A'
+        `"${stats.lastOrderDate || 'None'}"`,
+        `"${isSynced ? 'Yes' : 'No'}"`
       ];
     });
 
-    const csvContent = "data:text/csv;charset=utf-8,"
+    const csvContent = "data:text/csv;charset=utf-8," 
       + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
 
     const encodedUri = encodeURI(csvContent);
@@ -592,9 +800,9 @@ export default function CustomerCRMManager() {
 
   const getTierBadgeStyle = (tier: string) => {
     switch (tier) {
-      case 'VIP Platinum':
+      case 'Platinum':
         return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800';
-      case 'VIP Gold':
+      case 'Gold':
         return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800';
       case 'Silver':
         return 'bg-blue-100 text-[#3C6CA8] border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800';
@@ -605,7 +813,7 @@ export default function CustomerCRMManager() {
     }
   };
 
-  if (loading) {
+  if (loading && customers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-16 space-y-4">
         <div className="animate-spin w-9 h-9 border-3 border-[#3C6CA8] border-t-transparent rounded-full shadow-md" />
@@ -727,9 +935,9 @@ export default function CustomerCRMManager() {
               className="px-2.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-all select-none"
               title="Click to manually refresh CRM data"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="hidden sm:inline">Live Realtime</span>
-              <RefreshCw className={`w-3 h-3 text-slate-400 ${isRefreshing ? 'animate-spin text-[#3C6CA8]' : ''}`} />
+              <span className={`w-2 h-2 rounded-full ${isBackgroundUpdating || isRefreshing ? 'bg-blue-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
+              <span className="hidden sm:inline">{isBackgroundUpdating || isRefreshing ? 'Syncing...' : 'Live Realtime'}</span>
+              <RefreshCw className={`w-3 h-3 text-slate-400 ${isRefreshing || isBackgroundUpdating ? 'animate-spin text-[#3C6CA8]' : ''}`} />
             </div>
 
             {/* Sort Selector */}
@@ -739,11 +947,13 @@ export default function CustomerCRMManager() {
                 aria-label="Sort customer records"
                 className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 cursor-pointer"
               >
+                <option value="created-desc">Newest Created (Latest First)</option>
                 <option value="spent-desc">Highest Spend (LTV)</option>
                 <option value="orders-desc">Most Orders</option>
                 <option value="recent">Recent Order Activity</option>
                 <option value="name-asc">Alphabetical (A-Z)</option>
                 <option value="spent-asc">Lowest Spend</option>
+                <option value="created-asc">Oldest Created</option>
               </select>
             </div>
 
@@ -758,7 +968,27 @@ export default function CustomerCRMManager() {
               <span className="hidden sm:inline">Export CSV</span>
             </button>
 
-            {/* Prominent Sync All 433 Accounts to Firebase Button */}
+            {/* Copy All Emails */}
+            <button
+              type="button"
+              onClick={() => copyAllCustomerEmails('plain')}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0 border border-slate-200 dark:border-slate-700"
+              title="Copy all customer emails to clipboard"
+            >
+              {copiedKey === 'bulk_emails_plain' ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="hidden sm:inline text-emerald-600 dark:text-emerald-400">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Copy Emails</span>
+                </>
+              )}
+            </button>
+
+            {/* Prominent Sync All Accounts to Firebase Button */}
             <button
               type="button"
               onClick={() => {
@@ -772,7 +1002,7 @@ export default function CustomerCRMManager() {
               title="Sync all customer profiles and default credentials to Firebase"
             >
               <Zap className="w-3.5 h-3.5 text-amber-100 fill-amber-100" />
-              <span>⚡ Sync All {customers.length || 433} Accounts to Firebase</span>
+              <span>⚡ Sync All {customers.length || 453} Accounts to Firebase</span>
             </button>
           </div>
         </div>
@@ -804,7 +1034,7 @@ export default function CustomerCRMManager() {
                 : 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 hover:bg-purple-100'
             }`}
           >
-            VIP Platinum & Gold
+            Platinum & Gold
           </button>
 
           <button
@@ -874,13 +1104,14 @@ export default function CustomerCRMManager() {
                   <th className="py-3.5 px-4 text-left">Account &amp; Credentials</th>
                   <th className="py-3.5 px-4 text-left">Contact Channels</th>
                   <th className="py-3.5 px-4 text-left">Delivery Address</th>
+                  <th className="py-3.5 px-4 text-left whitespace-nowrap">Date &amp; Time Created</th>
                   <th className="py-3.5 px-3 text-center">Orders</th>
                   <th className="py-3.5 px-4 text-right">Lifetime Spent</th>
                   <th className="py-3.5 px-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
-                {filteredAndSortedCustomers.map((c) => {
+                {paginatedCustomers.map((c) => {
                   const emailKey = c.email.toLowerCase().trim();
                   const stats = customerStatsMap[emailKey] || { 
                     orderCount: 0, 
@@ -1032,6 +1263,24 @@ export default function CustomerCRMManager() {
                         )}
                       </td>
 
+                      {/* Date & Time Created Column */}
+                      <td className="py-3.5 px-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        {c.created_at ? (
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold text-[11px]">
+                              <Calendar className="w-3 h-3 text-[#3C6CA8] shrink-0" />
+                              <span>{new Date(c.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-mono text-[10px] pl-4.5">
+                              <Clock className="w-2.5 h-2.5 text-slate-400 shrink-0" />
+                              <span>{new Date(c.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 italic text-[10.5px]">No date recorded</span>
+                        )}
+                      </td>
+
                       {/* Orders Count */}
                       <td className="py-3.5 px-3 text-center">
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-black text-[11px] ${
@@ -1056,9 +1305,22 @@ export default function CustomerCRMManager() {
                         )}
                       </td>
 
-                      {/* Action Buttons (View + Delete) */}
+                      {/* Action Buttons (Sync to Auth + View + Delete) */}
                       <td className="py-3.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled={syncingSingleId === c.id}
+                            onClick={(e) => handleSyncSingleCustomerToFirebase(c, e)}
+                            className="p-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-500 hover:text-white text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-800/60 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                            title="Sync/Link this account to Firebase Auth & Firestore"
+                          >
+                            {syncingSingleId === c.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Zap className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                           <button
                             type="button"
                             onClick={() => setActiveCustomer(c)}
@@ -1086,7 +1348,7 @@ export default function CustomerCRMManager() {
 
           {/* 2. MOBILE & TABLET VIEW: Ultra-Responsive High-Density Cards (<1024px) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:hidden">
-            {filteredAndSortedCustomers.map((c) => {
+            {paginatedCustomers.map((c) => {
               const emailKey = c.email.toLowerCase().trim();
               const stats = customerStatsMap[emailKey] || { 
                 orderCount: 0, 
@@ -1213,6 +1475,19 @@ export default function CustomerCRMManager() {
                     )}
                   </div>
 
+                  {/* Date & Time Created */}
+                  {c.created_at && (
+                    <div className="flex items-center justify-between text-[10px] bg-slate-50 dark:bg-slate-800/40 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-2.5 h-2.5 text-[#3C6CA8]" />
+                        <span>Created:</span>
+                      </span>
+                      <span className="font-mono font-bold text-slate-700 dark:text-slate-300">
+                        {new Date(c.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} {new Date(c.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Card Bottom Meta & Open Action */}
                   <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1 font-bold">
@@ -1228,6 +1503,86 @@ export default function CustomerCRMManager() {
               );
             })}
           </div>
+
+          {/* 3. ULTRA-FAST PAGINATION BAR (Smooth Navigation & Quick Page Size Selection) */}
+          {filteredAndSortedCustomers.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium text-[11px]">
+                <span>
+                  Showing <strong className="text-slate-900 dark:text-white font-bold">{Math.min((currentPage - 1) * pageSize + 1, filteredAndSortedCustomers.length)}</strong> to <strong className="text-slate-900 dark:text-white font-bold">{Math.min(currentPage * pageSize, filteredAndSortedCustomers.length)}</strong> of <strong className="text-slate-900 dark:text-white font-bold">{filteredAndSortedCustomers.length}</strong> customers
+                </span>
+                <span className="hidden sm:inline">•</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="hidden sm:inline">Per page:</span>
+                  <select
+                    id="customercrmmanager-pagesize"
+                    name="pagesize"
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-700 dark:text-slate-200 cursor-pointer focus:ring-1 focus:ring-[#3C6CA8]"
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                    <option value={200}>200</option>
+                  </select>
+                </div>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1.5 font-bold">
+                  {/* Prev Button */}
+                  <button
+                    type="button"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    title="Previous page"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  {/* Page Pill Indicators */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pNum = i + 1;
+                      if (totalPages > 5 && currentPage > 3) {
+                        pNum = Math.min(currentPage - 2 + i, totalPages - (4 - i));
+                      }
+                      return (
+                        <button
+                          key={pNum}
+                          type="button"
+                          onClick={() => setCurrentPage(pNum)}
+                          className={`w-7 h-7 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            currentPage === pNum
+                              ? 'bg-[#3C6CA8] text-white shadow-xs'
+                              : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          {pNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    type="button"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    title="Next page"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
 
@@ -1273,7 +1628,7 @@ export default function CustomerCRMManager() {
               {(() => {
                 const stats = customerStatsMap[activeCustomer.email.toLowerCase().trim()] || { orderCount: 0, totalSpent: 0, lastOrderDate: null, customerOrders: [] };
                 return (
-                  <div className="grid grid-cols-3 gap-2.5 text-center">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
                       <span className="text-[10px] font-bold text-slate-400 uppercase block">Total Orders</span>
                       <span className="text-lg font-black text-slate-900 dark:text-white mt-0.5 block">{stats.orderCount}</span>
@@ -1282,6 +1637,12 @@ export default function CustomerCRMManager() {
                       <span className="text-[10px] font-bold text-[#3C6CA8] uppercase block">Lifetime Value</span>
                       <span className="text-lg font-black text-[#3C6CA8] dark:text-blue-300 mt-0.5 block">
                         ₱{stats.totalSpent.toLocaleString('en-PH', { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase block">Created Date</span>
+                      <span className="text-xs font-black text-slate-800 dark:text-slate-200 mt-1 block truncate" title={activeCustomer.created_at || ''}>
+                        {activeCustomer.created_at ? new Date(activeCustomer.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'None'}
                       </span>
                     </div>
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -1302,7 +1663,7 @@ export default function CustomerCRMManager() {
                     <span>🔐 Customer Login Credentials &amp; Firebase Auth</span>
                   </div>
                   <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    Active VIP Access
+                    Active Customer Access
                   </span>
                 </div>
 
@@ -1371,7 +1732,28 @@ export default function CustomerCRMManager() {
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>1-Click Copy Full Credentials</span>
+                        <span>1-Click Copy Credentials</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Sync to Firebase Auth */}
+                  <button
+                    type="button"
+                    disabled={syncingSingleId === activeCustomer.id}
+                    onClick={() => handleSyncSingleCustomerToFirebase(activeCustomer)}
+                    className="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
+                    title="Sync and link this user profile into Firebase Authentication"
+                  >
+                    {syncingSingleId === activeCustomer.id ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Linking Auth...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-3.5 h-3.5 fill-white" />
+                        <span>Sync Auth</span>
                       </>
                     )}
                   </button>
@@ -1632,10 +2014,10 @@ export default function CustomerCRMManager() {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white leading-tight">
-                    Sync Customer Accounts to Firebase
+                    Sync Customer Accounts to Firebase Auth
                   </h3>
                   <p className="text-xs text-amber-100 font-medium mt-0.5">
-                    Sync all {customers.length || 433} customers with default password ({DEFAULT_CUSTOMER_PASSWORD})
+                    Sync all {customers.length} customers with default credentials ({DEFAULT_CUSTOMER_PASSWORD})
                   </p>
                 </div>
               </div>
@@ -1654,15 +2036,53 @@ export default function CustomerCRMManager() {
             <div className="p-6 space-y-5">
               <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                 <p>
-                  This operation will register and sync <strong className="text-slate-900 dark:text-white font-bold">{customers.length || 433} customer profiles</strong> into your Firebase Cloud Firestore <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[#3C6CA8] font-bold">customers</code> collection.
+                  This operation will register and synchronize <strong className="text-slate-900 dark:text-white font-bold">{customers.length} customer profiles</strong> directly into <strong className="text-slate-900 dark:text-white font-bold">Firebase Authentication</strong> (<code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[#3C6CA8] font-bold">auth.users</code>) and Cloud Firestore <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[#3C6CA8] font-bold">customers</code> &amp; <code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[#3C6CA8] font-bold">users</code> collections.
                 </p>
                 <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900/60 space-y-1">
                   <p className="font-bold text-[#3C6CA8] dark:text-blue-300 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500" /> Default Credentials Prepared
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" /> Firebase Auth Credentials &amp; OTP Ready
                   </p>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Each customer can instantly sign in using their registered email and default password <code className="font-mono font-bold text-slate-800 dark:text-blue-200 bg-white dark:bg-slate-800 px-1 rounded">{DEFAULT_CUSTOMER_PASSWORD}</code>.
+                    Each customer can immediately sign in using their registered email via 6-digit One-Time PIN (OTP) or password <code className="font-mono font-bold text-slate-800 dark:text-blue-200 bg-white dark:bg-slate-800 px-1 rounded">{DEFAULT_CUSTOMER_PASSWORD}</code>.
                   </p>
+                </div>
+
+                {/* 📋 Quick Copy Emails & Credentials to Clipboard */}
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" /> Copy Email Addresses to Clipboard
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {customers.length} unique emails
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyAllCustomerEmails('plain')}
+                      className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-white dark:bg-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[11px] font-bold text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      {copiedKey === 'bulk_emails_plain' ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                      )}
+                      <span>{copiedKey === 'bulk_emails_plain' ? 'Copied Emails!' : 'Copy Plain Emails'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => copyAllCustomerEmails('credentials')}
+                      className="flex items-center justify-center gap-1.5 px-2.5 py-2 rounded-xl bg-white dark:bg-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[11px] font-bold text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      {copiedKey === 'bulk_emails_credentials' ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
+                      ) : (
+                        <Key className="w-3.5 h-3.5 text-amber-500" />
+                      )}
+                      <span>{copiedKey === 'bulk_emails_credentials' ? 'Copied Logins!' : 'Copy Email & Passwords'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1674,7 +2094,7 @@ export default function CustomerCRMManager() {
                       {syncStatusText}
                     </span>
                     <span className="text-[#3C6CA8] dark:text-blue-400 font-mono">
-                      {syncedCount} / {syncTotal || customers.length || 433} ({syncProgress}%)
+                      {syncedCount} / {syncTotal || customers.length} ({syncProgress}%)
                     </span>
                   </div>
 

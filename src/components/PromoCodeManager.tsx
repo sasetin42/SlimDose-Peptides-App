@@ -162,7 +162,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
 
   // Quick Random Code Generator
   const generateRandomCode = () => {
-    const prefixes = ['SLIM', 'VIP', 'FLASH', 'SAVE', 'SPECIAL', 'PEPTIDE', 'DEAL'];
+    const prefixes = ['SLIM', 'PLUS', 'FLASH', 'SAVE', 'SPECIAL', 'PEPTIDE', 'DEAL'];
     const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
     const num = Math.floor(10 + Math.random() * 89);
     const generated = `${prefix}${formData.discount_type === 'percentage' ? formData.discount_value || num : num}`;

@@ -8,7 +8,7 @@ import {
   ChevronDown, ChevronUp, Image as ImageIcon, Percent, Boxes, FlaskConical, Award,
   AlertCircle, BarChart3, LayoutDashboard, Lock, DollarSign, AlertTriangle, CheckCircle2,
   Edit2, ExternalLink, Copy, Check, MessageCircle, Megaphone, Clock, ArrowUpRight,
-  CheckCircle, Wallet, Receipt
+  CheckCircle, Wallet, Receipt, UserCheck
 } from 'lucide-react';
 import type { Product } from '../types';
 import { supabase } from '../lib/supabase';
@@ -28,6 +28,7 @@ const OrdersManager = lazy(() => import('./OrdersManager'));
 const FAQManager = lazy(() => import('./FAQManager'));
 const ShippingManager = lazy(() => import('./ShippingManager'));
 const SiteSettingsManager = lazy(() => import('./SiteSettingsManager'));
+const UsersManager = lazy(() => import('./UsersManager'));
 const PromoCodeManager = lazy(() => import('./PromoCodeManager'));
 const GlobalDiscountManager = lazy(() => import('./GlobalDiscountManager'));
 const GuideManager = lazy(() => import('./GuideManager'));
@@ -2711,6 +2712,22 @@ const AdminDashboard: React.FC = () => {
             <EmailTemplateManager onNavigateToSmtpSettings={() => setCurrentView('settings')} />
           </div>
         );
+      case 'users':
+        return (
+          <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
+            <button
+              onClick={() => setCurrentView('dashboard')}
+              className="mb-4 text-slate-600 dark:text-slate-400 hover:text-[#3C6CA8] dark:hover:text-[#6A9BE0] transition-colors flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Dashboard</span>
+            </button>
+            <UsersManager
+              onNavigateToSettings={() => setCurrentView('settings')}
+              onNavigateToCRM={() => setCurrentView('crm')}
+            />
+          </div>
+        );
       case 'settings':
         return (
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
@@ -3043,6 +3060,7 @@ const AdminDashboard: React.FC = () => {
     {
       title: 'System',
       items: [
+        { label: 'Users Management', view: 'users', icon: UserCheck },
         { label: 'Site Settings', view: 'settings', icon: Settings },
       ]
     }
@@ -3106,6 +3124,8 @@ const AdminDashboard: React.FC = () => {
         return 'Top Header Banner';
       case 'page-contents':
         return 'Page Contents';
+      case 'users':
+        return 'Users Management & Access Control';
       case 'settings':
         return 'Site Settings';
       default:
@@ -3127,6 +3147,8 @@ const AdminDashboard: React.FC = () => {
       }
       case 'crm':
         return { text: '427', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
+      case 'users':
+        return { text: 'Auth', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 font-bold' };
       case 'inventory': {
         const lowStockCount = products.filter(p => (p.stock_quantity ?? 0) <= 5).length;
         return lowStockCount > 0 ? { text: `${lowStockCount} alert`, color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' } : null;

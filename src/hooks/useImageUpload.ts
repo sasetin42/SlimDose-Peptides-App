@@ -76,7 +76,7 @@ export const useImageUpload = (folder: string = 'menu-images') => {
 
   const uploadImage = async (file: File): Promise<string> => {
     let progressInterval: NodeJS.Timeout | null = null;
-    let uploadTimeout: NodeJS.Timeout | null = null;
+    const uploadTimeout: NodeJS.Timeout | null = null;
 
     try {
       setUploading(true);

@@ -82,6 +82,24 @@ export const markIdsAsDeleted = (tableName: string, ids: string[]) => {
   }
 };
 
+export const unmarkIdAsDeleted = (tableName: string, ids: string[]) => {
+  try {
+    const raw = localStorage.getItem(DELETED_ITEMS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const existing = new Set(Array.isArray(parsed[tableName]) ? parsed[tableName] : []);
+    ids.forEach(id => {
+      if (id) {
+        existing.delete(String(id));
+        existing.delete(String(id).toLowerCase().trim());
+      }
+    });
+    parsed[tableName] = Array.from(existing);
+    localStorage.setItem(DELETED_ITEMS_KEY, JSON.stringify(parsed));
+  } catch (e) {
+    console.warn('Failed to unmark deleted IDs from storage:', e);
+  }
+};
+
 // Helper to recursively strip undefined properties from documents for Firestore compatibility
 const cleanUndefined = (obj: any): any => {
   if (obj === null || typeof obj !== 'object') {
@@ -402,7 +420,12 @@ class SupabaseQueryBuilder {
         let fallback = getLiveScrapedFallback(this.tableName);
         if (fallback && fallback.length > 0) {
           if (deletedIds.size > 0) {
-            fallback = fallback.filter(f => !deletedIds.has(String(f.id || f.order_number)));
+            fallback = fallback.filter(f => {
+              const id = String(f.id || '');
+              const email = String(f.email || '').toLowerCase().trim();
+              const orderNum = String(f.order_number || '');
+              return !deletedIds.has(id) && (!email || !deletedIds.has(email)) && (!orderNum || !deletedIds.has(orderNum));
+            });
           }
           docsData = [...fallback];
         }

@@ -422,7 +422,7 @@ const PopupManager: React.FC = () => {
                 <textarea id="popupmanager-description-body" name="description_body" rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value.slice(0, DESCRIPTION_MAX))}
-                  placeholder="Join our VIP list to receive exclusive restock reminders, first order discounts, and direct batch lab reports."
+                  placeholder="Join our subscriber list to receive exclusive restock reminders, first order discounts, and direct batch lab reports."
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none transition-all leading-relaxed resize-none font-medium"
                 />
               </div>

@@ -10,29 +10,78 @@
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';
 
-const url =
-  (import.meta.env.VITE_CONVEX_URL as string | undefined) ||
-  'https://blessed-cuttlefish-644.convex.cloud';
+const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
 
-const client = new ConvexHttpClient(url);
+let client: ConvexHttpClient | null = null;
+let permanentlyDisabled = false;
+try {
+  if (url && (url.startsWith('https://') || url.startsWith('http://'))) {
+    // Skip client creation for localhost/127.0.0.1 URLs — the Convex dev server
+    // is almost never running during normal site usage. This avoids a flood of
+    // ERR_CONNECTION_REFUSED errors every time a mirror function is called.
+    const isLocalhost = /^https?:\/\/((localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?)(\/|$)/.test(url);
+    if (!isLocalhost) {
+      client = new ConvexHttpClient(url);
+    } else {
+      console.debug('[Convex mirror] Localhost Convex URL detected — mirror disabled (no local dev server).');
+    }
+  }
+} catch (e) {
+  client = null;
+}
 
 let hasLoggedQuotaNotice = false;
+let isConvexOffline = false;
+let lastFailureTime = 0;
+let consecutiveFailures = 0;
 
 function fire<T>(label: string, fn: () => Promise<T> | any): void {
+  if (!client || permanentlyDisabled) return;
+
+  // Circuit breaker: If connection refused/offline, throttle retry by 2 minutes
+  if (isConvexOffline && Date.now() - lastFailureTime < 120000) {
+    return;
+  }
+
   try {
-    Promise.resolve(fn()).catch((err: any) => {
-      const errorMsg = err?.message || String(err);
-      if (errorMsg.includes('exceeded the free plan limits')) {
-        if (!hasLoggedQuotaNotice) {
-          console.info('[Convex mirror] Convex free tier storage limit reached. Primary storage (Supabase/Firebase) is active and unaffected.');
-          hasLoggedQuotaNotice = true;
+    Promise.resolve(fn())
+      .then(() => {
+        isConvexOffline = false;
+        consecutiveFailures = 0;
+      })
+      .catch((err: any) => {
+        const errorMsg = err?.message || String(err);
+        if (
+          errorMsg.includes('Failed to fetch') ||
+          errorMsg.includes('ERR_CONNECTION_REFUSED') ||
+          errorMsg.includes('NetworkError') ||
+          errorMsg.includes('FetchError') ||
+          errorMsg.includes('ECONNREFUSED')
+        ) {
+          consecutiveFailures++;
+          isConvexOffline = true;
+          lastFailureTime = Date.now();
+          // After 3 consecutive connection failures, permanently disable for
+          // this session to avoid repeated connection noise.
+          if (consecutiveFailures >= 3) {
+            permanentlyDisabled = true;
+            console.info('[Convex mirror] Convex unreachable — mirror permanently disabled for this session. Primary databases (Supabase & Firebase) are 100% active and unaffected.');
+          }
+          // Silently bypass unreachable optional mirror
+          return;
         }
-      } else {
-        console.warn(`[Convex mirror] ${label} failed:`, err);
-      }
-    });
+
+        if (errorMsg.includes('exceeded the free plan limits')) {
+          if (!hasLoggedQuotaNotice) {
+            console.info('[Convex mirror] Convex backup mirror capacity reached. Primary databases (Supabase & Firebase) are 100% active and unaffected.');
+            hasLoggedQuotaNotice = true;
+          }
+        } else {
+          console.debug(`[Convex mirror] ${label} skipped:`, errorMsg);
+        }
+      });
   } catch (syncErr) {
-    console.warn(`[Convex mirror] ${label} invocation error:`, syncErr);
+    // Non-blocking catch
   }
 }
 
@@ -177,7 +226,7 @@ export function mirrorShippingLocationDelete(id: string) {
 // ---------- site settings ----------
 export function mirrorSiteSettingUpsert(id: string, value: string, type?: string) {
   fire('siteSettings.upsert', () =>
-    client.mutation(api.siteSettings.upsert, { id, value, type }),
+    client ? client.mutation(api.siteSettings.upsert, { id, value, type }) : Promise.resolve()
   );
 }
 
@@ -185,7 +234,7 @@ export function mirrorSiteSettingsUpsertMany(
   items: Array<{ id: string; value: string; type?: string }>,
 ) {
   fire('siteSettings.upsertMany', () =>
-    client.mutation(api.siteSettings.upsertMany, { items }),
+    client ? client.mutation(api.siteSettings.upsertMany, { items }) : Promise.resolve()
   );
 }
 

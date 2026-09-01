@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBYk8pxgUi5ZV10nUW91VTZ8lBGZYMJdkk',
@@ -26,23 +26,6 @@ async function findCesarOrders() {
     }
   });
   console.log('Matched Orders for Cesar / cecconsulting22@gmail.com:', matched);
-
-  // Also check recent orders placed today
-  const recentOrders = [];
-  snap.docs.forEach(d => {
-    const data = d.data();
-    if (data.created_at && (data.created_at.includes('2026-08-28') || data.created_at.includes('2026-08-27'))) {
-      recentOrders.push({ id: d.id, ...data });
-    }
-  });
-  console.log('Recent orders on 2026-08-27 or 2026-08-28:', recentOrders.map(o => ({
-    id: o.id,
-    order_number: o.order_number,
-    customer_name: o.customer_name,
-    customer_email: o.customer_email,
-    created_at: o.created_at,
-    total_price: o.total_price
-  })));
 }
 
 findCesarOrders().catch(console.error);

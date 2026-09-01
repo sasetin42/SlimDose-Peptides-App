@@ -1023,7 +1023,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     return (
       <OrderDetailsView
         order={selectedOrder}
-        onBack={() => setSelectedOrder(null)}
+        onBack={() => {
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          setSelectedOrder(null);
+        }}
         onConfirm={() => handleConfirmOrder(selectedOrder)}
         onDelete={handleDeleteOrder}
         onUpdateStatus={handleUpdateOrderStatus}
@@ -1552,8 +1555,11 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
             {/* Mobile Cards List (< 768px) */}
             <div className="block md:hidden divide-y divide-slate-200/80 p-3 space-y-3.5 bg-slate-100/70">
               <div className="p-3.5 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <label htmlFor="ordersmanager-if-el-el-indeterminate-issomes" className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
-                  <input id="ordersmanager-checkbox-8" name="checkbox_8" type="checkbox"
+                <label htmlFor="ordersmanager-select-all-mobile" className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                  <input
+                    id="ordersmanager-select-all-mobile"
+                    name="select_all_mobile"
+                    type="checkbox"
                     checked={isAllSelected}
                     ref={el => {
                       if (el) el.indeterminate = isSomeSelected;
@@ -1786,10 +1792,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                             <button
                               type="button"
                               onClick={() => setSelectedOrder(order)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
                             >
                               <ExternalLink className="w-3 h-3" />
-                              <span>Full Modal</span>
+                              <span>Complete Details</span>
                             </button>
                           </div>
 
@@ -1997,6 +2003,25 @@ interface OrderDetailsViewProps {
   isProcessing: boolean;
 }
 
+const getStatusBadgeStyle = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'delivered':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700';
+    case 'shipped':
+      return 'bg-blue-50 text-blue-700 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-700';
+    case 'confirmed':
+      return 'bg-indigo-50 text-indigo-700 border-indigo-300 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-700';
+    case 'processing':
+      return 'bg-cyan-50 text-cyan-700 border-cyan-300 dark:bg-cyan-950/40 dark:text-cyan-300 dark:border-cyan-700';
+    case 'new':
+      return 'bg-amber-50 text-amber-700 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700 animate-pulse-slow';
+    case 'cancelled':
+      return 'bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-700';
+    default:
+      return 'bg-slate-50 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
+  }
+};
+
 const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
   order,
   onBack,
@@ -2013,6 +2038,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const [editForm, setEditForm] = useState({
     customer_name: order.customer_name,
@@ -2028,6 +2054,19 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
   });
 
   useEffect(() => {
+    // Scroll window and root containers to top immediately
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const containers = [
+      document.querySelector('main'),
+      document.querySelector('#root'),
+      document.querySelector('.overflow-y-auto')
+    ];
+    containers.forEach(el => {
+      if (el) el.scrollTop = 0;
+    });
+
     setTrackingNumber(order.tracking_number || '');
     setShippingNote(order.shipping_note || '');
     setEditForm({
@@ -2043,7 +2082,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
       notes: order.notes || '',
     });
     setIsEditing(false);
-  }, [order]);
+  }, [order?.id]);
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === order.order_status) return;
@@ -2077,6 +2116,13 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
     setIsEditing(false);
   };
 
+  const copyToClipboard = (text: string, key: string, label = 'Copied') => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    fireToast(`${label}: ${text}`, 'success');
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
+
   const handleCopyOrderInfo = () => {
     const orderRef = formatOrderId(order);
     const items = (order.order_items || []).map(i => `• ${i.quantity}x ${i.product_name} (${i.variation_name || 'Standard'}) - ₱${i.total.toLocaleString('en-PH')}`).join('\n');
@@ -2098,22 +2144,37 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
     ? new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
     : '—';
 
+  const contactMethodStr = String(order.contact_method || 'Telegram').trim();
+  const isTelegram = contactMethodStr.toLowerCase().includes('telegram');
+  const isWhatsApp = contactMethodStr.toLowerCase().includes('whatsapp');
+  const isViber = contactMethodStr.toLowerCase().includes('viber');
+
+  const cleanPhone = (order.customer_phone || '').replace(/[^0-9]/g, '');
+  let directChatUrl = '';
+  if (isTelegram) {
+    directChatUrl = cleanPhone ? `https://t.me/+${cleanPhone.startsWith('09') ? '63' + cleanPhone.slice(1) : cleanPhone}` : 'https://t.me';
+  } else if (isWhatsApp) {
+    directChatUrl = `https://wa.me/${cleanPhone.startsWith('09') ? '63' + cleanPhone.slice(1) : cleanPhone}`;
+  } else if (isViber) {
+    directChatUrl = `viber://chat?number=${cleanPhone}`;
+  }
+
   return (
-    <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 space-y-5">
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-5 md:px-6 py-4 sm:py-6 space-y-5 sm:space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
+        <div className="flex items-center gap-3.5 w-full sm:w-auto">
           <button
             onClick={onBack}
-            className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-600 cursor-pointer"
+            className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all text-slate-600 dark:text-slate-300 cursor-pointer shadow-xs border border-slate-200/80 dark:border-slate-700 active:scale-95 shrink-0"
             title="Back to Orders"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
-                {orderRef}
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
+                {orderRef.startsWith('ID: ') ? orderRef : `ID: ${orderRef}`}
               </h2>
               {order.order_status === 'new' && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white shadow-xs animate-pulse">
@@ -2121,58 +2182,38 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   NEW UNCONFIRMED
                 </span>
               )}
-              <span className="text-xs text-slate-400 font-medium">({createdDate})</span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Customer: <strong className="text-slate-800">{order.customer_name}</strong> · {totalItems} item(s)
+            <p className="text-xs text-slate-400 font-medium mt-0.5">({createdDate})</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              Customer: <strong className="text-slate-800 dark:text-slate-200">{order.customer_name}</strong> · {totalItems} total item(s)
             </p>
           </div>
         </div>
 
         {/* Header Action Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-          <button
-            type="button"
-            onClick={handleCopyOrderInfo}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer"
-            title="Copy order text summary"
-          >
-            {copiedRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{copiedRef ? 'Copied' : 'Copy'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer"
-            title="Print invoice or packing slip"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Print Slip</span>
-          </button>
-
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0">
           {isEditing ? (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                className="px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Save</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
                 onClick={() => setIsEditing(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#3C6CA8] hover:bg-[#2F5585] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95 flex-1 sm:flex-initial"
               >
                 <Pencil className="w-3.5 h-3.5" />
                 <span>Edit Details</span>
@@ -2180,10 +2221,10 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
               <button
                 onClick={() => onDelete(order)}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition-all cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 rounded-xl text-xs font-bold border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
                 title="Delete this order"
               >
-                <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                 <span>Delete</span>
               </button>
             </div>
@@ -2191,133 +2232,263 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
         </div>
       </div>
 
-      {/* Main 2-Column Responsive Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* LEFT COLUMN (7 Cols): Items, Tracking, Payment Proof */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Order Status & Confirmation Banner */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <label htmlFor="ordersmanager-if-el-el-indeterminate-issomes" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Current Order Status
-                </label>
-                <div className="flex items-center gap-2">
-                  <select id="ordersmanager-if-el-el-indeterminate-issomes" name="if_el_el_indeterminate_issomes" value={order.order_status}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    disabled={isProcessing}
-                    className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 outline-hidden focus:ring-2 focus:ring-slate-900 cursor-pointer disabled:opacity-50"
-                  >
-                    {ORDER_STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
-
-                  <button
-                    type="button"
-                    onClick={() => onUpdatePaymentStatus(order.id, order.payment_status === 'paid' ? 'pending' : 'paid')}
-                    className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                      order.payment_status === 'paid'
-                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                        : 'bg-amber-100 text-amber-800 hover:bg-amber-200'
-                    }`}
-                    title="Click to toggle payment status"
-                  >
-                    {order.payment_status === 'paid' ? '✓ PAID' : 'PENDING PAYMENT'}
-                  </button>
-                </div>
+      {/* Main 2-Column Responsive Layout Matching Reference with Enhanced Shadows */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+        
+        {/* ── LEFT COLUMN (6 Cols): Status, Customer Info, Address, Shipping & Tracking ── */}
+        <div className="lg:col-span-6 space-y-5 sm:space-y-6">
+          
+          {/* 1. Order Status */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
+            <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              <Clock className="w-4 h-4 text-[#3C6CA8]" />
+              <span>Order Status</span>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="relative inline-block w-full sm:w-auto">
+                <select
+                  value={order.order_status}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  disabled={isProcessing}
+                  className={`w-full sm:w-auto appearance-none pl-4 pr-10 py-2.5 rounded-2xl text-xs font-black border transition-all cursor-pointer shadow-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 ${getStatusBadgeStyle(order.order_status)}`}
+                >
+                  {ORDER_STATUSES.map((s) => (
+                    <option key={s.value} value={s.value} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
               </div>
 
               {order.order_status === 'new' && (
-                <button
-                  onClick={onConfirm}
-                  disabled={isProcessing}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Confirm & Deduct Stock</span>
-                </button>
+                <div>
+                  <button
+                    onClick={onConfirm}
+                    disabled={isProcessing}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 disabled:opacity-50"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Confirm &amp; Deduct Stock</span>
+                  </button>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Order Items Card */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <Package className="w-4 h-4 text-slate-700" />
-                <span>Order Items ({totalItems} total units)</span>
-              </h3>
-              <span className="text-xs text-slate-400 font-medium">{(order.order_items || []).length} products</span>
+          {/* 2. Customer Information */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-4 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <User className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Customer Information</span>
+              </div>
             </div>
 
-            <div className="divide-y divide-slate-100">
-              {(order.order_items || []).map((item, index) => (
-                <div key={index} className="py-3 flex items-center justify-between gap-3 text-xs sm:text-sm">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 font-bold text-xs">
-                      #{index + 1}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-slate-900 truncate">
-                        {item.product_name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
-                        {item.variation_name && (
-                          <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[11px] font-semibold text-slate-700">
-                            {item.variation_name}
-                          </span>
-                        )}
-                        <span>Qty: <strong>{item.quantity}</strong> × ₱{item.price.toLocaleString('en-PH')}</span>
-                      </div>
-                    </div>
+            {isEditing ? (
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={editForm.customer_name}
+                    onChange={(e) => setEditForm({ ...editForm, customer_name: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-semibold outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={editForm.customer_email}
+                    onChange={(e) => setEditForm({ ...editForm, customer_email: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Phone</label>
+                  <input
+                    type="text"
+                    value={editForm.customer_phone}
+                    onChange={(e) => setEditForm({ ...editForm, customer_phone: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-mono outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 text-xs">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Name:</span>
+                  <span className="font-extrabold text-slate-900 dark:text-white text-right flex-1 break-words">{order.customer_name || '—'}</span>
+                </div>
+
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Email:</span>
+                  <div className="flex items-center gap-1.5 justify-end flex-1 min-w-0">
+                    <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{order.customer_email || '—'}</span>
+                    {order.customer_email && (
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(order.customer_email, 'cust_email', 'Email copied')}
+                        className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                        title="Copy email"
+                      >
+                        {copiedKey === 'cust_email' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
                   </div>
+                </div>
 
-                  <p className="font-black text-slate-900 text-sm shrink-0">
-                    ₱{item.total.toLocaleString('en-PH')}
-                  </p>
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Phone:</span>
+                  <div className="flex items-center gap-1.5 justify-end flex-1">
+                    <a href={`tel:${order.customer_phone}`} className="font-mono font-bold text-slate-900 dark:text-white hover:underline">
+                      {order.customer_phone || '—'}
+                    </a>
+                    {order.customer_phone && (
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(order.customer_phone, 'cust_phone', 'Phone copied')}
+                        className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                        title="Copy phone"
+                      >
+                        {copiedKey === 'cust_phone' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Financial Summary */}
-            <div className="pt-3 border-t border-slate-100 space-y-1.5 text-xs text-slate-600">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="font-bold text-slate-900">₱{(order.total_price || 0).toLocaleString('en-PH')}</span>
-              </div>
-              {order.discount_applied && order.discount_applied > 0 ? (
-                <div className="flex justify-between text-emerald-700 font-semibold">
-                  <span>Promo Discount {order.promo_code ? `(${order.promo_code})` : ''}</span>
-                  <span>-₱{order.discount_applied.toLocaleString('en-PH')}</span>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-32 shrink-0">Contact Method:</span>
+                  {directChatUrl ? (
+                    <a
+                      href={directChatUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60 transition-all cursor-pointer shadow-2xs"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5 text-[#229ED9]" />
+                      <span className="capitalize">{contactMethodStr}</span>
+                      <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 font-bold text-blue-600 dark:text-blue-400">
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span className="capitalize">{contactMethodStr}</span>
+                    </span>
+                  )}
                 </div>
-              ) : null}
-              {order.shipping_fee && order.shipping_fee > 0 ? (
-                <div className="flex justify-between">
-                  <span>Shipping Fee</span>
-                  <span className="font-bold text-slate-900">₱{order.shipping_fee.toLocaleString('en-PH')}</span>
-                </div>
-              ) : null}
-              <div className="flex justify-between text-sm sm:text-base font-black text-slate-900 border-t border-slate-100 pt-2">
-                <span>Grand Total</span>
-                <span className="text-blue-600 font-black">₱{finalTotal.toLocaleString('en-PH')}</span>
               </div>
-            </div>
+            )}
           </div>
 
-          {/* Shipping & Tracking Carrier Card */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <Truck className="w-4 h-4 text-blue-600" />
-                <span>Shipping & J&T Tracking Details</span>
-              </h3>
+          {/* 3. Shipping Address */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <MapPin className="w-4 h-4 text-rose-500" />
+                <span>Shipping Address</span>
+              </div>
+            </div>
+
+            {isEditing ? (
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Street Address</label>
+                  <input
+                    type="text"
+                    value={editForm.shipping_address}
+                    onChange={(e) => setEditForm({ ...editForm, shipping_address: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Barangay</label>
+                  <input
+                    type="text"
+                    value={editForm.shipping_barangay}
+                    onChange={(e) => setEditForm({ ...editForm, shipping_barangay: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">City</label>
+                    <input
+                      type="text"
+                      value={editForm.shipping_city}
+                      onChange={(e) => setEditForm({ ...editForm, shipping_city: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Province / State</label>
+                    <input
+                      type="text"
+                      value={editForm.shipping_state}
+                      onChange={(e) => setEditForm({ ...editForm, shipping_state: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="font-bold text-slate-900 dark:text-white text-sm">{order.shipping_address || '—'}</p>
+                {order.shipping_barangay && (
+                  <p className="text-slate-600 dark:text-slate-400">
+                    Barangay: <span className="font-semibold text-slate-800 dark:text-slate-200">{order.shipping_barangay}</span>
+                  </p>
+                )}
+                <p className="text-slate-700 dark:text-slate-300 font-medium">
+                  {order.shipping_city}{order.shipping_state ? `, ${order.shipping_state}` : ''} {order.shipping_zip_code}
+                </p>
+                <p className="text-slate-600 dark:text-slate-400">
+                  {order.shipping_country || 'Philippines'}
+                </p>
+                <div className="pt-2">
+                  <p className="text-slate-900 dark:text-white font-bold">
+                    Region: <span className="text-[#3C6CA8] dark:text-blue-400 font-extrabold">{order.shipping_location || order.shipping_state || 'LALAMOVE_MM'}</span>
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex-wrap">
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#3C6CA8] hover:underline"
+                  >
+                    <span>Open in Google Maps</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(`${order.shipping_address}, ${order.shipping_barangay ? 'Brgy. ' + order.shipping_barangay + ', ' : ''}${order.shipping_city}, ${order.shipping_state}`, 'address_copy', 'Address copied')}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 cursor-pointer"
+                  >
+                    {copiedKey === 'address_copy' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedKey === 'address_copy' ? 'Copied' : 'Copy Address'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Shipping & Tracking Details (Featured Blue Card with Brand Shadows) */}
+          <div className="bg-gradient-to-b from-blue-50/80 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 border border-blue-200/90 dark:border-blue-800/80 rounded-3xl p-5 sm:p-6 space-y-4 shadow-[0_4px_25px_-4px_rgba(60,108,168,0.1)] transition-all">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-blue-950 dark:text-blue-100">
+                <Truck className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Shipping &amp; Tracking Details</span>
+              </div>
               {trackingNumber && (
                 <a
                   href={`https://www.jtexpress.ph/trajectoryQuery?bills=${trackingNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-bold"
+                  className="inline-flex items-center gap-1 text-[11px] text-[#3C6CA8] hover:underline font-bold"
                 >
                   <span>Track Carrier</span>
                   <ExternalLink className="w-3 h-3" />
@@ -2327,313 +2498,282 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
 
             <div className="space-y-3">
               <div>
-                <label htmlFor="ordersmanager-j-t-express-tracking-number" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  J&T Express Tracking Number
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  J&amp;T Tracking Number
                 </label>
-                <div className="flex gap-2">
-                  <input id="ordersmanager-j-t-express-tracking-number" name="j_t_express_tracking_number" type="text"
+                <div className="relative">
+                  <input
+                    type="text"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="e.g. 780001234567..."
-                    className="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-mono font-semibold text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-900 outline-hidden"
+                    placeholder="e.g., 78XXXX..."
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
                   />
                   {trackingNumber && (
                     <button
                       type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(trackingNumber);
-                        fireToast('Tracking number copied! 🚚', 'success');
-                      }}
-                      className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
-                      title="Copy Tracking Number"
+                      onClick={() => copyToClipboard(trackingNumber, 'track_num', 'Tracking copied')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+                      title="Copy tracking number"
                     >
-                      <Copy className="w-3.5 h-3.5" />
+                      {copiedKey === 'track_num' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                   )}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="ordersmanager-shipping-note-dispatch-remarks" className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Shipping Note / Dispatch Remarks (Optional)
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Shipping Note (Optional)
                 </label>
-                <input id="ordersmanager-shipping-note-dispatch-remarks" name="shipping_note_dispatch_remarks" type="text"
+                <input
+                  type="text"
                   value={shippingNote}
                   onChange={(e) => setShippingNote(e.target.value)}
-                  placeholder="e.g. Dispatched via J&T Express with ice pack + insulated pouch"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-slate-900 outline-hidden"
+                  placeholder="e.g., Shipped via J&amp;T Express..."
+                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
                 />
               </div>
 
               <button
+                type="button"
                 onClick={() => onSaveTracking(order.id, trackingNumber, shippingNote)}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-[#3C6CA8] hover:bg-[#2F5585] text-white text-xs font-black rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
-                <Save className="w-3.5 h-3.5" />
+                <Save className="w-4 h-4" />
                 <span>Save Tracking Info</span>
               </button>
             </div>
           </div>
 
-          {/* Payment Proof & Verification */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-emerald-600" />
-                <span>Payment Verification & Proof</span>
-              </h3>
-              <span className="text-xs font-bold text-slate-700">
-                {order.payment_method_name || 'BDO / Bank Transfer'}
-              </span>
-            </div>
-
-            {order.payment_proof_url ? (
-              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                <img
-                  src={order.payment_proof_url}
-                  alt="Payment Receipt"
-                  onClick={() => setShowImageModal(true)}
-                  className="w-20 h-20 object-cover rounded-xl border border-slate-200 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold text-slate-900 text-xs sm:text-sm">Payment Screenshot Attached</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Click thumbnail to expand full receipt or verify transaction reference.</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowImageModal(true)}
-                      className="text-xs font-semibold text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>View Full Receipt</span>
-                    </button>
-                    <a
-                      href={order.payment_proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-semibold text-slate-600 hover:text-slate-900 inline-flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>Open Link</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-400">
-                No payment proof image uploaded for this order.
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* RIGHT COLUMN (5 Cols): Customer, Shipping Address, Notes */}
-        <div className="lg:col-span-5 space-y-5">
-          {/* Customer Profile Card */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <User className="w-4 h-4 text-slate-700" />
-                <span>Customer Information</span>
-              </h3>
+        {/* ── RIGHT COLUMN (6 Cols): Order Items, Payment Proof, Payment Info, Summary ── */}
+        <div className="lg:col-span-6 space-y-5 sm:space-y-6">
+          
+          {/* 5. Order Items */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-4 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <Package className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Order Items ({totalItems} items)</span>
+              </div>
             </div>
 
-            {isEditing ? (
-              <div className="space-y-2.5 text-xs">
-                <div>
-                  <label htmlFor="ordersmanager-full-name" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Full Name</label>
-                  <input id="ordersmanager-full-name" name="full_name" type="text"
-                    value={editForm.customer_name}
-                    autoComplete="name" onChange={(e) => setEditForm({ ...editForm, customer_name: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-semibold"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="ordersmanager-email-address" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Email Address</label>
-                  <input id="ordersmanager-email-address" name="email_address" type="email"
-                    value={editForm.customer_email}
-                    autoComplete="email" onChange={(e) => setEditForm({ ...editForm, customer_email: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="ordersmanager-phone-number" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Phone Number</label>
-                  <input id="ordersmanager-phone-number" name="phone_number" type="text"
-                    value={editForm.customer_phone}
-                    autoComplete="tel" onChange={(e) => setEditForm({ ...editForm, customer_phone: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-mono"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2.5 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-800 font-bold flex items-center justify-center shrink-0">
-                    {(order.customer_name || 'U').charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-slate-900 text-sm truncate">{order.customer_name}</p>
-                    <p className="text-slate-500 truncate">{order.customer_email}</p>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                  <div className="flex items-center justify-between text-slate-700">
-                    <span className="text-slate-400 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone</span>
-                    <a href={`tel:${order.customer_phone}`} className="font-mono font-bold text-slate-900 hover:underline">
-                      {order.customer_phone || '—'}
-                    </a>
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {(order.order_items || []).map((item, index) => (
+                <div key={index} className="py-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-slate-900 dark:text-white leading-snug">
+                      {item.product_name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {item.variation_name ? `Dosage/Variation: ${item.variation_name} · ` : ''}
+                      Quantity: {item.quantity} × ₱{item.price.toLocaleString('en-PH')}
+                    </p>
                   </div>
 
-                  <div className="flex items-center justify-between text-slate-700">
-                    <span className="text-slate-400 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</span>
-                    <a href={`mailto:${order.customer_email}`} className="font-medium text-slate-900 truncate max-w-[160px] hover:underline">
-                      {order.customer_email || '—'}
-                    </a>
-                  </div>
-
-                  {order.contact_method && (
-                    <div className="flex items-center justify-between text-slate-700">
-                      <span className="text-slate-400 flex items-center gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> Contact Method</span>
-                      <span className="font-bold text-blue-600 flex items-center gap-1">
-                        <MessageCircle className="w-3 h-3" />
-                        {String(order.contact_method).charAt(0).toUpperCase() + String(order.contact_method).slice(1)}
-                      </span>
-                    </div>
-                  )}
+                  <p className="font-black text-slate-900 dark:text-white text-sm shrink-0">
+                    ₱{item.total.toLocaleString('en-PH')}
+                  </p>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
 
-          {/* Delivery Address Card */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-rose-500" />
-                <span>Shipping Address</span>
-              </h3>
-              {order.shipping_location && (
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-800 border border-blue-200">
-                  {order.shipping_location}
+          {/* 6. Payment Proof */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <ImageIcon className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Payment Proof</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div 
+                onClick={() => setShowImageModal(true)}
+                className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center p-4 min-h-[220px] max-h-96 cursor-pointer shadow-inner"
+              >
+                {order.payment_proof_url ? (
+                  <img
+                    src={order.payment_proof_url}
+                    alt="Payment Receipt"
+                    className="w-full max-h-80 object-contain rounded-xl transition-transform duration-200 group-hover:scale-[1.01]"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
+                    <span className="text-2xl sm:text-3xl font-black text-[#3C6CA8] tracking-tighter">slimdose.</span>
+                    <p className="text-[11px] text-slate-400 font-medium">Payment screenshot placeholder</p>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-2xs">
+                  <span className="px-3.5 py-1.5 bg-white/95 dark:bg-slate-900/95 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-md flex items-center gap-1.5">
+                    <Eye className="w-3.5 h-3.5 text-[#3C6CA8]" /> Click to Zoom
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center sm:justify-end gap-3 text-xs pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowImageModal(true)}
+                  className="font-bold text-[#3C6CA8] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View Full Receipt</span>
+                </button>
+                <span className="text-slate-300 dark:text-slate-700">·</span>
+                <a
+                  href={order.payment_proof_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  <span>Open in New Tab</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 7. Payment Information */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <CreditCard className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Payment Information</span>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-500 dark:text-slate-400">Method:</span>
+                <span className="font-black text-slate-900 dark:text-white">
+                  {order.payment_method_name || 'GCash'}
                 </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-500 dark:text-slate-400">Status:</span>
+                <button
+                  type="button"
+                  onClick={() => onUpdatePaymentStatus(order.id, order.payment_status === 'paid' ? 'pending' : 'paid')}
+                  className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                    order.payment_status === 'paid'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700'
+                      : 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700'
+                  }`}
+                  title="Click to toggle payment status"
+                >
+                  {order.payment_status === 'paid' ? `Paid via ${order.payment_method_name || 'GCash'}` : 'Pending Payment'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 8. Financial Summary Breakdown */}
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
+            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span className="font-bold text-slate-900 dark:text-white">₱{(order.total_price || 0).toLocaleString('en-PH')}</span>
+              </div>
+              {order.discount_applied && order.discount_applied > 0 ? (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
+                  <span>Promo Discount {order.promo_code ? `(${order.promo_code})` : ''}:</span>
+                  <span>-₱{order.discount_applied.toLocaleString('en-PH')}</span>
+                </div>
+              ) : null}
+              {order.shipping_fee && order.shipping_fee > 0 ? (
+                <div className="flex justify-between">
+                  <span>Shipping Fee:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">₱{order.shipping_fee.toLocaleString('en-PH')}</span>
+                </div>
+              ) : null}
+              <div className="flex justify-between text-sm sm:text-base font-black text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-800 pt-3">
+                <span>Total:</span>
+                <span className="text-[#3C6CA8] dark:text-blue-400 text-base sm:text-lg">₱{finalTotal.toLocaleString('en-PH')}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Notes (if present) */}
+          {(order.notes || isEditing) && (
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-2.5 transition-all">
+              <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                <FileText className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Customer Notes</span>
+              </div>
+
+              {isEditing ? (
+                <textarea
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  rows={3}
+                  placeholder="Add internal or customer notes..."
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 resize-none"
+                />
+              ) : (
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl text-xs text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-700/60">
+                  {order.notes}
+                </div>
               )}
             </div>
+          )}
 
-            {isEditing ? (
-              <div className="space-y-2 text-xs">
-                <div>
-                  <label htmlFor="ordersmanager-street-address" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Street Address</label>
-                  <input id="ordersmanager-street-address" name="street_address" type="text"
-                    value={editForm.shipping_address}
-                    autoComplete="street-address" onChange={(e) => setEditForm({ ...editForm, shipping_address: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="ordersmanager-barangay" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Barangay</label>
-                  <input id="ordersmanager-barangay" name="barangay" type="text"
-                    value={editForm.shipping_barangay}
-                    onChange={(e) => setEditForm({ ...editForm, shipping_barangay: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label htmlFor="ordersmanager-city" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">City</label>
-                    <input id="ordersmanager-city" name="city" type="text"
-                      value={editForm.shipping_city}
-                      autoComplete="address-level2" onChange={(e) => setEditForm({ ...editForm, shipping_city: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="ordersmanager-province" className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Province</label>
-                    <input id="ordersmanager-province" name="province" type="text"
-                      value={editForm.shipping_state}
-                      autoComplete="address-level1" onChange={(e) => setEditForm({ ...editForm, shipping_state: e.target.value })}
-                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-1.5 text-xs text-slate-700">
-                <p className="font-bold text-slate-900 leading-snug">{order.shipping_address}</p>
-                {order.shipping_barangay && <p className="text-slate-600">Barangay: {order.shipping_barangay}</p>}
-                <p className="text-slate-600">{order.shipping_city}, {order.shipping_state} {order.shipping_zip_code}</p>
-                <div className="pt-2">
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800"
-                  >
-                    <span>Open in Google Maps</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Notes Card */}
-          <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-4 sm:p-5 space-y-2.5">
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-              <FileText className="w-4 h-4 text-slate-700" />
-              <span>Customer Notes & Remarks</span>
-            </h3>
-
-            {isEditing ? (
-              <textarea id="ordersmanager-input-11" name="input_11" value={editForm.notes}
-                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                rows={3}
-                placeholder="Add internal or customer notes..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 outline-hidden focus:bg-white focus:ring-2 focus:ring-slate-900 resize-none"
-              />
-            ) : (
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-700 leading-relaxed">
-                {order.notes ? order.notes : <span className="text-slate-400 italic">No notes provided.</span>}
-              </div>
-            )}
-          </div>
         </div>
+
       </div>
 
       {/* Image Lightbox Modal */}
-      {showImageModal && order.payment_proof_url && (
+      {showImageModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn"
           onClick={() => setShowImageModal(false)}
         >
           <div
-            className="bg-white rounded-2xl overflow-hidden max-w-xl w-full shadow-2xl p-4 space-y-3"
+            className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden max-w-xl w-full shadow-2xl p-5 space-y-4 border border-slate-200 dark:border-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <h4 className="font-bold text-slate-900 text-sm">Payment Proof Image</h4>
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h4 className="font-black text-slate-900 dark:text-white text-sm flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[#3C6CA8]" />
+                <span>Payment Proof Receipt</span>
+              </h4>
               <button
                 onClick={() => setShowImageModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <img
-              src={order.payment_proof_url}
-              alt="Payment receipt"
-              className="w-full max-h-[70vh] object-contain rounded-xl bg-slate-50 border border-slate-100"
-            />
+            <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-950 rounded-2xl p-3 max-h-[70vh] overflow-auto">
+              {order.payment_proof_url ? (
+                <img
+                  src={order.payment_proof_url}
+                  alt="Payment receipt"
+                  className="max-h-[65vh] w-auto object-contain rounded-xl shadow-xs"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                  <span className="text-3xl sm:text-4xl font-black text-[#3C6CA8] tracking-tighter">slimdose.</span>
+                  <p className="text-xs text-slate-500">No payment receipt image uploaded for this order.</p>
+                </div>
+              )}
+            </div>
             <div className="flex justify-end gap-2 pt-2">
-              <a
-                href={order.payment_proof_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold"
-              >
-                Open Full Size
-              </a>
+              {order.payment_proof_url && (
+                <a
+                  href={order.payment_proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-[#3C6CA8] hover:bg-[#2F5585] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                >
+                  Open Full Size
+                </a>
+              )}
             </div>
           </div>
         </div>

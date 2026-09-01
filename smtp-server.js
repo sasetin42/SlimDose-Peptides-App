@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'info@slimdoseph.com',
-    pass: '+f9NVWT>g',
+    user: process.env.SMTP_USER || 'info@slimdoseph.com',
+    pass: process.env.SMTP_PASS || '',
   },
   tls: {
     rejectUnauthorized: false,

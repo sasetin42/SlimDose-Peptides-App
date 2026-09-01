@@ -653,12 +653,9 @@ export const PH_BARANGAYS: Record<string, Barangay[]> = {
   ]
 };
 
-// In-Memory & LocalStorage PSGC Caches for zero-latency live requests
+// PSGC In-Memory Cache
 const liveCitiesMemoryCache = new Map<string, City[]>();
 const liveBarangaysMemoryCache = new Map<string, Barangay[]>();
-
-// PSGC API Endpoints
-const PSGC_BASE_URL = 'https://psgc.gitlab.io/api';
 
 /**
  * Format string to Title Case nicely (e.g., "CITY OF SAN FERNANDO" -> "City of San Fernando")
@@ -742,7 +739,7 @@ export function getCitiesForProvince(provinceNameOrCode: string, query: string =
     cities = PH_CITIES[prov.code] || [];
   }
 
-  // If still empty (e.g. province without bundled items), generate realistic placeholder until live fetch completes
+  // If still empty (e.g. province without bundled items), generate realistic placeholder
   if (cities.length === 0) {
     cities = [
       { code: `${prov.code}_CAPITAL`, name: `${prov.name} Capital City`, provinceCode: prov.code, isCity: true },
@@ -758,82 +755,15 @@ export function getCitiesForProvince(provinceNameOrCode: string, query: string =
 }
 
 /**
- * Asynchronous Live PSGC API: Fetch Realtime Cities/Municipalities for Province with local caching
+ * Asynchronous Fast Lookup: Fetch Cities/Municipalities for Province
  */
 export async function fetchCitiesForProvinceLive(provinceNameOrCode: string): Promise<City[]> {
   const prov = findProvince(provinceNameOrCode);
   if (!prov) return [];
 
-  // If memory cached, return immediately
-  if (liveCitiesMemoryCache.has(prov.code)) {
-    return liveCitiesMemoryCache.get(prov.code)!;
-  }
-
-  const cacheKey = `psgc_cities_${prov.code}`;
-  try {
-    const stored = localStorage.getItem(cacheKey);
-    if (stored) {
-      const parsed: City[] = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        liveCitiesMemoryCache.set(prov.code, parsed);
-        return parsed;
-      }
-    }
-  } catch {}
-
-  // Fetch live from official PSGC Cloud / Gitlab API
-  try {
-    let endpoint = '';
-    if (prov.code === 'NCR') {
-      endpoint = `${PSGC_BASE_URL}/regions/130000000/cities-municipalities/`;
-    } else if (prov.psgcCode) {
-      endpoint = `${PSGC_BASE_URL}/provinces/${prov.psgcCode}/cities-municipalities/`;
-    }
-
-    if (endpoint) {
-      const res = await fetch(endpoint, { cache: 'force-cache' });
-      if (res.ok) {
-        const rawList = await res.json();
-        if (Array.isArray(rawList) && rawList.length > 0) {
-          const formatted: City[] = rawList.map((item: any) => {
-            const isCity = item.isCity ?? item.name.toLowerCase().includes('city');
-            const cleanName = toTitleCase(item.name);
-            const fullName = isCity && !cleanName.toLowerCase().includes('city') ? `${cleanName} City` : cleanName;
-
-            // Match bundled ZIP code if available
-            const bundledMatch = (PH_CITIES[prov.code] || []).find(
-              (bc) => bc.name.toLowerCase() === fullName.toLowerCase() || bc.name.toLowerCase().includes(cleanName.toLowerCase())
-            );
-            const resolvedZip = bundledMatch?.zipCode || item.zipCode || resolveExactPhilippineZipCode(fullName, prov.name) || resolveExactPhilippineZipCode(cleanName, prov.name);
-
-            return {
-              code: `${prov.code}_${item.code || item.name.replace(/\s+/g, '_').toUpperCase()}`,
-              name: fullName,
-              provinceCode: prov.code,
-              psgcCode: item.code,
-              zipCode: resolvedZip,
-              isCity
-            };
-          });
-
-          // Sort alphabetical
-          formatted.sort((a, b) => a.name.localeCompare(b.name));
-
-          liveCitiesMemoryCache.set(prov.code, formatted);
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(formatted));
-          } catch {}
-
-          return formatted;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn(`Could not load live PSGC cities for ${prov.name}, falling back to static database:`, err);
-  }
-
-  // Fallback
-  return getCitiesForProvince(prov.code);
+  const cities = getCitiesForProvince(prov.code);
+  liveCitiesMemoryCache.set(prov.code, cities);
+  return cities;
 }
 
 /**
@@ -945,53 +875,9 @@ export async function fetchBarangaysForCityLive(cityNameOrCode: string, province
     return liveBarangaysMemoryCache.get(cityCode)!;
   }
 
-  const cacheKey = `psgc_brgy_${cityCode}`;
-  try {
-    const stored = localStorage.getItem(cacheKey);
-    if (stored) {
-      const parsed: Barangay[] = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        liveBarangaysMemoryCache.set(cityCode, parsed);
-        return parsed;
-      }
-    }
-  } catch {}
-
-  // If we have PSGC Code for this city, fetch official PSA/PSGC barangays
-  if (psgcCode) {
-    try {
-      const res = await fetch(`${PSGC_BASE_URL}/cities-municipalities/${psgcCode}/barangays/`, { cache: 'force-cache' });
-      if (res.ok) {
-        const rawList = await res.json();
-        if (Array.isArray(rawList) && rawList.length > 0) {
-          const formatted: Barangay[] = rawList.map((item: any) => {
-            const cleanName = toTitleCase(item.name);
-            const prefix = cleanName.toLowerCase().startsWith('brgy.') || cleanName.toLowerCase().startsWith('barangay') ? '' : 'Brgy. ';
-            return {
-              code: `${cityCode}_${item.code || item.name.replace(/\s+/g, '_').toUpperCase()}`,
-              name: `${prefix}${cleanName}`,
-              cityCode,
-              psgcCode: item.code
-            };
-          });
-
-          // Sort alphabetical
-          formatted.sort((a, b) => a.name.localeCompare(b.name));
-
-          liveBarangaysMemoryCache.set(cityCode, formatted);
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify(formatted));
-          } catch {}
-
-          return formatted;
-        }
-      }
-    } catch (err) {
-      console.warn(`Could not fetch live PSGC barangays for ${targetCityName}:`, err);
-    }
-  }
-
-  return getBarangaysForCity(cityNameOrCode, provinceNameOrCode);
+  const barangays = getBarangaysForCity(cityNameOrCode, provinceNameOrCode);
+  liveBarangaysMemoryCache.set(cityCode, barangays);
+  return barangays;
 }
 
 import { resolveExactPhilippineZipCode } from '../data/philippineZipCodes';

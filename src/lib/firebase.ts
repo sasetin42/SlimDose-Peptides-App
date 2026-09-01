@@ -1,5 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { getApps, initializeApp } from 'firebase/app';
 import {
+  getFirestore,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -21,10 +22,10 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-// Silence non-critical internal SDK warnings (such as secondary tab lease acquisition)
-setLogLevel('error');
+// Silence non-critical internal SDK logs
+setLogLevel('silent');
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: 'AIzaSyBYk8pxgUi5ZV10nUW91VTZ8lBGZYMJdkk',
   authDomain: 'slimdose-peptides.firebaseapp.com',
   projectId: 'slimdose-peptides',
@@ -33,15 +34,31 @@ const firebaseConfig = {
   measurementId: 'G-573TE9JRS5',
 };
 
-const app = initializeApp(firebaseConfig);
+// Singleton Firebase App
+export const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
-// Initialize Firestore with persistent offline cache and stable HTTPS long-polling
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
-  }),
-  experimentalForceLongPolling: true,
-});
+// Singleton Firestore instance (HMR-safe)
+let firestoreInstance;
+try {
+  firestoreInstance = getFirestore(app);
+} catch {
+  // not initialized yet
+}
+
+if (!firestoreInstance) {
+  try {
+    firestoreInstance = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+      experimentalAutoDetectLongPolling: true,
+    });
+  } catch {
+    firestoreInstance = getFirestore(app);
+  }
+}
+
+export const db = firestoreInstance;
 
 // Initialize and export Auth service
 export const auth = getAuth(app);

@@ -25,6 +25,7 @@ import { computeCartPricing, resolveProductPricing } from '../utils/pricing';
 import { trackOrderStatus, identifyUser } from '../utils/analytics';
 import { fireToast } from './ToastNotification';
 import { dispatchOrderEmail } from '../services/emailService';
+import { provisionCustomerAccount } from '../services/firebaseAuth';
 
 interface CheckoutProps {
   cartItems: CartItem[];
@@ -581,195 +582,201 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         console.warn('⚠️ Primary insert note, applying fallback order confirmation:', orderError);
       }
 
-      const finalOrder = orderData || { id: `ORD-${Date.now().toString(36).toUpperCase()}`, ...orderPayload };
+      const generatedNum = `SDP${Math.floor(1000 + Math.random() * 9000)}`;
+      const finalOrder = orderData || { id: `ORD-${Date.now().toString(36).toUpperCase()}`, order_number: generatedNum, ...orderPayload };
       setPlacedOrder(finalOrder);
 
-      // Mirror order to Convex (fire-and-forget)
-      mirrorOrderCreate({
-        customer_name: fullName,
-        customer_email: email,
-        customer_phone: phone,
-        contact_method: contactMethod,
-        shipping_address: address,
-        shipping_barangay: barangay,
-        shipping_city: city,
-        shipping_state: state,
-        shipping_zip_code: zipCode,
-        shipping_location: shippingLocation,
-        shipping_fee: shippingFee,
-        order_items: orderItems,
-        total_price: Math.max(0, totalPrice - discountAmount),
-        payment_method_id: paymentMethod?.id,
-        payment_method_name: paymentMethod?.name,
-        payment_proof_url: paymentProofUrl,
-        promo_code_id: appliedPromo?.id ?? null,
-        promo_code: appliedPromo?.code ?? null,
-        discount_applied: discountAmount + bundleSavings,
-        notes: notes.trim() || undefined,
-      });
-
-      // Update promo code usage count
-      if (appliedPromo) {
-        const { error: promoUpdateError } = await supabase
-          .from('promo_codes')
-          .update({ usage_count: appliedPromo.usage_count + 1 })
-          .eq('id', appliedPromo.id);
-
-        if (promoUpdateError) {
-          console.error('Failed to update promo usage count:', promoUpdateError);
-        } else {
-          mirrorPromoIncrementUsage(appliedPromo.id);
-        }
+      // Cache order details immediately
+      try {
+        localStorage.setItem('slimdose_last_order', JSON.stringify(finalOrder));
+      } catch (err) {
+        console.warn('Failed to cache order:', err);
       }
 
-      console.log('✅ Order saved to database:', orderData);
+      // Trigger order events across tabs and managers
+      window.dispatchEvent(new CustomEvent('slimdose:customer_order_placed', { detail: { orderId: finalOrder.id } }));
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new Event('orderCreated'));
+      window.dispatchEvent(new Event('orderConfirmed'));
 
-      // Ensure customer profile is properly stored & linked in Database
-      try {
-        if (normalizedEmail) {
-          const { data: existingCust } = await supabase
-            .from('customers')
-            .select('*')
-            .eq('email', normalizedEmail)
-            .maybeSingle();
+      // Non-blocking background side-effects (runs concurrently without delaying customer)
+      Promise.allSettled([
+        // 1. Mirror order to Convex backup
+        (async () => {
+          mirrorOrderCreate({
+            customer_name: fullName,
+            customer_email: email,
+            customer_phone: phone,
+            contact_method: contactMethod,
+            shipping_address: address,
+            shipping_barangay: barangay,
+            shipping_city: city,
+            shipping_state: state,
+            shipping_zip_code: zipCode,
+            shipping_location: shippingLocation,
+            shipping_fee: shippingFee,
+            order_items: orderItems,
+            total_price: Math.max(0, totalPrice - discountAmount),
+            payment_method_id: paymentMethod?.id,
+            payment_method_name: paymentMethod?.name,
+            payment_proof_url: paymentProofUrl,
+            promo_code_id: appliedPromo?.id ?? null,
+            promo_code: appliedPromo?.code ?? null,
+            discount_applied: discountAmount + bundleSavings,
+            notes: notes.trim() || undefined,
+          });
+        })(),
 
-          if (existingCust) {
-            await supabase.from('customers').update({
-              full_name: fullName.trim() || existingCust.full_name,
-              phone: phone.trim() || existingCust.phone,
-              shipping_address: address.trim() || existingCust.shipping_address,
-              shipping_barangay: barangay.trim() || existingCust.shipping_barangay,
-              shipping_city: city.trim() || existingCust.shipping_city,
-              shipping_state: state.trim() || existingCust.shipping_state,
-              shipping_zip_code: zipCode.trim() || existingCust.shipping_zip_code,
-              updated_at: new Date().toISOString()
-            }).eq('id', existingCust.id);
+        // 2. Promo code usage update
+        (async () => {
+          if (appliedPromo) {
+            await supabase
+              .from('promo_codes')
+              .update({ usage_count: appliedPromo.usage_count + 1 })
+              .eq('id', appliedPromo.id);
+            mirrorPromoIncrementUsage(appliedPromo.id);
+          }
+        })(),
 
-            // Update customer state if current user
-            const currentStored = localStorage.getItem('slimdose_customer');
-            if (currentStored) {
-              const parsed = JSON.parse(currentStored);
-              if (parsed.email === normalizedEmail || parsed.id === existingCust.id) {
-                localStorage.setItem('slimdose_customer', JSON.stringify({ ...parsed, ...existingCust, phone: phone.trim() || existingCust.phone }));
-              }
-            }
-          } else {
-            const newCustPayload = {
-              full_name: fullName.trim(),
-              email: normalizedEmail,
-              phone: phone.trim(),
-              shipping_address: address.trim() || null,
-              shipping_barangay: barangay.trim() || null,
-              shipping_city: city.trim() || null,
-              shipping_state: state.trim() || null,
-              shipping_zip_code: zipCode.trim() || null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            };
-            const { data: createdCust } = await supabase
+        // 3. Customer Profile Sync & Association
+        (async () => {
+          if (normalizedEmail) {
+            const { data: existingCust } = await supabase
               .from('customers')
-              .insert([newCustPayload])
-              .select()
-              .single();
+              .select('*')
+              .eq('email', normalizedEmail)
+              .maybeSingle();
 
-            if (createdCust && !customer) {
-              localStorage.setItem('slimdose_customer', JSON.stringify(createdCust));
-              setCustomer(createdCust);
+            if (existingCust) {
+              await supabase.from('customers').update({
+                full_name: fullName.trim() || existingCust.full_name,
+                phone: phone.trim() || existingCust.phone,
+                shipping_address: address.trim() || existingCust.shipping_address,
+                shipping_barangay: barangay.trim() || existingCust.shipping_barangay,
+                shipping_city: city.trim() || existingCust.shipping_city,
+                shipping_state: state.trim() || existingCust.shipping_state,
+                shipping_zip_code: zipCode.trim() || existingCust.shipping_zip_code,
+                updated_at: new Date().toISOString()
+              }).eq('id', existingCust.id);
+            } else {
+              const newCustPayload = {
+                full_name: fullName.trim(),
+                email: normalizedEmail,
+                phone: phone.trim(),
+                shipping_address: address.trim() || null,
+                shipping_barangay: barangay.trim() || null,
+                shipping_city: city.trim() || null,
+                shipping_state: state.trim() || null,
+                shipping_zip_code: zipCode.trim() || null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              };
+              await supabase.from('customers').insert([newCustPayload]);
+            }
+
+            // Sync to Firebase Auth, Firestore /users, and Firestore /customers
+            try {
+              await provisionCustomerAccount({
+                id: existingCust?.id || `cust_${Date.now()}`,
+                email: normalizedEmail,
+                full_name: fullName.trim(),
+                phone: phone.trim(),
+                shipping_address: address.trim(),
+                shipping_city: city.trim(),
+                shipping_state: state.trim(),
+                shipping_zip_code: zipCode.trim(),
+                tier: 'Gold',
+              });
+            } catch (pErr) {
+              console.warn('[Checkout] Background customer provisioning notice:', pErr);
             }
           }
+        })(),
 
-          // Trigger customer order refresh event
-          window.dispatchEvent(new CustomEvent('slimdose:customer_order_placed', { detail: { orderId: finalOrder.id } }));
-          window.dispatchEvent(new Event('storage'));
-        }
-      } catch (custErr) {
-        console.warn('Customer account association note:', custErr);
-      }
+        // 4. Automated Transactional Customer Confirmation Email
+        (async () => {
+          await dispatchOrderEmail('order-confirmed', {
+            orderId: finalOrder.id || `ORD-${Date.now()}`,
+            orderNumber: finalOrder.order_number || finalOrder.id,
+            customerName: fullName,
+            customerEmail: email,
+            customerPhone: phone,
+            shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`.replace(/,\s*,/g, ','),
+            shippingLocation,
+            shippingFee,
+            subtotal,
+            discountApplied: discountAmount + bundleSavings,
+            promoCode: appliedPromo?.code,
+            totalPrice: Math.max(0, totalPrice - discountAmount),
+            paymentMethodName: paymentMethod?.name,
+            contactMethod,
+            notes: notes.trim() || null,
+            items: cartItems.map(item => ({
+              product_name: item.name,
+              variation_name: item.variation?.name || null,
+              quantity: item.quantity,
+              price: item.price,
+              total: item.price * item.quantity
+            })),
+            status: 'Confirmed'
+          });
+        })(),
 
-      // Automated Transactional Customer Confirmation & Admin Alert via Active SMTP & Email Template Studio
-      try {
-        dispatchOrderEmail('order-confirmed', {
-          orderId: finalOrder.id || `ORD-${Date.now()}`,
-          orderNumber: finalOrder.order_number || finalOrder.id,
-          customerName: fullName,
-          customerEmail: email,
-          customerPhone: phone,
-          shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`.replace(/,\s*,/g, ','),
-          shippingLocation,
-          shippingFee,
-          subtotal,
-          discountApplied: discountAmount + bundleSavings,
-          promoCode: appliedPromo?.code,
-          totalPrice: Math.max(0, totalPrice - discountAmount),
-          paymentMethodName: paymentMethod?.name,
-          contactMethod,
-          notes: notes.trim() || null,
-          items: cartItems.map(item => ({
-            product_name: item.name,
-            variation_name: item.variation?.name || null,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.price * item.quantity
-          })),
-          status: 'Confirmed'
-        }).catch(e => console.warn('Transactional email trigger note:', e));
-      } catch (emailErr) {
-        console.warn('Could not dispatch confirmation email:', emailErr);
-      }
+        // 5. Telegram Notification to Admin
+        (async () => {
+          supabase.functions
+            .invoke('telegram-notify-order', { body: { order_id: finalOrder.id } })
+            .catch(() => {});
+        })(),
 
-      // Save customer/shipping info to cookie for autofill on next checkout (1 year)
-      try {
-        const checkoutInfo = {
-          fullName,
-          email,
-          phone,
-          address,
-          barangay,
-          city,
-          state,
-          zipCode,
-          shippingLocation,
-        };
-        const oneYear = 60 * 60 * 24 * 365;
-        document.cookie = `slimdose_checkout=${encodeURIComponent(
-          JSON.stringify(checkoutInfo)
-        )}; path=/; max-age=${oneYear}; SameSite=Lax`;
-      } catch (err) {
-        console.warn('Failed to save checkout cookie:', err);
-      }
+        // 6. Checkout Autofill Cookie
+        (async () => {
+          const checkoutInfo = {
+            fullName,
+            email,
+            phone,
+            address,
+            barangay,
+            city,
+            state,
+            zipCode,
+            shippingLocation,
+          };
+          const oneYear = 60 * 60 * 24 * 365;
+          document.cookie = `slimdose_checkout=${encodeURIComponent(
+            JSON.stringify(checkoutInfo)
+          )}; path=/; max-age=${oneYear}; SameSite=Lax`;
+        })(),
 
-      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-        identifyUser(normalizedEmail, { name: fullName || null });
-        const itemsSummary = orderItems
-          .map((i) => {
-            const name = i.variation_name ? `${i.product_name} — ${i.variation_name}` : i.product_name;
-            return `${i.quantity} × ${name} — ₱${(i.total).toLocaleString()}`;
-          })
-          .join('\n');
-        trackOrderStatus('new', {
-          order_id: finalOrder.id,
-          order_number: finalOrder.order_number ?? null,
-          items_summary: itemsSummary,
-          subtotal: totalPrice.toLocaleString(),
-          shipping_fee: shippingFee.toLocaleString(),
-          discount: discountAmount.toLocaleString(),
-          promo_code: appliedPromo?.code || promoCode || '',
-          total_price: finalTotal.toLocaleString(),
-          payment_method: paymentMethod?.name || 'Manual Transfer',
-          contact_method: contactMethod ? (contactMethod.charAt(0).toUpperCase() + contactMethod.slice(1)) : '—',
-          item_count: orderItems.reduce((n, i) => n + i.quantity, 0),
-          email: normalizedEmail,
-        });
-      } else {
-        console.warn('Skipping order tracking: invalid email', email);
-      }
+        // 7. PostHog User Tracking
+        (async () => {
+          if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+            identifyUser(normalizedEmail, { name: fullName || null });
+            const itemsSummary = orderItems
+              .map((i) => {
+                const name = i.variation_name ? `${i.product_name} — ${i.variation_name}` : i.product_name;
+                return `${i.quantity} × ${name} — ₱${(i.total).toLocaleString()}`;
+              })
+              .join('\n');
+            trackOrderStatus('new', {
+              order_id: finalOrder.id,
+              order_number: finalOrder.order_number ?? null,
+              items_summary: itemsSummary,
+              subtotal: totalPrice.toLocaleString(),
+              shipping_fee: shippingFee.toLocaleString(),
+              discount: discountAmount.toLocaleString(),
+              promo_code: appliedPromo?.code || promoCode || '',
+              total_price: finalTotal.toLocaleString(),
+              payment_method: paymentMethod?.name || 'Manual Transfer',
+              contact_method: contactMethod ? (contactMethod.charAt(0).toUpperCase() + contactMethod.slice(1)) : '—',
+              item_count: orderItems.reduce((n, i) => n + i.quantity, 0),
+              email: normalizedEmail,
+            });
+          }
+        })()
+      ]).catch(() => {});
 
-      // Fire-and-forget Telegram notification to admin group
-      supabase.functions
-        .invoke('telegram-notify-order', { body: { order_id: finalOrder.id } })
-        .catch((err) => console.error('Telegram notify failed:', err));
-
-      // Get current date and time
+      // Build Order Details summary for clipboard & direct Telegram contact
       const now = new Date();
       const dateTimeStamp = now.toLocaleString('en-PH', {
         weekday: 'long',
@@ -836,50 +843,18 @@ Telegram: https://t.me/slimdose_mnl
 Please confirm this order. Thank you!
       `.trim();
 
-      // Store order message for copying
       setOrderMessage(orderDetails);
 
-      // Auto-copy to clipboard
+      // Instant copy attempt
       try {
         await navigator.clipboard.writeText(orderDetails);
         setCopied(true);
       } catch (err) {
-        console.error('Failed to auto-copy:', err);
+        // non-blocking
       }
 
-      // Open contact method based on selection
-      // Using m.me link with Page ID to open Messenger directly
-      const contactUrl = contactMethod === 'messenger'
-        ? `https://t.me/slimdose_mnl`
-        : null;
-
-      if (contactUrl) {
-        // Short delay to ensure clipboard write finishes and UI updates
-        setTimeout(() => {
-          try {
-            const contactWindow = window.open(contactUrl, '_blank');
-            if (!contactWindow || contactWindow.closed || typeof contactWindow.closed === 'undefined') {
-              console.warn('⚠️ Popup blocked or contact method failed to open');
-              setContactOpened(false);
-            } else {
-              setContactOpened(true);
-            }
-          } catch (error) {
-            console.error('❌ Error opening contact method:', error);
-            setContactOpened(false);
-          }
-        }, 500);
-      }
-
-      // Cache order details for fallback
-      try {
-        localStorage.setItem('slimdose_last_order', JSON.stringify(finalOrder));
-      } catch (err) {
-        console.warn('Failed to cache order:', err);
-      }
-
-      fireToast('Order submitted successfully! 🎉', 'success', 6000);
-
+      fireToast('Order submitted successfully! 🎉', 'success', 5000);
+      clearCart();
       onOrderSuccess?.();
       window.location.href = `/success?order_id=${finalOrder.id}`;
     } catch (error) {

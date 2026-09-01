@@ -31,7 +31,7 @@ export const COMMON_VARIABLES: Record<string, EmailVariableDefinition[]> = {
     { key: 'subtotal', label: 'Subtotal', example: '7,500.00' },
     { key: 'shipping_fee', label: 'Shipping Fee', example: '200.00' },
     { key: 'discount', label: 'Discount Amount', example: '500.00' },
-    { key: 'promo_code', label: 'Promo Code', example: 'SLIMVIP10' },
+    { key: 'promo_code', label: 'Promo Code', example: 'SLIM10' },
     { key: 'total_price', label: 'Total Price', example: '7,200.00' },
     { key: 'payment_method', label: 'Payment Method', example: 'GCash / Bank Transfer' },
     { key: 'shipping_address', label: 'Delivery Address', example: 'Unit 402, High Street Residences, BGC, Taguig City' },
@@ -490,10 +490,205 @@ export const DEFAULT_EMAIL_TEMPLATES: EmailTemplateData[] = [
 </html>`,
   },
   {
+    id: 'tmpl-order-confirmation',
+    template_key: 'order-confirmation',
+    name: 'Order Confirmation',
+    subject: 'Order Confirmed: {{ order_number }} — SlimDose Peptides',
+    description: 'Sent immediately when an order is created by the customer.',
+    category: 'transactional',
+    variables: COMMON_VARIABLES.transactional,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+  <style>
+    @media only screen and (max-width: 480px) {
+      .container { width: 100% !important; padding: 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FFFCF6; font-family: 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 28px 12px;">
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #EFEFEF; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td style="padding: 28px 28px 8px;">
+              <p style="margin: 0; font-size: 20px; font-weight: 700; color: #3C6CA8;">SlimDose <span style="color: #1A1A1A; font-weight: 600;">Peptides</span></p>
+              <p style="margin: 4px 0 0; font-size: 11px; color: #8A8A8A; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 600;">Order Confirmation</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 22px 28px 8px;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.02em;">Thank you, {{ customer_name }}.</h1>
+              <p style="margin: 14px 0 0; font-size: 15px; color: #3D3D3D; line-height: 1.7;">We have successfully received your order <strong style="color: #3C6CA8;">{{ order_number }}</strong>. Our team is preparing your research package with cold-chain protection.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 28px;">
+              <div style="background-color: #FAF8F5; border-radius: 12px; padding: 18px 20px;">
+                <p style="margin: 0 0 10px; font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.1em;">Order Summary</p>
+                <pre style="margin: 0; font-family: inherit; font-size: 14px; color: #222; white-space: pre-wrap; line-height: 1.6;">{{ items_summary }}</pre>
+                <div style="margin-top: 14px; pt-3; border-top: 1px solid #E6E1DA; font-size: 15px; font-weight: 700; color: #1A1A1A; display: flex; justify-content: space-between;">
+                  <span>Total Amount</span>
+                  <span style="color: #3C6CA8;">₱{{ total_price }}</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 28px 24px;">
+              <p style="margin: 0; font-size: 13px; color: #737373; line-height: 1.6;">Payment Method: <strong>{{ payment_method }}</strong><br>Delivery to: <strong>{{ shipping_address }}</strong></p>
+              <p style="margin: 16px 0 0; font-size: 13px; color: #737373;">Need assistance? Reply directly to this email or visit our <a href="{{ site_url }}" style="color: #3C6CA8; text-decoration: none; font-weight: 600;">Customer Portal</a>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 18px 28px; background-color: #FAF8F5; border-top: 1px solid #EFEFEF; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #A0A0A0;">© SlimDose Peptides Philippines. All batches third-party HPLC/MS verified.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
+    id: 'tmpl-payment-confirmed',
+    template_key: 'payment-confirmed',
+    name: 'Payment Confirmed',
+    subject: 'Payment Verified for Order {{ order_number }}',
+    description: 'Sent when admin confirms and approves payment proof for an order.',
+    category: 'transactional',
+    variables: COMMON_VARIABLES.transactional,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmed</title>
+  <style>
+    @media only screen and (max-width: 480px) {
+      .container { width: 100% !important; padding: 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FFFCF6; font-family: 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 28px 12px;">
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #EFEFEF; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td style="padding: 28px 28px 8px;">
+              <p style="margin: 0; font-size: 20px; font-weight: 700; color: #3C6CA8;">SlimDose <span style="color: #1A1A1A; font-weight: 600;">Peptides</span></p>
+              <p style="margin: 4px 0 0; font-size: 11px; color: #8A8A8A; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 600;">Payment Verification</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 22px 28px 8px;">
+              <div style="display: inline-block; background-color: #ECFDF5; color: #047857; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 9999px; margin-bottom: 12px;">
+                ✓ Payment Received
+              </div>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.02em;">Payment verified for order {{ order_number }}</h1>
+              <p style="margin: 14px 0 0; font-size: 15px; color: #3D3D3D; line-height: 1.7;">Your payment of <strong>₱{{ total_price }}</strong> via {{ payment_method }} has been verified. Your order is now queued for immediate fulfillment and dispatch.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 28px 24px;">
+              <p style="margin: 0; font-size: 13px; color: #737373;">We will send you courier tracking information as soon as your parcel is dispatched.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 18px 28px; background-color: #FAF8F5; border-top: 1px solid #EFEFEF; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #A0A0A0;">© SlimDose Peptides Philippines. High purity research solutions.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
+    id: 'tmpl-order-dispatched',
+    template_key: 'order-dispatched',
+    name: 'Order Dispatched (Tracking)',
+    subject: 'Your SlimDose Order {{ order_number }} Has Been Dispatched!',
+    description: 'Sent when the order is fulfilled and assigned a shipping tracking number.',
+    category: 'transactional',
+    variables: COMMON_VARIABLES.transactional,
+    is_customized: false,
+    is_active: true,
+    html_content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Dispatched</title>
+  <style>
+    @media only screen and (max-width: 480px) {
+      .container { width: 100% !important; padding: 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FFFCF6; font-family: 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 28px 12px;">
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #EFEFEF; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td style="padding: 28px 28px 8px;">
+              <p style="margin: 0; font-size: 20px; font-weight: 700; color: #3C6CA8;">SlimDose <span style="color: #1A1A1A; font-weight: 600;">Peptides</span></p>
+              <p style="margin: 4px 0 0; font-size: 11px; color: #8A8A8A; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 600;">Shipment Dispatched</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 22px 28px 8px;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #1A1A1A; letter-spacing: -0.02em;">Your package is on its way, {{ customer_name }}.</h1>
+              <p style="margin: 14px 0 0; font-size: 15px; color: #3D3D3D; line-height: 1.7;">Order <strong style="color: #3C6CA8;">{{ order_number }}</strong> has been safely packaged and handed over to <strong>{{ shipping_provider }}</strong>.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 28px;">
+              <div style="background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 18px 20px; text-align: center;">
+                <p style="margin: 0; font-size: 12px; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700;">Tracking Number</p>
+                <p style="margin: 8px 0 0; font-size: 20px; font-weight: 900; color: #1E3A8A; letter-spacing: 0.08em; font-family: monospace;">{{ tracking_number }}</p>
+                <a href="{{ tracking_url }}" style="display: inline-block; margin-top: 14px; background-color: #3C6CA8; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 13px; padding: 10px 22px; border-radius: 8px;">
+                  Track Real-Time Status →
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 28px 24px;">
+              <p style="margin: 0; font-size: 13px; color: #737373;">Delivery address: {{ shipping_address }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 18px 28px; background-color: #FAF8F5; border-top: 1px solid #EFEFEF; text-align: center;">
+              <p style="margin: 0; font-size: 11px; color: #A0A0A0;">© SlimDose Peptides Philippines. All parcels insulated for cold-chain safety.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+  },
+  {
     id: 'tmpl-promo-welcome',
     template_key: 'promo-welcome',
-    name: 'VIP Welcome & Promo',
-    subject: 'Welcome to SlimDose VIP — Enjoy {{ discount_percentage }} off your first order!',
+    name: 'Member Welcome & Promo',
+    subject: 'Welcome to SlimDose — Enjoy {{ discount_percentage }} off your first order!',
     description: 'Sent to new newsletter or account subscribers with an exclusive discount.',
     category: 'marketing',
     variables: COMMON_VARIABLES.marketing,
@@ -531,7 +726,7 @@ export const DEFAULT_EMAIL_TEMPLATES: EmailTemplateData[] = [
           <tr>
             <td style="padding: 18px 28px;">
               <div style="background-color: #F0FDF4; border: 2px dashed #86EFAC; border-radius: 12px; padding: 18px 20px; text-align: center;">
-                <p style="margin: 0; font-size: 12px; color: #15803D; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">Your VIP Welcome Code</p>
+                <p style="margin: 0; font-size: 12px; color: #15803D; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">Your Welcome Discount Code</p>
                 <p style="margin: 8px 0 0; font-size: 24px; font-weight: 900; color: #166534; letter-spacing: 0.1em;">{{ promo_code }}</p>
                 <p style="margin: 6px 0 0; font-size: 13px; color: #16A34A;">Use this at checkout to save {{ discount_percentage }}</p>
               </div>

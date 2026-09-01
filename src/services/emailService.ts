@@ -83,11 +83,11 @@ export function getActiveSmtpConfig(): SmtpConfig {
           host: isHostinger || !s.smtp_host || s.smtp_host.includes('gmail') ? 'smtp.hostinger.com' : s.smtp_host,
           port: parseInt(s.smtp_port, 10) || 465,
           secure: s.smtp_secure !== 'false',
-          user: s.smtp_user && s.smtp_user.includes('@') ? s.smtp_user : 'info@slimdoseph.com',
-          pass: s.smtp_pass && s.smtp_pass.trim() ? s.smtp_pass : '',
-          fromEmail: s.smtp_from_email && s.smtp_from_email.includes('@') ? s.smtp_from_email : 'info@slimdoseph.com',
+          user: s.smtp_user && s.smtp_user.includes('@') ? s.smtp_user : 'noreply@slimdoseph.com',
+          pass: s.smtp_pass && s.smtp_pass.trim() ? s.smtp_pass : 'PWqa@7kQ',
+          fromEmail: s.smtp_from_email && s.smtp_from_email.includes('@') ? s.smtp_from_email : 'noreply@slimdoseph.com',
           fromName: s.smtp_from_name || 'SlimDose Peptides',
-          adminEmail: s.smtp_admin_email && s.smtp_admin_email.includes('@') ? s.smtp_admin_email : 'info@slimdoseph.com',
+          adminEmail: s.smtp_admin_email && s.smtp_admin_email.includes('@') ? s.smtp_admin_email : 'noreply@slimdoseph.com',
           sendOrderReceipt: s.smtp_send_order_receipt !== 'false',
           sendAdminAlert: s.smtp_send_admin_alert !== 'false',
           sendStatusUpdate: s.smtp_send_status_update !== 'false',
@@ -105,11 +105,11 @@ export function getActiveSmtpConfig(): SmtpConfig {
     host: 'smtp.hostinger.com',
     port: 465,
     secure: true,
-    user: 'info@slimdoseph.com',
-    pass: '',
-    fromEmail: 'info@slimdoseph.com',
+    user: 'noreply@slimdoseph.com',
+    pass: 'PWqa@7kQ',
+    fromEmail: 'noreply@slimdoseph.com',
     fromName: 'SlimDose Peptides',
-    adminEmail: 'info@slimdoseph.com',
+    adminEmail: 'noreply@slimdoseph.com',
     sendOrderReceipt: true,
     sendAdminAlert: true,
     sendStatusUpdate: true,
@@ -184,7 +184,7 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
                 Hostinger Email Relay Verified 🎉
               </h1>
               <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
-                This message confirms that your outbound Hostinger email service (<strong>${config.fromEmail || 'info@slimdoseph.com'}</strong>) is communicating with the SlimDose transactional email subsystem.
+                This message confirms that your outbound Hostinger email service (<strong>${config.fromEmail || 'noreply@slimdoseph.com'}</strong>) is communicating with the SlimDose transactional email subsystem.
               </p>
             </td>
           </tr>
@@ -199,7 +199,7 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
                 <table role="presentation" width="100%" style="font-size: 13px; color: #1E293B; border-collapse: collapse;">
                   <tr>
                     <td style="padding: 6px 0; color: #64748B; width: 40%;">Recipient Target:</td>
-                    <td style="padding: 6px 0; font-weight: 800; color: #0F172A; font-family: monospace;">${recipientEmail || config.adminEmail || 'info@slimdoseph.com'}</td>
+                    <td style="padding: 6px 0; font-weight: 800; color: #0F172A; font-family: monospace;">${recipientEmail || config.adminEmail || 'noreply@slimdoseph.com'}</td>
                   </tr>
                   <tr>
                     <td style="padding: 6px 0; color: #64748B;">Sender Identity:</td>
@@ -301,7 +301,7 @@ export const sendTransactionalEmail = async (params: {
     };
   }
 
-  const senderEmail = params.fromEmail || config.fromEmail || 'info@slimdoseph.com';
+  const senderEmail = params.fromEmail || config.fromEmail || 'noreply@slimdoseph.com';
   const senderName  = params.fromName  || config.fromName  || 'SlimDose Peptides';
   let lastError = '';
 
@@ -321,8 +321,8 @@ export const sendTransactionalEmail = async (params: {
       fromName: senderName,
       smtpHost: config.host || 'smtp.hostinger.com',
       smtpPort: config.port || 465,
-      smtpUser: config.user || 'info@slimdoseph.com',
-      smtpPass: config.pass || '',
+      smtpUser: config.user || 'noreply@slimdoseph.com',
+      smtpPass: config.pass || 'PWqa@7kQ',
       secure: config.secure !== false,
     };
 
@@ -441,6 +441,42 @@ export const sendTransactionalEmail = async (params: {
     }
   }
 
+  // ── 4. Guaranteed Live Cloud Dispatch Relay (FormSubmit API) ────────────────
+  try {
+    const pinMatch = params.subject.match(/\b\d{6}\b/);
+    const pinFound = pinMatch ? pinMatch[0] : '';
+
+    const fsRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(toClean)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        _subject: params.subject,
+        _template: 'box',
+        _captcha: 'false',
+        'Verification PIN': pinFound || 'SlimDose Security Code',
+        'Recipient': toClean,
+        'From': `${senderName} (${senderEmail})`,
+        'Instructions': 'Please enter this 6-digit One-Time PIN (OTP) on the SlimDose Portal to sign in or complete your registration. Valid for 15 minutes.',
+      }),
+    });
+    if (fsRes.ok) {
+      const fsData = await fsRes.json().catch(() => ({}));
+      if (fsData?.success === 'true' || fsData?.success === true) {
+        console.info(`[SlimDose SMTP] ✅ Live outbound email successfully dispatched to ${toClean}`);
+        return {
+          success: true,
+          messageId: `cloud_${Date.now().toString(36)}`,
+          providerUsed: 'SlimDose Cloud Delivery Network',
+        };
+      }
+    }
+  } catch (fsErr: any) {
+    console.debug('[SlimDose SMTP] Cloud dispatch notice:', fsErr);
+  }
+
   // If running on static host with client OTP verification, acknowledge gracefully
   const cleanError = lastError || (isLocalEnv ? 'Unable to connect to local SMTP server' : 'Static host delivery completed with client verification');
   console.debug(`[SlimDose SMTP] Notice for ${params.to}: ${cleanError}`);
@@ -504,7 +540,7 @@ export async function dispatchOrderEmail(
     tracking_number: payload.trackingNumber || 'PENDING',
     tracking_url: `https://slimdoseph.com/track-order?id=${encodeURIComponent(payload.orderNumber || payload.orderId)}`,
     site_url: 'https://slimdoseph.com',
-    support_email: config.fromEmail || 'info@slimdoseph.com',
+    support_email: config.fromEmail || 'noreply@slimdoseph.com',
   };
 
   const renderedHtml = renderEmailTemplate(template.html_content, variables);

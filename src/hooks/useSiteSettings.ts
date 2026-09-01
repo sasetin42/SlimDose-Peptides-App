@@ -56,6 +56,20 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   meta_title: 'SlimDose Peptides — High Purity Research Solutions',
   meta_description: 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
   meta_keywords: 'peptides, slimdose, research peptides, peptide calculator, laboratory tested',
+  // SMTP & Transactional Email Settings
+  smtp_enabled: 'true',
+  smtp_provider: 'hostinger',
+  smtp_host: 'smtp.hostinger.com',
+  smtp_port: '465',
+  smtp_secure: 'true',
+  smtp_user: 'noreply@slimdoseph.com',
+  smtp_pass: 'PWqa@7kQ',
+  smtp_from_email: 'noreply@slimdoseph.com',
+  smtp_from_name: 'SlimDose Peptides',
+  smtp_admin_email: 'noreply@slimdoseph.com',
+  smtp_send_order_receipt: 'true',
+  smtp_send_admin_alert: 'true',
+  smtp_send_status_update: 'true',
 };
 
 function getInitialSettings(): SiteSettings {

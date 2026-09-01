@@ -115,15 +115,15 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
     meta_keywords: '',
     // SMTP & Email Notification Settings
     smtp_enabled: 'true',
-    smtp_provider: 'smtp',
-    smtp_host: 'smtp.gmail.com',
+    smtp_provider: 'hostinger',
+    smtp_host: 'smtp.hostinger.com',
     smtp_port: '465',
     smtp_secure: 'true',
-    smtp_user: 'orders@slimdose.ph',
-    smtp_pass: '',
-    smtp_from_email: 'orders@slimdose.ph',
+    smtp_user: 'noreply@slimdoseph.com',
+    smtp_pass: 'PWqa@7kQ',
+    smtp_from_email: 'noreply@slimdoseph.com',
     smtp_from_name: 'SlimDose Peptides',
-    smtp_admin_email: 'admin@slimdose.ph',
+    smtp_admin_email: 'noreply@slimdoseph.com',
     smtp_send_order_receipt: 'true',
     smtp_send_admin_alert: 'true',
     smtp_send_status_update: 'true',
@@ -177,11 +177,11 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
         smtp_host: siteSettings.smtp_host || 'smtp.hostinger.com',
         smtp_port: siteSettings.smtp_port || '465',
         smtp_secure: siteSettings.smtp_secure || 'true',
-        smtp_user: siteSettings.smtp_user || 'info@slimdoseph.com',
-        smtp_pass: siteSettings.smtp_pass || '',
-        smtp_from_email: siteSettings.smtp_from_email || 'info@slimdoseph.com',
+        smtp_user: siteSettings.smtp_user || 'noreply@slimdoseph.com',
+        smtp_pass: siteSettings.smtp_pass || 'PWqa@7kQ',
+        smtp_from_email: siteSettings.smtp_from_email || 'noreply@slimdoseph.com',
         smtp_from_name: siteSettings.smtp_from_name || 'SlimDose Peptides',
-        smtp_admin_email: siteSettings.smtp_admin_email || 'info@slimdoseph.com',
+        smtp_admin_email: siteSettings.smtp_admin_email || 'noreply@slimdoseph.com',
         smtp_send_order_receipt: siteSettings.smtp_send_order_receipt || 'true',
         smtp_send_admin_alert: siteSettings.smtp_send_admin_alert || 'true',
         smtp_send_status_update: siteSettings.smtp_send_status_update || 'true',
@@ -189,7 +189,7 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
 
       setFormData(synced);
       setInitialData(synced);
-      setTestEmailRecipient(synced.smtp_admin_email || synced.support_email || 'admin@slimdose.ph');
+      setTestEmailRecipient(synced.smtp_admin_email || synced.support_email || 'noreply@slimdoseph.com');
       setLogoPreview(siteSettings.site_logo || '/assets/logo.jpeg');
     }
   }, [siteSettings]);
@@ -202,10 +202,11 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
         smtp_host: 'smtp.hostinger.com',
         smtp_port: '465',
         smtp_secure: 'true',
-        smtp_user: prev.smtp_user && prev.smtp_user.includes('@') ? prev.smtp_user : 'info@slimdoseph.com',
-        smtp_from_email: prev.smtp_from_email && prev.smtp_from_email.includes('@') ? prev.smtp_from_email : 'info@slimdoseph.com',
+        smtp_user: prev.smtp_user && prev.smtp_user.includes('@') ? prev.smtp_user : 'noreply@slimdoseph.com',
+        smtp_pass: prev.smtp_pass && prev.smtp_pass.trim() ? prev.smtp_pass : 'PWqa@7kQ',
+        smtp_from_email: prev.smtp_from_email && prev.smtp_from_email.includes('@') ? prev.smtp_from_email : 'noreply@slimdoseph.com',
         smtp_from_name: 'SlimDose Peptides',
-        smtp_admin_email: prev.smtp_admin_email && prev.smtp_admin_email.includes('@') ? prev.smtp_admin_email : 'info@slimdoseph.com',
+        smtp_admin_email: prev.smtp_admin_email && prev.smtp_admin_email.includes('@') ? prev.smtp_admin_email : 'noreply@slimdoseph.com',
       }));
       fireToast('Applied Hostinger Business Email preset (smtp.hostinger.com:465 SSL)', 'info');
     } else if (provider === 'gmail') {

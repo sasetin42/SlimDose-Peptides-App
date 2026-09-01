@@ -9,8 +9,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.SMTP_USER || 'info@slimdoseph.com',
-    pass: process.env.SMTP_PASS || '',
+    user: process.env.SMTP_USER || 'noreply@slimdoseph.com',
+    pass: process.env.SMTP_PASS || 'PWqa@7kQ',
   },
   tls: {
     rejectUnauthorized: false,
@@ -48,7 +48,7 @@ const server = http.createServer(async (req, res) => {
           to,
           subject,
           html,
-          fromEmail = 'info@slimdoseph.com',
+          fromEmail = 'noreply@slimdoseph.com',
           fromName = 'SlimDose Peptides',
         } = payload;
 

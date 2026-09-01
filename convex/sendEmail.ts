@@ -30,7 +30,7 @@ export const sendEmail = httpAction(async (ctx, request) => {
     to,
     subject,
     html,
-    fromEmail = "info@slimdoseph.com",
+    fromEmail = "noreply@slimdoseph.com",
     fromName = "SlimDose Peptides",
     smtpHost = "smtp.hostinger.com",
     smtpPort = 465,

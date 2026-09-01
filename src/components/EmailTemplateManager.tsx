@@ -115,7 +115,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
 
   // Test Email Modal State
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
-  const [testRecipientEmail, setTestRecipientEmail] = useState(smtpConfig.adminEmail || 'admin@slimdose.ph');
+  const [testRecipientEmail, setTestRecipientEmail] = useState(smtpConfig.adminEmail || 'noreply@slimdoseph.com');
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 

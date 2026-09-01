@@ -103,14 +103,28 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       const isDeletedTombstone = deletedCusts.has(emailClean) || deletedUsers.has(emailClean);
 
       // 1. Fast parallel check if user already exists across Firebase Auth, Firestore, and Supabase with 1.2s timeout
-      const fastTimeout = <T,>(p: Promise<T>, fb: T, ms = 1200): Promise<T> =>
-        Promise.race([p, new Promise<T>((res) => setTimeout(() => res(fb), ms))]);
+      const fastTimeout = async <T,>(p: Promise<T> | PromiseLike<T>, fb: T, ms = 1200): Promise<T> => {
+        try {
+          return await Promise.race([
+            Promise.resolve(p),
+            new Promise<T>((res) => setTimeout(() => res(fb), ms))
+          ]);
+        } catch {
+          return fb;
+        }
+      };
 
       const [authProbe, custSnap, userSnap, supabaseCustRes] = await Promise.all([
         fastTimeout(checkEmailRegisteredInFirebaseAuth(emailClean), { registered: false, source: 'timeout' }, 1200),
         fastTimeout(getDocs(query(collection(db, 'customers'), where('email', '==', emailClean))), { empty: true, docs: [] } as any, 1200),
         fastTimeout(getDocs(query(collection(db, 'users'), where('email', '==', emailClean))), { empty: true, docs: [] } as any, 1200),
-        fastTimeout(supabase.from('customers').select('*').eq('email', emailClean).maybeSingle(), { data: null, error: null } as any, 1200)
+        fastTimeout((async () => {
+          try {
+            return await supabase.from('customers').select('*').eq('email', emailClean).maybeSingle();
+          } catch {
+            return { data: null, error: null };
+          }
+        })(), { data: null, error: null } as any, 1200)
       ]);
 
       const isAlreadyRegistered =
@@ -235,14 +249,28 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       const isDeletedTombstone = deletedCusts.has(emailClean) || deletedUsers.has(emailClean);
 
       // 1. Deeply inspect Firebase Authentication, Firestore, and Supabase with 1.2s timeout
-      const fastTimeout = <T,>(p: Promise<T>, fb: T, ms = 1200): Promise<T> =>
-        Promise.race([p, new Promise<T>((res) => setTimeout(() => res(fb), ms))]);
+      const fastTimeout = async <T,>(p: Promise<T> | PromiseLike<T>, fb: T, ms = 1200): Promise<T> => {
+        try {
+          return await Promise.race([
+            Promise.resolve(p),
+            new Promise<T>((res) => setTimeout(() => res(fb), ms))
+          ]);
+        } catch {
+          return fb;
+        }
+      };
 
       const [authProbe, custSnap, userSnap, supabaseCustRes] = await Promise.all([
         fastTimeout(checkEmailRegisteredInFirebaseAuth(emailClean), { registered: false, source: 'timeout' }, 1200),
         fastTimeout(getDocs(query(collection(db, 'customers'), where('email', '==', emailClean))), { empty: true, docs: [] } as any, 1200),
         fastTimeout(getDocs(query(collection(db, 'users'), where('email', '==', emailClean))), { empty: true, docs: [] } as any, 1200),
-        fastTimeout(supabase.from('customers').select('*').eq('email', emailClean).maybeSingle(), { data: null, error: null } as any, 1200)
+        fastTimeout((async () => {
+          try {
+            return await supabase.from('customers').select('*').eq('email', emailClean).maybeSingle();
+          } catch {
+            return { data: null, error: null };
+          }
+        })(), { data: null, error: null } as any, 1200)
       ]);
 
       const isRegistered =

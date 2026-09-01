@@ -682,39 +682,6 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
                     </p>
                   </div>
 
-                  {/* ── Instant PIN Code & Delayed Email Helper ── */}
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/80 text-xs flex items-center justify-between gap-3 shadow-2xs">
-                    <div className="flex items-start gap-2.5 min-w-0">
-                      <Sparkles className="w-4 h-4 text-[#3C6CA8] dark:text-blue-400 shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold text-[#3C6CA8] dark:text-blue-300 text-[11px] uppercase tracking-wider">
-                            Direct Security PIN:
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-[#3C6CA8]/15 dark:bg-blue-400/20 text-[#3C6CA8] dark:text-blue-200 font-mono font-black text-xs tracking-widest">
-                            {generatedOtp || '123456'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
-                          If email is delayed in spam/inbox, use this PIN to sign in instantly.
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const code = generatedOtp || '123456';
-                        setEnteredOtp(code);
-                        fireToast(`PIN ${code} auto-filled! Verifying...`, 'success', 2500);
-                      }}
-                      className="px-3 py-1.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] text-white font-extrabold text-xs shrink-0 transition-all cursor-pointer shadow-xs hover:shadow-md active:scale-95 flex items-center gap-1"
-                    >
-                      <Zap className="w-3 h-3 text-amber-300" />
-                      <span>Auto-Fill</span>
-                    </button>
-                  </div>
-
                   {errorMessage && (
                     <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/80 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2 animate-fadeIn">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />

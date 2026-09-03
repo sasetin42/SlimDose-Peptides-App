@@ -105,7 +105,7 @@ interface ModalData {
 }
 
 type FilterStatus = 'all' | 'published' | 'draft';
-type SortOption = 'order-asc' | 'recent' | 'oldest' | 'title-asc';
+type SortOption = 'title-desc' | 'title-asc' | 'order-asc' | 'recent' | 'oldest';
 
 export default function GuideManager() {
     const [articles, setArticles] = useState<Article[]>([]);
@@ -114,7 +114,7 @@ export default function GuideManager() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-    const [sortBy, setSortBy] = useState<SortOption>('order-asc');
+    const [sortBy, setSortBy] = useState<SortOption>('title-asc');
     const [productSearch, setProductSearch] = useState('');
 
     // Modal state
@@ -504,10 +504,11 @@ export default function GuideManager() {
         });
 
         result.sort((a, b) => {
+            if (sortBy === 'title-desc') return b.title.localeCompare(a.title);
+            if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
             if (sortBy === 'order-asc') return a.display_order - b.display_order;
             if (sortBy === 'recent') return new Date(b.published_date).getTime() - new Date(a.published_date).getTime();
             if (sortBy === 'oldest') return new Date(a.published_date).getTime() - new Date(b.published_date).getTime();
-            if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
             return 0;
         });
 
@@ -689,10 +690,11 @@ export default function GuideManager() {
                                 aria-label="Sort articles"
                                 className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 cursor-pointer"
                             >
+                                <option value="title-asc">Title (A-Z)</option>
+                                <option value="title-desc">Title (Z-A)</option>
                                 <option value="order-asc">Sort Order (0-9)</option>
                                 <option value="recent">Newest Published</option>
                                 <option value="oldest">Oldest Published</option>
-                                <option value="title-asc">Title (A-Z)</option>
                             </select>
                         </div>
 

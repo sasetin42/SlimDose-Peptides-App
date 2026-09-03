@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { FileText, ArrowLeft, BookOpen, Calendar, User, ChevronRight, Video as VideoIcon, Play, X, Search, Sparkles, Bookmark, Share2, Calculator, FlaskConical, Check, Clock, ShieldCheck, MessageCircle, ExternalLink, Truck, Loader2 } from 'lucide-react';
+import { FileText, ArrowLeft, BookOpen, Calendar, User, ChevronRight, Video as VideoIcon, Play, X, Search, Sparkles, Bookmark, Share2, Calculator, FlaskConical, Check, Clock, ShieldCheck, MessageCircle, ExternalLink, Truck, Loader2, ArrowUpDown, ChevronDown } from 'lucide-react';
 import { fireToast } from './ToastNotification';
 import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 
@@ -100,6 +100,8 @@ try {
   }
 } catch {}
 
+type SortOption = 'title-asc' | 'title-desc' | 'newest' | 'oldest' | 'readtime-asc' | 'readtime-desc';
+
 export default function SmartGuide() {
   const [articles, setArticles] = useState<Article[]>(() => cachedArticles || FALLBACK_ARTICLES);
   const [videos, setVideos] = useState<Video[]>(() => cachedVideos || FALLBACK_VIDEOS);
@@ -117,6 +119,7 @@ export default function SmartGuide() {
   const [activeTab, setActiveTab] = useState<'articles' | 'videos'>('articles');
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<SortOption>('title-asc');
   const [savedArticles, setSavedArticles] = useState<Set<string>>(() => {
     try {
       const saved = localStorage.getItem('slimdose_saved_articles');
@@ -143,7 +146,7 @@ export default function SmartGuide() {
         .from('guide_topics')
         .select('id, title, preview, author, published_date, cover_image')
         .eq('is_enabled', true)
-        .order('display_order', { ascending: true });
+        .order('title', { ascending: true });
 
       if (error) throw error;
       if (data && data.length > 0) {
@@ -216,9 +219,15 @@ export default function SmartGuide() {
     });
   };
 
-  // Filtered Articles
+  const parseReadTimeMinutes = (timeStr?: string) => {
+    if (!timeStr) return 0;
+    const match = timeStr.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  // Filtered & Sorted Articles
   const filteredArticles = useMemo(() => {
-    return articles.filter((art) => {
+    const list = articles.filter((art) => {
       const matchesCategory = selectedCategory === 'All' ? true : art.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
@@ -228,11 +237,21 @@ export default function SmartGuide() {
         (art.author && art.author.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
-  }, [articles, selectedCategory, searchQuery]);
 
-  // Filtered Videos
+    return list.sort((a, b) => {
+      if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
+      if (sortBy === 'title-desc') return b.title.localeCompare(a.title);
+      if (sortBy === 'newest') return new Date(b.published_date || 0).getTime() - new Date(a.published_date || 0).getTime();
+      if (sortBy === 'oldest') return new Date(a.published_date || 0).getTime() - new Date(b.published_date || 0).getTime();
+      if (sortBy === 'readtime-asc') return parseReadTimeMinutes(a.read_time) - parseReadTimeMinutes(b.read_time);
+      if (sortBy === 'readtime-desc') return parseReadTimeMinutes(b.read_time) - parseReadTimeMinutes(a.read_time);
+      return 0;
+    });
+  }, [articles, selectedCategory, searchQuery, sortBy]);
+
+  // Filtered & Sorted Videos
   const filteredVideos = useMemo(() => {
-    return videos.filter((vid) => {
+    const list = videos.filter((vid) => {
       const matchesCategory = selectedCategory === 'All' ? true : vid.category === selectedCategory;
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
@@ -242,7 +261,15 @@ export default function SmartGuide() {
         (vid.category && vid.category.toLowerCase().includes(q));
       return matchesCategory && matchesSearch;
     });
-  }, [videos, selectedCategory, searchQuery]);
+
+    return list.sort((a, b) => {
+      if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
+      if (sortBy === 'title-desc') return b.title.localeCompare(a.title);
+      if (sortBy === 'newest') return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      if (sortBy === 'oldest') return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+      return 0;
+    });
+  }, [videos, selectedCategory, searchQuery, sortBy]);
 
   const getYoutubeEmbedUrl = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -369,12 +396,13 @@ export default function SmartGuide() {
 
       {/* Main Expanded Layout Container (max-w-7xl) */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 md:py-8">
-        {/* Category Filter Buttons */}
-        <div className="mb-4 sm:mb-6">
+        {/* Category Filter Buttons & Inline Sort Selector */}
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none sm:flex-wrap">
             {['All', 'RECONSTITUTION', 'DOSING & USAGE', 'PEN & NEEDLES'].map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer shrink-0 border ${
                   selectedCategory === cat
@@ -385,6 +413,29 @@ export default function SmartGuide() {
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Inline Sort Selector */}
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            <div className="relative flex items-center">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#3C6CA8] absolute left-3 pointer-events-none" />
+              <select
+                id="smartguide-sortby"
+                name="smartguide_sortby"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                aria-label="Sort Peptalk content"
+                className="pl-8 pr-8 py-1.5 sm:py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-bold text-gray-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] shadow-2xs cursor-pointer appearance-none"
+              >
+                <option value="title-asc">Sort: Title (A - Z)</option>
+                <option value="title-desc">Sort: Title (Z - A)</option>
+                <option value="newest">Sort: Newest Published</option>
+                <option value="oldest">Sort: Oldest Published</option>
+                <option value="readtime-asc">Sort: Read Time (Shortest)</option>
+                <option value="readtime-desc">Sort: Read Time (Longest)</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 pointer-events-none" />
+            </div>
           </div>
         </div>
 

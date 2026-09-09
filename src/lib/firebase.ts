@@ -40,22 +40,13 @@ export const app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseC
 // Singleton Firestore instance (HMR-safe)
 let firestoreInstance;
 try {
-  firestoreInstance = getFirestore(app);
+  firestoreInstance = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
 } catch {
-  // not initialized yet
-}
-
-if (!firestoreInstance) {
-  try {
-    firestoreInstance = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager(),
-      }),
-      experimentalAutoDetectLongPolling: true,
-    });
-  } catch {
-    firestoreInstance = getFirestore(app);
-  }
+  firestoreInstance = getFirestore(app);
 }
 
 export const db = firestoreInstance;

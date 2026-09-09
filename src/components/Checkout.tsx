@@ -825,7 +825,7 @@ ${cartItems.map((item, idx) => {
 
 💰 PRICING
 Product Total: ₱${pricing.subtotalBeforeBundle.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
-${bundleSavings > 0 ? `Bundle Discount: -₱${bundleSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}\n` : ''}Shipping Fee: ₱${shippingFee.toLocaleString('en-PH', { minimumFractionDigits: 0 })} (${shippingLocation.replace('_', ' & ')})
+${bundleSavings > 0 ? `Bundle Discount: -₱${bundleSavings.toLocaleString('en-PH', { minimumFractionDigits: 0 })}\n` : ''}Shipping Fee: ${shippingFee === 0 ? 'PAID UPON DELIVERY (Customer pays rider on arrival — Not Free)' : `₱${shippingFee.toLocaleString('en-PH', { minimumFractionDigits: 0 })}`} (${shippingLocation.replace(/_/g, ' ')})
 ${discountAmount > 0 ? `Discount (${appliedPromo?.code}): -₱${discountAmount.toLocaleString('en-PH', { minimumFractionDigits: 0 })}\n` : ''}Grand Total: ₱${finalTotal.toLocaleString('en-PH', { minimumFractionDigits: 0 })}
 
 💳 PAYMENT METHOD
@@ -854,7 +854,13 @@ Please confirm this order. Thank you!
       }
 
       fireToast('Order submitted successfully! 🎉', 'success', 5000);
-      clearCart();
+      try {
+        localStorage.removeItem('peptide_cart');
+        localStorage.removeItem('peptide_cart_full_v1');
+        window.dispatchEvent(new Event('storage'));
+      } catch (cErr) {
+        // ignore storage clean error
+      }
       onOrderSuccess?.();
       window.location.href = `/success?order_id=${finalOrder.id}`;
     } catch (error) {
@@ -1681,19 +1687,32 @@ Please confirm this order. Thank you!
                                 <div className="min-w-0 flex-1">
                                   <p className="font-extrabold text-[11.5px] sm:text-xs text-gray-900 dark:text-white leading-tight truncate">{mode.name}</p>
                                   <p className="text-[9.5px] sm:text-[10px] text-gray-500 dark:text-slate-400 font-medium leading-tight truncate mt-0.5">{mode.desc}</p>
+                                  {mode.fee === 0 && (
+                                    <p className="text-[9px] sm:text-[9.5px] text-amber-600 dark:text-amber-400 font-bold leading-tight mt-0.5 flex items-center gap-1">
+                                      <span>⚠️ Not free shipping — rider fare paid on delivery</span>
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                               <span className={`text-[9.5px] sm:text-[10.5px] font-extrabold shrink-0 px-2 py-0.5 rounded-md whitespace-nowrap ${
                                 mode.fee === 0
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80'
+                                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80'
                                   : 'bg-blue-50 dark:bg-blue-950/60 text-[#3C6CA8] dark:text-blue-300 border border-blue-100 dark:border-blue-900/50'
                               }`}>
-                                {mode.fee === 0 ? 'Same Day Delivery' : `₱${mode.fee}`}
+                                {mode.fee === 0 ? 'PAID UPON DELIVERY' : `₱${mode.fee}`}
                               </span>
                             </button>
                           );
                         })}
                       </div>
+                      {shippingLocation && (shippingLocation === 'MAXIM_DAVAO' || shippingLocation === 'LALAMOVE_MM' || shippingLocation === 'MAXIM' || shippingLocation === 'NCR' || shippingLocation === 'LALAMOVE') && (
+                        <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-900/50 flex items-start gap-2 text-left">
+                          <span className="text-sm shrink-0">🛵</span>
+                          <p className="text-[10.5px] text-amber-800 dark:text-amber-300 leading-tight font-medium">
+                            <strong className="font-extrabold">Notice:</strong> Courier booking fee is <span className="font-bold underline">PAID UPON DELIVERY</span> directly to the courier rider upon arrival. This is <span className="font-extrabold text-amber-900 dark:text-amber-200 uppercase">NOT free shipping</span>.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2033,7 +2052,17 @@ Please confirm this order. Thank you!
                       <div className="flex justify-between items-center text-gray-600 dark:text-slate-400 font-medium">
                         <span>Shipping Fee</span>
                         <span className="font-bold text-gray-900 dark:text-white">
-                          {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH')}` : '₱0'}
+                          {shippingLocation ? (
+                            shippingFee === 0 ? (
+                              <span className="text-amber-700 dark:text-amber-400 font-extrabold text-[11.5px]">
+                                Paid Upon Delivery <span className="text-[10px] text-amber-600 dark:text-amber-500 font-semibold block sm:inline">(Rider Fee Not Free)</span>
+                              </span>
+                            ) : (
+                              `₱${shippingFee.toLocaleString('en-PH')}`
+                            )
+                          ) : (
+                            '₱0'
+                          )}
                         </span>
                       </div>
                     </div>
@@ -2532,7 +2561,17 @@ Please confirm this order. Thank you!
                       <Truck className="w-3.5 h-3.5 text-blue-600" /> Shipping
                     </span>
                     <span className="font-bold text-blue-600 dark:text-blue-400">
-                      {shippingLocation ? `₱${shippingFee.toLocaleString('en-PH')}` : 'Select location'}
+                      {shippingLocation ? (
+                        shippingFee === 0 ? (
+                          <span className="text-amber-700 dark:text-amber-400 font-extrabold text-[11px] text-right">
+                            Paid Upon Delivery <span className="text-[9.5px] text-amber-600 dark:text-amber-500 font-semibold block sm:inline">(Not Free)</span>
+                          </span>
+                        ) : (
+                          `₱${shippingFee.toLocaleString('en-PH')}`
+                        )
+                      ) : (
+                        'Select location'
+                      )}
                     </span>
                   </div>
 

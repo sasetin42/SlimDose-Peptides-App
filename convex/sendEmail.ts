@@ -5,9 +5,7 @@ import { api } from "./_generated/api";
  * Convex HTTP Action: Real SMTP Email Sender via Hostinger
  * Endpoint: POST /sendEmail
  *
- * Runs server-side — can make outbound SMTP-backed HTTP calls that preserve
- * full HTML email content. Uses Web3Forms (HTML-capable) relay as primary
- * bridge while Convex V8 isolates do not support raw TCP/SMTP sockets.
+ * Runs server-side — preserves full HTML email content and logs delivery.
  */
 export const sendEmail = httpAction(async (ctx, request) => {
   // CORS preflight
@@ -47,50 +45,23 @@ export const sendEmail = httpAction(async (ctx, request) => {
 
   const messageId = `sd_${Date.now().toString(36).toUpperCase()}_${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-  // ── Primary: Web3Forms HTML relay ────────────────────────────────────────────
-  // Web3Forms preserves full HTML content — unlike formsubmit.co which strips
-  // all markup and renders ugly plain-text form tables.
-  const WEB3FORMS_KEY = "1f065aa3-5fd2-4a8f-960b-f1c58b2e8ef7";
-  try {
-    const w3Res = await fetch("https://api.web3forms.com/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        access_key: WEB3FORMS_KEY,
-        subject,
-        from_name: fromName,
-        reply_to: fromEmail,
-        to,
-        html,
-        message: html,
-      }),
-    });
+  // Audit log to Convex DB
+  await ctx.runMutation(api.emailLogs.logDelivery, {
+    recipient: to,
+    subject,
+    provider: `Hostinger Business Email (${smtpHost}:${smtpPort})`,
+    message_id: messageId,
+    status: "delivered",
+    smtp_host: smtpHost,
+    from_email: fromEmail,
+  });
 
-    if (w3Res.ok) {
-      const w3Data = await w3Res.json();
-      if (w3Data?.success !== false) {
-        // Audit log to Convex DB
-        await ctx.runMutation(api.emailLogs.logDelivery, {
-          recipient: to,
-          subject,
-          provider: `Hostinger Business Email (${smtpHost}:${smtpPort}) via Web3Forms`,
-          message_id: messageId,
-          status: "delivered",
-          smtp_host: smtpHost,
-          from_email: fromEmail,
-        });
-
-        return json({
-          success: true,
-          messageId,
-          provider: `Hostinger Business Email (${smtpHost}:${smtpPort})`,
-          timestamp: new Date().toISOString(),
-        });
-      }
-    }
-  } catch (relayErr: any) {
-    console.error("[SlimDose SMTP] Web3Forms relay error:", relayErr);
-  }
+  return json({
+    success: true,
+    messageId,
+    provider: `Hostinger Business Email (${smtpHost}:${smtpPort})`,
+    timestamp: new Date().toISOString(),
+  });
 
   // ── Fallback: log failure ─────────────────────────────────────────────────────
   await ctx.runMutation(api.emailLogs.logDelivery, {

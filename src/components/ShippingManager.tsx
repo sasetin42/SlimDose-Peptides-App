@@ -352,20 +352,20 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
           </p>
         </div>
 
-        {/* Free / Same-Day Courier Card */}
+        {/* Paid Upon Delivery / Same-Day Courier Card */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Local / Rider Zones</span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-100/70 text-indigo-700 flex items-center justify-center font-bold">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Paid Upon Delivery</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-100/70 text-amber-700 flex items-center justify-center font-bold">
               <Layers className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-black text-slate-900 tracking-tight">{stats.freeDeliveryCount}</span>
-            <span className="text-[11px] font-semibold text-indigo-600">₱0 Initial Fee (Maxim)</span>
+            <span className="text-[11px] font-semibold text-amber-700">Paid to Rider (Not Free)</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-1 truncate">
-            Customer pays rider on drop-off
+            Lalamove &amp; Maxim: customer pays rider on arrival
           </p>
         </div>
 
@@ -501,8 +501,8 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
                   { id: 'LUZON_PROV', name: 'Luzon Provincial (J&T Express 2-3 Days)', fee: 150 },
                   { id: 'VISAYAS', name: 'Visayas Regional (J&T Express 3-4 Days)', fee: 180 },
                   { id: 'MINDANAO', name: 'Mindanao Regional (J&T Express 3-5 Days)', fee: 200 },
-                  { id: 'MAXIM_DAVAO', name: 'Maxim Same-Day Express (Booking fee on delivery)', fee: 0 },
-                  { id: 'LALAMOVE_NCR', name: 'Lalamove / Grab Same-Day (Metro Manila)', fee: 0 },
+                  { id: 'MAXIM_DAVAO', name: 'Maxim — Davao City (Paid upon delivery to rider — Not Free)', fee: 0, note: 'PAID UPON DELIVERY (Fee paid to rider — not free)' },
+                  { id: 'LALAMOVE_MM', name: 'Lalamove — Metro Manila (Paid upon delivery to rider — Not Free)', fee: 0, note: 'PAID UPON DELIVERY (Fee paid to rider — not free)' },
                 ].map((preset) => (
                   <button
                     key={preset.id}
@@ -510,7 +510,7 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
                     onClick={() => applyPreset(preset)}
                     className="text-[11px] px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-700 font-medium transition-colors cursor-pointer"
                   >
-                    + {preset.name.split(' ')[0]} ({formatPHP(preset.fee)})
+                    + {preset.name.split(' ')[0]} ({preset.fee === 0 ? 'PAID UPON DELIVERY' : formatPHP(preset.fee)})
                   </button>
                 ))}
               </div>
@@ -740,8 +740,9 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
                               </span>
                             )}
                             {location.is_active && location.fee === 0 && (
-                              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                {location.note || 'Rider / Same-Day'}
+                              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-300 flex items-center gap-1">
+                                <span>🛵</span>
+                                <span>{location.note || 'PAID UPON DELIVERY (Not Free)'}</span>
                               </span>
                             )}
                           </div>
@@ -771,13 +772,22 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
                           />
                         </div>
                       ) : (
-                        <span className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                        <div className="text-right">
                           {location.fee === 0 ? (
-                            <span className="text-indigo-600 font-extrabold text-sm">₱0.00 ({location.note || 'Customer Pays Rider'})</span>
+                            <div>
+                              <span className="text-amber-700 font-black text-xs sm:text-sm uppercase tracking-tight block">
+                                PAID UPON DELIVERY
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-semibold block">
+                                Customer pays rider directly (Not Free)
+                              </span>
+                            </div>
                           ) : (
-                            formatPHP(location.fee)
+                            <span className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                              {formatPHP(location.fee)}
+                            </span>
                           )}
-                        </span>
+                        </div>
                       )}
                     </div>
 
@@ -874,11 +884,11 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
                 <div key={loc.id} className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60 hover:border-blue-500/40 transition-colors">
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="font-bold text-slate-200 truncate">{loc.name.split('(')[0]}</span>
-                    <span className="font-mono font-black text-blue-400">{loc.fee === 0 ? '₱0 (Rider)' : formatPHP(loc.fee)}</span>
+                    <span className="font-mono font-black text-amber-400">{loc.fee === 0 ? 'Paid Upon Delivery' : formatPHP(loc.fee)}</span>
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-700/50 mt-2">
-                    <span>Simulated Total (₱3.5k cart):</span>
-                    <span className="font-bold text-white">{formatPHP(estimatedTotal)}</span>
+                    <span>Simulated Total:</span>
+                    <span className="font-bold text-white">{formatPHP(estimatedTotal)} {loc.fee === 0 ? '(+ rider fee)' : ''}</span>
                   </div>
                 </div>
               );

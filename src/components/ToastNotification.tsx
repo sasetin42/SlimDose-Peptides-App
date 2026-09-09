@@ -88,11 +88,11 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   return (
     <div
       style={{
-        transform: visible && !leaving ? 'translateX(0)' : 'translateX(110%)',
-        opacity: leaving ? 0 : 1,
+        transform: visible && !leaving ? 'translateY(0) scale(1)' : 'translateY(-20px) scale(0.95)',
+        opacity: visible && !leaving ? 1 : 0,
         transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease',
       }}
-      className={`relative flex items-start gap-3 w-80 max-w-[calc(100vw-2rem)] rounded-xl px-4 py-3 mb-2 cursor-pointer select-none ${s.wrap}`}
+      className={`relative flex items-start gap-3 w-full max-w-md sm:w-96 rounded-xl px-4 py-3.5 mb-2 cursor-pointer select-none shadow-xl ${s.wrap}`}
       onClick={dismiss}
       role="alert"
     >
@@ -100,12 +100,12 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
       <span className={`mt-0.5 ${s.icon}`}>{ICONS[toast.type]}</span>
 
       {/* Message */}
-      <p className="flex-1 text-sm font-medium text-gray-800 leading-snug pr-4">{toast.message}</p>
+      <p className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-100 leading-snug pr-4">{toast.message}</p>
 
       {/* Close button */}
       <button
         onClick={(e) => { e.stopPropagation(); dismiss(); }}
-        className="absolute top-2.5 right-2.5 text-gray-400 hover:text-gray-600 transition-colors"
+        className="absolute top-2.5 right-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1"
         aria-label="Dismiss"
       >
         <X className="w-4 h-4" />
@@ -161,13 +161,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
 
-      {/* Toast Container — top-right (z-[999999] guarantees it renders above any modal/portal) */}
+      {/* Toast Container — Top-Center (z-[999999] guarantees it renders above any modal/portal) */}
       <div
-        className="fixed top-4 right-4 z-[999999] flex flex-col items-end pointer-events-none"
+        className="fixed top-4 left-0 right-0 z-[999999] flex flex-col items-center px-4 pointer-events-none w-full"
         aria-live="polite"
       >
         {toasts.map(t => (
-          <div key={t.id} className="pointer-events-auto">
+          <div key={t.id} className="pointer-events-auto w-full flex justify-center">
             <ToastItem toast={t} onRemove={removeToast} />
           </div>
         ))}

@@ -5,6 +5,19 @@
   "storage": {
     "rules": "storage.rules"
   },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
   "hosting": {
     "site": "slimdose-peptides",
     "public": "dist",
@@ -14,6 +27,14 @@
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/api/send-email",
+        "function": "apiSendEmail"
+      },
+      {
+        "source": "/api/smtp-test-connection",
+        "function": "apiSmtpTestConnection"
+      },
       {
         "source": "**",
         "destination": "/index.html"

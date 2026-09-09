@@ -175,7 +175,6 @@ export interface SiteSettings {
   contact_phone?: string;
   contact_whatsapp?: string;
   contact_inquiry_text?: string;
-  operating_hours?: string;
   instagram_url?: string;
   facebook_url?: string;
   // SEO & Meta
@@ -187,15 +186,134 @@ export interface SiteSettings {
   smtp_provider?: string;
   smtp_host?: string;
   smtp_port?: string;
+  smtp_encryption_type?: 'none' | 'ssl' | 'starttls' | string;
   smtp_secure?: string;
+  smtp_auth_required?: string;
   smtp_user?: string;
   smtp_pass?: string;
   smtp_from_email?: string;
   smtp_from_name?: string;
+  smtp_reply_to_email?: string;
   smtp_admin_email?: string;
   smtp_send_order_receipt?: string;
   smtp_send_admin_alert?: string;
   smtp_send_status_update?: string;
+  smtp_last_tested_at?: string;
+  smtp_last_sent_at?: string;
+  smtp_status?: 'connected' | 'testing' | 'sending' | 'disconnected' | 'auth_failed' | 'config_error' | 'sending_failed' | string;
+  smtp_last_error?: string;
+
+  // Extended Branding & Logos
+  site_logo_dark?: string;
+  site_logo_light?: string;
+  site_favicon?: string;
+  site_email_logo?: string;
+  site_invoice_logo?: string;
+  site_admin_logo?: string;
+  brand_primary_color?: string;
+  brand_secondary_color?: string;
+  brand_accent_color?: string;
+  brand_font_family?: string;
+
+  // Extended General & Regional
+  timezone?: string;
+  date_format?: string;
+  time_format?: string;
+  unit_system?: string;
+  number_format?: string;
+  currency_symbol?: string;
+
+  // Company Information
+  company_legal_name?: string;
+  company_trade_name?: string;
+  company_tin?: string;
+  company_reg_number?: string;
+  company_address?: string;
+  company_city?: string;
+  company_province?: string;
+  company_postal_code?: string;
+  company_country?: string;
+  company_phone?: string;
+  company_email?: string;
+  company_website?: string;
+
+  // Contact Profiles & Departments
+  contact_sales_email?: string;
+  contact_sales_phone?: string;
+  contact_billing_email?: string;
+  contact_tech_email?: string;
+  contact_escalation_email?: string;
+
+  // Payment Links & Gateway Diagnostics
+  payment_links_enabled?: string;
+  payment_test_mode?: string;
+  payment_auto_confirm?: string;
+  payment_receipt_required?: string;
+  custom_checkout_redirect?: string;
+
+  // Platform & Access
+  maintenance_mode?: string;
+  maintenance_heading?: string;
+  maintenance_message?: string;
+  maintenance_eta?: string;
+  maintenance_ip_whitelist?: string;
+  user_registration_enabled?: string;
+  guest_checkout_enabled?: string;
+  session_timeout_minutes?: string;
+  max_upload_size_mb?: string;
+
+  // User & Roles
+  default_user_role?: string;
+  allow_role_switching?: string;
+  require_admin_approval?: string;
+
+  // Security & Authentication
+  security_2fa_required?: string;
+  security_brute_force_protection?: string;
+  security_max_login_attempts?: string;
+  security_lockout_duration_mins?: string;
+  password_min_length?: string;
+  password_require_symbols?: string;
+  password_require_numbers?: string;
+  security_ip_whitelist?: string;
+  security_ip_blacklist?: string;
+
+  // API & Webhooks
+  api_enabled?: string;
+  webhook_url?: string;
+  webhook_secret?: string;
+  webhook_events?: string;
+
+  // Storage & Media
+  storage_provider?: string;
+  storage_auto_compress?: string;
+  storage_webp_conversion?: string;
+  storage_max_image_dim?: string;
+
+  // CDN & Caching
+  cdn_enabled?: string;
+  cdn_provider?: string;
+  cdn_domain?: string;
+  cdn_cache_ttl?: string;
+
+  // Database & Backup
+  backup_auto_enabled?: string;
+  backup_frequency?: string;
+  backup_retention_days?: string;
+  backup_last_run?: string;
+
+  // Tax & Financial Settings
+  tax_enabled?: string;
+  tax_rate_percent?: string;
+  tax_inclusive?: string;
+  invoice_prefix?: string;
+  receipt_prefix?: string;
+  invoice_start_number?: string;
+  payment_terms_days?: string;
+
+  // Configuration Snapshots & Auditing
+  settings_snapshots_json?: string;
+  audit_logs_json?: string;
 }
 
 // Cart Types

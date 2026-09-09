@@ -35,7 +35,8 @@ import {
   Share2,
   Trash2,
   Lock,
-  CheckCircle
+  CheckCircle,
+  Tag
 } from 'lucide-react';
 import { supabase, getDeletedIdsForTable, markIdsAsDeleted } from '../lib/supabase';
 import { db, doc, setDoc, deleteDoc, collection, getDocs, onSnapshot } from '../lib/firebase';
@@ -44,6 +45,7 @@ import { fireToast } from './ToastNotification';
 import { formatOrderId } from '../utils/orderUtils';
 import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
 import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import { dispatchMarketingEmail, dispatchOrderEmail } from '../services/emailService';
 
 export interface Customer {
   id: string;
@@ -1769,6 +1771,79 @@ export default function CustomerCRMManager() {
                     <MessageCircle className="w-3.5 h-3.5" />
                     <span>WhatsApp Creds</span>
                   </a>
+                </div>
+
+                {/* 1-Click Dynamic Email Notification Campaigns */}
+                <div className="pt-2 border-t border-blue-200/50 dark:border-blue-900/50">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                    ✉️ Dispatch Notification / Engagement Template
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        fireToast(`Sending Loyalty Thank You to ${activeCustomer.email}...`, 'info');
+                        dispatchMarketingEmail('thank-you-order', {
+                          recipientEmail: activeCustomer.email,
+                          customerName: activeCustomer.full_name,
+                          catalogUrl: `${window.location.origin}/#products`,
+                          siteUrl: window.location.origin,
+                        }).then((res) => {
+                          if (res.success) fireToast('Loyalty Thank You email dispatched! 🎉', 'success');
+                          else fireToast(`Send failed: ${res.error}`, 'error');
+                        });
+                      }}
+                      className="py-1.5 px-2 bg-white dark:bg-slate-800 hover:bg-blue-50 text-[#3C6CA8] border border-blue-200 dark:border-blue-800 rounded-xl text-[11px] font-bold transition-all shadow-2xs flex items-center justify-center gap-1 cursor-pointer"
+                      title="Send Customer Loyalty Thank You template email"
+                    >
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      <span>Thank You</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        fireToast(`Sending Re-engagement email to ${activeCustomer.email}...`, 'info');
+                        dispatchMarketingEmail('we-miss-you', {
+                          recipientEmail: activeCustomer.email,
+                          customerName: activeCustomer.full_name,
+                          catalogUrl: `${window.location.origin}/#products`,
+                          siteUrl: window.location.origin,
+                        }).then((res) => {
+                          if (res.success) fireToast('Checking In email dispatched! 💌', 'success');
+                          else fireToast(`Send failed: ${res.error}`, 'error');
+                        });
+                      }}
+                      className="py-1.5 px-2 bg-white dark:bg-slate-800 hover:bg-purple-50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 rounded-xl text-[11px] font-bold transition-all shadow-2xs flex items-center justify-center gap-1 cursor-pointer"
+                      title="Send Re-engagement Checking In template email"
+                    >
+                      <Mail className="w-3 h-3 text-indigo-500" />
+                      <span>We Miss You</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        fireToast(`Sending Member Welcome to ${activeCustomer.email}...`, 'info');
+                        dispatchMarketingEmail('promo-welcome', {
+                          recipientEmail: activeCustomer.email,
+                          customerName: activeCustomer.full_name,
+                          promoCode: 'SLIM10',
+                          discountPercentage: '10%',
+                          catalogUrl: `${window.location.origin}/#products`,
+                          siteUrl: window.location.origin,
+                        }).then((res) => {
+                          if (res.success) fireToast('Welcome Promo email dispatched! ✨', 'success');
+                          else fireToast(`Send failed: ${res.error}`, 'error');
+                        });
+                      }}
+                      className="py-1.5 px-2 bg-white dark:bg-slate-800 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-xl text-[11px] font-bold transition-all shadow-2xs flex items-center justify-center gap-1 cursor-pointer"
+                      title="Send Member Welcome & Promo template email"
+                    >
+                      <Tag className="w-3 h-3 text-emerald-500" />
+                      <span>Welcome 10%</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

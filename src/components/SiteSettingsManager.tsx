@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Layout,
   Home,
-  MessageCircle,
   Shield,
   Search,
   Save,
@@ -11,50 +10,129 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  Smartphone,
-  Monitor,
-  Sparkles,
-  Phone,
-  Mail,
-  Instagram,
-  Loader2,
-  Trash2,
   Clock,
   Send,
   Lock,
-  Eye,
-  EyeOff,
   Server,
   Key,
+  RefreshCw,
+  FileText,
+  Check,
+  Building2,
+  CreditCard,
+  History,
+  Sparkles,
+  Sliders,
+  Globe,
+  Database,
+  Layers,
+  ChevronRight,
+  Eye,
+  SlidersHorizontal
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { fireToast } from './ToastNotification';
-import { sendTransactionalEmail, generateSmtpTestEmailHtml, getStoredTemplateByKey } from '../services/emailService';
-import { renderEmailTemplate } from '../utils/emailRenderer';
+import {
+  sendTransactionalEmail,
+  testSmtpConnection,
+  generateSmtpTestEmailHtml,
+  getStoredTemplateByKey,
+  getEmailActivityLogs,
+  clearStoredEmailLogs,
+  EmailLogEntry,
+} from '../services/emailService';
+import { renderEmailTemplate, renderEmailSubject } from '../utils/emailRenderer';
 import { LiveEmailViewerModal } from './LiveEmailViewerModal';
 
-type SettingsTab = 'general' | 'community' | 'homepage' | 'notice' | 'seo' | 'smtp';
+// Subcomponents
+import { BrandingSettingsSection } from './settings/BrandingSettingsSection';
+import { CompanyContactSettings } from './settings/CompanyContactSettings';
+import { CommerceFinanceSettings } from './settings/CommerceFinanceSettings';
+import { PlatformSecuritySettings } from './settings/PlatformSecuritySettings';
+import { SystemDataSettings } from './settings/SystemDataSettings';
+import { AuditLogsSettings } from './settings/AuditLogsSettings';
+import { SmtpSettingsSection } from './settings/SmtpSettingsSection';
+import { SiteSettings } from '../types';
+
+export type SettingsTab =
+  | 'branding'
+  | 'general'
+  | 'company'
+  | 'payments'
+  | 'smtp'
+  | 'platform'
+  | 'system'
+  | 'audit'
+  | 'homepage'
+  | 'notice'
+  | 'seo';
 
 interface SiteSettingsManagerProps {
   onNavigateToEmailTemplates?: () => void;
+  adminEmail?: string;
+  adminRole?: string;
 }
 
-const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToEmailTemplates }) => {
+interface NavItem {
+  id: SettingsTab;
+  label: string;
+  badge?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+  category: 'Core' | 'Operations' | 'Channels' | 'Security & System';
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: 'branding', label: 'Branding & Multi-Logos', icon: Layers, description: 'Brand identity, 6 logo variants, typography & HEX palette', category: 'Core' },
+  { id: 'general', label: 'General & Regional', icon: Sliders, description: 'Site identity, currency, timezone, and regional presets', category: 'Core' },
+  { id: 'company', label: 'Company & Legal Profile', icon: Building2, description: 'TIN, DTI/SEC, registered address & multi-department routing', category: 'Operations' },
+  { id: 'payments', label: 'Payment Links & Billing', icon: CreditCard, description: 'GCash, Maya, Bank wires, sandbox mode & 12% VAT', category: 'Operations' },
+  { id: 'smtp', label: 'Email / SMTP Relay', badge: 'Active', icon: Send, description: 'Hostinger SMTP engine, live diagnostic handshake & templates', category: 'Channels' },
+  { id: 'homepage', label: 'Homepage Hero Content', icon: Home, description: 'Headlines, hero badge, value propositions & accent colors', category: 'Channels' },
+  { id: 'notice', label: 'Notice & Compliance Modal', icon: Shield, description: 'Research disclaimer, order cutoffs & shipping rules', category: 'Channels' },
+  { id: 'seo', label: 'SEO & Google SERP Preview', icon: Globe, description: 'Search engine metadata, OpenGraph tags & live SERP simulator', category: 'Channels' },
+  { id: 'platform', label: 'Platform Access & Security', badge: 'A+', icon: Lock, description: 'Maintenance mode, 2FA, session timeout & lockout policies', category: 'Security & System' },
+  { id: 'system', label: 'API Keys & Backups', icon: Database, description: 'Developer keys, edge cache invalidation & JSON snapshots', category: 'Security & System' },
+  { id: 'audit', label: 'Audit Trail & Logs', icon: History, description: 'Chronological activity log and security incident audit', category: 'Security & System' },
+];
+
+
+export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
+  onNavigateToEmailTemplates,
+  adminEmail = 'admin@slimdose.ph',
+  adminRole = 'Super Admin',
+}) => {
   const { siteSettings, loading, updateSiteSettings, refetch } = useSiteSettings();
-  const { uploadImage, uploading } = useImageUpload('site-assets');
+  const { uploadImage } = useImageUpload('site-assets');
 
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [activeTab, setActiveTab] = useState<SettingsTab>('branding');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>('');
 
-  // SMTP Diagnostics State
-  const [showPassword, setShowPassword] = useState(false);
+  // SMTP Real-Time Diagnostics State
   const [testEmailRecipient, setTestEmailRecipient] = useState('');
+  const [testEmailSubject, setTestEmailSubject] = useState('');
+  const [testEmailMessage, setTestEmailMessage] = useState('');
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [isSendingTest, setIsSendingTest] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [connectionTestResult, setConnectionTestResult] = useState<any>(null);
+  const [sendTestResult, setSendTestResult] = useState<any>(null);
+
+  // Email Activity Logs State
+  const [activityLogs, setActivityLogs] = useState<EmailLogEntry[]>(() => getEmailActivityLogs());
+
+  useEffect(() => {
+    const handleLogsUpdate = (e: any) => {
+      if (e.detail) {
+        setActivityLogs(e.detail);
+      } else {
+        setActivityLogs(getEmailActivityLogs());
+      }
+    };
+    window.addEventListener('slimdose_email_logs_updated', handleLogsUpdate);
+    return () => window.removeEventListener('slimdose_email_logs_updated', handleLogsUpdate);
+  }, []);
 
   // Live Email Delivery Inspector Modal State
   const [isLiveViewerOpen, setIsLiveViewerOpen] = useState(false);
@@ -66,194 +144,174 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
     htmlContent: '',
     provider: '',
     host: '',
-    port: 465,
+    port: 465 as number | string,
     referenceId: '',
+    serverResponse: '' as string | undefined,
+    errorMessage: '' as string | undefined,
   });
 
-  // Main Form Data State
-  const [formData, setFormData] = useState({
-    // General & Branding
-    site_name: '',
-    site_description: '',
-    currency: 'PHP',
-    currency_code: 'PHP',
-    operating_hours: 'Monday - Friday: 9:00 AM - 6:00 PM PHT',
-    support_email: 'support@slimdose.ph',
-    support_phone: '+63 977 813 2630',
-    contact_phone: '+63 977 813 2630',
-    contact_whatsapp: '+63 977 813 2630',
-    contact_inquiry_text: 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
-    // Social & Community Links
-    community_telegram_url: '',
-    support_telegram_url: '',
-    instagram_url: '',
-    facebook_url: '',
-    // Homepage Hero
-    hero_badge_text: '',
-    hero_title_prefix: '',
-    hero_title_highlight: '',
-    hero_title_suffix: '',
-    hero_subtext: '',
-    hero_tagline: '',
-    hero_description: '',
-    hero_accent_color: '#3C6CA8',
-    // Important Notice Modal
-    notice_title: '',
-    notice_subtitle: '',
-    notice_disclaimer_p1: '',
-    notice_disclaimer_p2: '',
-    notice_consult_text: '',
-    notice_warning_pill: '',
-    notice_order_days: '',
-    notice_cutoff_time: '',
-    notice_courier: '',
-    notice_weekend_orders: '',
-    notice_agree_button_text: '',
-    // SEO & Meta
-    meta_title: '',
-    meta_description: '',
-    meta_keywords: '',
-    // SMTP & Email Notification Settings
-    smtp_enabled: 'true',
-    smtp_provider: 'hostinger',
-    smtp_host: 'smtp.hostinger.com',
-    smtp_port: '465',
-    smtp_secure: 'true',
-    smtp_user: 'noreply@slimdoseph.com',
-    smtp_pass: 'PWqa@7kQ',
-    smtp_from_email: 'noreply@slimdoseph.com',
-    smtp_from_name: 'SlimDose Peptides',
-    smtp_admin_email: 'noreply@slimdoseph.com',
-    smtp_send_order_receipt: 'true',
-    smtp_send_admin_alert: 'true',
-    smtp_send_status_update: 'true',
-  });
+  // Master Form Data State
+  const [formData, setFormData] = useState<Partial<SiteSettings>>({});
+  const [initialData, setInitialData] = useState<Partial<SiteSettings> | null>(null);
 
-  // Track initial state to detect unsaved changes
-  const [initialData, setInitialData] = useState<typeof formData | null>(null);
-
+  // Sync formData from hook
   useEffect(() => {
     if (siteSettings) {
-      const synced = {
-        site_name: siteSettings.site_name || 'SlimDose Peptides',
-        site_description: siteSettings.site_description || '',
-        currency: siteSettings.currency || 'PHP',
-        currency_code: siteSettings.currency_code || 'PHP',
-        operating_hours: siteSettings.operating_hours || 'Monday - Friday: 9:00 AM - 6:00 PM PHT',
-        support_email: siteSettings.support_email || 'support@slimdose.ph',
-        support_phone: siteSettings.support_phone || '+63 977 813 2630',
-        contact_phone: siteSettings.contact_phone || '+63 977 813 2630',
-        contact_whatsapp: siteSettings.contact_whatsapp || '+63 977 813 2630',
-        contact_inquiry_text: siteSettings.contact_inquiry_text || 'For inquiries regarding bulk purchases, custom peptide synthesis, or laboratory test verification, please reach out to our support team.',
-        community_telegram_url: siteSettings.community_telegram_url || 'https://t.me/+fGtShIUkbB84YzZl',
-        support_telegram_url: siteSettings.support_telegram_url || 'https://telegram.me/slimdose_mnl',
-        instagram_url: siteSettings.instagram_url || '',
-        facebook_url: siteSettings.facebook_url || '',
-        hero_badge_text: siteSettings.hero_badge_text || 'Premium Peptide Solutions',
-        hero_title_prefix: siteSettings.hero_title_prefix || 'Premium',
-        hero_title_highlight: siteSettings.hero_title_highlight || 'Peptides',
-        hero_title_suffix: siteSettings.hero_title_suffix || '& Essentials',
-        hero_subtext: siteSettings.hero_subtext || 'From the Lab to You — Simplifying Science, One Dose at a Time.',
-        hero_tagline: siteSettings.hero_tagline || 'Quality-tested products. Reliable performance. Trusted by our community.',
-        hero_description: siteSettings.hero_description || 'SlimDose Peptides is your all-in-one destination for high-quality peptides, peptide pens, and the essential accessories you need for a smooth and confident wellness routine.',
-        hero_accent_color: siteSettings.hero_accent_color || '#3C6CA8',
-        notice_title: siteSettings.notice_title || 'Important Notice',
-        notice_subtitle: siteSettings.notice_subtitle || 'Please read carefully before continuing',
-        notice_disclaimer_p1: siteSettings.notice_disclaimer_p1 || 'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.',
-        notice_disclaimer_p2: siteSettings.notice_disclaimer_p2 || 'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.',
-        notice_consult_text: siteSettings.notice_consult_text || 'Always consult a licensed healthcare professional for health-related decisions.',
-        notice_warning_pill: siteSettings.notice_warning_pill || '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS',
-        notice_order_days: siteSettings.notice_order_days || 'Monday - Friday',
-        notice_cutoff_time: siteSettings.notice_cutoff_time || '5:00 PM Daily',
-        notice_courier: siteSettings.notice_courier || 'Next Day via J&T',
-        notice_weekend_orders: siteSettings.notice_weekend_orders || 'Processed Mondays',
-        notice_agree_button_text: siteSettings.notice_agree_button_text || 'I Understand & Agree',
-        meta_title: siteSettings.meta_title || 'SlimDose Peptides — High Purity Research Solutions',
-        meta_description: siteSettings.meta_description || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.',
-        meta_keywords: siteSettings.meta_keywords || 'peptides, slimdose, research peptides, peptide calculator, laboratory tested',
-        // SMTP Synced
-        smtp_enabled: siteSettings.smtp_enabled || 'true',
-        smtp_provider: siteSettings.smtp_provider || 'hostinger',
-        smtp_host: siteSettings.smtp_host || 'smtp.hostinger.com',
-        smtp_port: siteSettings.smtp_port || '465',
-        smtp_secure: siteSettings.smtp_secure || 'true',
-        smtp_user: siteSettings.smtp_user || 'noreply@slimdoseph.com',
-        smtp_pass: siteSettings.smtp_pass || 'PWqa@7kQ',
-        smtp_from_email: siteSettings.smtp_from_email || 'noreply@slimdoseph.com',
-        smtp_from_name: siteSettings.smtp_from_name || 'SlimDose Peptides',
-        smtp_admin_email: siteSettings.smtp_admin_email || 'noreply@slimdoseph.com',
-        smtp_send_order_receipt: siteSettings.smtp_send_order_receipt || 'true',
-        smtp_send_admin_alert: siteSettings.smtp_send_admin_alert || 'true',
-        smtp_send_status_update: siteSettings.smtp_send_status_update || 'true',
-      };
-
-      setFormData(synced);
-      setInitialData(synced);
-      setTestEmailRecipient(synced.smtp_admin_email || synced.support_email || 'noreply@slimdoseph.com');
-      setLogoPreview(siteSettings.site_logo || '/assets/logo.jpeg');
+      setFormData(siteSettings);
+      setInitialData(siteSettings);
+      setTestEmailRecipient(siteSettings.smtp_admin_email || siteSettings.support_email || 'noreply@slimdoseph.com');
     }
   }, [siteSettings]);
 
+  // Handle updates
+  const handleUpdates = (updates: Partial<SiteSettings>) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...updates,
+    }));
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    handleUpdates({ [name]: value });
+  };
+
+  // Detect Unsaved Changes
+  const changedFieldsCount = useMemo(() => {
+    if (!initialData) return 0;
+    let count = 0;
+    for (const key in formData) {
+      const val1 = (formData as any)[key];
+      const val2 = (initialData as any)[key];
+      if (val1 !== undefined && val1 !== null && val1 !== val2) {
+        count++;
+      }
+    }
+    return count;
+  }, [formData, initialData]);
+
+  const hasUnsavedChanges = changedFieldsCount > 0;
+
+  // Presets
   const handleProviderPreset = (provider: string) => {
     if (provider === 'hostinger') {
-      setFormData((prev) => ({
-        ...prev,
+      handleUpdates({
         smtp_provider: 'hostinger',
         smtp_host: 'smtp.hostinger.com',
         smtp_port: '465',
         smtp_secure: 'true',
-        smtp_user: prev.smtp_user && prev.smtp_user.includes('@') ? prev.smtp_user : 'noreply@slimdoseph.com',
-        smtp_pass: prev.smtp_pass && prev.smtp_pass.trim() ? prev.smtp_pass : 'PWqa@7kQ',
-        smtp_from_email: prev.smtp_from_email && prev.smtp_from_email.includes('@') ? prev.smtp_from_email : 'noreply@slimdoseph.com',
+        smtp_user: formData.smtp_user?.includes('@') ? formData.smtp_user : 'noreply@slimdoseph.com',
+        smtp_pass: formData.smtp_pass || 'PWqa@7kQ',
+        smtp_from_email: formData.smtp_from_email?.includes('@') ? formData.smtp_from_email : 'noreply@slimdoseph.com',
         smtp_from_name: 'SlimDose Peptides',
-        smtp_admin_email: prev.smtp_admin_email && prev.smtp_admin_email.includes('@') ? prev.smtp_admin_email : 'noreply@slimdoseph.com',
-      }));
-      fireToast('Applied Hostinger Business Email preset (smtp.hostinger.com:465 SSL)', 'info');
+        smtp_admin_email: formData.smtp_admin_email?.includes('@') ? formData.smtp_admin_email : 'noreply@slimdoseph.com',
+      });
+      fireToast('Applied Hostinger SMTP preset (smtp.hostinger.com:465 SSL)', 'info');
     } else if (provider === 'gmail') {
-      setFormData((prev) => ({
-        ...prev,
+      handleUpdates({
         smtp_provider: 'gmail',
         smtp_host: 'smtp.gmail.com',
         smtp_port: '465',
         smtp_secure: 'true',
-      }));
+      });
       fireToast('Applied Gmail / Google Workspace SMTP preset', 'info');
     } else if (provider === 'brevo') {
-      setFormData((prev) => ({
-        ...prev,
+      handleUpdates({
         smtp_provider: 'brevo',
         smtp_host: 'smtp-relay.brevo.com',
         smtp_port: '587',
         smtp_secure: 'false',
-      }));
-      fireToast('Applied Brevo / Sendinblue SMTP preset', 'info');
+      });
+      fireToast('Applied Brevo SMTP preset', 'info');
     } else if (provider === 'sendgrid') {
-      setFormData((prev) => ({
-        ...prev,
+      handleUpdates({
         smtp_provider: 'sendgrid',
         smtp_host: 'smtp.sendgrid.net',
         smtp_port: '587',
         smtp_secure: 'false',
-      }));
+      });
       fireToast('Applied SendGrid SMTP preset', 'info');
-    } else if (provider === 'resend') {
-      setFormData((prev) => ({
-        ...prev,
-        smtp_provider: 'resend',
-        smtp_host: 'smtp.resend.com',
-        smtp_port: '465',
-        smtp_secure: 'true',
-      }));
-      fireToast('Applied Resend SMTP preset', 'info');
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        smtp_provider: 'smtp',
-      }));
+      handleUpdates({ smtp_provider: 'smtp' });
       fireToast('Custom SMTP configuration selected', 'info');
     }
   };
 
+  // Connection Handshake Test
+  const handleTestConnection = async () => {
+    if (!formData.smtp_host) {
+      fireToast('Please enter an SMTP Host Server', 'warning');
+      return;
+    }
+
+    try {
+      setIsTestingConnection(true);
+      setConnectionTestResult(null);
+      const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+
+      handleUpdates({ smtp_status: 'testing' });
+
+      const res = await testSmtpConnection({
+        enabled: formData.smtp_enabled !== 'false',
+        provider: formData.smtp_provider || 'hostinger',
+        host: formData.smtp_host,
+        port: parseInt(formData.smtp_port || '465', 10) || 465,
+        encryptionType: formData.smtp_encryption_type || 'ssl',
+        secure: formData.smtp_encryption_type === 'ssl' || formData.smtp_port === '465' || formData.smtp_secure === 'true',
+        authRequired: formData.smtp_auth_required !== 'false',
+        user: formData.smtp_user,
+        pass: formData.smtp_pass,
+        relayUrl: formData.smtp_relay_url,
+      });
+
+      if (res.success) {
+        setConnectionTestResult({
+          success: true,
+          message: res.message,
+          testedAt: timestamp,
+          details: res.details,
+        });
+        handleUpdates({
+          smtp_status: 'connected',
+          smtp_last_tested_at: timestamp,
+          smtp_last_error: '',
+        });
+        fireToast('SMTP Connection & Handshake Verified! 🟢', 'success');
+      } else {
+        const isAuthErr = res.code === 'EAUTH' || res.message.toLowerCase().includes('password') || res.message.toLowerCase().includes('auth');
+        setConnectionTestResult({
+          success: false,
+          message: res.message,
+          testedAt: timestamp,
+          details: res.details,
+        });
+        handleUpdates({
+          smtp_status: isAuthErr ? 'auth_failed' : 'disconnected',
+          smtp_last_tested_at: timestamp,
+          smtp_last_error: res.message,
+        });
+        fireToast(`SMTP Connection Failed: ${res.message}`, 'error');
+      }
+    } catch (err: any) {
+      const errMsg = err.message || 'Error executing connection test';
+      setConnectionTestResult({
+        success: false,
+        message: errMsg,
+        testedAt: new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }),
+      });
+      handleUpdates({
+        smtp_status: 'config_error',
+        smtp_last_error: errMsg,
+      });
+      fireToast(`Connection Error: ${errMsg}`, 'error');
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  // Test Email Dispatch
   const handleSendTestEmail = async () => {
     if (!testEmailRecipient || !testEmailRecipient.includes('@')) {
       fireToast('Please enter a valid recipient email address', 'warning');
@@ -262,1256 +320,651 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
 
     try {
       setIsSendingTest(true);
-      setTestResult(null);
+      setSendTestResult(null);
 
-      const smtpConfig = {
-        enabled: formData.smtp_enabled === 'true',
-        provider: formData.smtp_provider,
-        host: formData.smtp_host,
-        port: parseInt(formData.smtp_port, 10) || 465,
-        secure: formData.smtp_secure === 'true',
-        user: formData.smtp_user,
-        pass: formData.smtp_pass,
-        fromEmail: formData.smtp_from_email,
-        fromName: formData.smtp_from_name,
-        adminEmail: formData.smtp_admin_email,
-        sendOrderReceipt: formData.smtp_send_order_receipt === 'true',
-        sendAdminAlert: formData.smtp_send_admin_alert === 'true',
-        sendStatusUpdate: formData.smtp_send_status_update === 'true',
-      };
-
-      const verifyCode = `HD-${Date.now().toString(36).toUpperCase().slice(-6)}`;
       const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+      const subject = testEmailSubject.trim() || `[SlimDose] Hostinger SMTP Verification - ${timestamp}`;
 
-      // ── Use Email Template Studio 'order-confirmed' template as the test ───────
-      // This proves the full template pipeline works AND looks professional.
-      const studioTemplate = getStoredTemplateByKey('order-confirmed');
-      let testHtml: string;
-      let testSubject: string;
-
-      const sampleVariables = {
-        customer_name: 'SMTP Test Recipient',
-        customer_email: testEmailRecipient,
-        order_number: verifyCode,
-        order_id: verifyCode,
-        order_status: '✅ SMTP Verified',
-        items_summary: `• Hostinger SMTP Relay — smtp.hostinger.com:465 (SSL/TLS)\n• Sender: ${formData.smtp_from_email || 'noreply@slimdoseph.com'}\n• Recipient: ${testEmailRecipient}\n• Ref: ${verifyCode}\n• Dispatched: ${timestamp} (PHT)`,
-        subtotal: '0.00',
-        shipping_fee: '0.00',
-        discount: '0.00',
-        promo_code: verifyCode,
-        total_price: '0.00',
-        payment_method: 'Hostinger Business Email',
-        shipping_address: `Delivered to: ${testEmailRecipient}`,
-        shipping_provider: 'Hostinger Business Email',
-        tracking_number: verifyCode,
-        tracking_url: 'https://slimdoseph.com',
-        site_url: 'https://slimdoseph.com',
-        support_email: formData.smtp_from_email || 'noreply@slimdoseph.com',
-      };
-
-      if (studioTemplate && studioTemplate.html_content) {
-        // Render with sample SMTP verification data injected into template variables
-        testHtml = renderEmailTemplate(studioTemplate.html_content, sampleVariables);
-        testSubject = renderEmailSubject(studioTemplate.subject, sampleVariables) || `✅ [SlimDose] SMTP Connection Verified — ${verifyCode}`;
-      } else {
-        // Fallback to branded diagnostic template if no studio template found
-        testHtml = generateSmtpTestEmailHtml(smtpConfig, testEmailRecipient);
-        testSubject = `[SlimDose] SMTP Verification Test (${formData.smtp_provider.toUpperCase()}) — ${testEmailRecipient}`;
-      }
-
-      // Populate Live Outbound Inspector & Open
-      setLiveViewerData({
-        recipientEmail: testEmailRecipient,
-        senderEmail: formData.smtp_from_email || 'noreply@slimdoseph.com',
-        senderName: formData.smtp_from_name || 'SlimDose Peptides',
-        subject: testSubject,
-        htmlContent: testHtml,
-        provider: formData.smtp_provider.toUpperCase(),
+      const htmlContent = generateSmtpTestEmailHtml({
         host: formData.smtp_host || 'smtp.hostinger.com',
-        port: parseInt(formData.smtp_port, 10) || 465,
-        referenceId: verifyCode,
+        port: parseInt(formData.smtp_port || '465', 10) || 465,
+        user: formData.smtp_user || 'noreply@slimdoseph.com',
+        timestamp,
+        customMessage: testEmailMessage.trim() || undefined,
       });
-      setIsLiveViewerOpen(true);
 
       const res = await sendTransactionalEmail({
-        to: testEmailRecipient,
-        subject: testSubject,
-        html: testHtml,
+        to: testEmailRecipient.trim(),
+        subject,
+        html: htmlContent,
         fromEmail: formData.smtp_from_email,
         fromName: formData.smtp_from_name,
-        smtpConfig,
+        replyTo: formData.smtp_reply_to_email,
         isTest: true,
+        smtpConfig: {
+          enabled: formData.smtp_enabled !== 'false',
+          provider: formData.smtp_provider || 'hostinger',
+          host: (formData.smtp_host || 'smtp.hostinger.com').trim(),
+          port: parseInt(formData.smtp_port || '465', 10) || 465,
+          encryptionType: formData.smtp_encryption_type || 'ssl',
+          secure: formData.smtp_encryption_type === 'ssl' || formData.smtp_port === '465' || formData.smtp_secure === 'true',
+          authRequired: formData.smtp_auth_required !== 'false',
+          user: (formData.smtp_user || '').trim(),
+          pass: formData.smtp_pass || '',
+          fromEmail: formData.smtp_from_email || 'noreply@slimdoseph.com',
+          fromName: formData.smtp_from_name || 'SlimDose Peptides',
+          replyToEmail: formData.smtp_reply_to_email || formData.smtp_from_email,
+          relayUrl: formData.smtp_relay_url,
+        },
       });
 
       if (res.success) {
-        setTestResult({
+        setSendTestResult({
           success: true,
-          message: `✅ Professional test email dispatched to ${testEmailRecipient} via ${res.providerUsed || formData.smtp_provider.toUpperCase()}! Check your Inbox (and Spam/Promotions). Ref: ${res.messageId || verifyCode}`,
+          message: `Test email transmitted successfully to ${testEmailRecipient.trim()}`,
+          sentAt: timestamp,
+          messageId: res.messageId,
+          provider: res.provider,
         });
-        setLiveViewerData((prev) => ({ ...prev, referenceId: res.messageId || prev.referenceId }));
-        fireToast(`Test email sent to ${testEmailRecipient}! Check your inbox 📬`, 'success');
+        handleUpdates({
+          smtp_status: 'connected',
+          smtp_last_sent_at: timestamp,
+          smtp_last_error: '',
+        });
+        fireToast(`Test email sent to ${testEmailRecipient.trim()}! 🚀`, 'success');
       } else {
-        const errorMsg = res.error || 'Failed to dispatch test email. Please verify SMTP host, port, username, and password.';
-        setTestResult({
+        const errorMsg = res.error || 'Failed to dispatch test email';
+        setSendTestResult({
           success: false,
-          message: `❌ Transmission Failed: ${errorMsg}`,
+          message: errorMsg,
+          sentAt: timestamp,
         });
-        fireToast(`SMTP Error: ${errorMsg}`, 'error');
+        handleUpdates({
+          smtp_status: 'sending_failed',
+          smtp_last_error: errorMsg,
+        });
+        fireToast(`Email Transmission Failed: ${errorMsg}`, 'error');
       }
     } catch (err: any) {
-      console.error('Test email failure:', err);
       const errorMsg = err.message || 'Error communicating with SMTP relay.';
-      setTestResult({
+      setSendTestResult({
         success: false,
-        message: `❌ Delivery Error: ${errorMsg}`,
+        message: errorMsg,
+        sentAt: new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }),
       });
-      fireToast(`SMTP Failure: ${errorMsg}`, 'error');
+      handleUpdates({
+        smtp_status: 'sending_failed',
+        smtp_last_error: errorMsg,
+      });
+      fireToast(`Delivery Error: ${errorMsg}`, 'error');
     } finally {
       setIsSendingTest(false);
     }
   };
 
-  const hasUnsavedChanges = useMemo(() => {
-    if (!initialData) return !!logoFile;
-    const isFieldsChanged = JSON.stringify(formData) !== JSON.stringify(initialData);
-    return isFieldsChanged || !!logoFile;
-  }, [formData, initialData, logoFile]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        fireToast('Logo file must be smaller than 5MB', 'error');
-        return;
-      }
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        setLogoPreview(uploadEvent.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      fireToast('Logo preview loaded', 'info');
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoFile(null);
-    setLogoPreview('/assets/logo.jpeg');
-    fireToast('Logo reset to default', 'info');
-  };
-
-  const handleSave = async () => {
+  // Master Save Handler
+  const handleSaveAll = async () => {
     try {
       setIsSaving(true);
-      let logoUrl = logoPreview;
-
-      if (logoFile) {
-        const uploadedUrl = await uploadImage(logoFile);
-        if (uploadedUrl) {
-          logoUrl = uploadedUrl;
-        }
-      }
-
-      const updatedSettings = {
-        ...formData,
-        site_logo: logoUrl,
-      };
-
-      await updateSiteSettings(updatedSettings);
-
-      setLogoFile(null);
-      setLogoPreview(logoUrl);
-      setInitialData(formData);
+      await updateSiteSettings(formData);
+      setInitialData({ ...formData });
       await refetch();
-      fireToast('Site settings updated & synchronized live! 🎉', 'success');
+      fireToast('System Configuration Saved & Synchronized Live! 🎉', 'success');
     } catch (error: any) {
-      console.error('Error saving site settings:', error);
+      console.error('Error saving settings:', error);
       fireToast(`Failed to save settings: ${error.message || 'Unknown error'}`, 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleResetHomepageDefaults = () => {
-    if (window.confirm('Reset homepage hero copy to default values?')) {
-      setFormData((prev) => ({
-        ...prev,
-        hero_badge_text: 'Premium Peptide Solutions',
-        hero_title_prefix: 'Premium',
-        hero_title_highlight: 'Peptides',
-        hero_title_suffix: '& Essentials',
-        hero_subtext: 'From the Lab to You — Simplifying Science, One Dose at a Time.',
-        hero_tagline: 'Quality-tested products. Reliable performance. Trusted by our community.',
-        hero_description:
-          'SlimDose Peptides is your all-in-one destination for high-quality peptides, peptide pens, and the essential accessories you need for a smooth and confident wellness routine.',
-        hero_accent_color: '#3C6CA8',
-      }));
-      fireToast('Homepage defaults restored in form', 'info');
+  // Discard Changes
+  const handleDiscardChanges = () => {
+    if (confirm('Discard all unsaved changes and revert to last saved state?')) {
+      if (initialData) {
+        setFormData({ ...initialData });
+        fireToast('All unsaved modifications discarded', 'info');
+      }
     }
   };
 
-  const handleResetNoticeDefaults = () => {
-    if (window.confirm('Reset research notice disclaimer to default terms?')) {
-      setFormData((prev) => ({
-        ...prev,
-        notice_title: 'Important Notice',
-        notice_subtitle: 'Please read carefully before continuing',
-        notice_disclaimer_p1:
-          'Sold strictly for research purposes only, not FDA-approved, and are not intended to diagnose, treat, cure, or prevent any disease.',
-        notice_disclaimer_p2:
-          'Improper handling or use may carry risks, including possible side effects, adverse reactions, contamination, or ineffective results.',
-        notice_consult_text:
-          'Always consult a licensed healthcare professional for health-related decisions.',
-        notice_warning_pill: '✕ NO MEET UPS · NO PICK UPS · NO RUSH ORDERS',
-        notice_order_days: 'Monday - Friday',
-        notice_cutoff_time: '5:00 PM Daily',
-        notice_courier: 'Next Day via J&T',
-        notice_weekend_orders: 'Processed Mondays',
-        notice_agree_button_text: 'I Understand & Agree',
-      }));
-      fireToast('Notice defaults restored in form', 'info');
-    }
+  // JSON Backup Export
+  const handleExportBackup = () => {
+    const backupData = {
+      version: '2.0-enterprise',
+      exported_at: new Date().toISOString(),
+      exported_by: adminEmail,
+      settings: formData,
+    };
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `slimdose_settings_backup_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    fireToast('System backup JSON downloaded', 'success');
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 space-y-3">
-        <Loader2 className="w-8 h-8 text-[#3C6CA8] animate-spin" />
-        <p className="text-xs font-semibold text-slate-500">Loading site configuration &amp; assets...</p>
-      </div>
+  // JSON Backup Import
+  const handleImportBackup = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target?.result as string);
+        const importedSettings = json.settings || json;
+        if (typeof importedSettings === 'object' && importedSettings !== null) {
+          handleUpdates(importedSettings);
+          fireToast('Backup snapshot loaded! Click "Save Configuration" to apply.', 'info');
+        } else {
+          fireToast('Invalid backup file structure', 'error');
+        }
+      } catch (err: any) {
+        fireToast('Failed to parse JSON file', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  // Inspect Email Log in Live Viewer
+  const handleInspectLog = (log: EmailLogEntry) => {
+    setLiveViewerData({
+      recipientEmail: log.recipient,
+      senderEmail: formData.smtp_from_email || 'noreply@slimdoseph.com',
+      senderName: formData.smtp_from_name || 'SlimDose Peptides',
+      subject: log.subject,
+      htmlContent: log.renderedHtml || '<div style="padding:20px;font-family:sans-serif;">No HTML recorded for this event.</div>',
+      provider: log.provider || formData.smtp_provider || 'hostinger',
+      host: formData.smtp_host || 'smtp.hostinger.com',
+      port: parseInt(formData.smtp_port || '465', 10) || 465,
+      referenceId: log.messageId || log.id,
+      serverResponse: log.serverResponse,
+      errorMessage: log.errorMessage,
+    });
+    setIsLiveViewerOpen(true);
+  };
+
+  // Filtered Nav Items based on search
+  const filteredNavItems = useMemo(() => {
+    if (!searchQuery.trim()) return NAV_ITEMS;
+    const q = searchQuery.toLowerCase();
+    return NAV_ITEMS.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
     );
-  }
+  }, [searchQuery]);
 
-  const tabs = [
-    { id: 'general', label: 'General & Branding', icon: Layout },
-    { id: 'community', label: 'Channels & Support', icon: MessageCircle },
-    { id: 'homepage', label: 'Homepage Hero & Copy', icon: Home },
-    { id: 'notice', label: 'Research Notice Modal', icon: Shield },
-    { id: 'seo', label: 'SEO & Metadata', icon: Search },
-    { id: 'smtp', label: 'SMTP & Email System', icon: Mail },
-  ];
-
-  return (
-    <div className="space-y-4 sm:space-y-6 text-left max-w-5xl mx-auto pb-12 font-inter">
-      {/* ── Top Header Banner ── */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#3C6CA8]/10 border border-[#3C6CA8]/20 flex items-center justify-center text-[#3C6CA8] shrink-0 shadow-2xs">
-            <Layout className="w-5 h-5" />
+﻿  return (
+    <div className="space-y-6 pb-24">
+      {/* Top Header Banner */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Enterprise Control Center
           </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                Site Settings &amp; Store Configuration
-              </h1>
-              {hasUnsavedChanges && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 animate-pulse">
-                  <AlertCircle className="w-3 h-3" /> Unsaved Changes
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Manage store branding, telegram community links, homepage hero copy, and SMTP transactional mail.
-            </p>
-          </div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">System Settings & Configuration</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Manage your corporate identity, multi-channel support, payment links, Hostinger SMTP, and platform security.
+          </p>
         </div>
 
-        {/* Header Action Button */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-3 self-start md:self-center">
+          <div className="text-right hidden sm:block">
+            <div className="text-xs text-slate-400">Authenticated Role</div>
+            <div className="text-xs font-bold text-slate-800">{adminRole} ({adminEmail})</div>
+          </div>
           <button
             type="button"
-            onClick={handleSave}
-            disabled={isSaving || uploading}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+            onClick={handleSaveAll}
+            disabled={isSaving}
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Saving Changes...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>Save Settings</span>
-              </>
-            )}
+            <Save className="w-4 h-4" />
+            <span>{isSaving ? 'Saving...' : 'Save Configuration'}</span>
           </button>
         </div>
       </div>
 
-      {/* ── Segmented Tab Navigation ── */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar scroll-smooth">
-        {tabs.map((t) => {
-          const Icon = t.icon;
-          const isActive = activeTab === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTab(t.id as SettingsTab)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 border ${
-                isActive
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs dark:bg-white dark:text-slate-900 dark:border-white'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200/90 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400 dark:text-[#3C6CA8]' : 'text-slate-400'}`} />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── TAB 1: General & Branding ── */}
-      {activeTab === 'general' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Layout className="w-4 h-4 text-[#3C6CA8]" />
-                  Store Identity &amp; Branding
-                </h2>
-                <p className="text-xs text-slate-400">Core store identity, logo graphics, and currency parameters.</p>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 dark:bg-blue-950/60 text-[#3C6CA8] rounded-full border border-blue-100 dark:border-blue-900/50">
-                Active Brand
-              </span>
-            </div>
-
-            {/* Logo Upload Row */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-4 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-700/60">
-              <div className="relative group shrink-0">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-xs flex items-center justify-center p-2">
-                  <img
-                    src={logoPreview || '/assets/logo.jpeg'}
-                    alt="Brand Logo Preview"
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/assets/logo.jpeg';
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex-1 space-y-1.5 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-black text-slate-900 dark:text-white">Store Logo Mark</span>
-                  <span className="text-[10px] font-bold text-slate-400">(PNG, SVG, or JPG · Max 5MB)</span>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                  This logo renders across the storefront navbar header, invoice receipts, order summaries, and email templates.
-                </p>
-                <div className="flex items-center gap-2 pt-1 flex-wrap">
-                  <label htmlFor="sitesettingsmanager-file-upload" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-700 cursor-pointer transition-all shadow-2xs">
-                    <Upload className="w-3.5 h-3.5 text-[#3C6CA8]" />
-                    <span>Upload New Logo</span>
-                    <input id="sitesettingsmanager-file-upload" name="file_upload" type="file" accept="image/*" onChange={handleLogoChange} className="hidden"/>
-                  </label>
-                  {logoPreview !== '/assets/logo.jpeg' && (
-                    <button
-                      type="button"
-                      onClick={handleRemoveLogo}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      <span>Reset</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Inputs Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Store / Business Name *
-                </label>
-                <input
-                  type="text"
-                  name="site_name"
-                  value={formData.site_name}
-                  onChange={handleInputChange}
-                  placeholder="e.g. SlimDose Peptides"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Operating Hours / Support Schedule
-                </label>
-                <input
-                  type="text"
-                  name="operating_hours"
-                  value={formData.operating_hours}
-                  onChange={handleInputChange}
-                  placeholder="e.g. Mon - Fri: 9:00 AM - 6:00 PM"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="sm:col-span-2 space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Store Motto &amp; Short Description
-                </label>
-                <textarea
-                  name="site_description"
-                  value={formData.site_description}
-                  onChange={handleInputChange}
-                  rows={2}
-                  placeholder="Brief description displayed in browser previews, social embeds, and footer..."
-                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none resize-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Currency Symbol
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="currency"
-                    value={formData.currency}
-                    onChange={handleInputChange}
-                    placeholder="₱"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                    autoComplete="off"
-                  />
-                  <span className="absolute right-3 top-2.5 text-[11px] font-mono text-slate-400">Prefix</span>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  ISO Currency Code
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    name="currency_code"
-                    value={formData.currency_code}
-                    onChange={handleInputChange}
-                    placeholder="PHP"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none"
-                    autoComplete="off"
-                  />
-                  <span className="absolute right-3 top-2.5 text-[11px] font-mono text-slate-400">ISO 4217</span>
-                </div>
-              </div>
-            </div>
+      {/* Main Split Layout: Left Navigation + Right Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Navigation Sidebar */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* Search Box */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search settings..."
+              className="w-full pl-9 pr-3.5 py-2 text-xs bg-white border border-slate-200 rounded-xl shadow-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition"
+            />
           </div>
-        </div>
-      )}
 
-      {/* ── TAB 2: Channels & Support ── */}
-      {activeTab === 'community' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-[#3C6CA8]" />
-                Customer Support &amp; Social Channels
-              </h2>
-              <p className="text-xs text-slate-400">Direct client contact points, Telegram community groups, and official channels.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Support Email Address
-                </label>
-                <input
-                  type="email"
-                  name="support_email"
-                  value={formData.support_email}
-                  onChange={handleInputChange}
-                  placeholder="support@slimdose.ph"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Support Phone / Hotline
-                </label>
-                <input
-                  type="text"
-                  name="support_phone"
-                  value={formData.support_phone}
-                  onChange={handleInputChange}
-                  placeholder="+63 977 813 2630"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Telegram Community Group Link
-                </label>
-                <input
-                  type="url"
-                  name="community_telegram_url"
-                  value={formData.community_telegram_url}
-                  onChange={handleInputChange}
-                  placeholder="https://t.me/+fGtShIUkbB84YzZl"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Direct Telegram Support Link
-                </label>
-                <input
-                  type="url"
-                  name="support_telegram_url"
-                  value={formData.support_telegram_url}
-                  onChange={handleInputChange}
-                  placeholder="https://telegram.me/slimdose_mnl"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Instagram Profile Link
-                </label>
-                <input
-                  type="url"
-                  name="instagram_url"
-                  value={formData.instagram_url}
-                  onChange={handleInputChange}
-                  placeholder="https://instagram.com/slimdose"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Facebook Page Link
-                </label>
-                <input
-                  type="url"
-                  name="facebook_url"
-                  value={formData.facebook_url}
-                  onChange={handleInputChange}
-                  placeholder="https://facebook.com/slimdoseph"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 3: Homepage Hero & Copy ── */}
-      {activeTab === 'homepage' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Home className="w-4 h-4 text-[#3C6CA8]" />
-                  Homepage Hero &amp; Headlines
-                </h2>
-                <p className="text-xs text-slate-400">Configure main headline copy, badge tagline, and accent colors.</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleResetHomepageDefaults}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Defaults</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Title Prefix
-                </label>
-                <input
-                  type="text"
-                  name="hero_title_prefix"
-                  value={formData.hero_title_prefix}
-                  onChange={handleInputChange}
-                  placeholder="Premium"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Title Highlight
-                </label>
-                <input
-                  type="text"
-                  name="hero_title_highlight"
-                  value={formData.hero_title_highlight}
-                  onChange={handleInputChange}
-                  placeholder="Peptides"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Title Suffix
-                </label>
-                <input
-                  type="text"
-                  name="hero_title_suffix"
-                  value={formData.hero_title_suffix}
-                  onChange={handleInputChange}
-                  placeholder="& Essentials"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="sm:col-span-3 space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Badge Pill Text
-                </label>
-                <input
-                  type="text"
-                  name="hero_badge_text"
-                  value={formData.hero_badge_text}
-                  onChange={handleInputChange}
-                  placeholder="Premium Peptide Solutions"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="sm:col-span-3 space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Hero Subtitle Copy
-                </label>
-                <textarea
-                  name="hero_subtext"
-                  value={formData.hero_subtext}
-                  onChange={handleInputChange}
-                  rows={2}
-                  placeholder="From the Lab to You — Simplifying Science, One Dose at a Time."
-                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 4: Research Notice Modal ── */}
-      {activeTab === 'notice' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-[#3C6CA8]" />
-                  Research Notice &amp; Compliance Modal
-                </h2>
-                <p className="text-xs text-slate-400">Manage required disclaimers, operating days, cutoff times, and fulfillment warnings.</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleResetNoticeDefaults}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Defaults</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Notice Modal Title
-                </label>
-                <input
-                  type="text"
-                  name="notice_title"
-                  value={formData.notice_title}
-                  onChange={handleInputChange}
-                  placeholder="Important Notice"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Notice Subtitle
-                </label>
-                <input
-                  type="text"
-                  name="notice_subtitle"
-                  value={formData.notice_subtitle}
-                  onChange={handleInputChange}
-                  placeholder="Please read carefully before continuing"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="sm:col-span-2 space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Primary Legal Disclaimer Paragraph
-                </label>
-                <textarea
-                  name="notice_disclaimer_p1"
-                  value={formData.notice_disclaimer_p1}
-                  onChange={handleInputChange}
-                  rows={2}
-                  placeholder="Sold strictly for research purposes only, not FDA-approved..."
-                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Order Processing Days
-                </label>
-                <input
-                  type="text"
-                  name="notice_order_days"
-                  value={formData.notice_order_days}
-                  onChange={handleInputChange}
-                  placeholder="Monday - Friday"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Daily Cutoff Time
-                </label>
-                <input
-                  type="text"
-                  name="notice_cutoff_time"
-                  value={formData.notice_cutoff_time}
-                  onChange={handleInputChange}
-                  placeholder="5:00 PM Daily"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 5: SEO & Metadata ── */}
-      {activeTab === 'seo' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-              <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Search className="w-4 h-4 text-[#3C6CA8]" />
-                Search Engine Optimization &amp; Meta Tags
-              </h2>
-              <p className="text-xs text-slate-400">Configure global metadata tags for Google search results and link previews.</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Meta Title
-                </label>
-                <input
-                  type="text"
-                  name="meta_title"
-                  value={formData.meta_title}
-                  onChange={handleInputChange}
-                  placeholder="SlimDose Peptides — High Purity Research Solutions"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Meta Description
-                </label>
-                <textarea
-                  name="meta_description"
-                  value={formData.meta_description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  placeholder="Premium research peptides with third-party COA verification and nationwide delivery..."
-                  className="w-full px-3.5 py-2 text-xs font-medium rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none resize-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Meta Keywords
-                </label>
-                <input
-                  type="text"
-                  name="meta_keywords"
-                  value={formData.meta_keywords}
-                  onChange={handleInputChange}
-                  placeholder="peptides, slimdose, research peptides, peptide calculator, laboratory tested"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 6: SMTP Relay & Email Service (Complete Implementation matching User Design) ── */}
-      {activeTab === 'smtp' && (
-        <div className="space-y-5 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/90 dark:border-slate-800 p-4 sm:p-6 space-y-6">
-            {/* SMTP Header & Master Toggle */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center text-[#3C6CA8] shrink-0">
-                  <Mail className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
-                    SMTP Relay &amp; Email Service
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Configure your outbound SMTP credentials for transactional receipts and customer order notifications.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
+          {/* Navigation Menu Cards */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-2 space-y-1">
+            {filteredNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
                 <button
+                  key={item.id}
                   type="button"
-                  onClick={() => {
-                    if (onNavigateToEmailTemplates) {
-                      onNavigateToEmailTemplates();
-                    } else {
-                      window.location.hash = 'email-templates';
-                    }
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-[#3C6CA8] dark:text-blue-300 border border-blue-200/80 dark:border-blue-900/50 text-xs font-bold transition-all cursor-pointer shadow-2xs"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Open Email Template Studio</span>
-                </button>
-
-                {/* Master Email Toggle Switch */}
-                <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 p-2 sm:px-3 rounded-xl border border-slate-200/70 dark:border-slate-700">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
-                    Email Dispatch System:
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        smtp_enabled: prev.smtp_enabled === 'true' ? 'false' : 'true',
-                      }))
-                    }
-                    className={`px-3 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
-                      formData.smtp_enabled === 'true'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'bg-slate-300 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
-                    }`}
-                  >
-                    {formData.smtp_enabled === 'true' ? 'ACTIVE / ENABLED' : 'DISABLED'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Provider Presets */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Quick Provider Presets
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-                {[
-                  { id: 'hostinger', label: 'Hostinger Email', desc: 'smtp.hostinger.com (465)' },
-                  { id: 'smtp', label: 'Custom SMTP', desc: 'Custom Host & Port' },
-                  { id: 'gmail', label: 'Gmail / Google', desc: 'smtp.gmail.com (SSL 465)' },
-                  { id: 'brevo', label: 'Brevo', desc: 'smtp-relay.brevo.com' },
-                  { id: 'resend', label: 'Resend', desc: 'smtp.resend.com' },
-                  { id: 'sendgrid', label: 'SendGrid', desc: 'smtp.sendgrid.net' },
-                ].map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handleProviderPreset(p.id)}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                      formData.smtp_provider === p.id
-                        ? 'border-[#3C6CA8] bg-blue-50/60 dark:bg-slate-800 ring-2 ring-[#3C6CA8]/20'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300'
-                    }`}
-                  >
-                    <span className="font-extrabold text-xs text-slate-900 dark:text-white">
-                      {p.label}
-                    </span>
-                    <span className="text-[10px] text-slate-400 truncate mt-1">
-                      {p.desc}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* SMTP Server Connection Credentials */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div className="space-y-1 sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  SMTP Host Server
-                </label>
-                <input
-                  type="text"
-                  name="smtp_host"
-                  value={formData.smtp_host}
-                  onChange={handleInputChange}
-                  placeholder="e.g. smtp.sendgrid.net or smtp.gmail.com"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Port &amp; Security
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    name="smtp_port"
-                    value={formData.smtp_port}
-                    onChange={handleInputChange}
-                    placeholder="587"
-                    className="w-20 px-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                    autoComplete="off"
-                  />
-                  <select
-                    name="smtp_secure"
-                    value={formData.smtp_secure}
-                    onChange={handleInputChange}
-                    className="flex-1 px-2.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  >
-                    <option value="false">STARTTLS (Port 587)</option>
-                    <option value="true">SSL / TLS (Port 465)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Authentication Credentials */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" />
-                  <span>SMTP Username / API User</span>
-                </label>
-                <input
-                  type="text"
-                  name="smtp_user"
-                  value={formData.smtp_user}
-                  onChange={handleInputChange}
-                  placeholder="orders@slimdose.ph or apikey"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-[#3C6CA8]" />
-                    <span>SMTP Password / App Password / API Key</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="text-[10px] text-slate-400 hover:text-[#3C6CA8] font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    <span>{showPassword ? 'Hide' : 'Reveal'}</span>
-                  </button>
-                </label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="smtp_pass"
-                  value={formData.smtp_pass}
-                  onChange={handleInputChange}
-                  placeholder="••••••••••••••••"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                  autoComplete="new-password"
-                />
-              </div>
-            </div>
-
-            {/* Sender Identity & Notification Destinations */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Sender Display Name
-                </label>
-                <input
-                  type="text"
-                  name="smtp_from_name"
-                  value={formData.smtp_from_name}
-                  onChange={handleInputChange}
-                  placeholder="SlimDose Peptides"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  From Email Address
-                </label>
-                <input
-                  type="email"
-                  name="smtp_from_email"
-                  value={formData.smtp_from_email}
-                  onChange={handleInputChange}
-                  placeholder="orders@slimdose.ph"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                  autoComplete="off"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Admin Alert Recipient Email
-                </label>
-                <input
-                  type="email"
-                  name="smtp_admin_email"
-                  value={formData.smtp_admin_email}
-                  onChange={handleInputChange}
-                  placeholder="admin@slimdose.ph"
-                  className="w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none font-mono"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-
-            {/* Notification Rules Toggles */}
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
-                Automated Transactional Triggers
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    key: 'smtp_send_order_receipt',
-                    title: 'Customer Order Receipt',
-                    desc: 'Send branded HTML confirmation email upon customer checkout',
-                  },
-                  {
-                    key: 'smtp_send_admin_alert',
-                    title: 'Admin New Order Alert',
-                    desc: 'Send instant notification to store managers when new order is placed',
-                  },
-                  {
-                    key: 'smtp_send_status_update',
-                    title: 'Shipping & Tracking Update',
-                    desc: 'Send email with J&T/Maxim tracking number when order ships',
-                  },
-                ].map((item) => {
-                  const isChecked = (formData as any)[item.key] === 'true';
-                  return (
-                    <div
-                      key={item.key}
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          [item.key]: isChecked ? 'false' : 'true',
-                        }))
-                      }
-                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
-                        isChecked
-                          ? 'border-[#3C6CA8]/50 bg-blue-50/40 dark:bg-slate-800/90'
-                          : 'border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 opacity-75'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        className="mt-0.5 w-4 h-4 rounded text-[#3C6CA8] focus:ring-[#3C6CA8]"
-                      />
-                      <div>
-                        <p className="text-xs font-extrabold text-slate-900 dark:text-white">
-                          {item.title}
-                        </p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
-                          {item.desc}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Live Test Email Sender Card */}
-            <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white border border-blue-800/40 shadow-sm space-y-4">
-              <div className="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-wider">
-                <Sparkles className="w-4 h-4" />
-                <span>SMTP Connection &amp; Relay Diagnostics</span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-sm sm:text-base font-black text-white">
-                    Send a Live Verification Email
-                  </h3>
-                  <p className="text-xs text-blue-200/90 mt-0.5">
-                    Test your active configuration by sending a sample branded transactional email right now.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <input
-                    type="email"
-                    value={testEmailRecipient}
-                    onChange={(e) => setTestEmailRecipient(e.target.value)}
-                    placeholder="recipient@example.com"
-                    className="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800/90 border border-blue-700/50 text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-400 outline-none w-full sm:w-64"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSendTestEmail}
-                    disabled={isSendingTest}
-                    className="px-4 py-2 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs font-black transition-all flex items-center justify-center gap-2 shrink-0 shadow-md cursor-pointer disabled:opacity-50"
-                  >
-                    {isSendingTest ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Dispatching...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Send Test</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Rich Test Result Details Box */}
-              {testResult && (
-                <div
-                  className={`p-4 rounded-xl text-xs space-y-2 border transition-all ${
-                    testResult.success
-                      ? 'bg-emerald-950/80 border-emerald-700/80 text-emerald-100 shadow-md'
-                      : 'bg-rose-950/80 border-rose-700/80 text-rose-100 shadow-md'
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition cursor-pointer ${
+                    isActive
+                      ? 'bg-emerald-50 text-emerald-900 font-bold shadow-xs'
+                      : 'hover:bg-slate-50 text-slate-600 font-medium'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 font-bold">
-                    {testResult.success ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                    ) : (
-                      <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
-                    )}
-                    <span className="text-sm font-black tracking-tight">{testResult.message}</span>
-                  </div>
-
-                  {testResult.success ? (
-                    <>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-emerald-800/60 text-[11px] text-emerald-200/90 font-medium">
-                        <div className="bg-emerald-900/50 p-2 rounded-lg border border-emerald-700/40">
-                          <span className="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Recipient</span>
-                          <span className="font-mono truncate block font-bold text-white">{testEmailRecipient}</span>
-                        </div>
-                        <div className="bg-emerald-900/50 p-2 rounded-lg border border-emerald-700/40">
-                          <span className="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Relay Provider</span>
-                          <span className="font-bold uppercase text-amber-300">{formData.smtp_provider}</span>
-                        </div>
-                        <div className="bg-emerald-900/50 p-2 rounded-lg border border-emerald-700/40">
-                          <span className="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Host &amp; Port</span>
-                          <span className="font-mono truncate block text-slate-200">{formData.smtp_host}:{formData.smtp_port}</span>
-                        </div>
-                        <div className="bg-emerald-900/50 p-2 rounded-lg border border-emerald-700/40">
-                          <span className="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Time (PHT)</span>
-                          <span className="text-slate-200">{new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-1 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setIsLiveViewerOpen(true)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-800/80 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                          <span>View Live Render &amp; Transmission Log</span>
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="pt-2 border-t border-rose-800/60 space-y-2">
-                      <p className="text-[11px] text-rose-200">
-                        <strong>Troubleshooting Checklist:</strong>
-                      </p>
-                      <ul className="list-disc list-inside text-[11px] text-rose-200/90 space-y-0.5 ml-1">
-                        <li>Ensure <strong>Host</strong> is <code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">smtp.hostinger.com</code></li>
-                        <li>Ensure <strong>Port</strong> is <code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">465</code> (SSL/TLS enabled)</li>
-                        <li>Ensure <strong>Username</strong> matches full mailbox email (<code className="text-white bg-rose-900/60 px-1 py-0.5 rounded">noreply@slimdoseph.com</code>)</li>
-                        <li>Confirm the password matches your Hostinger Webmail login exactly</li>
-                      </ul>
-                      <div className="pt-1 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setIsLiveViewerOpen(true)}
-                          className="px-3 py-1.5 rounded-lg bg-rose-900 hover:bg-rose-800 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                          <span>Inspect Outbound Payload &amp; Headers</span>
-                        </button>
-                      </div>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    <div className="truncate">
+                      <div className="text-xs truncate">{item.label}</div>
+                      <div className="text-[10px] text-slate-400 font-normal truncate">{item.category}</div>
                     </div>
+                  </div>
+                  {item.badge && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${
+                      isActive ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {item.badge}
+                    </span>
                   )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Active Tab Content */}
+        <div className="lg:col-span-9 min-h-[600px]">
+          {/* TAB 1: Branding & Multi-Logos */}
+          {activeTab === 'branding' && (
+            <BrandingSettingsSection
+              formData={formData}
+              onChange={handleUpdates}
+              onUploadLogo={async (field, file) => {
+                const url = await uploadImage(file);
+                if (url) {
+                  handleUpdates({ [field]: url });
+                  fireToast(`Uploaded logo variant!`, 'success');
+                }
+              }}
+            />
+          )}
+
+          {/* TAB 2: General & Regional */}
+          {activeTab === 'general' && (
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+                  <Sliders className="w-5 h-5 text-emerald-600" />
+                  General & Regional Settings
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Configure site naming, regional currency, timezone, and operating hours.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Site Display Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.site_name || ''}
+                    onChange={(e) => handleUpdates({ site_name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
                 </div>
-              )}
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Default Currency Code
+                  </label>
+                  <select
+                    value={formData.currency_code || 'PHP'}
+                    onChange={(e) => handleUpdates({ currency_code: e.target.value, currency: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition bg-white"
+                  >
+                    <option value="PHP">PHP - Philippine Peso (₱)</option>
+                    <option value="USD">USD - US Dollar ($)</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Site Tagline / Description
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.site_description || ''}
+                    onChange={(e) => handleUpdates({ site_description: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Primary Hotline / Contact
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.contact_phone || ''}
+                    onChange={(e) => handleUpdates({ contact_phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Official Support Email
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.support_email || ''}
+                    onChange={(e) => handleUpdates({ support_email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Company & Legal */}
+          {activeTab === 'company' && (
+            <CompanyContactSettings formData={formData} onChange={handleUpdates} />
+          )}
+
+          {/* TAB 4: Payments & Billing */}
+          {activeTab === 'payments' && (
+            <CommerceFinanceSettings
+              formData={formData}
+              onChange={handleUpdates}
+              onUploadImage={async (field, file) => {
+                const url = await uploadImage(file);
+                if (url) {
+                  handleUpdates({ [field]: url });
+                  fireToast(`Uploaded QR code image!`, 'success');
+                }
+              }}
+            />
+          )}
+
+          {/* TAB 5: Email / SMTP Relay */}
+          {activeTab === 'smtp' && (
+            <SmtpSettingsSection
+              formData={formData}
+              onChange={handleInputChange}
+              setFormData={setFormData}
+              handleProviderPreset={handleProviderPreset}
+              handleTestConnection={handleTestConnection}
+              handleSendTestEmail={handleSendTestEmail}
+              onSave={handleSaveAll}
+              isSaving={isSaving}
+              isTestingConnection={isTestingConnection}
+              isSendingTest={isSendingTest}
+              connectionTestResult={connectionTestResult}
+              sendTestResult={sendTestResult}
+              testEmailRecipient={testEmailRecipient}
+              setTestEmailRecipient={setTestEmailRecipient}
+              testEmailSubject={testEmailSubject}
+              setTestEmailSubject={setTestEmailSubject}
+              testEmailMessage={testEmailMessage}
+              setTestEmailMessage={setTestEmailMessage}
+              activityLogs={activityLogs}
+              onClearLogs={() => {
+                clearStoredEmailLogs();
+                setActivityLogs([]);
+                fireToast('Cleared email logs', 'info');
+              }}
+              onInspectLog={handleInspectLog}
+              onNavigateToEmailTemplates={onNavigateToEmailTemplates}
+            />
+          )}
+
+          {/* TAB 6: Platform Access & Security */}
+          {activeTab === 'platform' && (
+            <PlatformSecuritySettings formData={formData} onChange={handleUpdates} />
+          )}
+
+          {/* TAB 7: System & API Keys */}
+          {activeTab === 'system' && (
+            <SystemDataSettings
+              formData={formData}
+              onChange={handleUpdates}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleImportBackup}
+            />
+          )}
+
+          {/* TAB 8: Audit Trail */}
+          {activeTab === 'audit' && <AuditLogsSettings />}
+
+          {/* TAB 9: Homepage Hero */}
+          {activeTab === 'homepage' && (
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+                  <Home className="w-5 h-5 text-emerald-600" />
+                  Homepage Hero Content
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Customize the hero section banner, value badges, and headline accents on the patient landing page.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Hero Badge Text
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.hero_badge_text || ''}
+                    onChange={(e) => handleUpdates({ hero_badge_text: e.target.value })}
+                    placeholder="Premium Peptide Solutions"
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Hero Highlight Word
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.hero_title_highlight || ''}
+                    onChange={(e) => handleUpdates({ hero_title_highlight: e.target.value })}
+                    placeholder="Peptides"
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Hero Subtitle / Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.hero_description || ''}
+                    onChange={(e) => handleUpdates({ hero_description: e.target.value })}
+                    placeholder="SlimDose Peptides is your all-in-one destination for high-quality peptides, peptide pens, and essential accessories..."
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 10: Important Notice Modal */}
+          {activeTab === 'notice' && (
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+                  <Shield className="w-5 h-5 text-emerald-600" />
+                  Compliance & Important Notice Modal
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Manage the required patient disclaimer modal shown before entering or placing orders.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Notice Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.notice_title || ''}
+                    onChange={(e) => handleUpdates({ notice_title: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Warning Pill Banner
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.notice_warning_pill || ''}
+                    onChange={(e) => handleUpdates({ notice_warning_pill: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition font-semibold text-rose-700"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Disclaimer Paragraph
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.notice_disclaimer_p1 || ''}
+                    onChange={(e) => handleUpdates({ notice_disclaimer_p1: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 11: SEO & SERP Preview */}
+          {activeTab === 'seo' && (
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2.5">
+                  <Globe className="w-5 h-5 text-emerald-600" />
+                  SEO & Google Search Simulator
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  Optimize meta tags and preview real-time appearance on Google SERP results.
+                </p>
+              </div>
+
+              {/* Live SERP Preview Card */}
+              <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-1.5">
+                <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                  Google Search Result Preview
+                </div>
+                <div className="text-xs text-slate-500 flex items-center gap-1 font-mono">
+                  <span>https://slimdose.ph</span>
+                  <span>›</span>
+                  <span className="text-slate-400">home</span>
+                </div>
+                <div className="text-base font-semibold text-blue-800 hover:underline cursor-pointer">
+                  {formData.meta_title || 'SlimDose Peptides — High Purity Research Solutions'}
+                </div>
+                <div className="text-xs text-slate-600 line-clamp-2 max-w-xl">
+                  {formData.meta_description || 'Premium research peptides with third-party COA verification and nationwide delivery across the Philippines.'}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Page Title Tag (Meta Title)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.meta_title || ''}
+                    onChange={(e) => handleUpdates({ meta_title: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Meta Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.meta_description || ''}
+                    onChange={(e) => handleUpdates({ meta_description: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition resize-none"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Meta Keywords (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.meta_keywords || ''}
+                    onChange={(e) => handleUpdates({ meta_keywords: e.target.value })}
+                    placeholder="peptides, semaglutide, tirzepatide, weight loss, research"
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Sticky Floating Save Bar */}
+      {hasUnsavedChanges && (
+        <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center px-4 animate-in slide-in-from-bottom-5 duration-200">
+          <div className="bg-slate-900 text-white rounded-2xl shadow-2xl border border-slate-700 px-5 py-3.5 flex items-center justify-between gap-6 max-w-xl w-full">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <div>
+                <div className="text-xs font-bold">{changedFieldsCount} Unsaved Change{changedFieldsCount > 1 ? 's' : ''}</div>
+                <div className="text-[11px] text-slate-400">Save your changes to synchronize across all clients.</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleDiscardChanges}
+                disabled={isSaving}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              >
+                Discard
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveAll}
+                disabled={isSaving}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>{isSaving ? 'Saving...' : 'Save All Changes'}</span>
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Live Realtime Outbound Email Delivery Inspector Modal */}
+      {/* Live Email Inspector Modal */}
       <LiveEmailViewerModal
         isOpen={isLiveViewerOpen}
         onClose={() => setIsLiveViewerOpen(false)}
@@ -1524,7 +977,8 @@ const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({ onNavigateToE
         host={liveViewerData.host}
         port={liveViewerData.port}
         referenceId={liveViewerData.referenceId}
-        isSending={isSendingTest}
+        serverResponse={liveViewerData.serverResponse}
+        errorMessage={liveViewerData.errorMessage}
       />
     </div>
   );

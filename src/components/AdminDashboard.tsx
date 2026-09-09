@@ -2738,7 +2738,11 @@ const AdminDashboard: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Dashboard</span>
             </button>
-            <SiteSettingsManager onNavigateToEmailTemplates={() => setCurrentView('email-templates')} />
+            <SiteSettingsManager
+              onNavigateToEmailTemplates={() => setCurrentView('email-templates')}
+              adminEmail={adminSession?.email || 'admin@slimdose.ph'}
+              adminRole={adminSession?.role || 'admin'}
+            />
           </div>
         );
       default:

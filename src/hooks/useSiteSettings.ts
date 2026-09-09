@@ -61,15 +61,134 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   smtp_provider: 'hostinger',
   smtp_host: 'smtp.hostinger.com',
   smtp_port: '465',
+  smtp_encryption_type: 'ssl',
   smtp_secure: 'true',
+  smtp_auth_required: 'true',
   smtp_user: 'noreply@slimdoseph.com',
   smtp_pass: 'PWqa@7kQ',
   smtp_from_email: 'noreply@slimdoseph.com',
   smtp_from_name: 'SlimDose Peptides',
+  smtp_reply_to_email: 'noreply@slimdoseph.com',
   smtp_admin_email: 'noreply@slimdoseph.com',
   smtp_send_order_receipt: 'true',
   smtp_send_admin_alert: 'true',
   smtp_send_status_update: 'true',
+  smtp_status: 'disconnected',
+  smtp_last_tested_at: '',
+  smtp_last_sent_at: '',
+  smtp_last_error: '',
+
+  // Extended Branding & Logos
+  site_logo_dark: '/assets/logo.jpeg',
+  site_logo_light: '/assets/logo.jpeg',
+  site_favicon: '/assets/logo.jpeg',
+  site_email_logo: '/assets/logo.jpeg',
+  site_invoice_logo: '/assets/logo.jpeg',
+  site_admin_logo: '/assets/logo.jpeg',
+  brand_primary_color: '#3C6CA8',
+  brand_secondary_color: '#0B1528',
+  brand_accent_color: '#3B82F6',
+  brand_font_family: 'Plus Jakarta Sans',
+
+  // Extended General & Regional
+  timezone: 'Asia/Manila (PHT)',
+  date_format: 'YYYY-MM-DD',
+  time_format: '12-hour',
+  unit_system: 'metric',
+  number_format: 'standard',
+  currency_symbol: '₱',
+
+  // Company Information
+  company_legal_name: 'SlimDose Philippines Inc.',
+  company_trade_name: 'SlimDose Peptides',
+  company_tin: '123-456-789-000',
+  company_reg_number: 'CS202409871',
+  company_address: 'BGC Corporate Center, 30th Street corner 11th Avenue, Bonifacio Global City',
+  company_city: 'Taguig City',
+  company_province: 'Metro Manila',
+  company_postal_code: '1634',
+  company_country: 'Philippines',
+  company_phone: '+63 977 813 2630',
+  company_email: 'contact@slimdoseph.com',
+  company_website: 'https://slimdoseph.com',
+
+  // Contact Profiles & Departments
+  contact_sales_email: 'sales@slimdoseph.com',
+  contact_sales_phone: '+63 977 813 2630',
+  contact_billing_email: 'billing@slimdoseph.com',
+  contact_tech_email: 'support@slimdoseph.com',
+  contact_escalation_email: 'management@slimdoseph.com',
+
+  // Payment Links & Gateway Diagnostics
+  payment_links_enabled: 'true',
+  payment_test_mode: 'false',
+  payment_auto_confirm: 'false',
+  payment_receipt_required: 'true',
+  custom_checkout_redirect: '',
+
+  // Platform & Access
+  maintenance_mode: 'false',
+  maintenance_heading: 'System Maintenance in Progress',
+  maintenance_message: 'SlimDose is currently undergoing scheduled platform upgrades to serve you better. We will be back shortly.',
+  maintenance_eta: 'Estimated: 30 minutes',
+  maintenance_ip_whitelist: '127.0.0.1, ::1',
+  user_registration_enabled: 'true',
+  guest_checkout_enabled: 'true',
+  session_timeout_minutes: '60',
+  max_upload_size_mb: '10',
+
+  // User & Roles
+  default_user_role: 'customer',
+  allow_role_switching: 'false',
+  require_admin_approval: 'false',
+
+  // Security & Authentication
+  security_2fa_required: 'false',
+  security_brute_force_protection: 'true',
+  security_max_login_attempts: '5',
+  security_lockout_duration_mins: '15',
+  password_min_length: '8',
+  password_require_symbols: 'true',
+  password_require_numbers: 'true',
+  security_ip_whitelist: '',
+  security_ip_blacklist: '',
+
+  // API & Webhooks
+  api_enabled: 'true',
+  webhook_url: '',
+  webhook_secret: '',
+  webhook_events: 'order.created,order.paid,order.shipped',
+
+  // Storage & Media
+  storage_provider: 'firebase',
+  storage_auto_compress: 'true',
+  storage_webp_conversion: 'true',
+  storage_max_image_dim: '2048',
+
+  // CDN & Caching
+  cdn_enabled: 'true',
+  cdn_provider: 'cloudflare',
+  cdn_domain: 'cdn.slimdoseph.com',
+  cdn_cache_ttl: '86400',
+
+  // Database & Backup
+  backup_auto_enabled: 'true',
+  backup_frequency: 'daily',
+  backup_retention_days: '30',
+  backup_last_run: '',
+
+  // Tax & Financial Settings
+  tax_enabled: 'true',
+  tax_rate_percent: '12',
+  tax_inclusive: 'true',
+  invoice_prefix: 'SD-INV-',
+  receipt_prefix: 'SD-OR-',
+  invoice_start_number: '1001',
+  payment_terms_days: '0',
+
+  // Configuration Snapshots & Auditing
+  settings_snapshots_json: '[]',
+  audit_logs_json: '[]',
 };
 
 function getInitialSettings(): SiteSettings {

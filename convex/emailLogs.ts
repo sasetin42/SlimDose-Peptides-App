@@ -31,3 +31,15 @@ export const listRecent = query({
     return rows;
   },
 });
+
+export const clearAll = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("email_logs").collect();
+    for (const r of rows) {
+      await ctx.db.delete(r._id);
+    }
+    return { count: rows.length };
+  },
+});
+

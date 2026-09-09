@@ -965,7 +965,7 @@ Shipping Target: ${deliveryAddr}
               <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-200/70 dark:border-slate-700/70 space-y-1.5 text-xs shadow-2xs">
                 <p className="font-extrabold text-slate-400 uppercase text-[10px] mb-2">Order Summary</p>
                 <div className="flex justify-between"><span className="text-slate-500">Subtotal</span><span className="font-semibold text-slate-800 dark:text-slate-200">₱{Number(order.total_price || 0).toLocaleString()}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Shipping</span><span className="font-semibold text-slate-800 dark:text-slate-200">{Number(order.shipping_fee || 0) === 0 ? 'FREE' : `₱${Number(order.shipping_fee).toLocaleString()}`}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Shipping</span><span className="font-semibold text-slate-800 dark:text-slate-200">{Number(order.shipping_fee || 0) === 0 ? 'COD (Customer pays Rider)' : `₱${Number(order.shipping_fee).toLocaleString()}`}</span></div>
                 <div className="flex justify-between pt-1.5 border-t border-slate-200/80 dark:border-slate-700"><span className="font-bold text-slate-700 dark:text-slate-300">Total</span><span className="font-black text-[#3C6CA8]">₱{total.toLocaleString()}</span></div>
               </div>
               <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 border border-slate-200/70 dark:border-slate-700/70 space-y-1.5 text-xs shadow-2xs">

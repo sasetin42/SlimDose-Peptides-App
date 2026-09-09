@@ -22,8 +22,8 @@ export const defaultShippingLocations: ShippingLocation[] = [
   { id: 'JT_LUZON', name: 'J&T — Luzon', fee: 120, is_active: true, order_index: 1 },
   { id: 'JT_VISAYAS', name: 'J&T — Visayas', fee: 150, is_active: true, order_index: 2 },
   { id: 'JT_MINDANAO', name: 'J&T — Mindanao', fee: 90, is_active: true, order_index: 3 },
-  { id: 'MAXIM_DAVAO', name: 'Maxim — Davao City', fee: 0, note: 'Customer Pays Rider', is_active: true, order_index: 4 },
-  { id: 'LALAMOVE_MM', name: 'Lalamove — Metro Manila', fee: 0, note: 'Customer Pays Rider', is_active: true, order_index: 5 },
+  { id: 'MAXIM_DAVAO', name: 'Maxim — Davao City', fee: 0, note: 'PAID UPON DELIVERY (Fee paid to rider — not free)', is_active: true, order_index: 4 },
+  { id: 'LALAMOVE_MM', name: 'Lalamove — Metro Manila', fee: 0, note: 'PAID UPON DELIVERY (Fee paid to rider — not free)', is_active: true, order_index: 5 },
 ];
 
 const SHIPPING_CACHE_KEY = 'slimdose_shipping_locations_cache';

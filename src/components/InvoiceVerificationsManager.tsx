@@ -39,6 +39,7 @@ import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 import { mirrorOrderUpdateStatus } from '../lib/convexMirror';
 import { formatOrderId } from '../utils/orderUtils';
+import { dispatchOrderEmail } from '../services/emailService';
 
 interface OrderItem {
   product_id?: string;
@@ -355,6 +356,33 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
 
       // 3. Mirror status to Convex
       mirrorOrderUpdateStatus(v.order_id, { order_status: 'confirmed', payment_status: 'paid' });
+
+      // 4. Dispatch Automated 'payment-confirmed' Email Template
+      if (v.orders?.customer_email) {
+        dispatchOrderEmail('payment-confirmed', {
+          orderId: v.order_id,
+          orderNumber: v.orders.order_number || v.order_id,
+          customerName: v.orders.customer_name || 'Valued Client',
+          customerEmail: v.orders.customer_email,
+          customerPhone: v.orders.customer_phone,
+          shippingAddress: v.orders.shipping_address,
+          shippingLocation: v.orders.shipping_location,
+          shippingFee: v.orders.shipping_fee,
+          subtotal: v.orders.subtotal,
+          discountApplied: v.orders.discount_applied,
+          promoCode: v.orders.promo_code,
+          totalPrice: v.orders.total_price || 0,
+          paymentMethodName: v.orders.payment_method_name || 'GCash / Bank Transfer',
+          status: 'PAID & CONFIRMED',
+          items: (v.orders.order_items || []).map((item: any) => ({
+            product_name: item.product_name,
+            variation_name: item.variation_name || null,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.total || (item.price * item.quantity),
+          })),
+        }).catch((emailErr) => console.warn('[InvoiceVerifications] Payment confirmed email notice:', emailErr));
+      }
 
       const formattedId = formatOrderId({ id: v.order_id, order_number: v.orders?.order_number });
       fireToast(`Receipt approved! Order ${formattedId} marked as Paid & Confirmed. ✨`, 'success');

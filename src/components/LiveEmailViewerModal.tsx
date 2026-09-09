@@ -29,6 +29,8 @@ export interface LiveEmailViewerModalProps {
   referenceId: string;
   timestamp?: string;
   isSending?: boolean;
+  serverResponse?: string;
+  errorMessage?: string;
 }
 
 export const LiveEmailViewerModal: React.FC<LiveEmailViewerModalProps> = ({
@@ -45,6 +47,8 @@ export const LiveEmailViewerModal: React.FC<LiveEmailViewerModalProps> = ({
   referenceId,
   timestamp,
   isSending = false,
+  serverResponse,
+  errorMessage,
 }) => {
   const [pipelineStep, setPipelineStep] = useState<number>(1);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
@@ -256,6 +260,28 @@ export const LiveEmailViewerModal: React.FC<LiveEmailViewerModalProps> = ({
                   {displayTime}
                 </span>
               </div>
+
+              {serverResponse && (
+                <div className="bg-slate-900/80 p-2.5 rounded-xl border border-emerald-900/50">
+                  <span className="block text-[10px] text-emerald-400 uppercase font-bold tracking-wider">
+                    Actual Server Response
+                  </span>
+                  <span className="font-mono text-emerald-300 text-[11px] block mt-0.5 break-all">
+                    {serverResponse}
+                  </span>
+                </div>
+              )}
+
+              {errorMessage && (
+                <div className="bg-rose-950/40 p-2.5 rounded-xl border border-rose-800/60">
+                  <span className="block text-[10px] text-rose-400 uppercase font-bold tracking-wider">
+                    Actual Error Message
+                  </span>
+                  <span className="font-mono text-rose-300 text-[11px] block mt-0.5 break-all">
+                    {errorMessage}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}

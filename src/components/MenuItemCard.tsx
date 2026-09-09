@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, Sparkles, Zap, Tag, Atom, ShieldCheck, Heart } from 'lucide-react';
+import { Flame, Zap, Tag, Heart } from 'lucide-react';
 import { fireToast } from './ToastNotification';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier } from '../types';
 import { resolveProductPricing } from '../utils/pricing';
@@ -143,19 +143,18 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
       onMouseEnter={prefetchProductPage}
       className="group relative bg-white dark:bg-[#161B26] rounded-2xl sm:rounded-3xl shadow-soft hover:shadow-[0_20px_48px_rgba(60,108,168,0.16)] flex flex-col cursor-pointer overflow-hidden border border-slate-200/80 dark:border-slate-800/80 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-[#3C6CA8]/50 active:scale-[0.985] h-full"
     >
-      {/* ─── Product Image Container with Framed Canvas ─── */}
-      <div className="relative p-2 sm:p-3.5 pb-0">
-        <div className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden bg-[#FAF9F5] dark:bg-slate-900/60 border border-slate-150/70 dark:border-slate-800/70 flex items-center justify-center p-2 sm:p-4">
-          <img
-            src={product.image_url && !imageError ? product.image_url : '/assets/logo.jpeg'}
-            alt={product.name}
-            width={400}
-            height={400}
-            className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-700 ease-out group-hover:scale-106"
-            onError={() => setImageError(true)}
-            loading="lazy"
-            decoding="async"
-          />
+      {/* ─── Product Image Container Edge-to-Edge ─── */}
+      <div className="relative aspect-square w-full rounded-t-2xl sm:rounded-t-3xl overflow-hidden bg-[#FAF9F5] dark:bg-slate-900/60 flex items-center justify-center">
+        <img
+          src={product.image_url && !imageError ? product.image_url : '/assets/logo.jpeg'}
+          alt={product.name}
+          width={400}
+          height={400}
+          className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-700 ease-out group-hover:scale-106"
+          onError={() => setImageError(true)}
+          loading="lazy"
+          decoding="async"
+        />
 
           {/* Badges Overlay */}
           <div className="absolute top-1.5 left-1.5 right-1.5 sm:top-2 sm:left-2 sm:right-2 flex items-start justify-between gap-1 pointer-events-none z-10">
@@ -237,7 +236,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             </div>
           )}
         </div>
-      </div>
 
       {/* ─── Product Details Area ─── */}
       <div className="p-2.5 sm:p-4 flex-1 flex flex-col justify-between text-left relative min-w-0">

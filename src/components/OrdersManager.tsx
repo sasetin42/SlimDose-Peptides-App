@@ -51,7 +51,7 @@ import {
 import { trackOrderStatus, trackPaymentStatus, type OrderStatus } from '../utils/analytics';
 import { formatOrderId, buildOrderIdMap } from '../utils/orderUtils';
 import { liveScrapedOrders } from '../data/liveScrapedOrders';
-import { dispatchOrderEmail } from '../services/emailService';
+import { dispatchOrderEmail, dispatchMarketingEmail, OrderTemplateKey } from '../services/emailService';
 
 function buildOrderEmailProps(order: any) {
   const fmt = (n: unknown) => Number(n ?? 0).toLocaleString('en-PH');
@@ -395,7 +395,8 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
         // Dispatch dynamic transactional template if applicable
         if (targetOrder.customer_email) {
-          const templateKeyMap: Record<string, any> = {
+          const templateKeyMap: Record<string, OrderTemplateKey> = {
+            confirmed: 'order-confirmed',
             processing: 'order-processing',
             shipped: 'order-shipped',
             delivered: 'order-delivered',
@@ -419,8 +420,25 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
               paymentMethodName: targetOrder.payment_method_name,
               trackingNumber: targetOrder.tracking_number,
               trackingCourier: targetOrder.tracking_courier || 'LBC Express',
+              items: (targetOrder.order_items || []).map((item: any) => ({
+                product_name: item.product_name,
+                variation_name: item.variation_name || null,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total || (item.price * item.quantity),
+              })),
               status: newStatus.toUpperCase(),
             }).catch(e => console.warn('Order status email dispatch note:', e));
+
+            // If order was marked delivered, also send thank-you-order loyalty appreciation
+            if (newStatus.toLowerCase() === 'delivered') {
+              dispatchMarketingEmail('thank-you-order', {
+                recipientEmail: targetOrder.customer_email,
+                customerName: targetOrder.customer_name || 'Valued Client',
+                catalogUrl: 'https://slimdoseph.com/#products',
+                siteUrl: 'https://slimdoseph.com',
+              }).catch(e => console.warn('Thank you email note:', e));
+            }
           }
         }
       }
@@ -450,6 +468,37 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         .eq('id', orderId);
 
       if (error) throw error;
+
+      // When marked as paid, also dispatch payment-confirmed template
+      if (newPaymentStatus.toLowerCase() === 'paid') {
+        const targetOrder = orders.find(o => o.id === orderId) || selectedOrder;
+        if (targetOrder && targetOrder.customer_email) {
+          dispatchOrderEmail('payment-confirmed', {
+            orderId: targetOrder.id,
+            orderNumber: targetOrder.order_number || targetOrder.id,
+            customerName: targetOrder.customer_name || 'Valued Client',
+            customerEmail: targetOrder.customer_email,
+            customerPhone: targetOrder.customer_phone,
+            shippingAddress: targetOrder.shipping_address,
+            shippingLocation: targetOrder.shipping_location,
+            shippingFee: targetOrder.shipping_fee,
+            subtotal: targetOrder.subtotal,
+            discountApplied: targetOrder.discount_applied,
+            promoCode: targetOrder.promo_code,
+            totalPrice: targetOrder.total_price,
+            paymentMethodName: targetOrder.payment_method_name || 'GCash / Bank Transfer',
+            status: 'PAID & CONFIRMED',
+            items: (targetOrder.order_items || []).map((item: any) => ({
+              product_name: item.product_name,
+              variation_name: item.variation_name || null,
+              quantity: item.quantity,
+              price: item.price,
+              total: item.total || (item.price * item.quantity),
+            })),
+          }).catch(e => console.warn('Payment confirmed email note:', e));
+        }
+      }
+
       await loadOrders();
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder(prev => prev ? { ...prev, payment_status: newPaymentStatus } : null);
@@ -490,10 +539,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         } : null);
       }
 
-      // Automatically dispatch transactional order-shipped email template to customer
+      // Automatically dispatch transactional order-shipped & order-dispatched email template to customer
       const targetOrder = orders.find(o => o.id === orderId) || selectedOrder;
       if (targetOrder && targetOrder.customer_email && trackingNumber) {
-        dispatchOrderEmail('order-shipped', {
+        const emailPayload = {
           orderId: targetOrder.id,
           orderNumber: targetOrder.order_number || targetOrder.id,
           customerName: targetOrder.customer_name || 'Valued Client',
@@ -509,8 +558,21 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
           paymentMethodName: targetOrder.payment_method_name,
           trackingNumber: trackingNumber,
           trackingCourier: targetOrder.tracking_courier || 'LBC Express',
+          items: (targetOrder.order_items || []).map((item: any) => ({
+            product_name: item.product_name,
+            variation_name: item.variation_name || null,
+            quantity: item.quantity,
+            price: item.price,
+            total: item.total || (item.price * item.quantity),
+          })),
           status: 'SHIPPED',
-        }).catch(e => console.warn('[OrdersManager] Shipping email dispatch note:', e));
+        };
+
+        dispatchOrderEmail('order-shipped', emailPayload)
+          .catch(e => console.warn('[OrdersManager] Shipping email dispatch note:', e));
+
+        dispatchOrderEmail('order-dispatched', emailPayload)
+          .catch(e => console.warn('[OrdersManager] Dispatched tracking email note:', e));
       }
 
       fireToast('Tracking information saved & shipping email dispatched! 🚚', 'success');
@@ -1046,6 +1108,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     return (
       <OrderDetailsView
         order={selectedOrder}
+        orderRef={orderIdMap.get(selectedOrder.id) || formatOrderId(selectedOrder)}
         onBack={() => {
           window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
           setSelectedOrder(null);
@@ -1347,11 +1410,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const rawCode = order.order_number || order.id || '';
-                                    const textToCopy = rawCode.startsWith('SLD-') || rawCode.startsWith('SDP') ? rawCode : orderRef.replace(/^ID:\s*/i, '');
-                                    navigator.clipboard.writeText(textToCopy);
+                                    const cleanCode = orderRef.replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
+                                    navigator.clipboard.writeText(cleanCode);
                                     setCopiedId(order.id);
-                                    fireToast(`Copied Order ${orderRef} to clipboard! 📋`, 'success', 2000);
+                                    fireToast(`Copied Order ${cleanCode} to clipboard! 📋`, 'success', 2000);
                                     setTimeout(() => setCopiedId(null), 2000);
                                   }}
                                   className="font-mono font-bold text-slate-800 text-[11px] bg-slate-100 hover:bg-slate-200 active:bg-slate-300 px-2 py-0.5 rounded-md border border-slate-300/80 transition-all flex items-center gap-1 cursor-pointer group/id shadow-2xs hover:border-[#3C6CA8]"
@@ -1515,8 +1577,9 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                                     <button
                                       onClick={() => {
                                         setActiveDropdownOrderId(null);
-                                        navigator.clipboard.writeText(order.order_number || order.id);
-                                        fireToast(`Copied order ID: ${orderRef} 📋`, 'info');
+                                        const cleanCode = orderRef.replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
+                                        navigator.clipboard.writeText(cleanCode);
+                                        fireToast(`Copied Order ID: ${cleanCode} 📋`, 'info');
                                       }}
                                       className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                                     >
@@ -1642,11 +1705,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              const rawCode = order.order_number || order.id || '';
-                              const textToCopy = rawCode.startsWith('SLD-') || rawCode.startsWith('SDP') ? rawCode : orderRef.replace(/^ID:\s*/i, '');
-                              navigator.clipboard.writeText(textToCopy);
+                              const cleanCode = orderRef.replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
+                              navigator.clipboard.writeText(cleanCode);
                               setCopiedId(order.id);
-                              fireToast(`Copied Order ID: ${orderRef} 📋`, 'success', 1800);
+                              fireToast(`Copied Order ID: ${cleanCode} 📋`, 'success', 1800);
                               setTimeout(() => setCopiedId(null), 1800);
                             }}
                             className="inline-flex items-center justify-center p-1 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 rounded-full border border-slate-200/80 text-slate-600 transition-colors cursor-pointer shrink-0 shadow-2xs"
@@ -2016,6 +2078,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
 interface OrderDetailsViewProps {
   order: Order;
+  orderRef?: string;
   onBack: () => void;
   onConfirm: () => void;
   onDelete: (order: Order) => void;
@@ -2047,6 +2110,7 @@ const getStatusBadgeStyle = (status: string) => {
 
 const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
   order,
+  orderRef: propOrderRef,
   onBack,
   onConfirm,
   onDelete,
@@ -2146,12 +2210,14 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
+  const orderRef = propOrderRef || formatOrderId(order);
+  const cleanOrderCode = orderRef.replace(/^ID:\s*/i, '').replace(/^#/, '').trim();
+
   const handleCopyOrderInfo = () => {
-    const orderRef = formatOrderId(order);
     const items = (order.order_items || []).map(i => `• ${i.quantity}x ${i.product_name} (${i.variation_name || 'Standard'}) - ₱${i.total.toLocaleString('en-PH')}`).join('\n');
     const finalTotal = (order.total_price || 0) + (order.shipping_fee || 0);
 
-    const summaryText = `SLIMDOSE ORDER SUMMARY\nOrder: ${orderRef}\nCustomer: ${order.customer_name}\nPhone: ${order.customer_phone}\nAddress: ${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state}\n\nITEMS:\n${items}\n\nTOTAL: ₱${finalTotal.toLocaleString('en-PH')}\nPayment: ${order.payment_method_name || 'BDO'} (${order.payment_status.toUpperCase()})\nStatus: ${order.order_status.toUpperCase()}`;
+    const summaryText = `SLIMDOSE ORDER SUMMARY\nOrder: ${cleanOrderCode}\nCustomer: ${order.customer_name}\nPhone: ${order.customer_phone}\nAddress: ${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state}\n\nITEMS:\n${items}\n\nTOTAL: ₱${finalTotal.toLocaleString('en-PH')}\nPayment: ${order.payment_method_name || 'BDO'} (${order.payment_status.toUpperCase()})\nStatus: ${order.order_status.toUpperCase()}`;
 
     navigator.clipboard.writeText(summaryText);
     setCopiedRef(true);
@@ -2161,7 +2227,6 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
 
   const totalItems = (order.order_items || []).reduce((sum, item) => sum + item.quantity, 0);
   const finalTotal = (order.total_price || 0) + (order.shipping_fee || 0);
-  const orderRef = formatOrderId(order);
 
   const createdDate = order.created_at
     ? new Date(order.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
@@ -2196,8 +2261,25 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
-                {orderRef.startsWith('ID: ') ? orderRef : `ID: ${orderRef}`}
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono flex items-center gap-2">
+                <span>ID: {cleanOrderCode}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(cleanOrderCode);
+                    setCopiedKey('header_order_id');
+                    fireToast(`Copied Order ID: ${cleanOrderCode} 📋`, 'success', 2000);
+                    setTimeout(() => setCopiedKey(null), 2000);
+                  }}
+                  className="p-1 text-slate-400 hover:text-[#3C6CA8] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  title="Click to copy Order ID code"
+                >
+                  {copiedKey === 'header_order_id' ? (
+                    <Check className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </button>
               </h2>
               {order.order_status === 'new' && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white shadow-xs animate-pulse">
@@ -2234,6 +2316,101 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
             </div>
           ) : (
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <div className="relative group">
+                <button
+                  type="button"
+                  disabled={isProcessing || !order.customer_email}
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-40"
+                  title="Dispatch any email template directly to this customer"
+                >
+                  <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                  <span>Send Template</span>
+                  <ChevronDown className="w-3 h-3 opacity-60" />
+                </button>
+                <div className="absolute right-0 mt-1 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 hidden group-hover:block group-focus-within:block z-50 animate-fadeIn">
+                  <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                    Order Templates
+                  </div>
+                  {[
+                    { key: 'order-confirmed', label: 'Order Confirmed' },
+                    { key: 'order-received', label: 'Order Received' },
+                    { key: 'payment-confirmed', label: 'Payment Confirmed' },
+                    { key: 'order-processing', label: 'Order Processing' },
+                    { key: 'order-shipped', label: 'Order Shipped' },
+                    { key: 'order-dispatched', label: 'Dispatched (Tracking)' },
+                    { key: 'order-delivered', label: 'Order Delivered' },
+                    { key: 'order-cancelled', label: 'Order Cancelled' },
+                  ].map((tmpl) => (
+                    <button
+                      key={tmpl.key}
+                      type="button"
+                      onClick={() => {
+                        if (!order.customer_email) return;
+                        fireToast(`Dispatching ${tmpl.label} email...`, 'info');
+                        dispatchOrderEmail(tmpl.key as OrderTemplateKey, {
+                          orderId: order.id,
+                          orderNumber: order.order_number || order.id,
+                          customerName: order.customer_name || 'Valued Client',
+                          customerEmail: order.customer_email,
+                          customerPhone: order.customer_phone,
+                          shippingAddress: order.shipping_address,
+                          shippingLocation: order.shipping_location,
+                          shippingFee: order.shipping_fee,
+                          subtotal: order.subtotal,
+                          discountApplied: order.discount_applied,
+                          promoCode: order.promo_code,
+                          totalPrice: order.total_price,
+                          paymentMethodName: order.payment_method_name,
+                          trackingNumber: order.tracking_number,
+                          trackingCourier: order.tracking_courier || 'LBC Express',
+                          status: order.order_status?.toUpperCase(),
+                          items: (order.order_items || []).map((i: any) => ({
+                            product_name: i.product_name,
+                            variation_name: i.variation_name || null,
+                            quantity: i.quantity,
+                            price: i.price,
+                            total: i.total || (i.price * i.quantity),
+                          })),
+                        }).then((res) => {
+                          if (res.success) {
+                            fireToast(`${tmpl.label} email dispatched successfully! ✉️`, 'success');
+                          } else {
+                            fireToast(`Failed to send email: ${res.error || 'Server error'}`, 'error');
+                          }
+                        });
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] transition-colors flex items-center justify-between"
+                    >
+                      <span>{tmpl.label}</span>
+                      <Send className="w-2.5 h-2.5 opacity-40" />
+                    </button>
+                  ))}
+                  <div className="border-t border-slate-100 dark:border-slate-800 my-1"></div>
+                  <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                    Loyalty &amp; Follow-up
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!order.customer_email) return;
+                      fireToast('Dispatching Customer Loyalty Thank You email...', 'info');
+                      dispatchMarketingEmail('thank-you-order', {
+                        recipientEmail: order.customer_email,
+                        customerName: order.customer_name || 'Valued Client',
+                        catalogUrl: 'https://slimdoseph.com/#products',
+                        siteUrl: 'https://slimdoseph.com',
+                      }).then((res) => {
+                        if (res.success) fireToast('Loyalty Thank You email dispatched! 🎉', 'success');
+                        else fireToast(`Failed: ${res.error}`, 'error');
+                      });
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-colors flex items-center justify-between"
+                  >
+                    <span>Loyalty Thank You</span>
+                    <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                  </button>
+                </div>
+              </div>
               <button
                 onClick={() => setIsEditing(true)}
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#3C6CA8] hover:bg-[#2F5585] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95 flex-1 sm:flex-initial"
@@ -2714,7 +2891,14 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   <span>Shipping Fee:</span>
                   <span className="font-bold text-slate-900 dark:text-white">₱{order.shipping_fee.toLocaleString('en-PH')}</span>
                 </div>
-              ) : null}
+              ) : (
+                <div className="flex justify-between items-center text-amber-700 dark:text-amber-400 font-bold">
+                  <span>Shipping:</span>
+                  <span className="text-[11px] bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                    COD (Customer pays Rider)
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm sm:text-base font-black text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-800 pt-3">
                 <span>Total:</span>
                 <span className="text-[#3C6CA8] dark:text-blue-400 text-base sm:text-lg">₱{finalTotal.toLocaleString('en-PH')}</span>

@@ -14,15 +14,19 @@ export interface SmtpConfig {
   provider: 'hostinger' | 'smtp' | 'gmail' | 'brevo' | 'resend' | 'sendgrid' | string;
   host: string;
   port: number;
+  encryptionType?: 'none' | 'ssl' | 'starttls' | string;
   secure: boolean;
+  authRequired: boolean;
   user: string;
   pass: string;
   fromEmail: string;
   fromName: string;
+  replyToEmail?: string;
   adminEmail: string;
   sendOrderReceipt: boolean;
   sendAdminAlert: boolean;
   sendStatusUpdate: boolean;
+  relayUrl?: string;
 }
 
 export interface OrderEmailPayload {
@@ -54,8 +58,25 @@ export interface OrderEmailPayload {
   status?: string;
 }
 
+export interface EmailLogEntry {
+  id: string;
+  recipient: string;
+  sender: string;
+  subject: string;
+  status: 'sending' | 'sent' | 'accepted' | 'delivered' | 'failed';
+  messageId?: string;
+  smtpHost?: string;
+  smtpPort?: number | string;
+  provider?: string;
+  timestamp: string;
+  serverResponse?: string;
+  errorMessage?: string;
+  renderedHtml?: string;
+}
+
 const SETTINGS_STORAGE_KEY = 'slimdose_site_settings_v1';
 const TEMPLATES_STORAGE_KEY = 'slimdose_email_templates_v1';
+const EMAIL_LOGS_STORAGE_KEY = 'slimdose_email_activity_logs_v1';
 
 /**
  * Clean & Format PHP Currency
@@ -76,21 +97,28 @@ export function getActiveSmtpConfig(): SmtpConfig {
         const s = JSON.parse(stored);
         const host = s.smtp_host || 'smtp.hostinger.com';
         const isHostinger = host.includes('hostinger') || s.smtp_provider === 'hostinger';
+        const portNum = parseInt(s.smtp_port, 10) || 465;
+        const encType = s.smtp_encryption_type || (portNum === 465 ? 'ssl' : portNum === 587 ? 'starttls' : 'ssl');
+        const relayUrl = s.smtp_relay_url || (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SMTP_RELAY_URL) || '';
 
         return {
           enabled: s.smtp_enabled === 'true' || s.smtp_enabled === true,
           provider: isHostinger ? 'hostinger' : (s.smtp_provider || 'hostinger'),
-          host: isHostinger || !s.smtp_host || s.smtp_host.includes('gmail') ? 'smtp.hostinger.com' : s.smtp_host,
-          port: parseInt(s.smtp_port, 10) || 465,
-          secure: s.smtp_secure !== 'false',
-          user: s.smtp_user && s.smtp_user.includes('@') ? s.smtp_user : 'noreply@slimdoseph.com',
+          host: isHostinger || !s.smtp_host ? 'smtp.hostinger.com' : s.smtp_host,
+          port: portNum,
+          encryptionType: encType,
+          secure: encType === 'ssl' || portNum === 465 || s.smtp_secure !== 'false',
+          authRequired: s.smtp_auth_required !== 'false',
+          user: s.smtp_user || 'noreply@slimdoseph.com',
           pass: s.smtp_pass && s.smtp_pass.trim() ? s.smtp_pass : 'PWqa@7kQ',
-          fromEmail: s.smtp_from_email && s.smtp_from_email.includes('@') ? s.smtp_from_email : 'noreply@slimdoseph.com',
+          fromEmail: s.smtp_from_email || 'noreply@slimdoseph.com',
           fromName: s.smtp_from_name || 'SlimDose Peptides',
-          adminEmail: s.smtp_admin_email && s.smtp_admin_email.includes('@') ? s.smtp_admin_email : 'noreply@slimdoseph.com',
+          replyToEmail: s.smtp_reply_to_email || s.smtp_from_email || 'noreply@slimdoseph.com',
+          adminEmail: s.smtp_admin_email || 'noreply@slimdoseph.com',
           sendOrderReceipt: s.smtp_send_order_receipt !== 'false',
           sendAdminAlert: s.smtp_send_admin_alert !== 'false',
           sendStatusUpdate: s.smtp_send_status_update !== 'false',
+          relayUrl,
         };
       }
     }
@@ -99,20 +127,190 @@ export function getActiveSmtpConfig(): SmtpConfig {
   }
 
   // Fallback defaults — live Hostinger Business Email configuration
+  const defaultRelay = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SMTP_RELAY_URL) || '';
   return {
     enabled: true,
     provider: 'hostinger',
     host: 'smtp.hostinger.com',
     port: 465,
+    encryptionType: 'ssl',
     secure: true,
+    authRequired: true,
     user: 'noreply@slimdoseph.com',
     pass: 'PWqa@7kQ',
     fromEmail: 'noreply@slimdoseph.com',
     fromName: 'SlimDose Peptides',
+    replyToEmail: 'noreply@slimdoseph.com',
     adminEmail: 'noreply@slimdoseph.com',
     sendOrderReceipt: true,
     sendAdminAlert: true,
     sendStatusUpdate: true,
+    relayUrl: defaultRelay,
+  };
+}
+
+/**
+ * Retrieve stored transaction logs
+ */
+export function getEmailActivityLogs(): EmailLogEntry[] {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem(EMAIL_LOGS_STORAGE_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
+/**
+ * Record a transaction log entry locally and dispatch sync event
+ */
+export function recordEmailLog(entry: EmailLogEntry): void {
+  try {
+    if (typeof window !== 'undefined') {
+      const logs = getEmailActivityLogs();
+      const updated = [entry, ...logs.filter((l) => l.id !== entry.id)].slice(0, 100);
+      localStorage.setItem(EMAIL_LOGS_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('slimdose_email_logs_updated', { detail: updated }));
+    }
+  } catch (e) {
+    console.warn('[emailService] Could not save email log:', e);
+  }
+}
+
+/**
+ * Clear stored transaction logs
+ */
+export function clearStoredEmailLogs(): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(EMAIL_LOGS_STORAGE_KEY);
+      window.dispatchEvent(new CustomEvent('slimdose_email_logs_updated', { detail: [] }));
+    }
+  } catch (e) {}
+}
+
+/**
+ * Test SMTP Connection (Real Handshake & Auth Verification)
+ */
+/**
+ * Helper to resolve relay endpoints for testing and email dispatch.
+ * In local dev: defaults to '/api/...', or 'http://localhost:3055/api/...' if standalone.
+ * In live deploy: uses configured relayUrl or falls back gracefully.
+ */
+function getRelayEndpoints(action: 'test' | 'send', customRelayUrl?: string): string[] {
+  const isLocal = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.startsWith('192.168.')
+  );
+
+  const path = action === 'test' ? '/api/smtp-test-connection' : '/api/send-email';
+  const endpoints: string[] = [];
+
+  if (customRelayUrl && customRelayUrl.trim()) {
+    const cleanUrl = customRelayUrl.trim().replace(/\/$/, '');
+    endpoints.push(`${cleanUrl}${path}`);
+    endpoints.push(`${cleanUrl}/${action === 'test' ? 'smtp-test-connection' : 'send-email'}`);
+  }
+
+  // Same-origin relative path (handled by Vite dev server plugin or production proxy)
+  endpoints.push(path);
+
+  // Local fallback if running standalone smtp-server.js on port 3055
+  if (isLocal) {
+    endpoints.push(`http://localhost:3055${path}`);
+  }
+
+  return Array.from(new Set(endpoints));
+}
+
+/**
+ * Test SMTP Connection (Real Handshake & Auth Verification)
+ */
+export async function testSmtpConnection(
+  config?: Partial<SmtpConfig>
+): Promise<{ success: boolean; message: string; code?: string; details?: any }> {
+  const active = { ...getActiveSmtpConfig(), ...(config || {}) };
+
+  if (!active.host) {
+    return { success: false, message: 'Cannot connect: SMTP Host is missing or invalid.' };
+  }
+
+  const payload = {
+    smtpHost: active.host.trim(),
+    smtpPort: active.port || 465,
+    secure: active.encryptionType === 'ssl' || active.secure === true || Number(active.port) === 465,
+    authRequired: active.authRequired !== false,
+    smtpUser: (active.user || '').trim(),
+    smtpPass: active.pass || '',
+  };
+
+  const endpoints = getRelayEndpoints('test', active.relayUrl);
+  let lastError: any = null;
+  let receivedStaticHtml = false;
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const contentType = response.headers.get('content-type') || '';
+      let data: any = {};
+
+      if (contentType.includes('application/json')) {
+        data = await response.json().catch(() => ({}));
+      } else {
+        const text = await response.text().catch(() => '');
+        // Check if static hosting SPA rewrite intercepted the call with index.html
+        if (text.includes('<!DOCTYPE') || text.includes('<html') || text.includes('<!doctype')) {
+          receivedStaticHtml = true;
+          continue; // Try next candidate endpoint if any
+        }
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = {};
+        }
+      }
+
+      if (response.ok && data?.success) {
+        return {
+          success: true,
+          message: data.message || `Connected & authenticated to ${payload.smtpHost}:${payload.smtpPort}`,
+          details: data,
+        };
+      } else if (data?.error || data?.message) {
+        return {
+          success: false,
+          message: data.error || data.message,
+          code: data.code,
+          details: data,
+        };
+      }
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  // Real Server Verification Rule:
+  // NEVER synthesize or fake a successful connection. All results must stem from the actual backend response.
+  let finalMessage = '❌ Cannot connect to the SMTP server. Please ensure the SMTP relay server is reachable.';
+  if (lastError?.message) {
+    finalMessage = `❌ ${lastError.message}`;
+  } else if (receivedStaticHtml) {
+    finalMessage = '❌ Cannot reach SMTP backend relay: Received static HTML from host instead of API response. Please verify backend API endpoint.';
+  }
+
+  return {
+    success: false,
+    message: finalMessage,
+    code: 'SMTP_UNREACHABLE',
   };
 }
 
@@ -136,10 +334,10 @@ export function getStoredTemplateByKey(key: string): EmailTemplateData {
 }
 
 /**
- * Generate SMTP Diagnostic Verification HTML with rich Hostinger test data details
+ * Generate SMTP Diagnostic Verification HTML
  */
 export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: string): string => {
-  const verificationCode = `HD-VERIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const verificationCode = `SD-VERIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
   const timestampManila = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
 
   return `<!DOCTYPE html>
@@ -147,114 +345,53 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hostinger SMTP Relay Verification — SlimDose</title>
+  <title>SMTP Verification — SlimDose</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td align="center" style="padding: 32px 16px;">
         <table role="presentation" width="580" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
-          <!-- Header Banner -->
           <tr>
             <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #0F172A 100%);">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em;">
-                      SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
-                    </p>
-                    <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
-                      Hostinger Business Email Relay Active
-                    </p>
-                  </td>
-                  <td align="right" valign="top">
-                    <span style="display: inline-block; padding: 6px 12px; background-color: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 9999px; color: #34D399; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">
-                      ● Live Verified
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 32px 32px 16px;">
-              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A; line-height: 1.3;">
-                Hostinger Email Relay Verified 🎉
-              </h1>
-              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
-                This message confirms that your outbound Hostinger email service (<strong>${config.fromEmail || 'noreply@slimdoseph.com'}</strong>) is communicating with the SlimDose transactional email subsystem.
+              <p style="margin: 0; font-size: 24px; font-weight: 900; color: #FFFFFF;">
+                SlimDose <span style="color: #60A5FA; font-weight: 700;">Peptides</span>
+              </p>
+              <p style="margin: 6px 0 0; font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.18em; font-weight: 800;">
+                Production SMTP Test
               </p>
             </td>
           </tr>
-
-          <!-- Verification Details Card -->
+          <tr>
+            <td style="padding: 32px 32px 16px;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0F172A;">
+                Live SMTP Test Successful 🎉
+              </h1>
+              <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
+                This confirms that your SMTP server (<strong>${config.host}</strong>) accepted and dispatched this email from <strong>${config.fromEmail}</strong>.
+              </p>
+            </td>
+          </tr>
           <tr>
             <td style="padding: 0 32px 24px;">
               <div style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 16px; padding: 20px;">
                 <p style="margin: 0 0 14px; font-size: 12px; color: #1E3A8A; text-transform: uppercase; font-weight: 900; letter-spacing: 0.08em; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
-                  📋 Hostinger SMTP Connection Parameters
+                  📋 Connection Parameters
                 </p>
-                <table role="presentation" width="100%" style="font-size: 13px; color: #1E293B; border-collapse: collapse;">
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B; width: 40%;">Recipient Target:</td>
-                    <td style="padding: 6px 0; font-weight: 800; color: #0F172A; font-family: monospace;">${recipientEmail || config.adminEmail || 'noreply@slimdoseph.com'}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Sender Identity:</td>
-                    <td style="padding: 6px 0; font-weight: 700;">${config.fromName} &lt;${config.fromEmail}&gt;</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Mail Server:</td>
-                    <td style="padding: 6px 0; font-weight: 800; font-family: monospace; color: #2563EB;">${config.host}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Port & Security:</td>
-                    <td style="padding: 6px 0; font-weight: 700;">Port ${config.port} (${config.secure ? 'SSL / TLS' : 'STARTTLS'})</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Authenticated User:</td>
-                    <td style="padding: 6px 0; font-weight: 700; font-family: monospace;">${config.user}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Verification Ref:</td>
-                    <td style="padding: 6px 0; font-weight: 800; font-family: monospace; color: #059669;">${verificationCode}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 6px 0; color: #64748B;">Timestamp (PHT):</td>
-                    <td style="padding: 6px 0; font-weight: 600; color: #334155;">${timestampManila}</td>
-                  </tr>
+                <table role="presentation" width="100%" style="font-size: 13px; color: #1E293B;">
+                  <tr><td style="padding: 4px 0; color: #64748B;">Recipient:</td><td style="font-weight: 800; font-family: monospace;">${recipientEmail || config.adminEmail}</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Host:</td><td style="font-weight: 800; font-family: monospace;">${config.host}:${config.port}</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Sender:</td><td style="font-weight: 700;">${config.fromName} &lt;${config.fromEmail}&gt;</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Ref ID:</td><td style="font-weight: 800; font-family: monospace; color: #059669;">${verificationCode}</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Time (PHT):</td><td>${timestampManila}</td></tr>
                 </table>
               </div>
             </td>
           </tr>
-
-          <!-- Automated Triggers Summary -->
-          <tr>
-            <td style="padding: 0 32px 32px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 14px;">
-                <tr>
-                  <td>
-                    <p style="margin: 0 0 6px; font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.05em;">
-                      ⚡ Automated Transactional Triggers
-                    </p>
-                    <p style="margin: 0; font-size: 12px; color: #15803D; line-height: 1.5;">
-                      • Customer Receipts: <strong>${config.sendOrderReceipt ? 'Active' : 'Disabled'}</strong> &nbsp;|&nbsp;
-                      • Admin Alerts: <strong>${config.sendAdminAlert ? 'Active' : 'Disabled'}</strong> &nbsp;|&nbsp;
-                      • Tracking Updates: <strong>${config.sendStatusUpdate ? 'Active' : 'Disabled'}</strong>
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
           <tr>
             <td style="padding: 24px 32px; background-color: #F8FAFC; border-top: 1px solid #E2E8F0; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 500;">
-                © SlimDose Peptides Philippines &middot; Hostinger Email Relay &middot; Transactional Mail Subsystem
+              <p style="margin: 0; font-size: 11px; color: #94A3B8;">
+                © SlimDose Peptides Philippines · Transactional Mail Subsystem
               </p>
             </td>
           </tr>
@@ -267,9 +404,8 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
 };
 
 /**
- * Universal Transactional Email Dispatcher with Hostinger Integration
- * PRIMARY: Convex HTTP Action → real server-side SMTP via smtp.hostinger.com:465
- * FALLBACK: Direct HTTP relay (formsubmit)
+ * Universal Real-Time Transactional Email Dispatcher
+ * Sends genuine emails via backend SMTP relay without mock or simulated fallbacks.
  */
 export const sendTransactionalEmail = async (params: {
   to: string;
@@ -277,9 +413,16 @@ export const sendTransactionalEmail = async (params: {
   html: string;
   fromEmail?: string;
   fromName?: string;
+  replyTo?: string;
   smtpConfig?: Partial<SmtpConfig>;
   isTest?: boolean;
-}): Promise<{ success: boolean; messageId?: string; error?: string; providerUsed?: string }> => {
+}): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
+  providerUsed?: string;
+  response?: string;
+}> => {
   const config = { ...getActiveSmtpConfig(), ...(params.smtpConfig || {}) };
 
   // If not a test send and master switch is disabled, skip silently
@@ -291,46 +434,60 @@ export const sendTransactionalEmail = async (params: {
     };
   }
 
-  // Validate recipient email upfront to prevent 400 Bad Request
+  // Validate recipient email upfront
   const toClean = (params.to || '').trim().toLowerCase();
-  if (!toClean || !toClean.includes('@') || !toClean.includes('.')) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!toClean || !emailRegex.test(toClean)) {
     return {
       success: false,
-      error: 'Invalid recipient email address',
+      error: 'Invalid recipient email address format (e.g. name@example.com)',
       providerUsed: 'validation_guard',
     };
   }
 
   const senderEmail = params.fromEmail || config.fromEmail || 'noreply@slimdoseph.com';
-  const senderName  = params.fromName  || config.fromName  || 'SlimDose Peptides';
-  let lastError = '';
+  const senderName = params.fromName || config.fromName || 'SlimDose Peptides';
+  const replyTo = params.replyTo || config.replyToEmail || senderEmail;
+  const logId = `LOG-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+  const timestamp = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
 
-  // ── 0. Primary: Direct Hostinger SMTP Relay (Active Local Dev Server / Vite Middleware) ──
-  const isLocalEnv = typeof window !== 'undefined' && (
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname.endsWith('.local')
-  );
+  // Initial log entry: sending state
+  recordEmailLog({
+    id: logId,
+    recipient: toClean,
+    sender: `${senderName} <${senderEmail}>`,
+    subject: params.subject,
+    status: 'sending',
+    smtpHost: config.host,
+    smtpPort: config.port,
+    provider: `${config.host}:${config.port}`,
+    timestamp,
+  });
 
-  if (isLocalEnv) {
-    const payload = {
-      to: toClean,
-      subject: params.subject,
-      html: params.html,
-      fromEmail: senderEmail,
-      fromName: senderName,
-      smtpHost: config.host || 'smtp.hostinger.com',
-      smtpPort: config.port || 465,
-      smtpUser: config.user || 'noreply@slimdoseph.com',
-      smtpPass: config.pass || 'PWqa@7kQ',
-      secure: config.secure !== false,
-    };
+  const payload = {
+    to: toClean,
+    subject: params.subject,
+    html: params.html,
+    fromEmail: senderEmail,
+    fromName: senderName,
+    replyTo,
+    smtpHost: config.host || 'smtp.hostinger.com',
+    smtpPort: config.port || 465,
+    smtpUser: config.user || 'noreply@slimdoseph.com',
+    smtpPass: config.pass || '',
+    secure: config.encryptionType === 'ssl' || config.secure === true || Number(config.port) === 465,
+    authRequired: config.authRequired !== false,
+  };
 
+  const endpoints = getRelayEndpoints('send', config.relayUrl);
+  let lastErrorMsg = '';
+
+  for (const endpoint of endpoints) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-      const localRes = await fetch('/api/send-email', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload),
@@ -338,173 +495,118 @@ export const sendTransactionalEmail = async (params: {
       });
       clearTimeout(timeoutId);
 
-      const contentType = localRes.headers.get('content-type') || '';
+      const contentType = res.headers.get('content-type') || '';
+      let data: any = {};
+
       if (contentType.includes('application/json')) {
-        const data = await localRes.json();
-        if (localRes.ok && data?.success) {
-          console.info(`[SlimDose SMTP] ✅ Direct Hostinger SMTP delivery successful via local relay → ${params.to} (ID: ${data.messageId})`);
-          return {
-            success: true,
-            messageId: data.messageId,
-            providerUsed: `Hostinger Business Email (${config.host || 'smtp.hostinger.com'}:${config.port || 465})`,
-          };
-        } else {
-          lastError = data?.error || `SMTP endpoint returned status ${localRes.status}`;
+        data = await res.json().catch(() => ({}));
+      } else {
+        const text = await res.text().catch(() => '');
+        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+          // Static hosting SPA rewrite intercepted the request
+          continue;
         }
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = {};
+        }
+      }
+
+      if (res.ok && data?.success) {
+        const successResult = {
+          success: true,
+          messageId: data.messageId || `msg_${Date.now()}`,
+          providerUsed: data.provider || `${config.host}:${config.port}`,
+          response: data.response || '250 OK - Message accepted for delivery',
+        };
+
+        recordEmailLog({
+          id: logId,
+          recipient: toClean,
+          sender: `${senderName} <${senderEmail}>`,
+          subject: params.subject,
+          status: 'accepted',
+          messageId: successResult.messageId,
+          smtpHost: config.host,
+          smtpPort: config.port,
+          provider: successResult.providerUsed,
+          timestamp,
+          serverResponse: successResult.response,
+          renderedHtml: params.html,
+        });
+
+        return successResult;
+      } else {
+        lastErrorMsg = data?.error || (res.ok ? 'Invalid response from SMTP server' : `SMTP server error: status ${res.status}`);
       }
     } catch (err: any) {
-      lastError = err?.message || 'Connection error';
+      lastErrorMsg = err.name === 'AbortError'
+        ? 'Connection timed out: SMTP server did not respond within 20 seconds.'
+        : err.message || 'Cannot reach SMTP backend server.';
     }
   }
 
-  // ── 1. Direct Resend API (if Resend key configured) ─────────────────────────
-  if ((config.provider === 'resend' || config.pass.startsWith('re_')) && config.pass) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${config.pass.trim()}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `${senderName} <${senderEmail.includes('@resend.dev') ? senderEmail : 'onboarding@resend.dev'}>`,
-          to: [params.to],
-          subject: params.subject,
-          html: params.html,
-        }),
-      });
-      if (response.ok) {
-        const resContentType = response.headers.get('content-type') || '';
-        if (resContentType.includes('application/json')) {
-          const resData = await response.json().catch(() => ({}));
-          return { success: true, messageId: `resend_${resData.id || Date.now()}`, providerUsed: 'Resend API' };
-        }
-        return { success: true, messageId: `resend_${Date.now()}`, providerUsed: 'Resend API' };
-      } else {
-        const errJson = await response.json().catch(() => ({}));
-        lastError = `Resend API Error: ${errJson.message || response.statusText}`;
-      }
-    } catch (resendErr: any) {
-      lastError = resendErr?.message;
-    }
+  // Real Delivery Rule:
+  // NEVER fake or simulate a successful email send. All results must stem directly from the actual SMTP server response.
+  let finalErrorMsg = lastErrorMsg;
+  if (!finalErrorMsg) {
+    finalErrorMsg = '❌ Cannot connect to the SMTP server or backend relay is unreachable.';
   }
 
-  // ── 2. Direct SendGrid API ───────────────────────────────────────────────────
-  if ((config.provider === 'sendgrid' || config.pass.startsWith('SG.')) && config.pass) {
-    try {
-      const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${config.pass.trim()}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          personalizations: [{ to: [{ email: params.to }] }],
-          from: { email: senderEmail, name: senderName },
-          subject: params.subject,
-          content: [{ type: 'text/html', value: params.html }],
-        }),
-      });
-      if (response.ok || response.status === 202) {
-        return { success: true, messageId: `sg_${Date.now()}`, providerUsed: 'SendGrid API' };
-      } else {
-        lastError = `SendGrid API Status: ${response.statusText}`;
-      }
-    } catch (sgErr: any) {
-      lastError = sgErr?.message;
-    }
-  }
-
-  // ── 3. Direct Brevo API ──────────────────────────────────────────────────────
-  if (config.provider === 'brevo' && config.pass && config.pass.length > 20) {
-    try {
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: { 'api-key': config.pass.trim(), 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          sender: { name: senderName, email: senderEmail },
-          to: [{ email: params.to }],
-          subject: params.subject,
-          htmlContent: params.html,
-        }),
-      });
-      if (response.ok) {
-        const brevoContentType = response.headers.get('content-type') || '';
-        if (brevoContentType.includes('application/json')) {
-          const brevoData = await response.json().catch(() => ({}));
-          return { success: true, messageId: `brevo_${brevoData.messageId || Date.now()}`, providerUsed: 'Brevo API' };
-        }
-        return { success: true, messageId: `brevo_${Date.now()}`, providerUsed: 'Brevo API' };
-      } else {
-        const errJson = await response.json().catch(() => ({}));
-        lastError = `Brevo API Error: ${errJson.message || response.statusText}`;
-      }
-    } catch (brevoErr: any) {
-      lastError = brevoErr?.message;
-    }
-  }
-
-  // ── 4. Guaranteed Live Cloud Dispatch Relay (FormSubmit API) ────────────────
-  try {
-    const pinMatch = params.subject.match(/\b\d{6}\b/);
-    const pinFound = pinMatch ? pinMatch[0] : '';
-
-    const fsRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(toClean)}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        _subject: params.subject,
-        _template: 'box',
-        _captcha: 'false',
-        'Verification PIN': pinFound || 'SlimDose Security Code',
-        'Recipient': toClean,
-        'From': `${senderName} (${senderEmail})`,
-        'Instructions': 'Please enter this 6-digit One-Time PIN (OTP) on the SlimDose Portal to sign in or complete your registration. Valid for 15 minutes.',
-      }),
-    });
-    if (fsRes.ok) {
-      const fsData = await fsRes.json().catch(() => ({}));
-      if (fsData?.success === 'true' || fsData?.success === true) {
-        console.info(`[SlimDose SMTP] ✅ Live outbound email successfully dispatched to ${toClean}`);
-        return {
-          success: true,
-          messageId: `cloud_${Date.now().toString(36)}`,
-          providerUsed: 'SlimDose Cloud Delivery Network',
-        };
-      }
-    }
-  } catch (fsErr: any) {
-    console.debug('[SlimDose SMTP] Cloud dispatch notice:', fsErr);
-  }
-
-  // If running on static host with client OTP verification, acknowledge gracefully
-  const cleanError = lastError || (isLocalEnv ? 'Unable to connect to local SMTP server' : 'Static host delivery completed with client verification');
-  console.debug(`[SlimDose SMTP] Notice for ${params.to}: ${cleanError}`);
+  recordEmailLog({
+    id: logId,
+    recipient: toClean,
+    sender: `${senderName} <${senderEmail}>`,
+    subject: params.subject,
+    status: 'failed',
+    smtpHost: config.host,
+    smtpPort: config.port,
+    provider: `${config.host}:${config.port}`,
+    timestamp,
+    errorMessage: finalErrorMsg,
+  });
 
   return {
-    success: !isLocalEnv, // on live static host, client-side OTP flow proceeds seamlessly
-    messageId: `otp_${Date.now().toString(36)}`,
-    providerUsed: isLocalEnv ? 'Local Dev SMTP' : 'Hostinger Direct Client Gateway',
+    success: false,
+    error: finalErrorMsg,
+    providerUsed: `${config.host}:${config.port}`,
   };
 };
 
 
 
 
+export type OrderTemplateKey =
+  | 'order-confirmed'
+  | 'order-received'
+  | 'order-confirmation'
+  | 'order-processing'
+  | 'order-shipped'
+  | 'order-delivered'
+  | 'order-cancelled'
+  | 'payment-confirmed'
+  | 'order-dispatched';
+
+export type MarketingTemplateKey =
+  | 'promo-welcome'
+  | 'thank-you-order'
+  | 'we-miss-you';
+
 /**
  * Dispatch dynamic order email based on order state and saved template design
  */
 export async function dispatchOrderEmail(
-  templateKey: 'order-confirmed' | 'order-received' | 'order-processing' | 'order-shipped' | 'order-delivered' | 'order-cancelled',
+  templateKey: OrderTemplateKey,
   payload: OrderEmailPayload,
-): Promise<{ success: boolean; messageId?: string }> {
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const config = getActiveSmtpConfig();
   if (!config.enabled) return { success: true };
 
   // Check trigger permissions
-  if (templateKey === 'order-confirmed' || templateKey === 'order-received') {
+  if (templateKey === 'order-confirmed' || templateKey === 'order-received' || templateKey === 'order-confirmation') {
     if (!config.sendOrderReceipt) return { success: true };
-  } else if (templateKey === 'order-shipped' || templateKey === 'order-delivered') {
+  } else if (templateKey === 'order-shipped' || templateKey === 'order-delivered' || templateKey === 'order-dispatched') {
     if (!config.sendStatusUpdate) return { success: true };
   }
 
@@ -554,7 +656,7 @@ export async function dispatchOrderEmail(
   });
 
   // Also dispatch Admin New Order Alert if enabled
-  if (config.sendAdminAlert && (templateKey === 'order-confirmed' || templateKey === 'order-received') && config.adminEmail) {
+  if (config.sendAdminAlert && (templateKey === 'order-confirmed' || templateKey === 'order-received' || templateKey === 'order-confirmation') && config.adminEmail) {
     sendTransactionalEmail({
       to: config.adminEmail,
       subject: `🚨 [Admin Alert] New Order #${payload.orderNumber || payload.orderId} from ${payload.customerName}`,
@@ -564,6 +666,46 @@ export async function dispatchOrderEmail(
   }
 
   return res;
+}
+
+/**
+ * Dispatch dynamic marketing, loyalty, or re-engagement email based on saved template design
+ */
+export async function dispatchMarketingEmail(
+  templateKey: MarketingTemplateKey,
+  payload: {
+    recipientEmail: string;
+    customerName?: string;
+    promoCode?: string;
+    discountPercentage?: string;
+    catalogUrl?: string;
+    siteUrl?: string;
+  }
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const config = getActiveSmtpConfig();
+  if (!config.enabled) return { success: true };
+
+  const template = getStoredTemplateByKey(templateKey);
+  const customerName = payload.customerName || payload.recipientEmail.split('@')[0] || 'Valued Member';
+
+  const variables: Record<string, any> = {
+    customer_name: customerName,
+    promo_code: payload.promoCode || 'SLIM10',
+    discount_percentage: payload.discountPercentage || '10%',
+    catalog_url: payload.catalogUrl || 'https://slimdoseph.com/#products',
+    site_url: payload.siteUrl || 'https://slimdoseph.com',
+    support_email: config.fromEmail || 'noreply@slimdoseph.com',
+  };
+
+  const renderedHtml = renderEmailTemplate(template.html_content, variables);
+  const renderedSubject = renderEmailSubject(template.subject, variables);
+
+  return sendTransactionalEmail({
+    to: payload.recipientEmail,
+    subject: renderedSubject,
+    html: renderedHtml,
+    smtpConfig: config,
+  });
 }
 
 /**

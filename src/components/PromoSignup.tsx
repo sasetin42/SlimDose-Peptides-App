@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { trackEvent, identifyUser } from '../utils/analytics';
 import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
 import type { GlobalDiscount } from '../types';
+import { dispatchMarketingEmail } from '../services/emailService';
 
 const SUBSCRIBED_KEY = 'sldp_promo_subscribed';
 const DEFAULT_DISCOUNT_LABEL = '10% Off';
@@ -91,6 +92,15 @@ const PromoSignup: React.FC = () => {
     const normalizedEmail = bannerEmail.trim().toLowerCase();
     identifyUser(normalizedEmail, { source: 'banner', ...discountPayload });
     trackEvent('promo_subscribed', { source: 'banner', email: normalizedEmail, ...discountPayload });
+
+    // Automatically dispatch Member Welcome & Promo template email
+    dispatchMarketingEmail('promo-welcome', {
+      recipientEmail: normalizedEmail,
+      promoCode: globalDiscount?.code || 'SLIM10',
+      discountPercentage: globalDiscount ? `${globalDiscount.discount_value}%` : '10%',
+      catalogUrl: `${window.location.origin}/#products`,
+      siteUrl: window.location.origin,
+    }).catch(emailErr => console.warn('[PromoSignup] Welcome email dispatch note:', emailErr));
   };
 
   if (!bannerVisible) return null;

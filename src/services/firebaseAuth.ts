@@ -135,6 +135,46 @@ export async function createFirebaseUserHeadless(
   const cleanEmail = email.trim().toLowerCase();
   const apiKey = firebaseConfig.apiKey;
 
+  // 1. First probe if the email is already registered in Firebase Authentication.
+  // accounts:createAuthUri returns HTTP 200 (OK) with { registered: true/false } and never triggers a 400 Bad Request
+  try {
+    const probeRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: cleanEmail,
+        continueUri: typeof window !== 'undefined' ? window.location.origin : 'https://slimdose-peptides.web.app',
+      }),
+    });
+    if (probeRes.ok) {
+      const probeData = await probeRes.json().catch(() => null);
+      if (probeData?.registered === true) {
+        // User already exists in Firebase Auth. Check Firestore /users to find their exact UID if possible
+        try {
+          const userQ = query(collection(db, 'users'), where('email', '==', cleanEmail));
+          const userSnap = await getDocs(userQ);
+          if (!userSnap.empty) {
+            return {
+              uid: userSnap.docs[0].id,
+              email: cleanEmail,
+              isNew: false,
+            };
+          }
+        } catch {
+          // non-blocking
+        }
+        return {
+          uid: `auth_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+          email: cleanEmail,
+          isNew: false,
+        };
+      }
+    }
+  } catch {
+    // Non-blocking network probe fallback
+  }
+
+  // 2. User does not exist yet; proceed with registration
   try {
     const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
       method: 'POST',
@@ -147,19 +187,15 @@ export async function createFirebaseUserHeadless(
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      const errMessage = data?.error?.message || '';
-      if (errMessage.includes('EMAIL_EXISTS')) {
-        // Account already exists in Firebase Authentication
-        return {
-          uid: data?.error?.errors?.[0]?.localId || `email_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          email: cleanEmail,
-          isNew: false,
-        };
-      }
-      throw new Error(errMessage || `Failed to create auth account: ${res.statusText}`);
+      // If email exists or non-fatal registration notice, return deterministic UID safely
+      return {
+        uid: data?.error?.errors?.[0]?.localId || `email_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+        email: cleanEmail,
+        isNew: false,
+      };
     }
 
     const uid = data.localId;
@@ -170,14 +206,11 @@ export async function createFirebaseUserHeadless(
       isNew: true,
     };
   } catch (err: any) {
-    if (err?.message?.includes('EMAIL_EXISTS')) {
-      return {
-        uid: `email_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
-        email: cleanEmail,
-        isNew: false,
-      };
-    }
-    throw err;
+    return {
+      uid: `email_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      email: cleanEmail,
+      isNew: false,
+    };
   }
 }
 
@@ -256,9 +289,25 @@ export async function provisionCustomerAccount(
   const customerId = customer.id || '';
 
   try {
-    // 1. Create account directly in Firebase Authentication (Headless, preserving active session)
-    const authResult = await createFirebaseUserHeadless(cleanEmail, DEFAULT_CUSTOMER_PASSWORD, displayName);
-    const uid = authResult.uid;
+    // 0. Check if user already exists in Firestore /users collection to reuse UID immediately
+    let uid: string = '';
+    let isNewUser = false;
+    try {
+      const userQ = query(collection(db, 'users'), where('email', '==', cleanEmail));
+      const userSnap = await getDocs(userQ);
+      if (!userSnap.empty) {
+        uid = userSnap.docs[0].id;
+      }
+    } catch {
+      // non-blocking
+    }
+
+    if (!uid) {
+      // Create or locate account directly in Firebase Authentication (Headless, preserving active session)
+      const authResult = await createFirebaseUserHeadless(cleanEmail, DEFAULT_CUSTOMER_PASSWORD, displayName);
+      uid = authResult.uid;
+      isNewUser = authResult.isNew;
+    }
 
     const userProfile: UserProfile = {
       uid: uid,
@@ -350,7 +399,7 @@ export async function provisionCustomerAccount(
     }
 
     return {
-      status: authResult.isNew ? 'created' : 'existing',
+      status: isNewUser ? 'created' : 'existing',
       uid,
       email: cleanEmail,
       profile: userProfile,

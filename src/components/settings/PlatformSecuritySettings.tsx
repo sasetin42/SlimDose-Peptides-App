@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { SiteSettings } from '../../types';
-import { Shield, ShieldAlert, Lock, AlertTriangle, Key, Clock, CheckCircle2, UserCheck, EyeOff } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, Clock, EyeOff } from 'lucide-react';
 
 interface Props {
   formData: Partial<SiteSettings>;
@@ -11,10 +11,10 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
   // Compute dynamic security health score
   const calculateHealthScore = () => {
     let score = 50; // base score with HTTPS & Supabase Auth
-    if (formData.security_2fa_required) score += 20;
-    if (formData.enforce_strong_passwords) score += 15;
-    if ((formData.max_login_attempts ?? 5) <= 5) score += 10;
-    if ((formData.session_timeout_minutes ?? 60) <= 60) score += 5;
+    if (formData.security_2fa_required === 'true') score += 20;
+    if (formData.enforce_strong_passwords !== 'false') score += 15;
+    if (Number(formData.max_login_attempts ?? 5) <= 5) score += 10;
+    if (Number(formData.session_timeout_minutes ?? 60) <= 60) score += 5;
     return Math.min(score, 100);
   };
 
@@ -74,17 +74,17 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
 
       {/* Maintenance Mode Controller */}
       <div className={`bg-white rounded-2xl border p-6 shadow-sm space-y-6 transition ${
-        formData.maintenance_mode ? 'border-amber-400 ring-4 ring-amber-400/10' : 'border-slate-200/80'
+        formData.maintenance_mode === 'true' ? 'border-amber-400 ring-4 ring-amber-400/10' : 'border-slate-200/80'
       }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div className="flex items-start gap-3">
-            <div className={`p-2.5 rounded-xl ${formData.maintenance_mode ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+            <div className={`p-2.5 rounded-xl ${formData.maintenance_mode === 'true' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-semibold text-slate-900">Emergency Maintenance Mode</h3>
-                {formData.maintenance_mode && (
+                {formData.maintenance_mode === 'true' && (
                   <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500 text-white animate-pulse">
                     ACTIVE NOW
                   </span>
@@ -99,15 +99,15 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={formData.maintenance_mode ?? false}
-              onChange={(e) => onChange({ maintenance_mode: e.target.checked })}
+              checked={formData.maintenance_mode === 'true'}
+              onChange={(e) => onChange({ maintenance_mode: String(e.target.checked) })}
               className="sr-only peer"
             />
             <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
           </label>
         </div>
 
-        {formData.maintenance_mode && (
+        {formData.maintenance_mode === 'true' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
@@ -187,8 +187,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
             <label className="relative inline-flex items-center cursor-pointer ml-4">
               <input
                 type="checkbox"
-                checked={formData.security_2fa_required ?? false}
-                onChange={(e) => onChange({ security_2fa_required: e.target.checked })}
+                checked={formData.security_2fa_required === 'true'}
+                onChange={(e) => onChange({ security_2fa_required: String(e.target.checked) })}
                 className="sr-only peer"
               />
               <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -205,8 +205,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
             <label className="relative inline-flex items-center cursor-pointer ml-4">
               <input
                 type="checkbox"
-                checked={formData.enforce_strong_passwords ?? true}
-                onChange={(e) => onChange({ enforce_strong_passwords: e.target.checked })}
+                checked={formData.enforce_strong_passwords !== 'false'}
+                onChange={(e) => onChange({ enforce_strong_passwords: String(e.target.checked) })}
                 className="sr-only peer"
               />
               <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -223,8 +223,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
             <label className="relative inline-flex items-center cursor-pointer ml-4">
               <input
                 type="checkbox"
-                checked={formData.allow_guest_checkout ?? true}
-                onChange={(e) => onChange({ allow_guest_checkout: e.target.checked })}
+                checked={formData.allow_guest_checkout !== 'false'}
+                onChange={(e) => onChange({ allow_guest_checkout: String(e.target.checked) })}
                 className="sr-only peer"
               />
               <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -241,8 +241,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
             <label className="relative inline-flex items-center cursor-pointer ml-4">
               <input
                 type="checkbox"
-                checked={formData.require_prescript_upload ?? true}
-                onChange={(e) => onChange({ require_prescript_upload: e.target.checked })}
+                checked={formData.require_prescript_upload !== 'false'}
+                onChange={(e) => onChange({ require_prescript_upload: String(e.target.checked) })}
                 className="sr-only peer"
               />
               <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -260,8 +260,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
               type="number"
               min="10"
               max="480"
-              value={formData.session_timeout_minutes ?? 60}
-              onChange={(e) => onChange({ session_timeout_minutes: parseInt(e.target.value) || 60 })}
+              value={formData.session_timeout_minutes ?? '60'}
+              onChange={(e) => onChange({ session_timeout_minutes: e.target.value })}
               className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
             />
             <p className="text-xs text-slate-400 mt-1">Auto log out administrator after inactivity period</p>
@@ -276,8 +276,8 @@ export const PlatformSecuritySettings: React.FC<Props> = ({ formData, onChange }
               type="number"
               min="3"
               max="20"
-              value={formData.max_login_attempts ?? 5}
-              onChange={(e) => onChange({ max_login_attempts: parseInt(e.target.value) || 5 })}
+              value={formData.max_login_attempts ?? '5'}
+              onChange={(e) => onChange({ max_login_attempts: e.target.value })}
               className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition"
             />
             <p className="text-xs text-slate-400 mt-1">Protects against automated brute force credential stuffing</p>

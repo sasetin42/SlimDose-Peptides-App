@@ -24,6 +24,7 @@ import {
   Tag
 } from 'lucide-react';
 import { useFAQsAdmin, FAQItem, defaultFAQs } from '../hooks/useFAQs';
+import { supabase } from '../lib/supabase';
 
 interface FAQManagerProps {
   onBack?: () => void;
@@ -200,8 +201,6 @@ const FAQManager: React.FC<FAQManagerProps> = ({ onBack }) => {
     try {
       setSeeding(true);
       setError(null);
-      const { seedDefaultFAQs } = await import('../hooks/useFAQs').then(() => ({ seedDefaultFAQs: (refetch as any) }));
-      // Using seedDefaultFAQs through refetch or direct upsert
       for (const item of defaultFAQs) {
         await supabase.from('faqs').upsert({
           id: item.id,

@@ -9,6 +9,7 @@ import {
 export interface ShippingLocation {
   id: string;
   name: string;
+  code?: string;
   fee: number;
   note?: string;
   is_active: boolean;
@@ -42,7 +43,7 @@ const getInitialShippingLocations = (): ShippingLocation[] => {
 export const useShippingLocations = () => {
   const [locations, setLocations] = useState<ShippingLocation[]>(getInitialShippingLocations);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, _setError] = useState<string | null>(null);
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -308,7 +309,7 @@ export const useShippingLocationsAdmin = () => {
           fetchAllLocations(true);
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsLiveConnected(status === 'SUBSCRIBED');
       });
 

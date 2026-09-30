@@ -1,40 +1,36 @@
 import React, { useState, useMemo } from 'react';
 import {
   MapPin,
+  Globe,
   Edit2,
   Save,
   X,
   Plus,
   Trash2,
-  AlertCircle,
   RefreshCw,
   Search,
   CheckCircle2,
-  ArrowUpDown,
   ChevronUp,
   ChevronDown,
   Truck,
   Sparkles,
-  DollarSign,
   Layers,
   Copy,
   Info,
-  Sliders,
   Calculator,
-  ShieldCheck
 } from 'lucide-react';
-import { useShippingLocationsAdmin, ShippingLocation, defaultShippingLocations } from '../hooks/useShippingLocations';
+import { useShippingLocationsAdmin, ShippingLocation } from '../hooks/useShippingLocations';
 import { fireToast } from './ToastNotification';
 
 interface ShippingManagerProps {
   onBack?: () => void;
+  onNavigateToLocations?: () => void;
 }
 
-export default function ShippingManager({ onBack }: ShippingManagerProps) {
+export default function ShippingManager({ onNavigateToLocations }: ShippingManagerProps) {
   const {
     locations,
     loading,
-    error,
     isLiveConnected,
     updateLocation,
     addLocation,
@@ -68,8 +64,7 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Simulator State
-  const [simWeightKg, setSimWeightKg] = useState<number>(1);
-  const [simSubtotal, setSimSubtotal] = useState<number>(3500);
+  const [simSubtotal, _setSimSubtotal] = useState<number>(3500);
 
   // Manual Refresh
   const handleRefresh = async () => {
@@ -290,6 +285,17 @@ export default function ShippingManager({ onBack }: ShippingManagerProps) {
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+          {onNavigateToLocations && (
+            <button
+              onClick={onNavigateToLocations}
+              className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-200 shadow-xs cursor-pointer"
+              title="Open Full Philippine Geographic Database"
+            >
+              <Globe className="w-3.5 h-3.5 text-[#3C6CA8]" />
+              <span>Locations &amp; ZIP DB</span>
+            </button>
+          )}
+
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}

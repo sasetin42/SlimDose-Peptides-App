@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useMemo, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import {
-  Plus, Edit, Trash2, Save, X, ArrowLeft, TrendingUp, Package, Users, FolderOpen,
+  Plus, Edit, Trash2, X, ArrowLeft, TrendingUp, Package, Users, FolderOpen,
   CreditCard, Sparkles, Layers, Shield, ShieldCheck, AlertOctagon, RefreshCw, Warehouse,
   ShoppingCart, HelpCircle, MapPin, Settings, Tag, BookOpen, MessageSquare, FileText,
-  LogOut, Star, FileCheck, Video, Mail, Menu, MoreVertical, ChevronLeft, ChevronRight,
-  PanelLeftClose, PanelLeftOpen, Search, SlidersHorizontal, TrendingDown, Eye, EyeOff,
-  ChevronDown, ChevronUp, Image as ImageIcon, Percent, Boxes, FlaskConical, Award,
+  LogOut, Star, FileCheck, Video, Mail, Menu, MoreVertical,
+  PanelLeftClose, PanelLeftOpen, Search, Eye, EyeOff,
+  ChevronDown, ChevronUp, Boxes, FlaskConical,
   AlertCircle, BarChart3, LayoutDashboard, Lock, DollarSign, AlertTriangle, CheckCircle2,
   Edit2, ExternalLink, Copy, Check, MessageCircle, Megaphone, Clock, ArrowUpRight,
-  CheckCircle, Wallet, Receipt, UserCheck
+  CheckCircle, Wallet, UserCheck, Globe, Send
 } from 'lucide-react';
 import type { Product } from '../types';
 import { supabase } from '../lib/supabase';
@@ -16,32 +16,50 @@ import { useMenuContext } from '../contexts/MenuContext';
 import { useCategories } from '../hooks/useCategories';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { fireToast } from './ToastNotification';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import { formatOrderId } from '../utils/orderUtils';
+import {
+  authenticateAdmin, canAccessView, clearSession, ensureAdminBootstrap,
+  loadSession, saveSession, ROLE_LABELS, verifyCurrentAdminPassword,
+  type AdminSession,
+} from '../lib/auth';
+import { logAdminAction as writeAuditLog, setAuditSession, flushAuditBuffer } from '../lib/audit';
+import { signOut } from 'firebase/auth';
+import { auth as firebaseAuth } from '../lib/firebase';
 
-// Dynamic code-split lazy imports for all admin panel submodules
-const CategoryManager = lazy(() => import('./CategoryManager'));
-const PaymentMethodManager = lazy(() => import('./PaymentMethodManager'));
-const VariationManager = lazy(() => import('./VariationManager'));
-const COAManager = lazy(() => import('./COAManager'));
-const PeptideInventoryManager = lazy(() => import('./PeptideInventoryManager'));
-const OrdersManager = lazy(() => import('./OrdersManager'));
-const FAQManager = lazy(() => import('./FAQManager'));
-const ShippingManager = lazy(() => import('./ShippingManager'));
-const SiteSettingsManager = lazy(() => import('./SiteSettingsManager'));
-const UsersManager = lazy(() => import('./UsersManager'));
-const PromoCodeManager = lazy(() => import('./PromoCodeManager'));
-const GlobalDiscountManager = lazy(() => import('./GlobalDiscountManager'));
-const GuideManager = lazy(() => import('./GuideManager'));
-const SalesAnalyticsManager = lazy(() => import('./SalesAnalyticsManager'));
-const PopupManager = lazy(() => import('./PopupManager'));
-const PageContentsManager = lazy(() => import('./PageContentsManager').then(m => ({ default: m.PageContentsManager })));
-const CustomerCRMManager = lazy(() => import('./CustomerCRMManager'));
-const ProductReviewsManager = lazy(() => import('./ProductReviewsManager'));
-const InvoiceVerificationsManager = lazy(() => import('./InvoiceVerificationsManager'));
-const PeptalkVideosManager = lazy(() => import('./PeptalkVideosManager'));
-const TopBannerManager = lazy(() => import('./TopBannerManager'));
-const EmailTemplateManager = lazy(() => import('./EmailTemplateManager'));
-const ProductModal = lazy(() => import('./ProductModal'));
+import { lazyWithRetry } from '../utils/lazyWithRetry';
+
+// Dynamic code-split lazy imports for all admin panel submodules with auto-retry
+const CategoryManager = lazyWithRetry(() => import('./CategoryManager'));
+const PaymentMethodManager = lazyWithRetry(() => import('./PaymentMethodManager'));
+const VariationManager = lazyWithRetry(() => import('./VariationManager'));
+const COAManager = lazyWithRetry(() => import('./COAManager'));
+const PeptideInventoryManager = lazyWithRetry(() => import('./PeptideInventoryManager'));
+const OrdersManager = lazyWithRetry(() => import('./OrdersManager'));
+const FAQManager = lazyWithRetry(() => import('./FAQManager'));
+const ShippingManager = lazyWithRetry(() => import('./ShippingManager'));
+const PhilippineLocationsManager = lazyWithRetry(() => import('./PhilippineLocationsManager'));
+const SiteSettingsManager = lazyWithRetry(() => import('./SiteSettingsManager'));
+const UsersManager = lazyWithRetry(() => import('./UsersManager'));
+const PromoCodeManager = lazyWithRetry(() => import('./PromoCodeManager'));
+const GlobalDiscountManager = lazyWithRetry(() => import('./GlobalDiscountManager'));
+const GuideManager = lazyWithRetry(() => import('./GuideManager'));
+const SalesAnalyticsManager = lazyWithRetry(() => import('./SalesAnalyticsManager'));
+const PopupManager = lazyWithRetry(() => import('./PopupManager'));
+const PageContentsManager = lazyWithRetry(() => import('./PageContentsManager').then(m => ({ default: m.PageContentsManager })));
+const CustomerCRMManager = lazyWithRetry(() => import('./CustomerCRMManager'));
+const ProductReviewsManager = lazyWithRetry(() => import('./ProductReviewsManager'));
+const InvoiceVerificationsManager = lazyWithRetry(() => import('./InvoiceVerificationsManager'));
+const PeptalkVideosManager = lazyWithRetry(() => import('./PeptalkVideosManager'));
+const TopBannerManager = lazyWithRetry(() => import('./TopBannerManager'));
+const EmailTemplateManager = lazyWithRetry(() => import('./EmailTemplateManager'));
+const ProductModal = lazyWithRetry(() => import('./ProductModal'));
+const BundleManager = lazyWithRetry(() => import('./BundleManager'));
+const FollowUpsManager = lazyWithRetry(() => import('./FollowUpsManager'));
+const CampaignManager = lazyWithRetry(() => import('./CampaignManager'));
+const BulkEmailManager = lazyWithRetry(() => import('./BulkEmailManager'));
+const SeoManager = lazyWithRetry(() => import('./SeoManager'));
+const MigrationManager = lazyWithRetry(() => import('./MigrationManager'));
+const AuditLogsSettingsView = lazyWithRetry(() => import('./settings/AuditLogsSettings').then(m => ({ default: m.AuditLogsSettings })));
 
 const AdminSectionSkeleton: React.FC = () => (
   <div className="w-full min-h-[420px] flex flex-col items-center justify-center p-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs">
@@ -53,22 +71,6 @@ const AdminSectionSkeleton: React.FC = () => (
   </div>
 );
 
-
-interface AdminSession {
-  email: string;
-  role: string;
-  name: string;
-  token: string;
-  loginTime: number;
-}
-
-const LOCAL_ADMINS = [
-  { email: 'admin@gmail.com', password: '123456#', role: 'super_admin', name: 'Super Admin' },
-  { email: 'superadmin@slimdose.ph', password: 'superadmin2026', role: 'super_admin', name: 'Super Admin' },
-  { email: 'admin@slimdose.ph', password: 'admin2026', role: 'admin', name: 'Store Admin' },
-  { email: 'editor@slimdose.ph', password: 'editor2026', role: 'content_editor', name: 'Content Editor' },
-  { email: 'ordermanager@slimdose.ph', password: 'orders2026', role: 'order_manager', name: 'Order Manager' }
-];
 
 const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -109,27 +111,29 @@ const AdminDashboard: React.FC = () => {
   };
   const { products, loading, addProduct, updateProduct, deleteProduct, deleteMultipleProducts, refreshProducts } = useMenuContext();
   const { categories } = useCategories();
-  const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'payments' | 'inventory' | 'orders' | 'shipping' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents' | 'top-banner' | 'crm' | 'verifications' | 'reviews' | 'peptalk-videos'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'products' | 'add' | 'edit' | 'categories' | 'bundles' | 'payments' | 'inventory' | 'orders' | 'orders-new' | 'orders-confirmed' | 'orders-processing' | 'orders-shipped' | 'orders-delivered' | 'orders-cancelled' | 'shipping' | 'locations' | 'coa' | 'faq' | 'settings' | 'promo-codes' | 'global-discount' | 'guides' | 'analytics' | 'popup' | 'page-contents' | 'top-banner' | 'crm' | 'segments' | 'verifications' | 'reviews' | 'peptalk-videos' | 'users' | 'email-templates' | 'follow-ups' | 'campaigns' | 'automations' | 'bulk-email' | 'seo' | 'audit' | 'migration'>('dashboard');
 
   // Check for existing admin session on mount & sync deep-link URL hash
   useEffect(() => {
-    const sessionRaw = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
-    if (sessionRaw) {
-      try {
-        const session: AdminSession = JSON.parse(sessionRaw);
-        if (session.token === 'authenticated_v1' && session.email) {
-          setAdminSession(session);
-          setIsAuthenticated(true);
-        }
-      } catch (e) {
-        console.warn('Invalid admin session data:', e);
-      }
+    const restored = loadSession();
+    if (restored?.email) {
+      setAdminSession(restored);
+      setIsAuthenticated(true);
+      setAuditSession({ email: restored.email, role: restored.role, name: restored.name });
+      // Re-seed hashed admin accounts if missing & flush any buffered audit entries
+      ensureAdminBootstrap().then(() => flushAuditBuffer()).catch(() => {});
     }
 
     const handleHash = (rawHash: string) => {
       const hash = rawHash.replace('#', '');
       if (!hash) return;
-      
+
+      // Role gate: never deep-link into a view the session cannot access
+      if (!canAccessView(loadSession()?.role, hash)) {
+        setCurrentView('dashboard');
+        return;
+      }
+
       const gatedViews = ['analytics', 'payments'];
       if (gatedViews.includes(hash)) {
         let isUnlocked = false;
@@ -227,10 +231,11 @@ const AdminDashboard: React.FC = () => {
   const [dashOrders, setDashOrders] = useState<DashOrder[]>([]);
   const [dashVerifications, setDashVerifications] = useState<DashVerification[]>([]);
   const [dashLastSync, setDashLastSync] = useState<Date | null>(null);
+  const [dashCustomerCount, setDashCustomerCount] = useState(0);
 
   const fetchDashData = async () => {
     try {
-      const [{ data: ordersData }, { data: verifData }] = await Promise.all([
+      const [ordersRes, verifRes, customersRes] = (await Promise.all([
         supabase
           .from('orders')
           .select('id, order_number, customer_name, total_price, order_status, payment_status, created_at')
@@ -241,25 +246,34 @@ const AdminDashboard: React.FC = () => {
           .select('id, order_id, status, created_at, orders(customer_name, order_number, total_price)')
           .order('created_at', { ascending: false })
           .limit(50),
-      ]);
-      if (ordersData && ordersData.length > 0) {
-        setDashOrders(ordersData);
-      } else {
-        setDashOrders(liveScrapedOrders.slice(0, 100));
-      }
-      if (verifData && verifData.length > 0) {
-        setDashVerifications(verifData as DashVerification[]);
-      }
+        supabase.from('customers').select('id').limit(1000),
+      ])) as any[];
+      const { data: ordersData } = ordersRes || {};
+      const { data: verifData } = verifRes || {};
+      // Real Firestore data only — no silent fake-data fallbacks
+      setDashOrders(ordersData || []);
+      setDashVerifications((verifData as DashVerification[]) || []);
+      setDashCustomerCount(Array.isArray(customersRes?.data) ? customersRes.data.length : 0);
       setDashLastSync(new Date());
     } catch (e) {
-      console.warn('Dashboard data fetch error, using live scraped orders cache:', e);
-      setDashOrders(liveScrapedOrders.slice(0, 100));
+      console.warn('Dashboard data fetch error:', e);
       setDashLastSync(new Date());
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) fetchDashData();
+    if (!isAuthenticated) return;
+    fetchDashData();
+    // Realtime-ish: re-pull dashboard data on order events and every 60s
+    const onOrderEvent = () => fetchDashData();
+    window.addEventListener('orderCreated', onOrderEvent);
+    window.addEventListener('slimdose:customer_order_placed', onOrderEvent as EventListener);
+    const interval = setInterval(fetchDashData, 60_000);
+    return () => {
+      window.removeEventListener('orderCreated', onOrderEvent);
+      window.removeEventListener('slimdose:customer_order_placed', onOrderEvent as EventListener);
+      clearInterval(interval);
+    };
   }, [isAuthenticated]);
 
   const handleSaveTelegramLink = async () => {
@@ -312,39 +326,11 @@ const AdminDashboard: React.FC = () => {
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [confirmPasswordCallback, setConfirmPasswordCallback] = useState<(() => void) | null>(null);
 
-  // Fixed gate password for Sales Analytics & Payment Methods
-  const SECTION_GATE_PASSWORD = '123456#';
   // Per-view session key so each protected section requires its own unlock
   const sectionGateKey = (view: string) => `section_gate_unlocked_${view}`;
 
-  const isSensitiveSessionValid = () => {
-    // Check if the pending view has already been unlocked this session
-    if (pendingViewChange) {
-      try {
-        return sessionStorage.getItem(sectionGateKey(pendingViewChange)) === '1';
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  };
-
   const verifyAdminPassword = async (pwd: string): Promise<boolean> => {
-    const emailLower = adminSession?.email?.toLowerCase().trim();
-    try {
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', emailLower)
-        .maybeSingle();
-      if (!error && data && data.password_hash === pwd) {
-        return true;
-      }
-    } catch (e) {
-      console.warn('Supabase password confirmation error, checking local fallback:', e);
-    }
-    const match = LOCAL_ADMINS.find(u => u.email === emailLower && u.password === pwd);
-    return !!match;
+    return verifyCurrentAdminPassword(adminSession?.email, pwd);
   };
 
   const handlePasswordConfirmCancel = () => {
@@ -380,9 +366,8 @@ const AdminDashboard: React.FC = () => {
     setConfirmPasswordError('');
     setIsProcessing(true);
     try {
-      // Check fixed section gate password OR current admin account password
-      const isAccountValid = await verifyAdminPassword(confirmPasswordInput);
-      const isValid = confirmPasswordInput === SECTION_GATE_PASSWORD || isAccountValid;
+      // Verify against the current admin's hashed account password
+      const isValid = await verifyAdminPassword(confirmPasswordInput);
       if (isValid) {
         // 1. Single product deletion
         if (pendingDeleteProduct) {
@@ -457,15 +442,11 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleViewChange = (view: typeof currentView, action?: () => void) => {
-    const isStaff = adminSession?.role === 'content_editor' || adminSession?.role === 'order_manager';
-    if (isStaff) {
-      const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
-      if (disallowed.includes(view)) {
-        alert('Access Denied: Your staff account role does not have permission to access this section.');
-        setCurrentView('dashboard');
-        try { window.location.hash = 'dashboard'; } catch {}
-        return;
-      }
+    if (!canAccessView(adminSession?.role, view)) {
+      alert('Access Denied: Your account role does not have permission to access this section.');
+      setCurrentView('dashboard');
+      try { window.location.hash = 'dashboard'; } catch {}
+      return;
     }
 
     // Password gate — only for analytics and payments
@@ -499,16 +480,13 @@ const AdminDashboard: React.FC = () => {
 
   const logAdminAction = async (action: string, details?: any) => {
     try {
-      await supabase
-        .from('admin_audit_logs')
-        .insert([{
-          user_email: adminSession?.email || 'admin@slimdose.ph',
-          user_role: adminSession?.role || 'admin',
-          action,
-          details
-        }]);
+      await writeAuditLog(action, {
+        module: 'admin',
+        details: typeof details === 'string' ? details : JSON.stringify(details ?? {}).slice(0, 2000),
+        after: details && typeof details === 'object' ? details : undefined,
+      });
     } catch (e) {
-      console.warn('Failed to insert audit log:', e);
+      console.warn('Failed to write audit log:', e);
     }
   };
 
@@ -522,8 +500,8 @@ const AdminDashboard: React.FC = () => {
           supabase.from('peptalk_videos').select('id, title'),
           supabase.from('guide_topics').select('id, title').eq('is_enabled', true)
         ]);
-        if (videosRes.data) setPeptalkVideos(videosRes.data);
-        if (articlesRes.data) setPeptalkArticles(articlesRes.data);
+        if ((videosRes as any).data) setPeptalkVideos((videosRes as any).data);
+        if ((articlesRes as any).data) setPeptalkArticles((articlesRes as any).data);
       } catch (err) {
         console.warn('Failed to load peptalk content in admin:', err);
       }
@@ -594,15 +572,6 @@ const AdminDashboard: React.FC = () => {
       newSelected.add(productId);
     }
     setSelectedProducts(newSelected);
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedProducts.size > 0 && selectedProducts.size >= products.length) {
-      setSelectedProducts(new Set());
-      setManagingVariationsProductId(null);
-    } else {
-      setSelectedProducts(new Set(products.map(p => p.id)));
-    }
   };
 
   const renderProductsListView = () => {
@@ -1303,7 +1272,18 @@ const AdminDashboard: React.FC = () => {
                           {/* Base Price & Discount */}
                           <td className="py-2.5 px-3 align-middle">
                             <div className="text-xs sm:text-sm font-black text-slate-900">
-                              ₱{Number(product.base_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 0 })}
+                              {hasVariations && product.variations && product.variations.length > 0 ? (
+                                (() => {
+                                  const prices = product.variations.map(v => (v.discount_active && v.discount_price !== null ? v.discount_price : v.price)).filter(p => p > 0);
+                                  const minP = prices.length > 0 ? Math.min(...prices) : product.base_price;
+                                  const maxP = prices.length > 0 ? Math.max(...prices) : product.base_price;
+                                  return minP !== maxP
+                                    ? `From ₱${Number(minP).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`
+                                    : `₱${Number(minP).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`;
+                                })()
+                              ) : (
+                                `₱${Number(product.base_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`
+                              )}
                             </div>
                             {product.discount_price && product.discount_active && (
                               <span className="text-[10px] font-bold text-emerald-600 block">
@@ -1312,7 +1292,7 @@ const AdminDashboard: React.FC = () => {
                             )}
                             {hasVariations && (
                               <span className="text-[9.5px] text-blue-600 font-semibold block">
-                                Tiered pricing
+                                Tiered pricing ({product.variations?.length} sizes)
                               </span>
                             )}
                           </td>
@@ -1694,7 +1674,18 @@ const AdminDashboard: React.FC = () => {
                       <div>
                         <div className="text-[9px] uppercase font-bold text-slate-400">Price</div>
                         <div className="text-xs sm:text-sm font-black text-slate-900">
-                          ₱{Number(product.base_price || 0).toLocaleString('en-PH')}
+                          {hasVariations && product.variations && product.variations.length > 0 ? (
+                            (() => {
+                              const prices = product.variations.map(v => (v.discount_active && v.discount_price !== null ? v.discount_price : v.price)).filter(p => p > 0);
+                              const minP = prices.length > 0 ? Math.min(...prices) : product.base_price;
+                              const maxP = prices.length > 0 ? Math.max(...prices) : product.base_price;
+                              return minP !== maxP
+                                ? `From ₱${Number(minP).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`
+                                : `₱${Number(minP).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`;
+                            })()
+                          ) : (
+                            `₱${Number(product.base_price || 0).toLocaleString('en-PH', { minimumFractionDigits: 0 })}`
+                          )}
                         </div>
                       </div>
                       <div className="text-right">
@@ -2125,7 +2116,7 @@ const AdminDashboard: React.FC = () => {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-mono font-bold text-slate-900 dark:text-white">
-                              {order.order_number || (order.id ? `#${String(order.id).slice(0, 8).toUpperCase()}` : '#ORDER')}
+                              {formatOrderId(order, { prefix: false })}
                             </span>
                             <span className="text-slate-400">•</span>
                             <span className="font-extrabold text-slate-700 dark:text-slate-200 truncate">
@@ -2396,7 +2387,7 @@ const AdminDashboard: React.FC = () => {
                           {verif.orders?.customer_name || 'Customer Proof'}
                         </span>
                         <span className="text-[10.5px] text-slate-400 font-mono">
-                          {verif.orders?.order_number || (verif.order_id ? `Order #${String(verif.order_id).slice(0, 8).toUpperCase()}` : 'Order')}
+                          {formatOrderId(verif.orders || { id: verif.order_id }, { prefix: false })}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -2531,6 +2522,19 @@ const AdminDashboard: React.FC = () => {
     );
   };
 
+  const renderSectionWithBack = (node: React.ReactNode) => (
+    <div className="w-full max-w-[1720px] mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
+      <button
+        onClick={() => setCurrentView('dashboard')}
+        className="mb-4 text-slate-600 dark:text-slate-400 hover:text-[#3C6CA8] dark:hover:text-[#6A9BE0] transition-colors flex items-center gap-1.5 text-xs sm:text-sm font-bold cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Back to Dashboard</span>
+      </button>
+      {node}
+    </div>
+  );
+
   const renderActiveView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -2588,7 +2592,14 @@ const AdminDashboard: React.FC = () => {
       case 'orders':
         return <OrdersManager onBack={() => setCurrentView('dashboard')} />;
       case 'shipping':
-        return <ShippingManager onBack={() => setCurrentView('dashboard')} />;
+        return <ShippingManager onBack={() => setCurrentView('dashboard')} onNavigateToLocations={() => setCurrentView('locations')} />;
+      case 'locations':
+        return (
+          <PhilippineLocationsManager
+            onBack={() => setCurrentView('dashboard')}
+            onNavigateToShipping={() => setCurrentView('shipping')}
+          />
+        );
       case 'coa':
         return <COAManager onBack={() => setCurrentView('dashboard')} />;
       case 'faq':
@@ -2728,7 +2739,30 @@ const AdminDashboard: React.FC = () => {
             />
           </div>
         );
-      case 'settings':
+      case 'bundles':
+        return renderSectionWithBack(<BundleManager onBack={() => setCurrentView('dashboard')} />);
+      case 'follow-ups':
+        return renderSectionWithBack(<FollowUpsManager />);
+      case 'campaigns':
+      case 'automations':
+        return renderSectionWithBack(<CampaignManager initialTab={currentView === 'automations' ? 'automations' : 'campaigns'} />);
+      case 'bulk-email':
+        return renderSectionWithBack(<BulkEmailManager />);
+      case 'seo':
+        return renderSectionWithBack(<SeoManager />);
+      case 'audit':
+        return renderSectionWithBack(<AuditLogsSettingsView />);
+      case 'migration':
+        return renderSectionWithBack(<MigrationManager />);
+      case 'segments':
+        return renderSectionWithBack(<CustomerCRMManager />);
+      case 'orders-new':
+      case 'orders-confirmed':
+      case 'orders-processing':
+      case 'orders-shipped':
+      case 'orders-delivered':
+      case 'orders-cancelled':
+        return renderSectionWithBack(<OrdersManager onBack={() => setCurrentView('dashboard')} initialStatusFilter={currentView.replace('orders-', '')} />);      case 'settings':
         return (
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
             <button
@@ -2750,82 +2784,49 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Dashboard Stats (memoized to prevent layout re-computation)
-  const { totalProducts, featuredProducts, availableProducts, categoryCounts } = useMemo(() => {
-    return {
-      totalProducts: products.length,
-      featuredProducts: products.filter(p => p.featured).length,
-      availableProducts: products.filter(p => p.available).length,
-      categoryCounts: categories.map(cat => ({
-        ...cat,
-        count: products.filter(p => p.category === cat.id).length
-      }))
-    };
-  }, [products, categories]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-
-    let authedUser: { email: string; role: string; name: string } | null = null;
-
+    setIsProcessing(true);
     try {
-      // 1. Try Supabase
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', email.toLowerCase().trim())
-        .maybeSingle();
-
-      if (!error && data) {
-        if (data.password_hash === password) {
-          authedUser = {
-            email: data.email,
-            role: data.role,
-            name: data.name || 'Store Admin',
-          };
-        }
+      const result = await authenticateAdmin(email, password);
+      if (!result.ok) {
+        setLoginError(result.error);
+        return;
       }
-    } catch (err) {
-      console.warn('Supabase auth error, falling back to local seed accounts:', err);
-    }
 
-    // 2. Local fallback if Supabase fails or not configured
-    if (!authedUser) {
-      const match = LOCAL_ADMINS.find(
-        (u) => u.email === email.toLowerCase().trim() && u.password === password
-      );
-      if (match) {
-        authedUser = {
-          email: match.email,
-          role: match.role,
-          name: match.name,
-        };
-      }
-    }
-
-    if (authedUser) {
-      const sessionData: AdminSession = {
-        ...authedUser,
-        token: 'authenticated_v1',
-        loginTime: Date.now()
-      };
-      sessionStorage.setItem('admin_session', JSON.stringify(sessionData));
+      const { session: sessionData } = result;
+      // Persist the session (localStorage so the console survives tab reloads)
+      saveSession({ email: sessionData.email, role: sessionData.role, name: sessionData.name }, true);
       setAdminSession(sessionData);
       setIsAuthenticated(true);
       setLoginError('');
-    } else {
-      setLoginError('Invalid email or password');
+      setPassword('');
+      setAuditSession({ email: sessionData.email, role: sessionData.role, name: sessionData.name });
+      flushAuditBuffer().catch(() => {});
+      writeAuditLog('admin_login', { module: 'auth', details: `Signed in as ${sessionData.role}` });
+      setCurrentView('dashboard');
+      try { window.location.hash = 'dashboard'; } catch {}
+    } catch (err: any) {
+      setLoginError(err?.message || 'Invalid email or password');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleLogout = () => {
+    writeAuditLog('admin_logout', { module: 'auth', details: 'Session ended' }).catch(() => {});
     setIsAuthenticated(false);
     setAdminSession(null);
+    setAuditSession(null);
     setPassword('');
     setCurrentView('dashboard');
-    sessionStorage.removeItem('admin_session');
-    localStorage.removeItem('admin_session');
+    clearSession();
+    try {
+      sessionStorage.removeItem('section_gate_unlocked_analytics');
+      sessionStorage.removeItem('section_gate_unlocked_payments');
+    } catch {}
+    try { signOut(firebaseAuth); } catch {}
     window.location.href = '/';
   };
 
@@ -2994,10 +2995,20 @@ const AdminDashboard: React.FC = () => {
                 {/* Submit Action Button */}
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-xl font-extrabold text-sm text-white bg-gradient-to-r from-[#3C6CA8] via-blue-600 to-[#294E7A] hover:from-[#315A8E] hover:to-[#1E3A5E] shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
+                  disabled={isProcessing}
+                  className="w-full py-3.5 px-6 rounded-xl font-extrabold text-sm text-white bg-gradient-to-r from-[#3C6CA8] via-blue-600 to-[#294E7A] hover:from-[#315A8E] hover:to-[#1E3A5E] shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98] mt-2 disabled:opacity-60 disabled:pointer-events-none"
                 >
-                  <Lock className="w-4 h-4" />
-                  <span>Access Dashboard</span>
+                  {isProcessing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Verifying credentials…</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>Access Dashboard</span>
+                    </>
+                  )}
                 </button>
               </form>
             </div>
@@ -3028,43 +3039,62 @@ const AdminDashboard: React.FC = () => {
       ]
     },
     {
-      title: 'Catalog & Inventory',
+      title: 'Catalog',
       items: [
         { label: 'Manage Products', view: 'products', icon: Package },
         { label: 'Manage Categories', view: 'categories', icon: FolderOpen },
         { label: 'Peptide Inventory', view: 'inventory', icon: Warehouse },
         { label: 'Lab Results (COA)', view: 'coa', icon: Shield },
+        { label: 'Bundles & Kits', view: 'bundles', icon: Boxes },
       ]
     },
     {
-      title: 'Orders & Customers',
+      title: 'Orders',
       items: [
         { label: 'Orders Management', view: 'orders', icon: ShoppingCart },
         { label: 'Invoice Verifications', view: 'verifications', icon: FileCheck },
-        { label: 'Customer CRM', view: 'crm', icon: Users },
-        { label: 'Payment Methods', view: 'payments', icon: CreditCard },
-        { label: 'Shipping Locations', view: 'shipping', icon: MapPin },
+        { label: 'Shipping Rates & Zones', view: 'shipping', icon: MapPin },
+        { label: 'Locations & ZIP Database', view: 'locations', icon: Globe },
       ]
     },
     {
-      title: 'Marketing & Content',
+      title: 'Customers',
+      items: [
+        { label: 'Customer CRM', view: 'crm', icon: Users },
+        { label: 'Payment Methods', view: 'payments', icon: CreditCard },
+      ]
+    },
+    {
+      title: 'Marketing',
       items: [
         { label: 'Email Template Studio', view: 'email-templates', icon: Mail },
+        { label: 'Bulk Email Sender', view: 'bulk-email', icon: Send },
+        { label: 'Campaigns', view: 'campaigns', icon: Megaphone },
+        { label: 'Automations', view: 'automations', icon: Clock },
+        { label: 'Customer Follow-Ups', view: 'follow-ups', icon: UserCheck },
+        { label: 'Promo Codes', view: 'promo-codes', icon: Tag },
+        { label: 'Global Discount', view: 'global-discount', icon: Sparkles },
+      ]
+    },
+    {
+      title: 'Content',
+      items: [
         { label: 'Top Header Banner', view: 'top-banner', icon: Megaphone },
         { label: 'Product Reviews', view: 'reviews', icon: Star },
         { label: 'Peptalk Videos', view: 'peptalk-videos', icon: Video },
         { label: 'Peptalk Articles', view: 'guides', icon: BookOpen },
-        { label: 'Promo Codes', view: 'promo-codes', icon: Tag },
-        { label: 'Global Discount', view: 'global-discount', icon: Sparkles },
         { label: 'Manage FAQ', view: 'faq', icon: HelpCircle },
         { label: 'Popup Banners', view: 'popup', icon: MessageSquare },
         { label: 'Page Contents', view: 'page-contents', icon: FileText },
+        { label: 'SEO & Meta', view: 'seo', icon: Globe },
       ]
     },
     {
       title: 'System',
       items: [
         { label: 'Users Management', view: 'users', icon: UserCheck },
+        { label: 'Data Migration', view: 'migration', icon: RefreshCw },
+        { label: 'Audit Trail', view: 'audit', icon: ShieldCheck },
         { label: 'Site Settings', view: 'settings', icon: Settings },
       ]
     }
@@ -3075,6 +3105,7 @@ const AdminDashboard: React.FC = () => {
   const isItemActive = (item: typeof allMenuItems[0]) => {
     if (item.view === currentView) return true;
     if (item.view === 'products' && (currentView === 'add' || currentView === 'edit')) return true;
+    if (item.view === 'campaigns' && currentView === 'automations') return true;
     return false;
   };
 
@@ -3102,14 +3133,32 @@ const AdminDashboard: React.FC = () => {
         return 'Invoice Receipt Verifications';
       case 'peptalk-videos':
         return 'PepTalk Video Gallery';
-      case 'restock-reminders':
-        return 'Peptide Restock Reminders';
+      case 'bundles':
+        return 'Bundles & Kits';
+      case 'follow-ups':
+        return 'Customer Follow-Up Automations';
+      case 'campaigns':
+        return 'Email Campaigns';
+      case 'automations':
+        return 'Marketing Automations';
+      case 'bulk-email':
+        return 'Bulk Email Sender';
+      case 'seo':
+        return 'SEO & Meta Manager';
+      case 'audit':
+        return 'Audit Trail & Security Events';
+      case 'migration':
+        return 'Data Migration';
+      case 'segments':
+        return 'Customer Segments';
       case 'orders':
         return 'Orders Management';
       case 'analytics':
         return 'Sales Analytics';
       case 'shipping':
-        return 'Shipping Locations';
+        return 'Shipping Rates & Zones';
+      case 'locations':
+        return 'Philippine Locations & Postal ZIP Database';
       case 'coa':
         return 'Lab Results (COA)';
       case 'faq':
@@ -3142,23 +3191,20 @@ const AdminDashboard: React.FC = () => {
       case 'products':
         return { text: `${products.length}`, color: 'bg-blue-500/20 text-blue-300 border-blue-500/30' };
       case 'orders': {
-        const orderCount = dashOrders.length > 0 ? dashOrders.length : liveScrapedOrders.length;
-        return { text: `${orderCount}`, color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
+        return { text: `${dashOrders.length}`, color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
       }
       case 'verifications': {
         const pendingCount = dashVerifications.filter(v => v.status === 'pending').length;
         return pendingCount > 0 ? { text: `${pendingCount} new`, color: 'bg-amber-500/20 text-amber-300 border-amber-500/30 font-bold' } : null;
       }
       case 'crm':
-        return { text: '427', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' };
+        return dashCustomerCount > 0 ? { text: `${dashCustomerCount}`, color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' } : null;
       case 'users':
         return { text: 'Auth', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 font-bold' };
       case 'inventory': {
         const lowStockCount = products.filter(p => (p.stock_quantity ?? 0) <= 5).length;
         return lowStockCount > 0 ? { text: `${lowStockCount} alert`, color: 'bg-rose-500/20 text-rose-300 border-rose-500/30' } : null;
       }
-      case 'email-templates':
-        return { text: '9 ready', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 font-bold' };
       default:
         return null;
     }
@@ -3276,13 +3322,11 @@ const AdminDashboard: React.FC = () => {
             className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2.5 space-y-3 custom-scrollbar select-none"
           >
             {(() => {
-              const isStaff = adminSession?.role === 'content_editor' || adminSession?.role === 'order_manager';
-              const disallowed = ['analytics', 'payments', 'global-discount', 'promo-codes', 'settings', 'popup', 'page-contents'];
               const query = mobileMenuSearch.trim().toLowerCase();
 
               return menuCategories.map((category) => {
                 const filteredItems = category.items.filter(item => {
-                  if (isStaff && disallowed.includes(item.view)) return false;
+                  if (!canAccessView(adminSession?.role, item.view)) return false;
                   if (query && !item.label.toLowerCase().includes(query) && !category.title.toLowerCase().includes(query)) {
                     return false;
                   }
@@ -3325,10 +3369,8 @@ const AdminDashboard: React.FC = () => {
                               onClick={(e) => {
                                 e.preventDefault();
                                 setCollapsedTooltip(null);
-                                if (item.action) {
-                                   handleViewChange(item.view, item.action);
-                                } else if (item.view) {
-                                   handleViewChange(item.view);
+                                if (item.view) {
+                                   handleViewChange(item.view as typeof currentView);
                                 }
                                 setIsMobileMenuOpen(false);
                               }}
@@ -3431,7 +3473,7 @@ const AdminDashboard: React.FC = () => {
                   </p>
                 </div>
                 <span className="px-2 py-0.5 rounded-md text-[9.5px] font-extrabold bg-blue-500/15 text-blue-300 border border-blue-500/30 shrink-0">
-                  {adminSession?.role ? adminSession.role.replace('_', ' ') : 'Admin'}
+                  {adminSession?.role ? (ROLE_LABELS[adminSession.role] || adminSession.role) : 'Admin'}
                 </span>
               </div>
 
@@ -3549,7 +3591,7 @@ const AdminDashboard: React.FC = () => {
               <div className="text-right hidden sm:block">
                 <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Role</span>
                 <span className="text-xs font-semibold text-slate-600">
-                  {adminSession?.role ? adminSession.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Administrator'}
+                  {adminSession?.role ? (ROLE_LABELS[adminSession.role] || adminSession.role) : 'Administrator'}
                 </span>
               </div>
             </div>

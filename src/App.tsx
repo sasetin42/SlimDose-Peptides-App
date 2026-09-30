@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { useCart } from './hooks/useCart';
 import Header from './components/Header';
@@ -7,6 +7,7 @@ import Menu from './components/Menu';
 import Cart from './components/Cart';
 import Footer from './components/Footer';
 import PromoSignup from './components/PromoSignup';
+import PromoPopup from './components/PromoPopup';
 import { ToastProvider } from './components/ToastNotification';
 import VerificationGateway from './components/VerificationGateway';
 import { MenuProvider, useMenuContext } from './contexts/MenuContext';
@@ -14,18 +15,22 @@ import ImportantNoticeModal from './components/ImportantNoticeModal';
 import ProductPageSkeleton from './components/ProductPageSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy-loaded routes — only downloaded when the user navigates to them
-const Checkout = lazy(() => import('./components/Checkout'));
-const Success = lazy(() => import('./components/Success'));
-const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
-const COA = lazy(() => import('./components/COA'));
-const FAQ = lazy(() => import('./components/FAQ'));
-const PeptideCalculator = lazy(() => import('./components/PeptideCalculator'));
-const OrderTracking = lazy(() => import('./components/OrderTracking'));
-const SmartGuide = lazy(() => import('./components/SmartGuide'));
-const ArticleDetail = lazy(() => import('./components/ArticleDetail'));
-const ProductPage = lazy(() => import('./components/ProductPage'));
-const DynamicPage = lazy(() => import('./components/DynamicPage'));
+import { lazyWithRetry } from './utils/lazyWithRetry';
+
+// Lazy-loaded routes with auto-recovery against stale deployment chunks
+const Checkout = lazyWithRetry(() => import('./components/Checkout'));
+const Success = lazyWithRetry(() => import('./components/Success'));
+const AdminDashboard = lazyWithRetry(() => import('./components/AdminDashboard'));
+const COA = lazyWithRetry(() => import('./components/COA'));
+const FAQ = lazyWithRetry(() => import('./components/FAQ'));
+const PeptideCalculator = lazyWithRetry(() => import('./components/PeptideCalculator'));
+const OrderTracking = lazyWithRetry(() => import('./components/OrderTracking'));
+const SmartGuide = lazyWithRetry(() => import('./components/SmartGuide'));
+const ArticleDetail = lazyWithRetry(() => import('./components/ArticleDetail'));
+const ProductPage = lazyWithRetry(() => import('./components/ProductPage'));
+const DynamicPage = lazyWithRetry(() => import('./components/DynamicPage'));
+const UnsubscribePage = lazyWithRetry(() => import('./components/UnsubscribePage'));
+const CustomerHubPage = lazyWithRetry(() => import('./components/CustomerHubPage'));
 
 // Resets scroll position to top on every route change
 function ScrollToTop() {
@@ -115,6 +120,7 @@ function MainApp() {
       />
 
       <PromoSignup />
+      <PromoPopup />
 
       {currentView === 'menu' && (
         <SubNav selectedCategory={selectedCategory} onCategoryClick={handleCategoryClick} />
@@ -178,7 +184,6 @@ function MainApp() {
             onBack={() => handleViewChange('cart')}
             onOrderSuccess={() => {
               cart.clearCart();
-              handleViewChange('menu');
             }}
           />
         )}
@@ -200,7 +205,6 @@ function CheckoutPageRoute() {
       onBack={() => { window.location.href = '/?view=cart'; }}
       onOrderSuccess={() => {
         cart.clearCart();
-        window.location.href = '/';
       }}
     />
   );
@@ -257,6 +261,8 @@ function App() {
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/calculator" element={<PeptideCalculator />} />
                     <Route path="/track-order" element={<OrderTracking />} />
+                  <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                    <Route path="/customer-hub" element={<CustomerHubPage />} />
                     <Route path="/peptalk" element={<SmartGuide />} />
                     <Route path="/peptalk/:id" element={<ArticleDetail />} />
                     <Route path="/about" element={<DynamicPage pageId="about" />} />

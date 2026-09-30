@@ -3,11 +3,11 @@
  * Enterprise multi-provider email dispatcher with guaranteed Hostinger Business Email integration.
  */
 
-import { supabase } from '../lib/supabase';
 import { auth } from '../lib/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { DEFAULT_EMAIL_TEMPLATES, EmailTemplateData } from '../utils/emailDefaults';
 import { renderEmailTemplate, renderEmailSubject } from '../utils/emailRenderer';
+import { formatOrderId } from '../utils/orderUtils';
 
 export interface SmtpConfig {
   enabled: boolean;
@@ -31,19 +31,19 @@ export interface SmtpConfig {
 
 export interface OrderEmailPayload {
   orderId: string;
-  orderNumber?: string;
+  orderNumber?: string | null;
   customerName: string;
   customerEmail: string;
-  customerPhone?: string;
-  shippingAddress?: string;
-  shippingLocation?: string;
-  shippingFee?: number | string;
-  subtotal?: number | string;
-  discountApplied?: number | string;
-  promoCode?: string;
+  customerPhone?: string | null;
+  shippingAddress?: string | null;
+  shippingLocation?: string | null;
+  shippingFee?: number | string | null;
+  subtotal?: number | string | null;
+  discountApplied?: number | string | null;
+  promoCode?: string | null;
   totalPrice: number | string;
-  paymentMethodName?: string;
-  contactMethod?: string;
+  paymentMethodName?: string | null;
+  contactMethod?: string | null;
   notes?: string | null;
   items?: Array<{
     product_name: string;
@@ -52,10 +52,10 @@ export interface OrderEmailPayload {
     price: number | string;
     total: number | string;
   }>;
-  itemsSummary?: string;
-  trackingNumber?: string;
-  trackingCourier?: string;
-  status?: string;
+  itemsSummary?: string | null;
+  trackingNumber?: string | null;
+  trackingCourier?: string | null;
+  status?: string | null;
 }
 
 export interface EmailLogEntry {
@@ -87,7 +87,9 @@ export const formatCurrencyPhp = (num: number | string) => {
 };
 
 /**
- * Retrieve active SMTP configuration from local storage / memory
+ * Retrieve active SMTP configuration from local storage / memory.
+ * SECURITY: the SMTP password is NEVER hardcoded here — it must be configured
+ * by an administrator in Site Settings (stored server-side in site_settings).
  */
 export function getActiveSmtpConfig(): SmtpConfig {
   try {
@@ -110,7 +112,7 @@ export function getActiveSmtpConfig(): SmtpConfig {
           secure: encType === 'ssl' || portNum === 465 || s.smtp_secure !== 'false',
           authRequired: s.smtp_auth_required !== 'false',
           user: s.smtp_user || 'noreply@slimdoseph.com',
-          pass: s.smtp_pass && s.smtp_pass.trim() ? s.smtp_pass : 'PWqa@7kQ',
+          pass: s.smtp_pass || '',
           fromEmail: s.smtp_from_email || 'noreply@slimdoseph.com',
           fromName: s.smtp_from_name || 'SlimDose Peptides',
           replyToEmail: s.smtp_reply_to_email || s.smtp_from_email || 'noreply@slimdoseph.com',
@@ -126,7 +128,8 @@ export function getActiveSmtpConfig(): SmtpConfig {
     console.warn('[emailService] Could not parse stored SMTP config:', e);
   }
 
-  // Fallback defaults — live Hostinger Business Email configuration
+  // Safe defaults — no credentials. Email sends will fail until an admin
+  // configures the SMTP password in Site Settings → Email Settings.
   const defaultRelay = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SMTP_RELAY_URL) || '';
   return {
     enabled: true,
@@ -137,7 +140,7 @@ export function getActiveSmtpConfig(): SmtpConfig {
     secure: true,
     authRequired: true,
     user: 'noreply@slimdoseph.com',
-    pass: 'PWqa@7kQ',
+    pass: '',
     fromEmail: 'noreply@slimdoseph.com',
     fromName: 'SlimDose Peptides',
     replyToEmail: 'noreply@slimdoseph.com',
@@ -192,9 +195,6 @@ export function clearStoredEmailLogs(): void {
   } catch (e) {}
 }
 
-/**
- * Test SMTP Connection (Real Handshake & Auth Verification)
- */
 /**
  * Helper to resolve relay endpoints for testing and email dispatch.
  * In local dev: defaults to '/api/...', or 'http://localhost:3055/api/...' if standalone.
@@ -323,7 +323,7 @@ export function getStoredTemplateByKey(key: string): EmailTemplateData {
       const cached = localStorage.getItem(TEMPLATES_STORAGE_KEY);
       if (cached) {
         const list: EmailTemplateData[] = JSON.parse(cached);
-        const match = list.find((t) => t.template_key === key);
+        const match = list.find((t) => t.template_key === key && t.is_active !== false);
         if (match) return match;
       }
     }
@@ -336,7 +336,17 @@ export function getStoredTemplateByKey(key: string): EmailTemplateData {
 /**
  * Generate SMTP Diagnostic Verification HTML
  */
-export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: string): string => {
+export interface SmtpTestEmailParams {
+  host: string;
+  port: number;
+  user?: string;
+  fromEmail?: string;
+  fromName?: string;
+  adminEmail?: string;
+  customMessage?: string;
+}
+
+export const generateSmtpTestEmailHtml = (config: SmtpTestEmailParams, recipientEmail?: string): string => {
   const verificationCode = `SD-VERIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
   const timestampManila = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
 
@@ -368,7 +378,7 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
                 Live SMTP Test Successful 🎉
               </h1>
               <p style="margin: 12px 0 0; font-size: 14px; color: #475569; line-height: 1.7;">
-                This confirms that your SMTP server (<strong>${config.host}</strong>) accepted and dispatched this email from <strong>${config.fromEmail}</strong>.
+                This confirms that your SMTP server (<strong>${config.host}</strong>) accepted and dispatched this email from <strong>${config.fromEmail || config.user || 'the configured sender'}</strong>.
               </p>
             </td>
           </tr>
@@ -379,9 +389,9 @@ export const generateSmtpTestEmailHtml = (config: SmtpConfig, recipientEmail?: s
                   📋 Connection Parameters
                 </p>
                 <table role="presentation" width="100%" style="font-size: 13px; color: #1E293B;">
-                  <tr><td style="padding: 4px 0; color: #64748B;">Recipient:</td><td style="font-weight: 800; font-family: monospace;">${recipientEmail || config.adminEmail}</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Recipient:</td><td style="font-weight: 800; font-family: monospace;">${recipientEmail || config.adminEmail || 'n/a'}</td></tr>
                   <tr><td style="padding: 4px 0; color: #64748B;">Host:</td><td style="font-weight: 800; font-family: monospace;">${config.host}:${config.port}</td></tr>
-                  <tr><td style="padding: 4px 0; color: #64748B;">Sender:</td><td style="font-weight: 700;">${config.fromName} &lt;${config.fromEmail}&gt;</td></tr>
+                  <tr><td style="padding: 4px 0; color: #64748B;">Sender:</td><td style="font-weight: 700;">${config.fromName || 'SlimDose Peptides'} &lt;${config.fromEmail || config.user || 'noreply@slimdoseph.com'}&gt;</td></tr>
                   <tr><td style="padding: 4px 0; color: #64748B;">Ref ID:</td><td style="font-weight: 800; font-family: monospace; color: #059669;">${verificationCode}</td></tr>
                   <tr><td style="padding: 4px 0; color: #64748B;">Time (PHT):</td><td>${timestampManila}</td></tr>
                 </table>
@@ -492,6 +502,7 @@ export const sendTransactionalEmail = async (params: {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload),
         signal: controller.signal,
+        keepalive: true,
       });
       clearTimeout(timeoutId);
 
@@ -613,7 +624,7 @@ export async function dispatchOrderEmail(
   // Load template
   const template = getStoredTemplateByKey(templateKey);
 
-  // Build items summary if not explicitly provided
+  // Build items summary and rich HTML table
   let itemsText = payload.itemsSummary || '';
   if (!itemsText && payload.items && payload.items.length > 0) {
     itemsText = payload.items
@@ -624,17 +635,78 @@ export async function dispatchOrderEmail(
       .join('\n');
   }
 
+  let itemsTableHtml = '';
+  if (payload.items && payload.items.length > 0) {
+    const rows = payload.items
+      .map((item, idx) => {
+        const isLast = idx === (payload.items?.length || 0) - 1;
+        const borderStyle = isLast ? '' : 'border-bottom: 1px solid #F1F5F9;';
+        const formattedTotal = formatCurrencyPhp(item.total);
+        const variationBadge = item.variation_name
+          ? `<div style="margin-top: 4px; display: inline-block; background-color: #EFF6FF; color: #2563EB; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">${item.variation_name}</div>`
+          : '';
+
+        return `
+    <tr>
+      <td style="padding: 14px; ${borderStyle} font-size: 13px; color: #0F172A; vertical-align: middle;">
+        <div style="font-weight: 800; color: #0F172A; font-size: 13.5px;">${item.product_name}</div>
+        ${variationBadge}
+      </td>
+      <td align="center" style="padding: 14px 10px; ${borderStyle} font-size: 13px; font-weight: 700; color: #334155; vertical-align: middle;">
+        ${item.quantity}x
+      </td>
+      <td align="right" style="padding: 14px; ${borderStyle} font-size: 13.5px; font-weight: 800; color: #0F172A; vertical-align: middle;">
+        ${formattedTotal}
+      </td>
+    </tr>`;
+      })
+      .join('');
+
+    itemsTableHtml = `
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: separate; border-spacing: 0; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
+  <thead>
+    <tr style="background-color: #F8FAFC;">
+      <th align="left" style="padding: 12px 14px; font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #E2E8F0;">Product &amp; Dosage</th>
+      <th align="center" style="padding: 12px 10px; font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #E2E8F0; width: 60px;">Qty</th>
+      <th align="right" style="padding: 12px 14px; font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #E2E8F0; width: 100px;">Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${rows}
+  </tbody>
+</table>`;
+  } else if (itemsText) {
+    itemsTableHtml = `<div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 16px; font-size: 13.5px; color: #1E293B; line-height: 1.8; white-space: pre-line;">${itemsText}</div>`;
+  }
+
+  const orderDateString = new Date().toLocaleString('en-PH', {
+    timeZone: 'Asia/Manila',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  const formattedRef = formatOrderId({ id: payload.orderId, order_number: payload.orderNumber }, { prefix: false });
+
   const variables: Record<string, any> = {
     customer_name: payload.customerName,
+    customer_first_name: (payload.customerName || '').split(' ')[0],
     customer_email: payload.customerEmail,
-    order_number: payload.orderNumber || payload.orderId,
-    order_id: payload.orderId,
+    customer_phone: payload.customerPhone || 'N/A',
+    order_number: formattedRef,
+    order_id: formattedRef,
+    order_date: orderDateString,
     order_status: payload.status || 'Confirmed',
     items_summary: itemsText,
-    subtotal: payload.subtotal ? String(payload.subtotal) : '0.00',
-    shipping_fee: payload.shippingFee ? String(payload.shippingFee) : '0.00',
-    discount: payload.discountApplied ? String(payload.discountApplied) : '0.00',
+    items_table_html: itemsTableHtml,
+    subtotal: payload.subtotal ? (typeof payload.subtotal === 'number' ? formatCurrencyPhp(payload.subtotal).replace('₱', '') : String(payload.subtotal)) : '0.00',
+    shipping_fee: payload.shippingFee ? (typeof payload.shippingFee === 'number' ? formatCurrencyPhp(payload.shippingFee).replace('₱', '') : String(payload.shippingFee)) : '0.00',
+    discount: payload.discountApplied ? (typeof payload.discountApplied === 'number' ? formatCurrencyPhp(payload.discountApplied).replace('₱', '') : String(payload.discountApplied)) : '0.00',
     promo_code: payload.promoCode || 'NONE',
+    discount_percentage: payload.promoCode ? '10%' : '0%',
     total_price: typeof payload.totalPrice === 'number' ? formatCurrencyPhp(payload.totalPrice).replace('₱', '') : payload.totalPrice,
     payment_method: payload.paymentMethodName || 'GCash / Bank Transfer',
     shipping_address: payload.shippingAddress || '',
@@ -642,7 +714,10 @@ export async function dispatchOrderEmail(
     tracking_number: payload.trackingNumber || 'PENDING',
     tracking_url: `https://slimdoseph.com/track-order?id=${encodeURIComponent(payload.orderNumber || payload.orderId)}`,
     site_url: 'https://slimdoseph.com',
+    catalog_url: 'https://slimdoseph.com/#products',
+    customer_hub_url: `https://slimdoseph.com/customer-hub?email=${encodeURIComponent(payload.customerEmail)}`,
     support_email: config.fromEmail || 'noreply@slimdoseph.com',
+    unsubscribe_url: `https://slimdoseph.com/#/unsubscribe?email=${encodeURIComponent(payload.customerEmail)}`,
   };
 
   const renderedHtml = renderEmailTemplate(template.html_content, variables);
@@ -686,15 +761,25 @@ export async function dispatchMarketingEmail(
   if (!config.enabled) return { success: true };
 
   const template = getStoredTemplateByKey(templateKey);
-  const customerName = payload.customerName || payload.recipientEmail.split('@')[0] || 'Valued Member';
+  const baseUrl = payload.siteUrl || 'https://slimdoseph.com';
+  const customerHubUrl = `${baseUrl.replace(/\/$/, '')}/customer-hub?email=${encodeURIComponent(payload.recipientEmail)}`;
 
   const variables: Record<string, any> = {
-    customer_name: customerName,
+    customer_name: payload.customerName || 'Valued Customer',
+    customer_first_name: (payload.customerName || 'Valued Customer').split(' ')[0],
+    customer_email: payload.recipientEmail,
     promo_code: payload.promoCode || 'SLIM10',
     discount_percentage: payload.discountPercentage || '10%',
-    catalog_url: payload.catalogUrl || 'https://slimdoseph.com/#products',
-    site_url: payload.siteUrl || 'https://slimdoseph.com',
+    catalog_url: payload.catalogUrl || `${baseUrl}/#products`,
+    site_url: baseUrl,
+    customer_hub_url: customerHubUrl,
     support_email: config.fromEmail || 'noreply@slimdoseph.com',
+    unsubscribe_url: `https://slimdoseph.com/#/unsubscribe?email=${encodeURIComponent(payload.recipientEmail)}`,
+    order_number: '',
+    order_id: '',
+    items_summary: '',
+    total_price: '',
+    tracking_number: '',
   };
 
   const renderedHtml = renderEmailTemplate(template.html_content, variables);
@@ -722,11 +807,15 @@ export async function dispatchPasswordResetOtpEmail(
 
   const variables: Record<string, any> = {
     customer_name: name,
+    customer_first_name: name.split(' ')[0],
+    customer_email: recipientEmail,
     otp_code: pin,
     expiry_minutes: '15',
     support_email: config.fromEmail || 'info@slimdoseph.com',
     site_url: 'https://slimdoseph.com',
     account_url: 'https://slimdoseph.com',
+    order_number: '',
+    order_id: '',
   };
 
   const renderedHtml = renderEmailTemplate(template.html_content, variables);
@@ -758,11 +847,15 @@ export async function dispatchCustomerLoginOtpEmail(
 
   const variables: Record<string, any> = {
     customer_name: name,
+    customer_first_name: name.split(' ')[0],
+    customer_email: recipientEmail,
     otp_code: pin,
     expiry_minutes: '15',
     support_email: config.fromEmail || 'info@slimdoseph.com',
     site_url: 'https://slimdoseph.com',
     account_url: 'https://slimdoseph.com',
+    order_number: '',
+    order_id: '',
   };
 
   const renderedHtml = renderEmailTemplate(template.html_content, variables);
@@ -781,4 +874,3 @@ export async function dispatchCustomerLoginOtpEmail(
     isTest: true,
   });
 }
-

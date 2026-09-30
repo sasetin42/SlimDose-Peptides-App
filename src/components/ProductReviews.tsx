@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Star,
   MessageSquare,
@@ -12,8 +12,6 @@ import {
   Filter,
   ArrowUpDown,
   X,
-  CheckCircle2,
-  Clock
 } from 'lucide-react';
 import { useReviews } from '../hooks/useReviews';
 import { fireToast } from './ToastNotification';
@@ -35,10 +33,9 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId = '', 
   const [showForm, setShowForm] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [reviewText, setReviewText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [recentlySubmitted, setRecentlySubmitted] = useState(false);
+  const [_recentlySubmitted, setRecentlySubmitted] = useState(false);
 
   // Filter & Sort state
   const [activeFilter, setActiveFilter] = useState<FilterOption>('all');
@@ -76,10 +73,6 @@ export const ProductReviews: React.FC<ProductReviewsProps> = ({ productId = '', 
     }
 
     fireToast('Thank you for your feedback! Marked as helpful.', 'success');
-  };
-
-  const handleQuickTag = (tag: string) => {
-    setReviewText(prev => prev ? `${prev} ${tag}` : tag);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

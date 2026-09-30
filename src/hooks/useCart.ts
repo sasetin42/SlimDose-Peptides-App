@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { CartItem, Product, ProductVariation } from '../types';
 import { supabase } from '../lib/supabase';
-import { demoProducts } from '../data/demoProducts';
 
 import { getCartItemUnitBasePrice } from '../utils/pricing';
 import { fireToast } from '../components/ToastNotification';
@@ -16,8 +15,6 @@ interface PersistedCartItem {
   variation_id: string | null;
   quantity: number;
 }
-
-const STORAGE_FULL_KEY = 'peptide_cart_full_v1';
 
 const persist = (items: CartItem[]) => {
   // 1. Persist full items for instant 0ms sync hydration on subsequent loads
@@ -74,11 +71,6 @@ const loadPersistedIds = (): PersistedCartItem[] => {
 };
 
 async function findProductById(id: string): Promise<Product | null> {
-  // 1. Check demo products (fast, sync)
-  const demo = demoProducts.find(p => p.id === id);
-  if (demo) return demo;
-
-  // 2. Try Supabase
   try {
     const { data: prod, error } = await supabase
       .from('products')
@@ -99,7 +91,7 @@ async function findProductById(id: string): Promise<Product | null> {
       };
     }
   } catch (err) {
-    console.warn('findProductById Supabase lookup failed:', err);
+    console.warn('findProductById lookup failed:', err);
   }
 
   return null;
@@ -110,7 +102,6 @@ async function hydrateItems(persisted: PersistedCartItem[]): Promise<CartItem[]>
   if (persisted.length === 0) return [];
   const productIds = Array.from(new Set(persisted.map((p) => p.product_id)));
 
-  // Try Supabase first (for real products)
   const productMap = new Map<string, Product>();
   const variationMap = new Map<string, ProductVariation>();
 
@@ -130,10 +121,10 @@ async function hydrateItems(persisted: PersistedCartItem[]): Promise<CartItem[]>
       }
     }
   } catch {
-    // Supabase unavailable
+    // Database unavailable
   }
 
-  // For any product IDs not found in Supabase, look up Firebase/demo
+  // For any product IDs not found in the first query, look up individually
   const missingIds = productIds.filter(id => !productMap.has(id));
   await Promise.all(missingIds.map(async (id) => {
     const p = await findProductById(id);
@@ -145,7 +136,6 @@ async function hydrateItems(persisted: PersistedCartItem[]): Promise<CartItem[]>
     const product = productMap.get(entry.product_id);
     if (!product) continue;
 
-    // For demo products, variations are embedded
     let variation: ProductVariation | undefined;
     if (entry.variation_id) {
       variation = variationMap.get(entry.variation_id)
@@ -238,7 +228,7 @@ export function useCart() {
     return () => window.removeEventListener('addToCart', handleAddToCartEvent as EventListener);
   }, []);
 
-  const addToCart = (product: Product, variation?: ProductVariation, quantity: number = 1) => {
+  const addToCart = (product: Product, variation?: ProductVariation, quantity: number = 1, priceOverride?: number) => {
     const availableStock = variation ? variation.stock_quantity : product.stock_quantity;
     if (availableStock === 0) {
       fireToast(`Sorry, ${product.name}${variation ? ` (${variation.name})` : ''} is out of stock.`, 'warning');
@@ -273,8 +263,7 @@ export function useCart() {
         fireToast(`Only ${availableStock} item(s) available. Added ${availableStock} to your cart.`, 'warning');
         qty = availableStock;
       }
-      const newItem: CartItem = { product, variation, quantity: qty, price: 0 };
-      newItem.price = getCartItemUnitBasePrice(newItem);
+      const newItem: CartItem = { product, variation, quantity: qty, price: priceOverride ?? getCartItemUnitBasePrice({ product, variation, quantity: qty, price: 0 }) };
       setCartItems([...cartItems, newItem]);
     }
   };

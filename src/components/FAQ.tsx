@@ -54,7 +54,7 @@ const FAQ: React.FC = () => {
 
   const telegramUrl = `https://t.me/slimdose_mnl`;
 
-  if (loading) {
+  if (loading && faqs.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">

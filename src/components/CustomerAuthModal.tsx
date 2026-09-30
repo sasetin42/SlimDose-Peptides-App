@@ -22,7 +22,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { supabase, getDeletedIdsForTable, unmarkIdAsDeleted } from '../lib/supabase';
-import { db, collection, query, where, getDocs, doc, getDoc, setDoc } from '../lib/firebase';
+import { db, collection, query, where, getDocs, doc, setDoc } from '../lib/firebase';
 import { fireToast } from './ToastNotification';
 import { dispatchCustomerLoginOtpEmail } from '../services/emailService';
 import { provisionCustomerAccount, checkEmailRegisteredInFirebaseAuth } from '../services/firebaseAuth';
@@ -168,7 +168,7 @@ export const CustomerAuthModal: React.FC<CustomerAuthModalProps> = ({ onClose, o
       unmarkIdAsDeleted('users', [emailClean, newCustomerId]);
 
       // 3. Synchronously provision in Firebase Auth, Firestore /users, Firestore /customers & Supabase
-      const [provisionRes] = await Promise.all([
+      const [_provisionRes] = await Promise.all([
         provisionCustomerAccount({
           id: newCustomerId,
           email: emailClean,

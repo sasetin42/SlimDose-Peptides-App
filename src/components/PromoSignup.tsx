@@ -96,7 +96,7 @@ const PromoSignup: React.FC = () => {
     // Automatically dispatch Member Welcome & Promo template email
     dispatchMarketingEmail('promo-welcome', {
       recipientEmail: normalizedEmail,
-      promoCode: globalDiscount?.code || 'SLIM10',
+      promoCode: (globalDiscount as unknown as { code?: string } | null)?.code || 'SLIM10',
       discountPercentage: globalDiscount ? `${globalDiscount.discount_value}%` : '10%',
       catalogUrl: `${window.location.origin}/#products`,
       siteUrl: window.location.origin,

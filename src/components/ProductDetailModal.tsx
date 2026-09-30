@@ -15,14 +15,11 @@ import {
   Microscope,
   AlertOctagon,
   Shield,
-  Download,
   ExternalLink,
   AlertTriangle,
   BookOpen,
   RefreshCw,
   Lightbulb,
-  CreditCard,
-  Copy,
   QrCode,
   CheckCircle2,
   Info,
@@ -30,17 +27,18 @@ import {
   Heart,
   ArrowLeft,
   Home,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier, Protocol } from '../types';
 import { resolveProductPricing, pickBundleTier } from '../utils/pricing';
-import { getCompoundDetails, getReferences } from '../data/biotechData';
+import { getCompoundDetails } from '../data/biotechData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fireToast } from './ToastNotification';
 import { ProductPeptideCalculator } from './ProductPeptideCalculator';
 import { ProductReviews } from './ProductReviews';
 import { ErrorBoundary } from './ErrorBoundary';
 import { COAModal } from './COAModal';
+import { useCategories } from '../hooks/useCategories';
 
 interface ProductDetailModalProps {
   product: Product;
@@ -74,15 +72,6 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
   );
 
   const [activeTab, setActiveTab] = useState<'storage' | 'reconstitute' | 'usage' | 'safety'>('storage');
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    if (details.sequence) {
-      navigator.clipboard.writeText(details.sequence);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
   const TABS = [
     { id: 'storage' as const, label: 'Storage & Stability', icon: ShieldAlert },
@@ -298,91 +287,6 @@ const CompoundInformationSection: React.FC<CompoundSectionProps> = ({ product, p
   );
 };
 
-interface ReferencesSectionProps {
-  category: string;
-}
-
-const SourcesReferencesSection: React.FC<ReferencesSectionProps> = ({ category }) => {
-  const references = getReferences(category);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.12
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
-    }
-  };
-
-  return (
-    <div className="mt-8 w-full">
-      <div className="flex flex-col items-center text-center mb-4 border-b border-gray-100 dark:border-slate-800 pb-4">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/40 mb-3">
-          <BookOpen className="w-3 h-3" /> Peer Reviewed Research References
-        </span>
-        <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">Research Library</h3>
-      </div>
-
-      {/* Grid of References */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left"
-      >
-        {references.map((ref, idx) => (
-          <motion.div
-            key={idx}
-            variants={itemVariants}
-            className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-slate-800 p-5 flex flex-col justify-between hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 group relative overflow-hidden h-full min-h-[220px]"
-          >
-            {/* Glow border */}
-            <div className="absolute inset-0 border border-transparent group-hover:border-blue-500/10 rounded-2xl pointer-events-none transition-all duration-300" />
-
-            <div className="flex flex-col flex-1">
-              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 tracking-wider uppercase mb-2 block truncate" title={ref.journal}>
-                {ref.journal}
-              </span>
-              <h4 className="text-xs font-bold text-gray-900 dark:text-white leading-snug line-clamp-3 mb-3" title={ref.title}>
-                "{ref.title}"
-              </h4>
-              <p className="text-[11px] text-gray-500 dark:text-slate-400 line-clamp-2 mb-2 font-medium" title={ref.authors}>
-                {ref.authors}
-              </p>
-            </div>
-
-            <div className="border-t border-gray-100 dark:border-slate-800 pt-3 mt-3 flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-[9px] text-gray-400 uppercase font-mono">Pub. Year</span>
-                <span className="text-xs font-bold text-charcoal-800 dark:text-slate-200">{ref.year}</span>
-              </div>
-              <a
-                href={ref.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500"
-              >
-                <span>View Source</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
-  );
-};
 
 const ImportantResearchNoticeSection: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
@@ -463,10 +367,23 @@ const formatShippingWindow = () => {
 };
 
 const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClose, onAddToCart, globalDiscount, bundleTiers, protocols, asPage = false }) => {
+  const { categories } = useCategories({ activeOnly: false });
+
+  // Deterministically sort variations by lowest price, then dosage
+  const sortedVariations = useMemo(() => {
+    if (!product.variations || product.variations.length === 0) return [];
+    return [...product.variations].sort((a, b) => {
+      const priceA = a.discount_active && a.discount_price !== null ? a.discount_price : a.price;
+      const priceB = b.discount_active && b.discount_price !== null ? b.discount_price : b.price;
+      if (priceA !== priceB) return priceA - priceB;
+      return (a.quantity_mg || 0) - (b.quantity_mg || 0);
+    });
+  }, [product.variations]);
+
   const getFirstAvailableVariation = () => {
-    if (!product.variations || product.variations.length === 0) return undefined;
-    const available = product.variations.find(v => v.stock_quantity > 0);
-    return available || product.variations[0];
+    if (sortedVariations.length === 0) return undefined;
+    const available = sortedVariations.find(v => v.stock_quantity > 0);
+    return available || sortedVariations[0];
   };
 
   const [imageError, setImageError] = useState(false);
@@ -474,7 +391,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     getFirstAvailableVariation()
   );
   const [quantity, setQuantity] = useState(1);
-  const [coaPreviewImage, setCoaPreviewImage] = useState<string | null>(null);
   const [isCoaModalOpen, setIsCoaModalOpen] = useState(false);
   const [customModalCoaUrl, setCustomModalCoaUrl] = useState<string | null>(null);
   const [dosingOpen, setDosingOpen] = useState(false);
@@ -570,7 +486,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
     ? Math.round((1 - unitPrice / baseOriginal) * 100)
     : 0;
 
-  const totalPrice = unitPrice * quantity;
   const totalOriginal = baseOriginal * quantity;
 
   const hasAnyStock = product.variations && product.variations.length > 0
@@ -584,9 +499,6 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       (selectedVariation ? selectedVariation.stock_quantity === 0 : product.stock_quantity === 0)
     ));
 
-  const tagPool = [product.cas_number, product.sequence, product.molecular_weight]
-    .filter((v): v is string => Boolean(v && v.trim()));
-  const tags = tagPool.slice(0, 2);
 
   const incrementQuantity = () => setQuantity(prev => {
     if (product.pre_order_enabled && product.pre_order_max_qty && prev >= product.pre_order_max_qty) {
@@ -645,8 +557,17 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   const formatPrice = (n: number) =>
     `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 0 })}`;
 
-  const variations = product.variations ?? [];
+  const variations = sortedVariations;
   const shippingWindow = formatShippingWindow();
+
+  // Resolve human-friendly category name if product.category is a UUID or slug
+  const categoryName = useMemo(() => {
+    if (!product.category) return null;
+    const matched = categories.find(
+      c => c.id === product.category || c.name.toLowerCase() === product.category.toLowerCase()
+    );
+    return matched?.name || (product.category.includes('-') && product.category.length > 20 ? 'Peptides' : product.category);
+  }, [product.category, categories]);
 
   const wrapperClass = asPage
     ? 'w-full flex justify-center px-3 sm:px-4 py-6 sm:py-10'
@@ -678,13 +599,19 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
       )}
 
       {/* Main Image */}
-      <img
-        src={product.image_url && !imageError ? product.image_url : '/assets/logo.jpeg'}
-        alt={product.name}
-        className="relative z-0 max-h-full max-w-full object-cover sm:object-contain rounded-2xl group-hover:scale-105 transition-transform duration-500 ease-out drop-shadow-md"
-        onError={() => setImageError(true)}
-        loading="lazy"
-      />
+      {product.image_url && !imageError ? (
+        <img
+          src={product.image_url}
+          alt={product.name}
+          className="w-full h-full object-contain max-h-[220px] sm:max-h-[300px] lg:max-h-[360px] drop-shadow-xl transform group-hover:scale-105 transition-transform duration-500"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
+          <Atom className="w-16 h-16 sm:w-20 sm:h-20 stroke-[1.2]" />
+          <span className="text-[11px] font-bold mt-2 uppercase tracking-wider">Research Compound</span>
+        </div>
+      )}
     </div>
   );
 
@@ -743,10 +670,10 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
   const productDetailsRight = (
     <div className="w-full flex flex-col text-left space-y-4">
       <div>
-        {product.category && (
+        {categoryName && (
           <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#3C6CA8]/10 dark:bg-blue-950/40 border border-[#3C6CA8]/30 dark:border-blue-800/40 text-[#3C6CA8] dark:text-blue-300 text-[8px] font-extrabold uppercase tracking-wider mb-2 shadow-2xs">
             <span className="w-1 h-1 rounded-full bg-[#3C6CA8] dark:bg-blue-400 animate-pulse" />
-            {product.category}
+            {categoryName}
           </div>
         )}
         
@@ -930,19 +857,23 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
           </div>
         </div>
 
-        {/* Price Details — 20px font size & #3C6CA8 color */}
+        {/* Price Details — Live Bundle & Global Discount Reflection */}
         <div className="text-right flex-shrink-0">
-          {hasDiscount && (
+          {(hasDiscount || previewTier) && (
             <div className="text-[11px] text-gray-400 line-through leading-tight">
               {formatPrice(totalOriginal)}
             </div>
           )}
           <div className="text-[20px] font-extrabold text-[#3C6CA8] dark:text-blue-400 leading-tight">
-            {formatPrice(totalPrice)}
+            {formatPrice(bundleTotal)}
           </div>
-          {hasDiscount && (
+          {previewTier ? (
+            <div className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">
+              {Number(previewTier.discount_percentage)}% Bundle Tier Applied
+            </div>
+          ) : hasDiscount ? (
             <div className="text-[10px] font-bold text-[#3C6CA8] dark:text-blue-400">{discountPercent}% OFF</div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -985,8 +916,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
               </div>
             )}
             
-            {/* 3-Column Mobile-Responsive Grid Layout */}
-            <div className={`grid ${cards.length === 2 ? 'grid-cols-2' : cards.length === 3 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-4'} gap-1.5 sm:gap-2.5`}>
+            {/* 2-Column (Mobile) / 3-Column (Desktop) Grid Layout with Significantly Enlarged Vial Showcase */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
               {cards.map((card, i) => {
                 const isSelected = quantity >= card.qty &&
                   (i === cards.length - 1 || quantity < cards[i + 1].qty);
@@ -995,27 +926,27 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                     key={i}
                     type="button"
                     onClick={() => setQuantity(card.qty)}
-                    className={`relative rounded-2xl border transition-all duration-300 p-1.5 sm:p-2.5 text-left cursor-pointer flex flex-col justify-between min-h-[86px] sm:min-h-[102px] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                    className={`relative rounded-2xl border transition-all duration-300 p-2.5 sm:p-3 text-left cursor-pointer flex flex-col justify-between min-h-[135px] sm:min-h-[142px] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3C6CA8] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
                       isSelected
                         ? 'border-[#3C6CA8] bg-gradient-to-b from-blue-50/90 to-blue-100/50 dark:from-slate-800/90 dark:to-blue-950/40 shadow-sm ring-2 ring-[#3C6CA8]/35'
                         : 'border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 hover:border-[#3C6CA8]/60 hover:bg-blue-50/30'
                     } ${pricing.hasGlobalDiscount ? 'opacity-90' : ''}`}
                   >
                     {card.mostPopular && !pricing.hasGlobalDiscount && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded-full text-[7px] sm:text-[8px] font-black tracking-wider uppercase bg-gradient-to-r from-[#3C6CA8] to-[#2A5288] text-white shadow-sm whitespace-nowrap z-10">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[7.5px] sm:text-[8.5px] font-black tracking-wider uppercase bg-gradient-to-r from-[#3C6CA8] to-[#2A5288] text-white shadow-sm whitespace-nowrap z-10">
                         Popular
                       </span>
                     )}
                     {pricing.hasGlobalDiscount && card.qty > 1 && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded-full text-[7px] sm:text-[7.5px] font-extrabold tracking-wider uppercase bg-amber-500 text-white shadow-xs whitespace-nowrap z-10">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[7.5px] sm:text-[8px] font-extrabold tracking-wider uppercase bg-amber-500 text-white shadow-xs whitespace-nowrap z-10">
                         Sale Active
                       </span>
                     )}
-                    <div className="h-9 sm:h-12 flex items-end justify-center mb-1">
+                    <div className="h-18 sm:h-20 flex items-end justify-center mb-1.5 pt-1">
                       {Array.from({ length: Math.min(card.qty, 3) }).map((_, idx) => (
                         <div
                           key={idx}
-                          className="-mx-1 w-4.5 sm:w-6 h-8 sm:h-11 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-2xs group-hover:scale-105 transition-transform"
+                          className="-mx-2 sm:-mx-2.5 w-11 sm:w-13 h-16 sm:h-19 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform"
                           style={{ zIndex: idx }}
                         >
                           <img
@@ -1027,23 +958,23 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ product, onClos
                         </div>
                       ))}
                       {card.qty > 3 && (
-                        <span className="ml-0.5 text-[8.5px] sm:text-[9px] font-bold text-slate-500">+{card.qty - 3}</span>
+                        <span className="ml-1.5 text-[10px] sm:text-[11.5px] font-black text-slate-500 self-center">+{card.qty - 3}</span>
                       )}
                     </div>
-                    <div className="flex items-center justify-between gap-0.5 mt-auto border-t border-slate-100 dark:border-slate-800/80 pt-1">
-                      <span className="text-[9px] sm:text-[10px] font-bold text-[#232323] dark:text-white uppercase tracking-tight truncate">
+                    <div className="flex items-center justify-between gap-1 mt-auto border-t border-slate-100 dark:border-slate-800/80 pt-1.5">
+                      <span className="text-[10.5px] sm:text-xs font-black text-[#232323] dark:text-white uppercase tracking-tight truncate">
                         {card.qty} {card.qty === 1 ? 'Vial' : 'Vials'}
                       </span>
                       {pricing.hasGlobalDiscount ? (
-                        <span className="text-[8px] sm:text-[9px] font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-amber-600 dark:text-amber-400 shrink-0">
                           {discountPercent}% OFF
                         </span>
                       ) : card.percent > 0 ? (
-                        <span className="text-[8.5px] sm:text-[10px] font-extrabold text-[#3C6CA8] dark:text-blue-400 shrink-0">
+                        <span className="text-[9.5px] sm:text-[11px] font-black text-[#3C6CA8] dark:text-blue-400 shrink-0">
                           {card.percent}% OFF
                         </span>
                       ) : (
-                        <span className="text-[8px] sm:text-[9px] text-slate-400 font-medium shrink-0">Base</span>
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 font-semibold shrink-0">Base</span>
                       )}
                     </div>
                   </button>

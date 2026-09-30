@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Printer, 
-    X, 
-    Copy, 
-    Check, 
-    FileText, 
-    FlaskConical, 
-    Droplets, 
-    Syringe, 
-    ShieldCheck, 
-    Calendar, 
-    User, 
-    Edit3,
-    Sparkles,
-    AlertCircle
-} from 'lucide-react';
+import { Printer, X, Copy, Check, FileText, Syringe, ShieldCheck, Edit3, Sparkles, AlertCircle } from 'lucide-react';
 
 export interface PrintPreviewData {
     selectedSyringe: {

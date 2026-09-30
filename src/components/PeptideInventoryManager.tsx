@@ -12,22 +12,13 @@ import {
   Warehouse,
   TrendingUp,
   MapPin,
-  Save,
   X,
-  Plus,
-  Minus,
-  SlidersHorizontal,
   ChevronDown,
   ChevronUp,
   Layers,
-  AlertTriangle,
-  FileSpreadsheet,
-  Flame,
-  Sparkles,
-  ArrowUpDown,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
-import type { Product, ProductVariation } from '../types';
+import type { Product } from '../types';
 import { useMenuContext } from '../contexts/MenuContext';
 import { useCategories } from '../hooks/useCategories';
 import { supabase } from '../lib/supabase';
@@ -253,8 +244,8 @@ export default function PeptideInventoryManager({ onBack: _onBack }: PeptideInve
           .eq('product_id', productId);
 
         if (allVars && allVars.length > 0) {
-          const parentManila = allVars.reduce((sum, v) => sum + Number(v.stock_manila || 0), 0);
-          const parentDavao = allVars.reduce((sum, v) => sum + Number(v.stock_davao || 0), 0);
+          const parentManila = allVars.reduce((sum: number, v: any) => sum + Number(v.stock_manila || 0), 0);
+          const parentDavao = allVars.reduce((sum: number, v: any) => sum + Number(v.stock_davao || 0), 0);
           const parentTotal = parentManila + parentDavao;
 
           await supabase

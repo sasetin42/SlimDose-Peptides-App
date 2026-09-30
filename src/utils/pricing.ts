@@ -1,4 +1,5 @@
 import type { CartItem, GlobalDiscount, Product, ProductBundleTier, ProductVariation } from '../types';
+import type { Bundle } from '../lib/bundles';
 
 interface DiscountedPriceResult {
   price: number;
@@ -41,6 +42,11 @@ export const getGlobalDiscountedPrice = (
   }
 
   if (globalDiscount?.excluded_product_ids?.includes(productId)) {
+    return { price: originalPrice, hasGlobalDiscount: false };
+  }
+
+  // Category / product eligibility scoping (added fields; backwards compatible)
+  if ((globalDiscount as any).eligible_product_ids?.length && !(globalDiscount as any).eligible_product_ids.includes(productId)) {
     return { price: originalPrice, hasGlobalDiscount: false };
   }
 
@@ -107,6 +113,14 @@ export interface CartPricing {
   totalSavingsBeforePromo: number;
   hasBundleDiscount: boolean;
   hasItemDiscount: boolean;
+  // Multi-product bundle extension
+  appliedMultiBundle: MultiBundleApplication | null;
+}
+
+export interface MultiBundleApplication {
+  bundleId: string;
+  bundleName: string;
+  savings: number;
 }
 
 export const getCartItemUnitBasePrice = (
@@ -126,15 +140,49 @@ export const pickBundleTier = (
     .sort((a, b) => b.min_quantity - a.min_quantity)[0] ?? null;
 };
 
+/**
+ * Check whether the cart fully satisfies a multi-product bundle:
+ * for every bundle item, cart quantity of that product >= required qty.
+ */
+export const matchBundleInCart = (
+  cartItems: CartItem[],
+  bundle: Bundle
+): boolean => {
+  const qtyByProduct = new Map<string, number>();
+  cartItems.forEach((i) => qtyByProduct.set(i.product.id, (qtyByProduct.get(i.product.id) || 0) + i.quantity));
+
+  return bundle.items.every((bi) => (qtyByProduct.get(bi.product_id) || 0) >= Number(bi.quantity));
+};
+
+/** Best multi-product bundle for the cart (largest savings wins; no stacking). */
+export const pickBestMultiBundle = (
+  cartItems: CartItem[],
+  bundles: Bundle[]
+): Bundle | null => {
+  const matches = bundles
+    .filter((b) => b.active !== false && matchBundleInCart(cartItems, b))
+    .map((b) => {
+      const savings = b.items.reduce((sum, bi) => {
+        const unit = bi.unit_price || 0;
+        return sum + unit * bi.quantity;
+      }, 0) - b.bundle_price;
+      return { bundle: b, savings };
+    })
+    .filter((m) => m.savings > 0)
+    .sort((a, b) => b.savings - a.savings);
+  return matches[0]?.bundle ?? null;
+};
+
 export const computeCartPricing = (
   items: CartItem[],
   tiersByProduct: BundleTiersMap,
-  globalDiscount?: GlobalDiscount | null
+  globalDiscount?: GlobalDiscount | null,
+  multiBundles: Bundle[] = []
 ): CartPricing => {
   const lines: PricedLine[] = items.map((item, index) => {
     const pricing = resolveProductPricing(item.product, item.variation, globalDiscount);
     const unitBasePrice = pricing.price;
-    
+
     // When a global discount applies to this product, cancel out bundle discount (do not stack)
     const isBundleEligible = !pricing.hasGlobalDiscount;
     const tier = isBundleEligible ? pickBundleTier(tiersByProduct[item.product.id], item.quantity) : null;
@@ -162,7 +210,33 @@ export const computeCartPricing = (
     return sum + unitOriginal * item.quantity;
   }, 0);
   const itemDiscountSavings = Math.max(0, originalSubtotal - subtotalBeforeBundle);
-  const bundleSavings = lines.reduce((sum, l) => sum + l.lineSavings, 0);
+
+  // Multi-product bundle: applied only when no global discount is active (no stacking)
+  let multiBundleSavings = 0;
+  let appliedMultiBundle: MultiBundleApplication | null = null;
+  const globalActive = isGlobalDiscountActive(globalDiscount);
+  if (!globalActive && multiBundles.length > 0 && items.length > 0) {
+    const best = pickBestMultiBundle(items, multiBundles);
+    if (best) {
+      // Simple, consistent math: savings = matched items value at current prices − bundle price
+      const matchedValue = best.items.reduce((sum, bi) => {
+        const lineForProduct = items
+          .map((i, idx) => ({ i, line: lines[idx] }))
+          .filter(({ i }) => i.product.id === bi.product_id)
+          .reduce((acc, { i, line }) => acc + line.unitBasePrice * Math.min(i.quantity, bi.quantity), 0);
+        return sum + lineForProduct;
+      }, 0);
+      multiBundleSavings = Math.max(0, matchedValue - best.bundle_price);
+      appliedMultiBundle = {
+        bundleId: best.id || best.slug,
+        bundleName: best.name,
+        savings: multiBundleSavings,
+      };
+    }
+  }
+
+  const bundleSavings = lines.reduce((sum, l) => sum + l.lineSavings, 0) + multiBundleSavings;
+  // Final subtotal must reflect ALL bundle savings (per-product tiers + multi-product bundles).
   const subtotal = subtotalBeforeBundle - bundleSavings;
   return {
     lines,
@@ -174,5 +248,6 @@ export const computeCartPricing = (
     totalSavingsBeforePromo: itemDiscountSavings + bundleSavings,
     hasBundleDiscount: bundleSavings > 0,
     hasItemDiscount: itemDiscountSavings > 0,
+    appliedMultiBundle,
   };
 };

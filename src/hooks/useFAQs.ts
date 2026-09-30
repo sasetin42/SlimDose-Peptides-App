@@ -20,151 +20,21 @@ export interface FAQCategory {
     order_index: number;
 }
 
-export const defaultFAQs: FAQItem[] = [
-    // Product & Usage
-    {
-        id: '1',
-        question: 'Can I use Tirzepatide?',
-        answer: 'Before purchasing, please check if Tirzepatide is suitable for you.\n✔️ View the checklist here — Contact us for more details.',
-        category: 'PRODUCT & USAGE',
-        order_index: 1,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '2',
-        question: 'Do you reconstitute (recon) Tirzepatide?',
-        answer: 'Yes — for Metro Manila orders only.\nI provide free reconstitution when you purchase the complete set.\nI use pharma-grade bacteriostatic water, and I ship it with an ice pack + insulated pouch to maintain stability.',
-        category: 'PRODUCT & USAGE',
-        order_index: 2,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '3',
-        question: 'What size needles and cartridges do you offer?',
-        answer: '• Needles: Compatible with all insulin-style pens (standard pen needle sizes).\n• Cartridges: Standard 3mL capacity.',
-        category: 'PRODUCT & USAGE',
-        order_index: 3,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '4',
-        question: 'Can the pen pusher be retracted?',
-        answer: '• Reusable pens: Yes, the pusher can be retracted.\n• Disposable pens: The pusher cannot be retracted and will stay forward once pushed.',
-        category: 'PRODUCT & USAGE',
-        order_index: 4,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '5',
-        question: 'How should peptides be stored?',
-        answer: 'Peptides must be stored in the refrigerator, especially once reconstituted.',
-        category: 'PRODUCT & USAGE',
-        order_index: 5,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    // Ordering & Packaging
-    {
-        id: '6',
-        question: "What's included in my order?",
-        answer: 'Depending on your chosen items:\n• 3mL cartridge\n• Pen needles\n• Optional: alcohol swabs\n• Free Tirzepatide reconstitution for Metro Manila set orders',
-        category: 'ORDERING & PACKAGING',
-        order_index: 6,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '7',
-        question: 'Do you offer bundles or discounts?',
-        answer: 'Yes — I offer curated bundles and custom sets.\nMessage me for personalized bundle options.',
-        category: 'ORDERING & PACKAGING',
-        order_index: 7,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '8',
-        question: 'Can I return items?',
-        answer: '• Pens: Returnable within 1 week if defective.\n• Needles and syringes: Not returnable for hygiene and safety.',
-        category: 'ORDERING & PACKAGING',
-        order_index: 8,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    // Payment Methods
-    {
-        id: '9',
-        question: 'What payment options do you accept?',
-        answer: '• GCash\n• Security Bank\n• BDO\n\n❌ COD is not accepted, except for Lalamove\n→ You can pay the rider directly or have the rider pay upfront on your behalf.',
-        category: 'PAYMENT METHODS',
-        order_index: 9,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    // Shipping & Delivery
-    {
-        id: '10',
-        question: 'Where are you located?',
-        answer: '📍 Merville, Parañaque City',
-        category: 'SHIPPING & DELIVERY',
-        order_index: 10,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '11',
-        question: 'How long is shipping?',
-        answer: '📦 J&T Express: Usually 2–3 days\n(Transit time may vary by location and sorting)',
-        category: 'SHIPPING & DELIVERY',
-        order_index: 11,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '12',
-        question: 'When do orders ship out?',
-        answer: 'Orders placed before 11:00 AM ship out on the next J&T schedule (Tuesday & Thursday)\n→ Subject to order volume.',
-        category: 'SHIPPING & DELIVERY',
-        order_index: 12,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: '13',
-        question: 'Do you ship nationwide?',
-        answer: 'Yes —\n• J&T Express (nationwide)\n• Lalamove (Metro Manila & nearby areas)',
-        category: 'SHIPPING & DELIVERY',
-        order_index: 13,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-];
+export const defaultFAQs: FAQItem[] = [];
 
 export const useFAQs = () => {
-    const [faqs, setFaqs] = useState<FAQItem[]>(defaultFAQs);
-    const [loading, setLoading] = useState(true);
+    const [faqs, setFaqs] = useState<FAQItem[]>(() => {
+        try {
+            const cached = localStorage.getItem('slimdose_cached_faqs');
+            if (cached) return JSON.parse(cached);
+        } catch {}
+        return [];
+    });
+    const [loading, setLoading] = useState(false);
     const [error] = useState<string | null>(null);
 
     const fetchFAQs = async () => {
         try {
-            setLoading(true);
             const { data, error: fetchError } = await supabase
                 .from('faqs')
                 .select('*')
@@ -172,16 +42,15 @@ export const useFAQs = () => {
                 .order('order_index', { ascending: true });
 
             if (fetchError) {
-                console.warn('FAQs table not found, using defaults:', fetchError.message);
-                setFaqs(defaultFAQs);
+                console.warn('Failed to load FAQs from database:', fetchError.message);
             } else if (data && data.length > 0) {
                 setFaqs(data);
-            } else {
-                setFaqs(defaultFAQs);
+                try {
+                    localStorage.setItem('slimdose_cached_faqs', JSON.stringify(data));
+                } catch {}
             }
         } catch (err) {
             console.error('Error fetching FAQs:', err);
-            setFaqs(defaultFAQs);
         } finally {
             setLoading(false);
         }
@@ -235,30 +104,16 @@ export const useFAQsAdmin = () => {
                 .order('order_index', { ascending: true });
 
             if (fetchError) {
-                console.warn('FAQs table error, using defaults:', fetchError.message);
-                setFaqs(defaultFAQs);
+                console.warn('Failed to load FAQs from database:', fetchError.message);
+                setFaqs([]);
             } else if (!data || data.length === 0) {
-                // Auto seed or show defaults so admin is never blank
-                setFaqs(defaultFAQs);
-                // Attempt background sync to database
-                for (const item of defaultFAQs) {
-                    supabase.from('faqs').upsert({
-                        id: item.id,
-                        question: item.question,
-                        answer: item.answer,
-                        category: item.category,
-                        order_index: item.order_index,
-                        is_active: item.is_active,
-                        created_at: item.created_at || new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }).catch(() => {});
-                }
+                setFaqs([]);
             } else {
                 setFaqs(data);
             }
         } catch (err) {
             console.error('Error fetching FAQs:', err);
-            setFaqs(defaultFAQs);
+            setFaqs([]);
             setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
             setLoading(false);

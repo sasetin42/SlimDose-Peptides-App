@@ -12,13 +12,13 @@ import {
   RefreshCw,
   Eye,
   MessageCircle,
+  MessageSquare,
   Image as ImageIcon,
   Pencil,
   Save,
   X,
   Download,
   MapPin,
-  Printer,
   Copy,
   Check,
   ExternalLink,
@@ -28,19 +28,19 @@ import {
   Phone,
   FileText,
   Sparkles,
+  Send,
   Calendar,
   ArrowUpDown,
   Flame,
-  Tag,
-  ShieldCheck,
   MoreVertical,
   Trash2,
   ChevronDown,
-  ChevronUp
+  History
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useMenuContext } from '../contexts/MenuContext';
 import { fireToast } from './ToastNotification';
+import { getOrderTimeline, TIMELINE_LABELS, addOrderTimelineEvent, statusToTimelineEvent, type TimelineEvent } from '../lib/orderTimeline';
 import {
   mirrorOrderUpdateDetails,
   mirrorOrderUpdateStatus,
@@ -50,7 +50,6 @@ import {
 } from '../lib/convexMirror';
 import { trackOrderStatus, trackPaymentStatus, type OrderStatus } from '../utils/analytics';
 import { formatOrderId, buildOrderIdMap } from '../utils/orderUtils';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
 import { dispatchOrderEmail, dispatchMarketingEmail, OrderTemplateKey } from '../services/emailService';
 
 function buildOrderEmailProps(order: any) {
@@ -85,6 +84,52 @@ async function moveOrderTelegramTopic(orderId: string, newStatus: string) {
   // Telegram topic moves managed directly or via webhook
   console.debug(`Order ${orderId} moved to status: ${newStatus}`);
 }
+
+/** Compact lifecycle timeline rendered inside the order details view */
+const OrderTimelineCard: React.FC<{ orderId: string; currentStatus: string }> = ({ orderId, currentStatus }) => {
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [loadingTimeline, setLoadingTimeline] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingTimeline(true);
+    getOrderTimeline(orderId)
+      .then((rows) => { if (!cancelled) setEvents(rows); })
+      .catch(() => { if (!cancelled) setEvents([]); })
+      .finally(() => { if (!cancelled) setLoadingTimeline(false); });
+    return () => { cancelled = true; };
+  }, [orderId]);
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200/80 dark:border-slate-800 p-3.5 sm:p-4">
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-2">
+          <History className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Order Timeline</h3>
+        </div>
+        <span className="text-[10px] font-bold text-slate-400 uppercase">{currentStatus.replace(/_/g, ' ')}</span>
+      </div>
+      {loadingTimeline ? (
+        <p className="text-[11px] text-slate-400 py-2">Loading timeline…</p>
+      ) : events.length === 0 ? (
+        <p className="text-[11px] text-slate-400 py-2">No timeline events recorded yet.</p>
+      ) : (
+        <ol className="relative border-l-2 border-slate-100 dark:border-slate-800 ml-2 space-y-2.5 py-1">
+          {[...events].reverse().map((ev, i) => (
+            <li key={ev.id || i} className="ml-4">
+              <span className={`absolute -left-[5px] w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${i === 0 ? 'bg-[#3C6CA8]' : 'bg-slate-300 dark:bg-slate-600'}`} />
+              <div className="flex flex-wrap items-center gap-x-2">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{ev.label || TIMELINE_LABELS[ev.event_type] || ev.event_type}</span>
+                <span className="text-[10px] text-slate-400">{ev.created_at ? new Date(ev.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : ''}</span>
+              </div>
+              {ev.details && <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{ev.details}</p>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+};
 
 interface OrderItem {
   product_id: string;
@@ -129,10 +174,14 @@ interface Order {
   promo_code: string | null;
   promo_code_id: string | null;
   discount_applied: number | null;
+  subtotal?: number | null;
+  tracking_courier?: string | null;
+  shipping_provider?: string | null;
 }
 
 interface OrdersManagerProps {
   onBack: () => void;
+  initialStatusFilter?: string;
 }
 
 const ORDER_STATUSES = [
@@ -144,38 +193,27 @@ const ORDER_STATUSES = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-type SortMode = 'new_priority' | 'newest_first' | 'oldest_first' | 'amount_high' | 'amount_low' | 'customer_az';
+type SortMode = 'new_priority' | 'newest_first' | 'oldest_first' | 'amount_high' | 'amount_low' | 'customer_az' | 'order_number_asc';
 
-const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
+const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack, initialStatusFilter }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter || 'all');
   const [regionFilter, setRegionFilter] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<'all' | 'today' | '7d' | '30d' | '90d'>('all');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('all');
   const [sortMode, setSortMode] = useState<SortMode>('new_priority');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
-  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
   const [batchActionInProgress, setBatchActionInProgress] = useState<string | null>(null);
   const [activeDropdownOrderId, setActiveDropdownOrderId] = useState<string | null>(null);
   const { refreshProducts } = useMenuContext();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(50);
-
-  const toggleOrderExpand = (orderId: string) => {
-    setExpandedOrderIds(prev => {
-      const next = new Set(prev);
-      if (next.has(orderId)) {
-        next.delete(orderId);
-      } else {
-        next.add(orderId);
-      }
-      return next;
-    });
-  };
 
   useEffect(() => {
     loadOrders();
@@ -251,9 +289,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('Notice loading orders from database, using live scraped orders:', error);
+        console.warn('Failed to load orders from database:', error);
       }
-      let loaded = (data && data.length > 0) ? data : (liveScrapedOrders || []);
+      // Real DB data only — no fake/scraped fallbacks
+      let loaded = data || [];
       // Filter out specifically removed test order (SLD-000959 / SDP0959 / admin@gmail.com) and any user deleted orders
       loaded = loaded.filter((o: any) => {
         const num = String(o.order_number || o.id || '').toUpperCase();
@@ -274,25 +313,8 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       } catch {}
       setOrders(loaded);
     } catch (error) {
-      console.warn('Error loading orders, falling back to scraped orders cache:', error);
-      let fallback = liveScrapedOrders || [];
-      fallback = fallback.filter((o: any) => {
-        const num = String(o.order_number || o.id || '').toUpperCase();
-        const email = String(o.customer_email || '').toLowerCase().trim();
-        const phone = String(o.customer_phone || '').replace(/[^0-9]/g, '');
-        if (num === 'SDP0959' || num === 'SLD-000959' || (email === 'admin@gmail.com' && phone === '639773590258')) {
-          return false;
-        }
-        return true;
-      });
-      try {
-        const deletedRaw = localStorage.getItem('slimdose_deleted_orders');
-        if (deletedRaw) {
-          const deletedIds = new Set(JSON.parse(deletedRaw));
-          fallback = fallback.filter((o: any) => !deletedIds.has(o.id) && !deletedIds.has(o.order_number));
-        }
-      } catch {}
-      setOrders(fallback);
+      console.warn('Error loading orders from database:', error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -356,6 +378,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
       if (updateError) throw updateError;
       mirrorOrderUpdateStatus(order.id, { order_status: 'confirmed', payment_status: 'paid' });
+      addOrderTimelineEvent(order.id, 'payment_verified', 'Order confirmed — payment marked paid and stock deducted');
       moveOrderTelegramTopic(order.id, 'confirmed');
       const emailProps = buildOrderEmailProps(order);
       trackOrderStatus('confirmed', emailProps);
@@ -388,6 +411,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
       if (error) throw error;
       mirrorOrderUpdateStatus(orderId, { order_status: newStatus });
+      addOrderTimelineEvent(orderId, statusToTimelineEvent(newStatus) || 'status_changed', `Status changed to ${newStatus}`);
       moveOrderTelegramTopic(orderId, newStatus);
       const targetOrder = orders.find(o => o.id === orderId);
       if (targetOrder) {
@@ -659,12 +683,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
   };
 
 
-  const handleCopyOrderId = (orderRef: string) => {
-    navigator.clipboard.writeText(orderRef.replace('#', ''));
-    setCopiedId(orderRef);
-    fireToast(`Copied ${orderRef} to clipboard!`, 'success');
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+
 
   const handleToggleSelectOrder = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -721,6 +740,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       // 2. Mirror and notify for each order
       for (const id of idsArray) {
         mirrorOrderUpdateStatus(id, { order_status: newStatus });
+        addOrderTimelineEvent(id, statusToTimelineEvent(newStatus) || 'status_changed', `Batch status update → ${newStatus}`);
         moveOrderTelegramTopic(id, newStatus);
         const o = orders.find(item => item.id === id);
         if (o) {
@@ -780,9 +800,10 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
       for (const id of idsArray) {
         mirrorOrderUpdateStatus(id, { payment_status: newPaymentStatus });
+        addOrderTimelineEvent(id, newPaymentStatus === 'paid' ? 'payment_received' : 'note_added', `Payment status set to ${newPaymentStatus}`);
         const o = orders.find(item => item.id === id);
         if (o) {
-          trackPaymentStatus(newPaymentStatus, { ...buildOrderEmailProps(o), payment_status: newPaymentStatus });
+          trackPaymentStatus(newPaymentStatus as any, { ...buildOrderEmailProps(o), payment_status: newPaymentStatus });
         }
       }
 
@@ -952,7 +973,29 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       filtered = filtered.filter(o => classifyRegion(o.shipping_state) === regionFilter);
     }
 
+    // Filter by created-date range
+    if (dateRange !== 'all') {
+      const now = Date.now();
+      const windowMs =
+        dateRange === 'today' ? 24 * 60 * 60 * 1000 :
+        dateRange === '7d' ? 7 * 24 * 60 * 60 * 1000 :
+        dateRange === '30d' ? 30 * 24 * 60 * 60 * 1000 :
+        90 * 24 * 60 * 60 * 1000;
+      filtered = filtered.filter(o => {
+        const t = o.created_at ? new Date(o.created_at).getTime() : 0;
+        return t > 0 && now - t <= windowMs;
+      });
+    }
+
+    // Filter by payment status
+    if (paymentStatusFilter !== 'all') {
+      filtered = filtered.filter(o => (o.payment_status || '').toLowerCase() === paymentStatusFilter);
+    }
+
     // Multi-criteria sorting
+    const parseOrderNumberValue = (o: any): number =>
+      parseInt(String(o.order_number || o.id || '').replace(/\D/g, ''), 10) || 0;
+
     filtered.sort((a, b) => {
       const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
       const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -961,11 +1004,14 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
       switch (sortMode) {
         case 'new_priority': {
-          // Put 'new' status first, then newest timestamp
+          // NEW orders always pinned on top; everything else by Order ID ascending
           const isNewA = a.order_status === 'new' ? 1 : 0;
           const isNewB = b.order_status === 'new' ? 1 : 0;
           if (isNewA !== isNewB) return isNewB - isNewA;
-          return timeB - timeA;
+          const pinA = parseOrderNumberValue(a);
+          const pinB = parseOrderNumberValue(b);
+          if (pinA !== pinB) return pinA - pinB;
+          return timeA - timeB;
         }
         case 'newest_first':
           return timeB - timeA;
@@ -977,13 +1023,19 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
           return totalA - totalB;
         case 'customer_az':
           return (a.customer_name || '').localeCompare(b.customer_name || '');
+        case 'order_number_asc': {
+          const numA = parseOrderNumberValue(a);
+          const numB = parseOrderNumberValue(b);
+          if (numA !== numB) return numA - numB;
+          return timeA - timeB;
+        }
         default:
           return timeB - timeA;
       }
     });
 
     return filtered;
-  }, [orders, statusFilter, regionFilter, searchQuery, sortMode]);
+  }, [orders, statusFilter, regionFilter, searchQuery, sortMode, dateRange, paymentStatusFilter]);
 
   // Reset to page 1 when filter parameters change
   useEffect(() => {
@@ -1209,6 +1261,44 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
 
       {/* Search, Sort & Region Toolbar */}
       <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 p-3 sm:p-3.5 space-y-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative flex items-center">
+            <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as typeof dateRange)}
+              className="pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900/10 appearance-none cursor-pointer"
+              title="Filter by order date"
+            >
+              <option value="all">All Time</option>
+              <option value="today">Last 24 Hours</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="90d">Last 90 Days</option>
+            </select>
+            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 pointer-events-none" />
+          </div>
+          <select
+            value={paymentStatusFilter}
+            onChange={(e) => setPaymentStatusFilter(e.target.value)}
+            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
+            title="Filter by payment status"
+          >
+            <option value="all">All Payments</option>
+            <option value="pending">Payment Pending</option>
+            <option value="paid">Paid</option>
+            <option value="refunded">Refunded</option>
+            <option value="failed">Failed</option>
+          </select>
+          {(dateRange !== 'all' || paymentStatusFilter !== 'all') && (
+            <button
+              onClick={() => { setDateRange('all'); setPaymentStatusFilter('all'); }}
+              className="px-2.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
         <div className="flex flex-col md:flex-row gap-2.5 items-stretch md:items-center justify-between">
           {/* Search box */}
           <div className="relative flex-1 max-w-xl">
@@ -1239,12 +1329,13 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                 onChange={(e) => setSortMode(e.target.value as SortMode)}
                 className="bg-transparent text-slate-900 font-bold outline-hidden cursor-pointer"
               >
-                <option value="new_priority">🔥 New Orders First (Priority)</option>
+                <option value="new_priority">🔥 NEW Orders Pinned + Order ID ↑</option>
                 <option value="newest_first">📅 Newest Date First</option>
                 <option value="oldest_first">📅 Oldest Date First</option>
                 <option value="amount_high">💰 Highest Amount First</option>
                 <option value="amount_low">💰 Lowest Amount First</option>
                 <option value="customer_az">👤 Customer Name (A-Z)</option>
+                <option value="order_number_asc">🔢 Order Number (Ascending)</option>
               </select>
             </div>
 
@@ -1666,10 +1757,9 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                 const finalTotal = (order.total_price || 0) + (order.shipping_fee || 0);
                 const dateInfo = formatDateDetails(order);
                 const orderRef = orderIdMap.get(order.id) || formatOrderId(order);
-                const rawOrderNumber = order.order_number ? (order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`) : `#${orderRef.replace(/^ID:\s*/i, '')}`;
+                const rawOrderNumber = `#${(orderIdMap.get(order.id) || formatOrderId(order)).replace(/^ID:\s*/i, '').replace(/^#/, '')}`;
                 const isNewOrder = order.order_status === 'new';
                 const isSelected = selectedOrderIds.has(order.id);
-                const isExpanded = expandedOrderIds.has(order.id);
                 const paymentMethod = order.payment_method_name || 'GCash';
                 const isPaid = order.payment_status === 'paid';
 
@@ -1697,7 +1787,7 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                             onChange={() => handleToggleSelectOrder(order.id)}
                             className="w-4 h-4 rounded border-slate-300 text-[#3C6CA8] focus:ring-[#3C6CA8] accent-[#3C6CA8] cursor-pointer shrink-0"
                           />
-                          <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight truncate max-w-[140px] sm:max-w-none" title={rawOrderNumber}>
+                          <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm tracking-tight whitespace-nowrap" title={rawOrderNumber}>
                             Order {rawOrderNumber}
                           </h4>
                           {/* Copy Ref Button */}
@@ -1722,15 +1812,15 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                           </button>
                         </div>
 
-                        {/* Payment Pill Badge */}
+                        {/* Payment Pill Badge (compact size) */}
                         <div className="shrink-0">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold shadow-2xs ${
+                          <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-2xs ${
                             isPaid 
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/90'
                               : 'bg-emerald-50 text-emerald-700 border border-emerald-200/90'
                           }`}>
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Paid via {paymentMethod}</span>
+                            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600 shrink-0" />
+                            <span className="truncate max-w-[90px] sm:max-w-none">Paid via {paymentMethod}</span>
                           </span>
                         </div>
                       </div>
@@ -1785,117 +1875,18 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
                         </div>
                       </div>
 
-                      {/* View Details Dropdown Button */}
+                      {/* View Details Button -> Opens Full Complete Data Details */}
                       <div className="pt-2">
                         <button
                           type="button"
-                          onClick={() => toggleOrderExpand(order.id)}
+                          onClick={() => setSelectedOrder(order)}
                           className="w-full py-2.5 px-4 rounded-xl bg-[#0D1F3C] hover:bg-[#152E56] active:bg-[#08152B] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg active:scale-[0.99]"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>{isExpanded ? 'Hide Details' : 'View Details'}</span>
-                          {isExpanded ? (
-                            <ChevronUp className="w-3.5 h-3.5 ml-0.5 text-blue-300" />
-                          ) : (
-                            <ChevronDown className="w-3.5 h-3.5 ml-0.5 text-blue-300" />
-                          )}
+                          <span>View Complete Details</span>
                         </button>
                       </div>
                     </div>
-
-                    {/* ── EXPANDED ACCORDION DROPDOWN VIEW ── */}
-                    {isExpanded && (
-                      <div className="p-4 bg-slate-50/90 border-t border-slate-200/90 space-y-3.5 animate-fadeIn text-left shadow-inner">
-                        {/* Ordered Items Detailed List */}
-                        <div className="space-y-2">
-                          <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">
-                            Ordered Product Items
-                          </span>
-                          <div className="space-y-1.5 bg-white rounded-xl p-3 border border-slate-200/70 shadow-2xs">
-                            {(order.order_items || []).map((item, i) => (
-                              <div key={i} className="flex items-center justify-between text-xs py-1 border-b border-slate-100 last:border-0">
-                                <div className="min-w-0 pr-2">
-                                  <p className="font-bold text-slate-900 truncate">
-                                    {item.quantity}x {item.product_name}
-                                  </p>
-                                  {item.variation_name && (
-                                    <span className="text-[10px] text-slate-500 block">
-                                      Dosage/Variation: {item.variation_name}
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="font-bold text-slate-800 shrink-0 font-mono">
-                                  ₱{Number(item.total || item.price || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Delivery Destination & Contact Details */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                          {/* Shipping Address */}
-                          <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-[#3C6CA8]" /> Delivery Address
-                            </span>
-                            <p className="text-slate-800 leading-tight text-[11px] font-medium">
-                              {[order.shipping_address, order.shipping_barangay, order.shipping_city, order.shipping_state, order.shipping_zip_code].filter(Boolean).join(', ') || 'No delivery address saved.'}
-                            </p>
-                          </div>
-
-                          {/* Contact & Status Details */}
-                          <div className="p-3 bg-white rounded-xl border border-slate-200/70 space-y-1">
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                              <Phone className="w-3 h-3 text-[#3C6CA8]" /> Contact &amp; Tracking
-                            </span>
-                            <p className="text-slate-800 font-mono text-[11px] font-bold">
-                              {order.customer_phone || 'No phone listed'}
-                            </p>
-                            {order.tracking_number && (
-                              <p className="text-[10px] text-[#3C6CA8] font-mono truncate">
-                                Track: {order.tracking_number} ({order.shipping_provider || 'Courier'})
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Action Toolbar Inside Dropdown */}
-                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/70">
-                          <div className="flex items-center gap-1.5">
-                            {isNewOrder && (
-                              <button
-                                type="button"
-                                onClick={() => handleConfirmOrder(order)}
-                                disabled={isProcessing}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-                              >
-                                <CheckCircle className="w-3 h-3" />
-                                <span>Confirm Order</span>
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => setSelectedOrder(order)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              <span>Complete Details</span>
-                            </button>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteOrder(order)}
-                            disabled={isProcessing}
-                            className="inline-flex items-center gap-1 p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 active:scale-95 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-rose-200/60"
-                            title="Delete Order"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -2233,35 +2224,44 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
     : '—';
 
   const contactMethodStr = String(order.contact_method || 'Telegram').trim();
-  const isTelegram = contactMethodStr.toLowerCase().includes('telegram');
+  const isTelegram = contactMethodStr.toLowerCase().includes('telegram') || contactMethodStr.toLowerCase() === 'messenger';
   const isWhatsApp = contactMethodStr.toLowerCase().includes('whatsapp');
   const isViber = contactMethodStr.toLowerCase().includes('viber');
+  const isSms = contactMethodStr.toLowerCase().includes('sms');
+  const isEmail = contactMethodStr.toLowerCase().includes('email') || contactMethodStr.toLowerCase().includes('mail');
 
   const cleanPhone = (order.customer_phone || '').replace(/[^0-9]/g, '');
   let directChatUrl = '';
   if (isTelegram) {
-    directChatUrl = cleanPhone ? `https://t.me/+${cleanPhone.startsWith('09') ? '63' + cleanPhone.slice(1) : cleanPhone}` : 'https://t.me';
+    directChatUrl = cleanPhone ? `https://t.me/+${cleanPhone.startsWith('09') ? '63' + cleanPhone.slice(1) : cleanPhone}` : 'https://t.me/slimdose_mnl';
   } else if (isWhatsApp) {
     directChatUrl = `https://wa.me/${cleanPhone.startsWith('09') ? '63' + cleanPhone.slice(1) : cleanPhone}`;
   } else if (isViber) {
     directChatUrl = `viber://chat?number=${cleanPhone}`;
+  } else if (isSms) {
+    directChatUrl = cleanPhone ? `sms:${cleanPhone}` : '';
+  } else if (isEmail) {
+    directChatUrl = order.customer_email ? `mailto:${order.customer_email}?subject=SlimDose%20Order%20${cleanOrderCode}` : '';
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-3 sm:px-5 md:px-6 py-4 sm:py-6 space-y-5 sm:space-y-6">
+    <div className="w-full max-w-6xl mx-auto px-2.5 sm:px-5 md:px-6 py-3 sm:py-6 space-y-3.5 sm:space-y-5">
+      {/* Lifecycle Timeline */}
+      <OrderTimelineCard orderId={order.id} currentStatus={order.order_status || 'new'} />
+
       {/* Top Header Card */}
-      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all">
-        <div className="flex items-center gap-3.5 w-full sm:w-auto">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
           <button
             onClick={onBack}
-            className="p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all text-slate-600 dark:text-slate-300 cursor-pointer shadow-xs border border-slate-200/80 dark:border-slate-700 active:scale-95 shrink-0"
+            className="p-2 sm:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl sm:rounded-2xl transition-all text-slate-600 dark:text-slate-300 cursor-pointer shadow-xs border border-slate-200/80 dark:border-slate-700 active:scale-95 shrink-0"
             title="Back to Orders"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight font-mono flex items-center gap-1.5 sm:gap-2">
                 <span>ID: {cleanOrderCode}</span>
                 <button
                   type="button"
@@ -2275,59 +2275,60 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   title="Click to copy Order ID code"
                 >
                   {copiedKey === 'header_order_id' ? (
-                    <Check className="w-4 h-4 text-emerald-600" />
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </button>
               </h2>
               {order.order_status === 'new' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-500 text-white shadow-xs animate-pulse">
-                  <Sparkles className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-amber-500 text-white shadow-xs animate-pulse">
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   NEW UNCONFIRMED
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">({createdDate})</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+            <p className="text-[11px] sm:text-xs text-slate-400 font-medium mt-0.5">({createdDate})</p>
+            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
               Customer: <strong className="text-slate-800 dark:text-slate-200">{order.customer_name}</strong> · {totalItems} total item(s)
             </p>
           </div>
         </div>
 
-        {/* Header Action Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0">
+        {/* Header Action Buttons - Fully responsive & wrap cleanly on mobile */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-start sm:justify-end pt-1 sm:pt-0">
           {isEditing ? (
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                className="px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50 active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all shadow-md cursor-pointer disabled:opacity-50 active:scale-95"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Save</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+              {/* Send Template Dropdown with mobile-safe positioning */}
               <div className="relative group">
                 <button
                   type="button"
                   disabled={isProcessing || !order.customer_email}
-                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[11px] sm:text-xs font-bold transition-all shadow-xs cursor-pointer disabled:opacity-40"
                   title="Dispatch any email template directly to this customer"
                 >
-                  <Mail className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                  <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#3C6CA8]" />
                   <span>Send Template</span>
                   <ChevronDown className="w-3 h-3 opacity-60" />
                 </button>
-                <div className="absolute right-0 mt-1 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 hidden group-hover:block group-focus-within:block z-50 animate-fadeIn">
+                <div className="absolute left-0 sm:left-auto sm:right-0 mt-1 w-52 max-w-[calc(100vw-32px)] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 hidden group-hover:block group-focus-within:block z-50 animate-fadeIn">
                   <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
                     Order Templates
                   </div>
@@ -2379,7 +2380,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                           }
                         });
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] transition-colors flex items-center justify-between"
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#3C6CA8] transition-colors flex items-center justify-between cursor-pointer"
                     >
                       <span>{tmpl.label}</span>
                       <Send className="w-2.5 h-2.5 opacity-40" />
@@ -2404,27 +2405,39 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                         else fireToast(`Failed: ${res.error}`, 'error');
                       });
                     }}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-colors flex items-center justify-between cursor-pointer"
                   >
                     <span>Loyalty Thank You</span>
                     <Sparkles className="w-2.5 h-2.5 text-amber-500" />
                   </button>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handleCopyOrderInfo}
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[11px] sm:text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                title="Copy order summary to clipboard"
+              >
+                {copiedRef ? <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" /> : <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+                <span>{copiedRef ? 'Copied' : 'Copy'}</span>
+              </button>
+
               <button
                 onClick={() => setIsEditing(true)}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#3C6CA8] hover:bg-[#2F5585] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95 flex-1 sm:flex-initial"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-[#3C6CA8] hover:bg-[#2F5585] text-white rounded-xl text-[11px] sm:text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
               >
-                <Pencil className="w-3.5 h-3.5" />
+                <Pencil className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Edit Details</span>
               </button>
+
               <button
                 onClick={() => onDelete(order)}
                 disabled={isProcessing}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 rounded-xl text-xs font-bold border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 rounded-xl text-[11px] sm:text-xs font-bold border border-rose-200 dark:border-rose-900/60 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
                 title="Delete this order"
               >
-                <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-rose-600 dark:text-rose-400" />
                 <span>Delete</span>
               </button>
             </div>
@@ -2433,25 +2446,25 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
       </div>
 
       {/* Main 2-Column Responsive Layout Matching Reference with Enhanced Shadows */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 sm:gap-5">
         
         {/* ── LEFT COLUMN (6 Cols): Status, Customer Info, Address, Shipping & Tracking ── */}
-        <div className="lg:col-span-6 space-y-5 sm:space-y-6">
+        <div className="lg:col-span-6 space-y-3.5 sm:space-y-5">
           
           {/* 1. Order Status */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
             <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-              <Clock className="w-4 h-4 text-[#3C6CA8]" />
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
               <span>Order Status</span>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               <div className="relative inline-block w-full sm:w-auto">
                 <select
                   value={order.order_status}
                   onChange={(e) => handleStatusChange(e.target.value)}
                   disabled={isProcessing}
-                  className={`w-full sm:w-auto appearance-none pl-4 pr-10 py-2.5 rounded-2xl text-xs font-black border transition-all cursor-pointer shadow-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 ${getStatusBadgeStyle(order.order_status)}`}
+                  className={`w-full sm:w-auto appearance-none pl-3.5 pr-9 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-black border transition-all cursor-pointer shadow-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 ${getStatusBadgeStyle(order.order_status)}`}
                 >
                   {ORDER_STATUSES.map((s) => (
                     <option key={s.value} value={s.value} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold py-1">
@@ -2459,7 +2472,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
+                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-70" />
               </div>
 
               {order.order_status === 'new' && (
@@ -2467,7 +2480,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   <button
                     onClick={onConfirm}
                     disabled={isProcessing}
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl sm:rounded-2xl text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 disabled:opacity-50"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Confirm &amp; Deduct Stock</span>
@@ -2478,23 +2491,23 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 2. Customer Information */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-4 transition-all">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <User className="w-4 h-4 text-[#3C6CA8]" />
+                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Customer Information</span>
               </div>
             </div>
 
             {isEditing ? (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-2.5 text-xs">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Name</label>
                   <input
                     type="text"
                     value={editForm.customer_name}
                     onChange={(e) => setEditForm({ ...editForm, customer_name: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-semibold outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                    className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-semibold outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
                   />
                 </div>
                 <div>
@@ -2503,7 +2516,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                     type="email"
                     value={editForm.customer_email}
                     onChange={(e) => setEditForm({ ...editForm, customer_email: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                    className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
                   />
                 </div>
                 <div>
@@ -2512,19 +2525,19 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                     type="text"
                     value={editForm.customer_phone}
                     onChange={(e) => setEditForm({ ...editForm, customer_phone: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-mono outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                    className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white font-mono outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
                   />
                 </div>
               </div>
             ) : (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-2.5 text-xs">
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Name:</span>
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-20 sm:w-24 shrink-0">Name:</span>
                   <span className="font-extrabold text-slate-900 dark:text-white text-right flex-1 break-words">{order.customer_name || '—'}</span>
                 </div>
 
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Email:</span>
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-20 sm:w-24 shrink-0">Email:</span>
                   <div className="flex items-center gap-1.5 justify-end flex-1 min-w-0">
                     <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{order.customer_email || '—'}</span>
                     {order.customer_email && (
@@ -2541,7 +2554,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 </div>
 
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-bold text-slate-500 dark:text-slate-400 w-24 shrink-0">Phone:</span>
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-20 sm:w-24 shrink-0">Phone:</span>
                   <div className="flex items-center gap-1.5 justify-end flex-1">
                     <a href={`tel:${order.customer_phone}`} className="font-mono font-bold text-slate-900 dark:text-white hover:underline">
                       {order.customer_phone || '—'}
@@ -2560,21 +2573,39 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-slate-500 dark:text-slate-400 w-32 shrink-0">Contact Method:</span>
+                  <span className="font-bold text-slate-500 dark:text-slate-400 w-28 sm:w-32 shrink-0">Contact Method:</span>
                   {directChatUrl ? (
                     <a
                       href={directChatUrl}
-                      target="_blank"
+                      target={isEmail || isSms ? '_self' : '_blank'}
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60 transition-all cursor-pointer shadow-2xs"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-2xs border ${
+                        isSms
+                          ? 'text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'
+                          : isEmail
+                          ? 'text-indigo-700 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/60'
+                          : 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 border-blue-200 dark:border-blue-900/60'
+                      }`}
                     >
-                      <MessageCircle className="w-3.5 h-3.5 text-[#229ED9]" />
+                      {isSms ? (
+                        <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
+                      ) : isEmail ? (
+                        <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600" />
+                      ) : (
+                        <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#229ED9]" />
+                      )}
                       <span className="capitalize">{contactMethodStr}</span>
                       <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                     </a>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 font-bold text-blue-600 dark:text-blue-400">
-                      <MessageCircle className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 text-[11px] sm:text-xs">
+                      {isSms ? (
+                        <MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
+                      ) : isEmail ? (
+                        <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-600" />
+                      ) : (
+                        <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#229ED9]" />
+                      )}
                       <span className="capitalize">{contactMethodStr}</span>
                     </span>
                   )}
@@ -2584,23 +2615,23 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 3. Shipping Address */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <MapPin className="w-4 h-4 text-rose-500" />
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500" />
                 <span>Shipping Address</span>
               </div>
             </div>
 
             {isEditing ? (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-2.5 text-xs">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Street Address</label>
                   <input
                     type="text"
                     value={editForm.shipping_address}
                     onChange={(e) => setEditForm({ ...editForm, shipping_address: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                    className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -2609,7 +2640,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                     type="text"
                     value={editForm.shipping_barangay}
                     onChange={(e) => setEditForm({ ...editForm, shipping_barangay: e.target.value })}
-                    className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                    className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -2619,7 +2650,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                       type="text"
                       value={editForm.shipping_city}
                       onChange={(e) => setEditForm({ ...editForm, shipping_city: e.target.value })}
-                      className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                      className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                     />
                   </div>
                   <div>
@@ -2628,14 +2659,14 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                       type="text"
                       value={editForm.shipping_state}
                       onChange={(e) => setEditForm({ ...editForm, shipping_state: e.target.value })}
-                      className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                      className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                <p className="font-bold text-slate-900 dark:text-white text-sm">{order.shipping_address || '—'}</p>
+              <div className="space-y-1.5 sm:space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">{order.shipping_address || '—'}</p>
                 {order.shipping_barangay && (
                   <p className="text-slate-600 dark:text-slate-400">
                     Barangay: <span className="font-semibold text-slate-800 dark:text-slate-200">{order.shipping_barangay}</span>
@@ -2647,13 +2678,13 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 <p className="text-slate-600 dark:text-slate-400">
                   {order.shipping_country || 'Philippines'}
                 </p>
-                <div className="pt-2">
+                <div className="pt-1.5">
                   <p className="text-slate-900 dark:text-white font-bold">
                     Region: <span className="text-[#3C6CA8] dark:text-blue-400 font-extrabold">{order.shipping_location || order.shipping_state || 'LALAMOVE_MM'}</span>
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex-wrap">
+                <div className="flex items-center gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex-wrap">
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state}`)}`}
                     target="_blank"
@@ -2677,10 +2708,10 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 4. Shipping & Tracking Details (Featured Blue Card with Brand Shadows) */}
-          <div className="bg-gradient-to-b from-blue-50/80 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 border border-blue-200/90 dark:border-blue-800/80 rounded-3xl p-5 sm:p-6 space-y-4 shadow-[0_4px_25px_-4px_rgba(60,108,168,0.1)] transition-all">
+          <div className="bg-gradient-to-b from-blue-50/80 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 border border-blue-200/90 dark:border-blue-800/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 space-y-3 sm:space-y-4 shadow-[0_4px_25px_-4px_rgba(60,108,168,0.1)] transition-all">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-blue-950 dark:text-blue-100">
-                <Truck className="w-4 h-4 text-[#3C6CA8]" />
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Shipping &amp; Tracking Details</span>
               </div>
               {trackingNumber && (
@@ -2696,9 +2727,9 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
               )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                <label className="block text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                   J&amp;T Tracking Number
                 </label>
                 <div className="relative">
@@ -2707,7 +2738,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
                     placeholder="e.g., 78XXXX..."
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
+                    className="w-full px-3.5 py-2 sm:py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-mono font-bold text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
                   />
                   {trackingNumber && (
                     <button
@@ -2723,7 +2754,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                <label className="block text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
                   Shipping Note (Optional)
                 </label>
                 <input
@@ -2731,7 +2762,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   value={shippingNote}
                   onChange={(e) => setShippingNote(e.target.value)}
                   placeholder="e.g., Shipped via J&amp;T Express..."
-                  className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
+                  className="w-full px-3.5 py-2 sm:py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl sm:rounded-2xl text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#3C6CA8] focus:border-[#3C6CA8] outline-none shadow-xs"
                 />
               </div>
 
@@ -2739,9 +2770,9 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 type="button"
                 onClick={() => onSaveTracking(order.id, trackingNumber, shippingNote)}
                 disabled={isProcessing}
-                className="w-full py-2.5 bg-[#3C6CA8] hover:bg-[#2F5585] text-white text-xs font-black rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
+                className="w-full py-2 sm:py-2.5 bg-[#3C6CA8] hover:bg-[#2F5585] text-white text-xs font-black rounded-xl sm:rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Save Tracking Info</span>
               </button>
             </div>
@@ -2750,31 +2781,31 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
         </div>
 
         {/* ── RIGHT COLUMN (6 Cols): Order Items, Payment Proof, Payment Info, Summary ── */}
-        <div className="lg:col-span-6 space-y-5 sm:space-y-6">
+        <div className="lg:col-span-6 space-y-3.5 sm:space-y-5">
           
           {/* 5. Order Items */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-4 transition-all">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <Package className="w-4 h-4 text-[#3C6CA8]" />
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Order Items ({totalItems} items)</span>
               </div>
             </div>
 
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {(order.order_items || []).map((item, index) => (
-                <div key={index} className="py-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                <div key={index} className="py-2.5 sm:py-3 flex items-center justify-between gap-2.5 sm:gap-3 text-xs sm:text-sm">
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-slate-900 dark:text-white leading-snug">
                       {item.product_name}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {item.variation_name ? `Dosage/Variation: ${item.variation_name} · ` : ''}
-                      Quantity: {item.quantity} × ₱{item.price.toLocaleString('en-PH')}
+                      Qty: {item.quantity} × ₱{item.price.toLocaleString('en-PH')}
                     </p>
                   </div>
 
-                  <p className="font-black text-slate-900 dark:text-white text-sm shrink-0">
+                  <p className="font-black text-slate-900 dark:text-white text-xs sm:text-sm shrink-0">
                     ₱{item.total.toLocaleString('en-PH')}
                   </p>
                 </div>
@@ -2783,43 +2814,43 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 6. Payment Proof */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <ImageIcon className="w-4 h-4 text-[#3C6CA8]" />
+                <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Payment Proof</span>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               <div 
                 onClick={() => setShowImageModal(true)}
-                className="group relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center p-4 min-h-[220px] max-h-96 cursor-pointer shadow-inner"
+                className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center p-3 sm:p-4 min-h-[160px] sm:min-h-[220px] max-h-80 cursor-pointer shadow-inner"
               >
                 {order.payment_proof_url ? (
                   <img
                     src={order.payment_proof_url}
                     alt="Payment Receipt"
-                    className="w-full max-h-80 object-contain rounded-xl transition-transform duration-200 group-hover:scale-[1.01]"
+                    className="w-full max-h-72 object-contain rounded-xl transition-transform duration-200 group-hover:scale-[1.01]"
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
-                    <span className="text-2xl sm:text-3xl font-black text-[#3C6CA8] tracking-tighter">slimdose.</span>
-                    <p className="text-[11px] text-slate-400 font-medium">Payment screenshot placeholder</p>
+                  <div className="flex flex-col items-center justify-center py-4 sm:py-6 text-center space-y-1.5">
+                    <span className="text-xl sm:text-3xl font-black text-[#3C6CA8] tracking-tighter">slimdose.</span>
+                    <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium">Payment screenshot placeholder</p>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-2xs">
-                  <span className="px-3.5 py-1.5 bg-white/95 dark:bg-slate-900/95 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-md flex items-center gap-1.5">
+                  <span className="px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-md flex items-center gap-1.5">
                     <Eye className="w-3.5 h-3.5 text-[#3C6CA8]" /> Click to Zoom
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-center sm:justify-end gap-3 text-xs pt-1">
+              <div className="flex items-center justify-center sm:justify-end gap-3 text-xs pt-0.5">
                 <button
                   type="button"
                   onClick={() => setShowImageModal(true)}
-                  className="font-bold text-[#3C6CA8] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  className="font-bold text-[#3C6CA8] hover:underline inline-flex items-center gap-1 cursor-pointer text-[11px] sm:text-xs"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>View Full Receipt</span>
@@ -2829,7 +2860,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                   href={order.payment_proof_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1"
+                  className="font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white inline-flex items-center gap-1 text-[11px] sm:text-xs"
                 >
                   <ExternalLink className="w-3 h-3" />
                   <span>Open in New Tab</span>
@@ -2839,15 +2870,15 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 7. Payment Information */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3.5 transition-all">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-2.5 sm:space-y-3 transition-all">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <CreditCard className="w-4 h-4 text-[#3C6CA8]" />
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Payment Information</span>
               </div>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-500 dark:text-slate-400">Method:</span>
                 <span className="font-black text-slate-900 dark:text-white">
@@ -2860,7 +2891,7 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 <button
                   type="button"
                   onClick={() => onUpdatePaymentStatus(order.id, order.payment_status === 'paid' ? 'pending' : 'paid')}
-                  className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-2xs ${
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black transition-all cursor-pointer shadow-2xs ${
                     order.payment_status === 'paid'
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700'
                       : 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700'
@@ -2874,8 +2905,8 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
           </div>
 
           {/* 8. Financial Summary Breakdown */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-3 transition-all">
-            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-2.5 sm:space-y-3 transition-all">
+            <div className="space-y-1.5 sm:space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
                 <span className="font-bold text-slate-900 dark:text-white">₱{(order.total_price || 0).toLocaleString('en-PH')}</span>
@@ -2894,23 +2925,23 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
               ) : (
                 <div className="flex justify-between items-center text-amber-700 dark:text-amber-400 font-bold">
                   <span>Shipping:</span>
-                  <span className="text-[11px] bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                  <span className="text-[10px] sm:text-[11px] bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
                     COD (Customer pays Rider)
                   </span>
                 </div>
               )}
-              <div className="flex justify-between text-sm sm:text-base font-black text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-800 pt-3">
+              <div className="flex justify-between text-xs sm:text-sm font-black text-slate-900 dark:text-white border-t border-slate-100 dark:border-slate-800 pt-2.5 sm:pt-3">
                 <span>Total:</span>
-                <span className="text-[#3C6CA8] dark:text-blue-400 text-base sm:text-lg">₱{finalTotal.toLocaleString('en-PH')}</span>
+                <span className="text-[#3C6CA8] dark:text-blue-400 text-sm sm:text-base font-black">₱{finalTotal.toLocaleString('en-PH')}</span>
               </div>
             </div>
           </div>
 
           {/* Customer Notes (if present) */}
           {(order.notes || isEditing) && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-2.5 transition-all">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_25px_-4px_rgba(0,0,0,0.4)] space-y-2 sm:space-y-2.5 transition-all">
               <div className="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                <FileText className="w-4 h-4 text-[#3C6CA8]" />
+                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" />
                 <span>Customer Notes</span>
               </div>
 
@@ -2918,12 +2949,12 @@ const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({
                 <textarea
                   value={editForm.notes}
                   onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                  rows={3}
+                  rows={2}
                   placeholder="Add internal or customer notes..."
-                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 resize-none"
+                  className="w-full px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 resize-none"
                 />
               ) : (
-                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl text-xs text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-700/60">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl sm:rounded-2xl text-xs text-slate-700 dark:text-slate-300 leading-relaxed border border-slate-100 dark:border-slate-700/60">
                   {order.notes}
                 </div>
               )}

@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Video, Plus, Edit, Trash2, Play, Film, Search, X, Calendar, Tag, ExternalLink, Upload as UploadIcon, Image as ImageIcon, Link as LinkIcon, RefreshCw, CheckCircle2, Loader2 } from 'lucide-react';
+import {
+  Video,
+  Plus,
+  Edit,
+  Trash2,
+  Play,
+  Film,
+  Search,
+  X,
+  Calendar,
+  ExternalLink,
+  Upload as UploadIcon,
+  Link as LinkIcon,
+  RefreshCw,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ImageUpload from './ImageUpload';
 

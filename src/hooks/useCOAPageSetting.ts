@@ -2,8 +2,22 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
 export const useCOAPageSetting = () => {
-  const [coaPageEnabled, setCoaPageEnabled] = useState<boolean>(true);
-  const [loading, setLoading] = useState(true);
+  const [coaPageEnabled, setCoaPageEnabled] = useState<boolean>(() => {
+    try {
+      const cached = localStorage.getItem('slimdose_coa_page_enabled');
+      if (cached !== null) {
+        return cached === 'true';
+      }
+    } catch {}
+    return true;
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('slimdose_coa_page_enabled') === null;
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     fetchCOAPageSetting();
@@ -23,7 +37,11 @@ export const useCOAPageSetting = () => {
         },
         (payload) => {
           const value = payload.new?.value;
-          setCoaPageEnabled(value === 'true' || value === true);
+          const isEnabled = value === 'true' || value === true;
+          setCoaPageEnabled(isEnabled);
+          try {
+            localStorage.setItem('slimdose_coa_page_enabled', String(isEnabled));
+          } catch {}
         }
       )
       .subscribe();
@@ -35,7 +53,6 @@ export const useCOAPageSetting = () => {
 
   const fetchCOAPageSetting = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('site_settings')
         .select('value')
@@ -44,17 +61,16 @@ export const useCOAPageSetting = () => {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching COA page setting:', error);
-        // Default to enabled if setting doesn't exist
-        setCoaPageEnabled(true);
         return;
       }
       
-      // Default to enabled if setting doesn't exist
-      setCoaPageEnabled(data?.value === 'true' || data?.value === true || !data);
+      const isEnabled = data?.value === 'true' || data?.value === true || !data;
+      setCoaPageEnabled(isEnabled);
+      try {
+        localStorage.setItem('slimdose_coa_page_enabled', String(isEnabled));
+      } catch {}
     } catch (error) {
       console.error('Error fetching COA page setting:', error);
-      // Default to enabled on error
-      setCoaPageEnabled(true);
     } finally {
       setLoading(false);
     }

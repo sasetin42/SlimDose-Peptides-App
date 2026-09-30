@@ -657,29 +657,56 @@ export const PH_BARANGAYS: Record<string, Barangay[]> = {
 const liveCitiesMemoryCache = new Map<string, City[]>();
 const liveBarangaysMemoryCache = new Map<string, Barangay[]>();
 
-/**
- * Format string to Title Case nicely (e.g., "CITY OF SAN FERNANDO" -> "City of San Fernando")
- */
-function toTitleCase(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/(^|\s|-|\/)\S/g, (match) => match.toUpperCase())
-    .replace(/\bOf\b/g, 'of')
-    .replace(/\bDe\b/g, 'de')
-    .replace(/\bDel\b/g, 'del')
-    .replace(/\bI\b/g, 'I')
-    .replace(/\bIi\b/g, 'II')
-    .replace(/\bIii\b/g, 'III')
-    .replace(/\bIv\b/g, 'IV');
+// Dynamic database sync helper
+function getDbProvinces(): Province[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('slimdose_db_provinces_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((p: any) => p.is_active !== false);
+        }
+      }
+    } catch {}
+  }
+  return PH_PROVINCES;
+}
+
+function getDbCitiesMap(): Record<string, City[]> {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('slimdose_db_cities_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch {}
+  }
+  return PH_CITIES;
+}
+
+function getDbBarangaysMap(): Record<string, Barangay[]> {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('slimdose_db_barangays_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch {}
+  }
+  return PH_BARANGAYS;
 }
 
 /**
- * Search all Provinces matching query
+ * Search all Provinces matching query (incorporating dynamic database)
  */
 export function searchProvinces(query: string = ''): Province[] {
+  const currentProvinces = getDbProvinces();
   const q = query.trim().toLowerCase();
-  if (!q) return PH_PROVINCES;
-  return PH_PROVINCES.filter(
+  if (!q) return currentProvinces;
+  return currentProvinces.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.code.toLowerCase().includes(q) ||
@@ -688,12 +715,13 @@ export function searchProvinces(query: string = ''): Province[] {
 }
 
 /**
- * Resolve Province Object from name or code
+ * Resolve Province Object from name or code (incorporating dynamic database)
  */
 export function findProvince(provinceNameOrCode: string): Province | undefined {
   if (!provinceNameOrCode) return undefined;
+  const currentProvinces = getDbProvinces();
   const target = provinceNameOrCode.trim().toLowerCase();
-  return PH_PROVINCES.find(
+  return currentProvinces.find(
     (p) =>
       p.code.toLowerCase() === target ||
       p.name.toLowerCase() === target ||
@@ -711,27 +739,22 @@ export function getShippingZoneForProvince(provinceNameOrCode: string): 'LUZON' 
 }
 
 /**
- * Synchronous Fast Lookup: Get Cities / Municipalities for Province (from bundled + cache)
+ * Synchronous Fast Lookup: Get Cities / Municipalities for Province (from dynamic database + bundled + cache)
  */
 export function getCitiesForProvince(provinceNameOrCode: string, query: string = ''): City[] {
   if (!provinceNameOrCode) return [];
   const prov = findProvince(provinceNameOrCode);
   if (!prov) return [];
 
-  // Check in-memory / localStorage cache first
-  const cacheKey = `psgc_cities_${prov.code}`;
+  // Check in-memory cache first
   let cities = liveCitiesMemoryCache.get(prov.code);
 
-  if (!cities) {
-    try {
-      const stored = localStorage.getItem(cacheKey);
-      if (stored) {
-        cities = JSON.parse(stored);
-        if (cities && cities.length > 0) {
-          liveCitiesMemoryCache.set(prov.code, cities);
-        }
-      }
-    } catch {}
+  // Check dynamic database cities map
+  if (!cities || cities.length === 0) {
+    const dbCities = getDbCitiesMap();
+    if (dbCities[prov.code] && dbCities[prov.code].length > 0) {
+      cities = dbCities[prov.code].filter((c: any) => c.is_active !== false);
+    }
   }
 
   // Fallback to static bundled cities
@@ -769,7 +792,7 @@ export async function fetchCitiesForProvinceLive(provinceNameOrCode: string): Pr
 /**
  * Synchronous Fast Lookup: Get Barangays for City / Municipality (from bundled + cache)
  */
-export function getBarangaysForCity(cityNameOrCode: string, provinceNameOrCode?: string, query: string = ''): Barangay[] {
+export function getBarangaysForCity(cityNameOrCode: string, _provinceNameOrCode?: string, query: string = ''): Barangay[] {
   if (!cityNameOrCode) return [];
 
   // Look in bundled barangays
@@ -789,19 +812,14 @@ export function getBarangaysForCity(cityNameOrCode: string, provinceNameOrCode?:
     }
   });
 
-  const cacheKey = `psgc_brgy_${cityCode}`;
   let barangays = liveBarangaysMemoryCache.get(cityCode);
 
-  if (!barangays) {
-    try {
-      const stored = localStorage.getItem(cacheKey);
-      if (stored) {
-        barangays = JSON.parse(stored);
-        if (barangays && barangays.length > 0) {
-          liveBarangaysMemoryCache.set(cityCode, barangays);
-        }
-      }
-    } catch {}
+  // Check dynamic database barangays map
+  if (!barangays || barangays.length === 0) {
+    const dbBarangays = getDbBarangaysMap();
+    if (dbBarangays[cityCode] && dbBarangays[cityCode].length > 0) {
+      barangays = dbBarangays[cityCode].filter((b: any) => b.is_active !== false);
+    }
   }
 
   if (!barangays || barangays.length === 0) {
@@ -839,7 +857,6 @@ export async function fetchBarangaysForCityLive(cityNameOrCode: string, province
   // Match city
   let cityCode = cityNameOrCode;
   let psgcCode = '';
-  let targetCityName = cityNameOrCode;
 
   // Search in memory / static cities
   Object.values(PH_CITIES).forEach((cList) => {
@@ -851,7 +868,6 @@ export async function fetchBarangaysForCityLive(cityNameOrCode: string, province
     if (found) {
       cityCode = found.code;
       psgcCode = found.psgcCode || '';
-      targetCityName = found.name;
     }
   });
 
@@ -865,7 +881,6 @@ export async function fetchBarangaysForCityLive(cityNameOrCode: string, province
     if (found) {
       cityCode = found.code;
       psgcCode = found.psgcCode || psgcCode;
-      targetCityName = found.name;
       break;
     }
   }

@@ -1,9 +1,29 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { FileText, ArrowLeft, BookOpen, Calendar, User, ChevronRight, Video as VideoIcon, Play, X, Search, Sparkles, Bookmark, Share2, Calculator, FlaskConical, Check, Clock, ShieldCheck, MessageCircle, ExternalLink, Truck, Loader2, ArrowUpDown, ChevronDown } from 'lucide-react';
+import {
+  FileText,
+  ArrowLeft,
+  BookOpen,
+  User,
+  ChevronRight,
+  Video as VideoIcon,
+  Play,
+  X,
+  Search,
+  Sparkles,
+  Bookmark,
+  Calculator,
+  FlaskConical,
+  Clock,
+  ShieldCheck,
+  MessageCircle,
+  ExternalLink,
+  Truck,
+  ArrowUpDown,
+  ChevronDown,
+} from 'lucide-react';
 import { fireToast } from './ToastNotification';
-import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 
 interface Article {
   id: string;
@@ -105,7 +125,7 @@ type SortOption = 'title-asc' | 'title-desc' | 'newest' | 'oldest' | 'readtime-a
 export default function SmartGuide() {
   const [articles, setArticles] = useState<Article[]>(() => cachedArticles || FALLBACK_ARTICLES);
   const [videos, setVideos] = useState<Video[]>(() => cachedVideos || FALLBACK_VIDEOS);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [_isSyncing, setIsSyncing] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState(() => {
     try {
@@ -150,7 +170,7 @@ export default function SmartGuide() {
 
       if (error) throw error;
       if (data && data.length > 0) {
-        const mapped = data.map((art, idx) => ({
+        const mapped = data.map((art: any, idx: number) => ({
           ...art,
           read_time: `${3 + (idx % 4)} min read`,
           category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
@@ -160,25 +180,9 @@ export default function SmartGuide() {
         try {
           localStorage.setItem('peptalk_cached_articles', JSON.stringify(mapped));
         } catch {}
-      } else if (liveScrapedGuideTopics && liveScrapedGuideTopics.length > 0) {
-        const mapped = liveScrapedGuideTopics.map((art, idx) => ({
-          ...art,
-          read_time: `${3 + (idx % 4)} min read`,
-          category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
-        }));
-        cachedArticles = mapped;
-        setArticles(mapped);
       }
     } catch (error) {
-      console.warn('Error fetching articles from remote, using cached/scraped fallback:', error);
-      if (liveScrapedGuideTopics && liveScrapedGuideTopics.length > 0) {
-        const mapped = liveScrapedGuideTopics.map((art, idx) => ({
-          ...art,
-          read_time: `${3 + (idx % 4)} min read`,
-          category: idx % 3 === 0 ? 'RECONSTITUTION' : idx % 3 === 1 ? 'DOSING & USAGE' : 'PEN & NEEDLES'
-        }));
-        setArticles(mapped);
-      }
+      console.warn('Failed to fetch articles from remote:', error);
     }
   };
 
@@ -486,7 +490,7 @@ export default function SmartGuide() {
                     return (
                       <div
                         key={article.id}
-                        onClick={() => navigate(`/peptalk/${article.id}`)}
+                        onClick={() => navigate(`/peptalk/${article.id}`, { state: { article } })}
                         className="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden group flex flex-col justify-between"
                       >
                         <div>
@@ -723,7 +727,7 @@ export default function SmartGuide() {
                     .map((a) => (
                       <div
                         key={a.id}
-                        onClick={() => navigate(`/peptalk/${a.id}`)}
+                        onClick={() => navigate(`/peptalk/${a.id}`, { state: { article: a } })}
                         className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-white dark:bg-slate-800 hover:bg-amber-100/50 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center justify-between text-xs"
                       >
                         <span className="font-bold text-gray-900 dark:text-white truncate">{a.title}</span>

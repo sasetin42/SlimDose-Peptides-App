@@ -1,7 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, ArrowRight, ExternalLink, ArrowLeft, ShieldCheck, Copy, Check, RefreshCw, ThermometerSnowflake, MapPin, Calendar, HelpCircle, PhoneCall, Sparkles, Building2, ChevronRight } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Search,
+  Package,
+  Truck,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  ArrowRight,
+  ExternalLink,
+  ArrowLeft,
+  ShieldCheck,
+  Copy,
+  Check,
+  RefreshCw,
+  MapPin,
+  HelpCircle,
+  Sparkles,
+} from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, doc, getDoc, getDocs, limit as fsLimit, onSnapshot, query, where } from 'firebase/firestore';
 import { normalizeSdpToSld, formatOrderId } from '../utils/orderUtils';
 
 
@@ -56,61 +73,74 @@ const OrderTracking: React.FC = () => {
         }
     }, []);
 
-    // Realtime live subscription for the active order
-    useEffect(() => {
-        if (!order?.id) return;
-        const channelId = `order-tracking-live-${order.id}-${Date.now()}`;
-        const channel = supabase
-            .channel(channelId)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload: any) => {
-                if (payload.new && (payload.new.id === order.id || payload.new.order_number === order.order_number)) {
-                    const rawData = payload.new;
-                    const itemsList = Array.isArray(rawData.order_items)
-                        ? rawData.order_items.map((i: any) => ({
-                            product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
-                            quantity: i.quantity || 1,
-                        }))
-                        : Array.isArray(rawData.items)
-                        ? rawData.items.map((i: any) => ({
-                            product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
-                            quantity: i.quantity || 1,
-                        }))
-                        : order.items;
+    /* ────────────────────────────────────────────────────────────────────
+     * Public tracking lookup — reads the sanitized mirror collection
+     * /public_order_tracking/{order_number} maintained by the Cloud Function
+     * onOrderTrackingMirror. Guests need no auth; updates stream in realtime
+     * via onSnapshot while a result is displayed.
+     * ─────────────────────────────────────────────────────────────────── */
+    const liveUnsubRef = useRef<(() => void) | null>(null);
 
-                    setOrder(prev => prev ? ({
-                        ...prev,
-                        order_status: rawData.order_status || prev.order_status,
-                        payment_status: rawData.payment_status || prev.payment_status,
-                        tracking_number: rawData.tracking_number !== undefined ? rawData.tracking_number : prev.tracking_number,
-                        tracking_courier: rawData.tracking_courier || rawData.courier_name || prev.tracking_courier,
-                        shipping_provider: rawData.shipping_provider || prev.shipping_provider,
-                        shipping_note: rawData.shipping_note || prev.shipping_note,
-                        items: itemsList,
-                    }) : null);
-                }
-            })
-            .subscribe();
+    const mapTrackingDoc = (docId: string, d: any): TrackingOrder => ({
+        id: docId,
+        order_number: d.order_number ? normalizeSdpToSld(String(d.order_number)) : null,
+        order_status: d.order_status || 'new',
+        payment_status: d.payment_status || 'pending',
+        payment_method_name: d.payment_method_name || null,
+        customer_name: d.customer_name || null,
+        customer_email: d.customer_email || null,
+        customer_phone: d.customer_phone || null,
+        shipping_address: d.shipping_address || null,
+        shipping_barangay: d.shipping_barangay || null,
+        shipping_city: d.shipping_city || null,
+        shipping_state: d.shipping_state || null,
+        shipping_zip_code: d.shipping_zip_code || null,
+        shipping_location: d.shipping_location || null,
+        tracking_number: d.tracking_number || null,
+        tracking_courier: d.tracking_courier || null,
+        shipping_provider: d.shipping_provider || null,
+        shipping_note: d.shipping_note || null,
+        notes: d.notes || null,
+        total_price: Number(d.total_price || 0),
+        shipping_fee: Number(d.shipping_fee || 0),
+        items: Array.isArray(d.items)
+            ? d.items.map((i: any) => ({
+                product_name: i.name || i.product_name || i.product?.name || 'Item',
+                quantity: Number(i.quantity || 1),
+            }))
+            : [],
+        courier_code: null,
+        courier_name: d.tracking_courier || null,
+        tracking_url_template: d.tracking_url_template || null,
+        created_at: d.created_at
+            ? new Date(Number(d.created_at)).toISOString()
+            : new Date().toISOString(),
+    });
 
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [order?.id, order?.order_number]);
+    const stopLive = () => {
+        if (liveUnsubRef.current) {
+            try { liveUnsubRef.current(); } catch { /* noop */ }
+            liveUnsubRef.current = null;
+        }
+    };
 
     const fetchOrder = async (queryStr: string) => {
         const rawQuery = queryStr.trim();
         if (!rawQuery) return;
-        
+
         // Strip prefixes like "ID:", "Order ID:", "Order #:", "#", "ORD-"
         const cleanQuery = rawQuery
             .replace(/^(id\s*:\s*|order\s*id\s*:\s*|order\s*#?\s*:\s*|ref\s*:\s*|ord-)/i, '')
             .replace(/^#+/, '')
             .trim();
 
-        // Normalise the query itself: SDP0960 → SLD-000960
+        // Normalise the query itself to canonical SDP: SLD-000960 / ORD-000960 / SDP0960 → SDP-000960
         const normalisedQuery = normalizeSdpToSld(cleanQuery);
 
-        // Build list of candidate search keys (covers SLD↔SDP bridging)
-        const searchCandidates = [
+        // Build candidate search keys (covers SLD↔SDP bridging + tracking numbers)
+        const digitMatch = cleanQuery.match(/\d+/);
+        const digits = digitMatch ? digitMatch[0] : null;
+        const searchCandidates = Array.from(new Set([
             rawQuery,
             cleanQuery,
             normalisedQuery,
@@ -118,157 +148,65 @@ const OrderTracking: React.FC = () => {
             cleanQuery.toLowerCase(),
             cleanQuery.replace(/[\s\-_]/g, ''),
             cleanQuery.replace(/^([a-zA-Z]+)(\d+)$/, '$1-$2'),
-            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SLD-$2'),
             cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SDP-$2'),
             cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SDP$2'),
-        ];
-
-        const digitMatch = cleanQuery.match(/\d+/);
-        if (digitMatch) {
-            const digits = digitMatch[0];
-            searchCandidates.push(
+            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'SLD-$2'),
+            cleanQuery.replace(/^([a-zA-Z]+)-?(\d+)$/, 'ORD-$2'),
+            ...(digits ? [
                 digits,
                 `SDP${digits}`,
                 `SDP-${digits}`,
-                // Zero-padded SLD format (canonical new format)
-                `SLD-${digits.padStart(6, '0')}`,
-                // Old SDP format with 4-digit padding (covers SDP0960 etc.)
+                `SDP-${digits.padStart(6, '0')}`,
                 `SDP${digits.padStart(4, '0')}`,
                 `SDP-${digits.padStart(4, '0')}`,
-                // Reverse: if query is SLD-000960, also try SDP0960 (strip leading zeros)
-                `SDP${String(parseInt(digits, 10))}`
-            );
-        }
-
-        const uniqueCandidates = Array.from(new Set(searchCandidates.filter(Boolean)));
-
+                `SLD-${digits.padStart(6, '0')}`,
+                `ORD-${digits.padStart(6, '0')}`,
+                `SDP${String(parseInt(digits, 10))}`,
+            ] : []),
+        ].filter(Boolean)));
 
         setLoading(true);
         setError(null);
         setOrder(null);
         setHasSearched(true);
+        stopLive();
 
         try {
+            let docId: string | null = null;
             let rawData: any = null;
 
-            // 1. Try exact or flexible database match across candidates
-            for (const cand of uniqueCandidates) {
-                if (rawData) break;
-
-                const { data: byId } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .or(`id.eq.${cand},order_number.eq.${cand},tracking_number.eq.${cand}`)
-                    .maybeSingle();
-
-                if (byId) {
-                    rawData = byId;
+            // 1. Direct doc-ID hits (mirror is keyed by order_number)
+            for (const cand of searchCandidates) {
+                const snap = await getDoc(doc(db, 'public_order_tracking', cand));
+                if (snap.exists()) {
+                    docId = snap.id;
+                    rawData = snap.data();
                     break;
                 }
             }
 
-            // 2. Try pattern match across orders table
+            // 2. Field lookup (e.g. guest pasted a tracking number, not the order no.)
             if (!rawData) {
-                const { data: byFlex } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .or(`id.ilike.%${cleanQuery}%,order_number.ilike.%${cleanQuery}%,tracking_number.ilike.%${cleanQuery}%`)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-
-                if (byFlex && byFlex.length > 0) {
-                    rawData = byFlex[0];
+                const fieldQueries = [
+                    query(collection(db, 'public_order_tracking'), where('order_number', '==', cleanQuery), fsLimit(1)),
+                    query(collection(db, 'public_order_tracking'), where('tracking_number', '==', cleanQuery), fsLimit(1)),
+                    ...(digits ? [query(collection(db, 'public_order_tracking'), where('tracking_number', '==', digits), fsLimit(1))] : []),
+                ];
+                for (const fq of fieldQueries) {
+                    const snap = await getDocs(fq);
+                    if (!snap.empty) {
+                        docId = snap.docs[0].id;
+                        rawData = snap.docs[0].data();
+                        break;
+                    }
                 }
             }
 
-            // 3. Fallback to in-memory live dataset
-            if (!rawData && Array.isArray(liveScrapedOrders)) {
-                const fallbackMatch = (liveScrapedOrders as any[]).find((o: any) => {
-                    const oId = String(o.id || '').toLowerCase();
-                    const oNum = String(o.order_number || '').toLowerCase();
-                    const oTrack = String(o.tracking_number || '').toLowerCase();
-                    const oPhone = String(o.customer_phone || '').toLowerCase();
-                    return uniqueCandidates.some(c => {
-                        const cLow = c.toLowerCase();
-                        return (
-                            oId === cLow ||
-                            oNum === cLow ||
-                            oTrack === cLow ||
-                            oId.replace(/[\s\-_]/g, '') === cLow.replace(/[\s\-_]/g, '') ||
-                            oNum.replace(/[\s\-_]/g, '') === cLow.replace(/[\s\-_]/g, '') ||
-                            (digitMatch && (oId.includes(digitMatch[0]) || oNum.includes(digitMatch[0])))
-                        );
-                    });
-                });
-
-                if (fallbackMatch) {
-                    rawData = fallbackMatch;
+            if (rawData && docId) {
+                setOrder(mapTrackingDoc(docId, rawData));
+                if (rawData.order_number) {
+                    setOrderId(normalizeSdpToSld(String(rawData.order_number)));
                 }
-            }
-
-            // 4. Try RPC function fallback if available
-            if (!rawData) {
-                try {
-                    const { data: rpcData } = await supabase.rpc('get_order_details', {
-                        order_id_input: cleanQuery
-                    });
-                    if (rpcData) rawData = rpcData;
-                } catch {
-                    // RPC not available
-                }
-            }
-
-            if (rawData) {
-                const itemsList = Array.isArray(rawData.order_items)
-                    ? rawData.order_items.map((i: any) => ({
-                        product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
-                        quantity: i.quantity || 1,
-                    }))
-                    : Array.isArray(rawData.items)
-                    ? rawData.items.map((i: any) => ({
-                        product_name: i.product_name || i.name || i.product?.name || 'Peptide Solution',
-                        quantity: i.quantity || 1,
-                    }))
-                    : [];
-
-                const rawOrderNum = rawData.order_number || rawData.id || null;
-                const normalizedOrderNum = rawOrderNum ? normalizeSdpToSld(String(rawOrderNum)) : null;
-
-                const formattedOrder: TrackingOrder = {
-                    id: rawData.id,
-                    order_number: normalizedOrderNum,
-                    order_status: rawData.order_status || 'new',
-                    payment_status: rawData.payment_status || 'pending',
-                    payment_method_name: rawData.payment_method_name || null,
-                    customer_name: rawData.customer_name || null,
-                    customer_email: rawData.customer_email || null,
-                    customer_phone: rawData.customer_phone || null,
-                    shipping_address: rawData.shipping_address || null,
-                    shipping_barangay: rawData.shipping_barangay || null,
-                    shipping_city: rawData.shipping_city || null,
-                    shipping_state: rawData.shipping_state || null,
-                    shipping_zip_code: rawData.shipping_zip_code || null,
-                    shipping_location: rawData.shipping_location || null,
-                    tracking_number: rawData.tracking_number || null,
-                    tracking_courier: rawData.tracking_courier || rawData.courier_name || null,
-                    shipping_provider: rawData.shipping_provider || null,
-                    shipping_note: rawData.shipping_note || null,
-                    notes: rawData.notes || null,
-                    total_price: Number(rawData.total_price || 0),
-                    shipping_fee: Number(rawData.shipping_fee || 0),
-                    items: itemsList,
-                    courier_code: rawData.courier_code || null,
-                    courier_name: rawData.courier_name || rawData.tracking_courier || null,
-                    tracking_url_template: rawData.tracking_url_template || null,
-                    created_at: rawData.created_at || new Date().toISOString(),
-                };
-
-                setOrder(formattedOrder);
-                // Sync the search input to the canonical order reference
-                if (formattedOrder.order_number) {
-                    setOrderId(formattedOrder.order_number);
-                }
-
             } else {
                 setError(`No order found matching "${rawQuery}". Please check your order reference number and try again.`);
             }
@@ -279,6 +217,29 @@ const OrderTracking: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // Realtime subscription: mirrors stream order changes to the guest live.
+    // Keyed on the raw mirror doc id (order.id) so non-canonical legacy order
+    // numbers still round-trip correctly.
+    useEffect(() => {
+        stopLive();
+        if (!order?.id) return;
+        const key = order.id;
+        liveUnsubRef.current = onSnapshot(
+            doc(db, 'public_order_tracking', key),
+            { includeMetadataChanges: false },
+            (snap) => {
+                if (!snap.exists()) return;
+                const fresh = mapTrackingDoc(snap.id, snap.data());
+                setOrder((prev) => (prev ? { ...prev, ...fresh } : fresh));
+            },
+            (err) => {
+                console.warn('[OrderTracking] live subscription note:', err);
+            }
+        );
+        return stopLive;
+    }, [order?.id]);
+
 
 
     const handleTrack = async (e?: React.FormEvent, searchVal?: string) => {

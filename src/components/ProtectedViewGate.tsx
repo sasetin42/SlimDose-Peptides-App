@@ -83,12 +83,14 @@ const ProtectedViewGate: React.FC<ProtectedViewGateProps> = ({
         {/* Body */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide">
+            <label htmlFor="protected-gate-password" className="block text-xs font-semibold text-slate-600 uppercase tracking-wide">
               Password
             </label>
             <div className="relative">
               <input
                 ref={inputRef}
+                id="protected-gate-password"
+                name="gate_password"
                 type={showPassword ? 'text' : 'password'}
                 value={input}
                 onChange={(e) => { setInput(e.target.value); setError(''); }}

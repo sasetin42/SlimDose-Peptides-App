@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { demoProducts } from '../data/demoProducts';
 import type { Product, ProductBundleTier, Protocol, ProductVariation } from '../types';
-import Header from './Header';
-import Footer from './Footer';
+import './Header';
+import './Footer';
 import ProductDetailModal from './ProductDetailModal';
 import { useCart } from '../hooks/useCart';
 import { useGlobalDiscount } from '../hooks/useGlobalDiscount';
@@ -23,6 +22,8 @@ function getMockBundleTiers(productId: string): ProductBundleTier[] {
       discount_percentage: 10,
       most_popular: false,
       active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
       id: `mock-tier-2-${productId}`,
@@ -31,6 +32,8 @@ function getMockBundleTiers(productId: string): ProductBundleTier[] {
       discount_percentage: 15,
       most_popular: true,
       active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
     {
       id: `mock-tier-3-${productId}`,
@@ -39,6 +42,8 @@ function getMockBundleTiers(productId: string): ProductBundleTier[] {
       discount_percentage: 20,
       most_popular: false,
       active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     },
   ];
 }
@@ -54,6 +59,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
       {
         id: `mock-proto-1-${productId}`,
         product_id: productId,
+        category: 'Weight Management',
+        content_type: 'protocol',
         name: `${productName} Weight Management Protocol`,
         dosage: '0.25mg to 1.0mg weekly',
         frequency: 'Once weekly (every 7 days)',
@@ -69,6 +76,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
         file_url: null,
         active: true,
         sort_order: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
     ];
   }
@@ -78,6 +87,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
       {
         id: `mock-proto-1-${productId}`,
         product_id: productId,
+        category: 'Recovery & Healing',
+        content_type: 'protocol',
         name: `${productName} Tissue Repair & Healing Protocol`,
         dosage: '250mcg to 500mcg daily',
         frequency: 'Once or twice daily (morning/night)',
@@ -92,6 +103,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
         file_url: null,
         active: true,
         sort_order: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
     ];
   }
@@ -100,6 +113,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
     {
       id: `mock-proto-1-${productId}`,
       product_id: productId,
+      category: 'General Wellness',
+      content_type: 'protocol',
       name: `${productName} Standard Research Protocol`,
       dosage: '100mcg to 300mcg daily',
       frequency: 'Once daily before sleep',
@@ -114,6 +129,8 @@ function getMockProtocols(productId: string, productName: string): Protocol[] {
       file_url: null,
       active: true,
       sort_order: 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
   ];
 }
@@ -147,7 +164,6 @@ const ProductPage: React.FC = () => {
     setNotFound(false);
     (async () => {
       let foundProduct: Product | null = null;
-      let isDemo = false;
 
       // 1. Try Supabase first
       try {
@@ -162,6 +178,7 @@ const ProductPage: React.FC = () => {
             .from('product_variations')
             .select('*')
             .eq('product_id', prod.id)
+            .order('price', { ascending: true })
             .order('quantity_mg', { ascending: true });
 
           foundProduct = {
@@ -173,52 +190,48 @@ const ProductPage: React.FC = () => {
         console.warn('Supabase fetch failed:', err);
       }
 
-      // 2. Try demoProducts fallback (excluding deleted items)
-      if (!foundProduct) {
-        const { getDeletedIdsForTable } = await import('../lib/supabase');
-        const deletedIds = getDeletedIdsForTable('products');
-        const matchedDemo = demoProducts.find((p) => p.slug === slug && !deletedIds.has(String(p.id)));
-        if (matchedDemo) {
-          foundProduct = matchedDemo;
-          isDemo = true;
-        }
-      }
-
+      // Real DB data only — no demo fallbacks
       if (cancelled) return;
 
       if (foundProduct) {
         let tiers: ProductBundleTier[] = [];
         let protos: Protocol[] = [];
 
-        if (isDemo || foundProduct.id.startsWith('demo-')) {
-          // Generate beautiful mock bundle tiers and protocols for demo products
-          tiers = getMockBundleTiers(foundProduct.id);
-          protos = getMockProtocols(foundProduct.id, foundProduct.name);
-        } else {
-          // Fetch from Supabase for real products
-          try {
-            const { data } = await supabase
-              .from('product_bundle_tiers')
-              .select('*')
-              .eq('product_id', foundProduct.id)
-              .eq('active', true)
-              .order('min_quantity', { ascending: true });
-            if (data) tiers = data as ProductBundleTier[];
-          } catch (e) {
-            console.warn('Failed to load bundle tiers:', e);
+        // Always check Firestore for real saved bundle tiers first
+        try {
+          const { data } = await supabase
+            .from('product_bundle_tiers')
+            .select('*')
+            .eq('product_id', foundProduct.id)
+            .eq('active', true)
+            .order('min_quantity', { ascending: true });
+          if (data && data.length > 0) {
+            tiers = data as ProductBundleTier[];
           }
+        } catch (e) {
+          console.warn('Failed to load bundle tiers from db:', e);
+        }
 
-          try {
-            const { data } = await supabase
-              .from('protocols')
-              .select('*')
-              .eq('product_id', foundProduct.id)
-              .eq('active', true)
-              .order('sort_order', { ascending: true });
-            if (data) protos = data as Protocol[];
-          } catch (e) {
-            console.warn('Failed to load protocols:', e);
+        // Always check Firestore for real saved protocols first
+        try {
+          const { data } = await supabase
+            .from('protocols')
+            .select('*')
+            .eq('product_id', foundProduct.id)
+            .eq('active', true)
+            .order('sort_order', { ascending: true });
+          if (data && data.length > 0) {
+            protos = data as Protocol[];
           }
+        } catch (e) {
+          console.warn('Failed to load protocols from db:', e);
+        }
+
+        if (tiers.length === 0 && foundProduct.id.startsWith('demo-')) {
+          tiers = getMockBundleTiers(foundProduct.id);
+        }
+        if (protos.length === 0 && foundProduct.id.startsWith('demo-')) {
+          protos = getMockProtocols(foundProduct.id, foundProduct.name);
         }
 
         if (cancelled) return;
@@ -232,10 +245,61 @@ const ProductPage: React.FC = () => {
         setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [slug]);
+
+  // Realtime subscription & cross-event sync for bundle tiers
+  useEffect(() => {
+    if (!product?.id || product.id.startsWith('demo-')) return;
+
+    const refreshTiers = async () => {
+      try {
+        const { data } = await supabase
+          .from('product_bundle_tiers')
+          .select('*')
+          .eq('product_id', product.id)
+          .eq('active', true)
+          .order('min_quantity', { ascending: true });
+        if (data) {
+          setBundleTiers(data as ProductBundleTier[]);
+        }
+      } catch (e) {
+        console.warn('Failed to refresh bundle tiers in ProductPage:', e);
+      }
+    };
+
+    const channel = supabase
+      .channel(`product_bundle_tiers_page_${product.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'product_bundle_tiers' },
+        (payload: any) => {
+          const changedProductId = payload.new?.product_id || payload.old?.product_id;
+          if (changedProductId === product.id) {
+            refreshTiers();
+          }
+        }
+      )
+      .subscribe();
+
+    const handleBundleTiersUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent<{ productId?: string }>;
+      const targetId = customEvent.detail?.productId;
+      if (!targetId || targetId === product.id) {
+        refreshTiers();
+      }
+    };
+
+    window.addEventListener('bundle_tiers_updated', handleBundleTiersUpdated);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('bundle_tiers_updated', handleBundleTiersUpdated);
+    };
+  }, [product?.id]);
 
   return (
     <div className="bg-cream-50">

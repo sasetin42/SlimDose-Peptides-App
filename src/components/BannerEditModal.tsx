@@ -5,8 +5,6 @@ import {
   Loader2,
   Sparkles,
   Pencil,
-  CheckCircle2,
-  AlertCircle,
   Eye,
   Palette,
   Link as LinkIcon,
@@ -14,8 +12,6 @@ import {
   MoveHorizontal,
   AlignCenter,
   Flame,
-  Zap,
-  Info
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
@@ -171,21 +167,13 @@ export const BannerEditModal: React.FC<BannerEditModalProps> = ({
         detail: formData
       }));
 
-      fireToast({
-        title: 'Top Banner Saved',
-        description: 'Announcement banner updated and broadcast live to all visitors.',
-        type: 'success'
-      });
+      fireToast('Top Banner Saved — announcement updated and broadcast live to all visitors.', 'success');
 
       if (onSaved) onSaved(formData);
       onClose();
     } catch (err: any) {
       console.error('Error saving top banner:', err);
-      fireToast({
-        title: 'Save Failed',
-        description: err.message || 'Failed to update announcement banner. Please try again.',
-        type: 'error'
-      });
+      fireToast(err.message || 'Failed to update announcement banner. Please try again.', 'error');
     } finally {
       setSaving(false);
     }

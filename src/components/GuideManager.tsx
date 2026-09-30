@@ -7,67 +7,56 @@ import {
   mirrorGuideUpdate,
 } from '../lib/convexMirror';
 import {
-    Plus,
-    Edit2,
-    Trash2,
-    X,
-    FileText,
-    Eye,
-    EyeOff,
-    GripVertical,
-    ArrowLeft,
-    Package,
-    Check,
-    Bold,
-    Italic,
-    Underline,
-    Search,
-    Calendar,
-    Hash,
-    BookOpen,
-    ExternalLink,
-    RefreshCw,
-    SlidersHorizontal,
-    Sparkles,
-    Clock,
-    User,
-    CheckCircle2,
-    FileEdit,
-    Layers,
-    ArrowUpDown,
-    ImageIcon,
-    Upload,
-    Loader2,
-    Strikethrough,
-    AlignLeft,
-    AlignCenter,
-    AlignRight,
-    AlignJustify,
-    List,
-    ListOrdered,
-    Quote,
-    Table,
-    Link as LinkIcon,
-    AlertTriangle,
-    Info,
-    ShieldCheck,
-    Maximize2,
-    Minimize2,
-    Undo,
-    Redo,
-    Heading1,
-    Heading2,
-    Heading3,
-    Type,
-    Minus,
-    Tag,
-    ChevronDown,
-    ChevronUp
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  FileText,
+  Eye,
+  EyeOff,
+  GripVertical,
+  ArrowLeft,
+  Package,
+  Check,
+  Bold,
+  Italic,
+  Underline,
+  Search,
+  Calendar,
+  Hash,
+  BookOpen,
+  ExternalLink,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  FileEdit,
+  ImageIcon,
+  Loader2,
+  Strikethrough,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  List,
+  ListOrdered,
+  Quote,
+  Table,
+  Link as LinkIcon,
+  AlertTriangle,
+  Info,
+  ShieldCheck,
+  Maximize2,
+  Minimize2,
+  Undo,
+  Redo,
+  Type,
+  Minus,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { fireToast } from './ToastNotification';
-import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
 
 export interface Article {
     id: string;
@@ -198,7 +187,7 @@ export default function GuideManager() {
     const fetchArticles = async (showLoading = true) => {
         try {
             if (showLoading) setLoading(true);
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('guide_topics')
                 .select('*')
                 .order('display_order', { ascending: true });
@@ -206,11 +195,11 @@ export default function GuideManager() {
             if (data && data.length > 0) {
                 setArticles(data);
             } else {
-                setArticles(liveScrapedGuideTopics || []);
+                setArticles([]);
             }
         } catch (error) {
-            console.warn('Notice loading articles from remote, using live scraped fallback:', error);
-            setArticles(liveScrapedGuideTopics || []);
+            console.warn('Failed to load articles from database:', error);
+            setArticles([]);
         } finally {
             if (showLoading) setLoading(false);
         }

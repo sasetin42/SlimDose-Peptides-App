@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useGlobalDiscountAdmin } from '../hooks/useGlobalDiscount';
 import { useMenuContext } from '../contexts/MenuContext';
-import { demoProducts } from '../data/demoProducts';
 import type { GlobalDiscount, Product } from '../types';
 import {
   Plus,
@@ -14,7 +13,6 @@ import {
   Search,
   X,
   AlertTriangle,
-  Calendar,
   Tag,
   Package,
   Layers,
@@ -23,8 +21,6 @@ import {
   Check,
   TrendingUp,
   Clock,
-  ChevronDown,
-  ChevronUp
 } from 'lucide-react';
 
 const toIsoBoundary = (dateValue: string, boundary: 'start' | 'end') => {
@@ -77,7 +73,7 @@ const GlobalDiscountManager: React.FC<GlobalDiscountManagerProps> = ({
   const { discounts, loading, saveDiscount, deleteDiscount, toggleActive } = useGlobalDiscountAdmin();
   const { products: menuProducts } = useMenuContext();
 
-  // Guarantee products list is always populated from useMenu, local storage cache, or demoProducts
+  // Real data only: useMenu (with its localStorage cache) — no demo fallbacks
   const products: Product[] = useMemo(() => {
     if (menuProducts && menuProducts.length > 0) {
       return menuProducts;
@@ -89,7 +85,7 @@ const GlobalDiscountManager: React.FC<GlobalDiscountManagerProps> = ({
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch {}
-    return demoProducts;
+    return [];
   }, [menuProducts]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

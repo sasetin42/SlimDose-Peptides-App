@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  CheckCircle2, 
-  Sparkles, 
-  Copy, 
-  Check, 
-  Clock, 
-  Mail, 
-  User, 
-  Phone, 
-  MapPin, 
-  Package, 
-  ShieldCheck, 
-  ArrowLeft, 
+import {
+  CheckCircle2,
+  Sparkles,
+  Copy,
+  Check,
+  Mail,
+  User,
+  Phone,
+  MapPin,
+  Package,
+  ShieldCheck,
+  ArrowLeft,
   ExternalLink,
   MessageCircle,
-  FileCheck
+  FileCheck,
+  Send,
+  Loader2,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { demoProducts } from '../data/demoProducts';
+import { formatOrderId } from '../utils/orderUtils';
+import { dispatchOrderEmail } from '../services/emailService';
 
 // ─── Product Image Lookup Helper ───────────────────────────────────────────
 const getProductImageFallback = (item: any): string | null => {
@@ -28,21 +30,35 @@ const getProductImageFallback = (item: any): string | null => {
 
   const rawName = item?.product_name || item?.name || item?.product?.name || '';
   if (!rawName) return null;
-  const nameLower = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const match = demoProducts.find(p => {
-    const pName = p.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const pSlug = p.slug.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return pName.includes(nameLower) || nameLower.includes(pName) || pSlug.includes(nameLower) || nameLower.includes(pSlug);
-  });
-
-  return match?.image_url || null;
+  return null;
 };
 
 export default function Success() {
-  const [order, setOrder] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  // Check if we already have the placed order in localStorage for instant 0ms rendering
+  const getInitialOrder = () => {
+    try {
+      const cached = localStorage.getItem('slimdose_last_order');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const searchParams = new URLSearchParams(window.location.search);
+        const targetId = searchParams.get('order_id') || searchParams.get('id');
+        if (!targetId || parsed.id === targetId || parsed.order_number === targetId) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      // ignore parsing error
+    }
+    return null;
+  };
+
+  const initialOrder = React.useMemo(() => getInitialOrder(), []);
+  const [order, setOrder] = useState<any>(initialOrder);
+  const [loading, setLoading] = useState(!initialOrder);
   const [copied, setCopied] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [emailStatusMessage, setEmailStatusMessage] = useState<string | null>(null);
+  const [msgCopied, setMsgCopied] = useState(false);
 
   // Extract order_id or ref from query parameters
   const searchParams = new URLSearchParams(window.location.search);
@@ -51,24 +67,89 @@ export default function Success() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (orderIdParam) {
-      fetchOrderDetails(orderIdParam);
+      // If we already have the matching order loaded from localStorage, fetch silently in the background
+      fetchOrderDetails(orderIdParam, !initialOrder);
     } else {
-      // Fallback: check localStorage for recent placed order
-      const cachedOrder = localStorage.getItem('slimdose_last_order');
-      if (cachedOrder) {
-        try {
-          setOrder(JSON.parse(cachedOrder));
-        } catch (e) {
-          console.error(e);
+      // Fallback: check localStorage for recent placed order if not already hydrated
+      if (!order) {
+        const cachedOrder = localStorage.getItem('slimdose_last_order');
+        if (cachedOrder) {
+          try {
+            setOrder(JSON.parse(cachedOrder));
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
       setLoading(false);
     }
   }, [orderIdParam]);
 
-  const fetchOrderDetails = async (id: string) => {
+  const itemsList: any[] = React.useMemo(() => Array.isArray(order?.order_items) ? order.order_items : [], [order]);
+  const customerName = order?.customer_name || 'Valued Client';
+  const customerEmail = order?.customer_email || '';
+  const customerPhone = order?.customer_phone || '';
+  const address = order?.shipping_address || '';
+  const barangay = order?.shipping_barangay || '';
+  const city = order?.shipping_city || '';
+  const state = order?.shipping_state || '';
+  const zip = order?.shipping_zip_code || '';
+  const paymentMethod = order?.payment_method_name || 'Manual QR / Bank Transfer';
+  const grandTotal = Number(order?.total_price || 0) + Number(order?.shipping_fee || 0);
+
+  const refNumber = formatOrderId(order, { prefix: false });
+  const trackingQuery = refNumber || order?.order_number || order?.id || '';
+  const trackingUrl = `/track-order?id=${encodeURIComponent(trackingQuery)}`;
+
+  const formattedOrderMessage = React.useMemo(() => {
+    if (!order) return '';
+    const dateStr = order.created_at ? new Date(order.created_at).toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) : new Date().toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+
+    return `✨ SlimDose Peptides - NEW ORDER
+
+📅 ORDER DATE & TIME
+${dateStr}
+
+👤 CUSTOMER INFORMATION
+Name: ${customerName}
+Email: ${customerEmail || 'N/A'}
+Phone: ${customerPhone || 'N/A'}
+
+📍 SHIPPING DETAILS
+Address: ${[address, barangay, city, state, zip].filter(Boolean).join(', ')}
+
+💳 PAYMENT METHOD
+${paymentMethod}
+
+💰 TOTAL AMOUNT
+₱${grandTotal.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+
+📋 ORDER ID: ${refNumber}`;
+  }, [order, customerName, customerEmail, customerPhone, address, barangay, city, state, zip, paymentMethod, grandTotal, refNumber]);
+
+  const fetchOrderDetails = async (id: string, showSpinner = true) => {
     try {
-      setLoading(true);
+      if (showSpinner) {
+        setLoading(true);
+      }
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -77,16 +158,77 @@ export default function Success() {
 
       if (!error && data) {
         setOrder(data);
+        try {
+          localStorage.setItem('slimdose_last_order', JSON.stringify(data));
+        } catch (e) {
+          // ignore
+        }
       }
     } catch (err) {
       console.error('Error fetching order for success page:', err);
     } finally {
-      setLoading(false);
+      if (showSpinner) {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleResendEmail = async () => {
+    if (!order) return;
+    const targetEmail = order.customer_email;
+    if (!targetEmail) {
+      setEmailStatusMessage('No customer email on file.');
+      return;
+    }
+
+    try {
+      setResendingEmail(true);
+      setEmailStatusMessage('Sending order notification...');
+
+      const result = await dispatchOrderEmail('order-confirmed', {
+        orderId: order.id,
+        orderNumber: order.order_number || order.id,
+        customerName: order.customer_name || 'Valued Client',
+        customerEmail: targetEmail,
+        customerPhone: order.customer_phone || '',
+        shippingAddress: [order.shipping_address, order.shipping_barangay, order.shipping_city, order.shipping_state, order.shipping_zip_code].filter(Boolean).join(', '),
+        shippingLocation: order.shipping_location,
+        shippingFee: order.shipping_fee,
+        subtotal: order.subtotal || order.total_price,
+        discountApplied: order.discount_applied || 0,
+        promoCode: order.promo_code,
+        totalPrice: order.total_price,
+        paymentMethodName: order.payment_method_name,
+        contactMethod: order.contact_method,
+        notes: order.notes,
+        items: itemsList.map((item: any) => ({
+          product_name: item.product_name || item.name || 'Research Peptide',
+          variation_name: item.variation_name || item.variation?.name || null,
+          quantity: item.quantity || 1,
+          price: item.price || 0,
+          total: (item.price || 0) * (item.quantity || 1),
+        })),
+        status: order.order_status || 'Confirmed',
+      });
+
+      if (result.success) {
+        setEmailStatusMessage('Email sent successfully! Please check your inbox or spam folder.');
+      } else {
+        setEmailStatusMessage(`Notice: ${result.error || 'Relay pending'}`);
+      }
+    } catch (err: any) {
+      console.error('Error resending email:', err);
+      setEmailStatusMessage('Notice: Connection pending. Please verify your email.');
+    } finally {
+      setResendingEmail(false);
+      setTimeout(() => {
+        setEmailStatusMessage(null);
+      }, 6000);
     }
   };
 
   const handleCopyOrderRef = async () => {
-    const refText = order?.order_number || order?.id || '';
+    const refText = refNumber || order?.order_number || order?.id || '';
     if (!refText) return;
     try {
       await navigator.clipboard.writeText(refText);
@@ -94,6 +236,17 @@ export default function Success() {
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       console.error('Failed to copy ref:', err);
+    }
+  };
+
+  const handleCopyOrderMessage = async () => {
+    if (!formattedOrderMessage) return;
+    try {
+      await navigator.clipboard.writeText(formattedOrderMessage);
+      setMsgCopied(true);
+      setTimeout(() => setMsgCopied(false), 2500);
+    } catch (err) {
+      console.error('Failed to copy order message:', err);
     }
   };
 
@@ -107,21 +260,6 @@ export default function Success() {
       </div>
     );
   }
-
-  const trackingQuery = order?.id || order?.order_number || '';
-  const trackingUrl = `/track-order?id=${encodeURIComponent(trackingQuery)}`;
-  const refNumber = order?.order_number || (order?.id ? `ORD-${order.id.slice(0, 8).toUpperCase()}` : 'ORD-SUCCESS');
-  const itemsList: any[] = Array.isArray(order?.order_items) ? order.order_items : [];
-  const customerName = order?.customer_name || 'Valued Client';
-  const customerEmail = order?.customer_email || '';
-  const customerPhone = order?.customer_phone || '';
-  const address = order?.shipping_address || '';
-  const barangay = order?.shipping_barangay || '';
-  const city = order?.shipping_city || '';
-  const state = order?.shipping_state || '';
-  const zip = order?.shipping_zip_code || '';
-  const paymentMethod = order?.payment_method_name || 'Manual QR / Bank Transfer';
-  const grandTotal = Number(order?.total_price || 0) + Number(order?.shipping_fee || 0);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 md:py-12 px-4 sm:px-6 lg:px-8 animate-fadeIn">
@@ -179,6 +317,119 @@ export default function Success() {
           </div>
         </div>
 
+        {/* ORDER MESSAGE & TELEGRAM SECTION (Image 2 Design) */}
+        <div className="bg-slate-50 dark:bg-slate-900/60 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-6 space-y-4">
+          {/* Card Box */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <MessageCircle className="w-5 h-5 text-[#102A45] dark:text-blue-400" />
+                <h3 className="font-extrabold text-slate-900 dark:text-white text-sm sm:text-base leading-tight">
+                  Your Order Message
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopyOrderMessage}
+                className="px-3.5 py-1.5 bg-[#102A45] hover:bg-[#183a5e] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
+              >
+                {msgCopied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Formatted Code Block */}
+            <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed overflow-x-auto max-h-60">
+              {formattedOrderMessage}
+            </div>
+          </div>
+
+          {/* Telegram Action Button & Helper Text */}
+          <div className="space-y-2 text-center pt-1">
+            <a
+              href="https://t.me/slimdose_mnl"
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-3.5 px-6 bg-[#102A45] hover:bg-[#183a5e] text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-98"
+            >
+              <MessageCircle className="w-5 h-5 text-white" />
+              <span>Open Telegram</span>
+            </a>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center justify-center gap-1.5">
+              <span>💡</span>
+              <span>If Telegram doesn't open, copy the message above and visit our page manually</span>
+            </p>
+          </div>
+        </div>
+
+        {/* WHAT HAPPENS NEXT? SECTION (Image 3 Design) */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h3 className="text-base sm:text-lg font-black text-[#102A45] dark:text-white">
+              What Happens Next?
+            </h3>
+            <Sparkles className="w-5 h-5 text-[#3C6CA8]" />
+          </div>
+
+          <div className="space-y-3.5 pt-1">
+            {/* Step 1 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-lg bg-[#6B87A8] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                1
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-snug pt-0.5">
+                Send your order details and payment screenshot — we'll confirm within 24 hours or less.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-lg bg-[#6B87A8] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                2
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-snug pt-0.5">
+                Your products are carefully packed and prepared for shipping.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-lg bg-[#6B87A8] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                3
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-snug pt-0.5">
+                Payments made before 11 AM are shipped the same day.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex items-start gap-3.5">
+              <div className="w-7 h-7 rounded-lg bg-[#6B87A8] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                4
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium leading-snug pt-0.5">
+                You can check your order status anytime on our{' '}
+                <a
+                  href={trackingUrl}
+                  className="font-bold text-[#3C6CA8] hover:text-[#2a4d77] underline underline-offset-2"
+                >
+                  Track Order page
+                </a>{' '}
+                using your Order ID.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* CRITICAL NOTICE: Admin Approval & Notification Protocol */}
         <div className="bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs">
           <div className="space-y-1.5 sm:space-y-2 min-w-0">
@@ -195,14 +446,32 @@ export default function Success() {
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 pt-1 sm:pt-2">
-              <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                  <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                    <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Email Notification</span>
+                    <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate block" title={customerEmail}>{customerEmail || 'your email address'}</span>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block">Email Notification</span>
-                  <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate block">{customerEmail || 'your email address'}</span>
-                </div>
+                {customerEmail && (
+                  <button
+                    type="button"
+                    onClick={handleResendEmail}
+                    disabled={resendingEmail}
+                    className="shrink-0 px-2.5 py-1 text-[10px] sm:text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-[#3C6CA8] border border-blue-200/80 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50 shadow-2xs"
+                    title="Resend order confirmation email"
+                  >
+                    {resendingEmail ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Send className="w-2.5 h-2.5" />
+                    )}
+                    <span>{resendingEmail ? 'Sending...' : 'Resend'}</span>
+                  </button>
+                )}
               </div>
 
               <div className="p-2.5 sm:p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl sm:rounded-2xl border border-amber-200 dark:border-amber-900/50 flex items-center gap-2.5">
@@ -215,6 +484,13 @@ export default function Success() {
                 </div>
               </div>
             </div>
+
+            {emailStatusMessage && (
+              <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-[#3C6CA8] text-xs font-bold animate-fadeIn flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3C6CA8] shrink-0" />
+                <span>{emailStatusMessage}</span>
+              </div>
+            )}
           </div>
         </div>
 

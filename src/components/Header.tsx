@@ -1,12 +1,25 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useCOAPageSetting } from '../hooks/useCOAPageSetting';
-import { useCategories } from '../hooks/useCategories';
 import { useMenuContext } from '../contexts/MenuContext';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import {
-  ShoppingCart, Menu as MenuIcon, X, MessageCircle, Calculator, FileText,
-  HelpCircle, Truck, BookOpen, Lock, Search, ChevronRight,
-  Mail, Sparkles, ArrowRight, Package, User as UserIcon, Pencil
+  ShoppingCart,
+  Menu as MenuIcon,
+  X,
+  MessageCircle,
+  Calculator,
+  FileText,
+  HelpCircle,
+  Truck,
+  BookOpen,
+  Lock,
+  Search,
+  ChevronRight,
+  Mail,
+  ArrowRight,
+  Package,
+  User as UserIcon,
+  Pencil,
 } from 'lucide-react';
 import { AdminLoginModal } from './AdminLoginModal';
 import { CustomerAuthModal } from './CustomerAuthModal';
@@ -123,14 +136,12 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
   }, []);
 
   const { coaPageEnabled } = useCOAPageSetting();
-  const { categories } = useCategories();
   const { menuItems } = useMenuContext();
   const [badgeBounce, setBadgeBounce] = useState(false);
   const prevCountRef = useRef(0);
-  const megaMenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [_activeCategory, setActiveCategory] = useState('all');
 
   useEffect(() => {
     const handleCategoryChange = (e: CustomEvent) => {
@@ -140,16 +151,6 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
     return () => window.removeEventListener('categoryChange', handleCategoryChange as EventListener);
   }, []);
 
-  const handleCategoryClick = (categoryId: string) => {
-    if (window.location.pathname !== '/') {
-      window.location.href = `/?category=${categoryId}`;
-    } else {
-      const event = new CustomEvent('categoryChange', { detail: { categoryId } });
-      window.dispatchEvent(event);
-      onMenuClick();
-      setMegaMenuOpen(false);
-    }
-  };
 
   /* ─── Current path for active state ─── */
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
@@ -187,8 +188,8 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
 
         let foundContent: any = null;
         if (!error && data && data.length > 0) {
-          const barItem = data.find(d => d.page_id === 'announcement_bar' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
-          const headerItem = data.find(d => d.page_id === 'header' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+          const barItem = data.find((d: any) => d.page_id === 'announcement_bar' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+          const headerItem = data.find((d: any) => d.page_id === 'header' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
           foundContent = barItem?.content || headerItem?.content || data[0]?.content;
         }
 
@@ -199,12 +200,12 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
           .in('id', ['announcement_text', 'announcement_active', 'announcement_bg_color', 'announcement_text_color', 'announcement_style', 'announcement_link_url']);
 
         if (siteSettingsData && siteSettingsData.length > 0) {
-          const textSetting = siteSettingsData.find(s => s.id === 'announcement_text')?.value;
-          const activeSetting = siteSettingsData.find(s => s.id === 'announcement_active')?.value;
-          const bgSetting = siteSettingsData.find(s => s.id === 'announcement_bg_color')?.value;
-          const textColSetting = siteSettingsData.find(s => s.id === 'announcement_text_color')?.value;
-          const styleSetting = siteSettingsData.find(s => s.id === 'announcement_style')?.value;
-          const linkSetting = siteSettingsData.find(s => s.id === 'announcement_link_url')?.value;
+          const textSetting = siteSettingsData.find((s: any) => s.id === 'announcement_text')?.value;
+          const activeSetting = siteSettingsData.find((s: any) => s.id === 'announcement_active')?.value;
+          const bgSetting = siteSettingsData.find((s: any) => s.id === 'announcement_bg_color')?.value;
+          const textColSetting = siteSettingsData.find((s: any) => s.id === 'announcement_text_color')?.value;
+          const styleSetting = siteSettingsData.find((s: any) => s.id === 'announcement_style')?.value;
+          const linkSetting = siteSettingsData.find((s: any) => s.id === 'announcement_link_url')?.value;
 
           foundContent = {
             announcement_text: foundContent?.announcement_text ?? (textSetting !== undefined && textSetting !== '' ? textSetting : undefined),
@@ -325,15 +326,6 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
-
-  /* ─── Mega menu hover handlers ─── */
-  const handleMegaEnter = useCallback(() => {
-    if (megaMenuTimeoutRef.current) clearTimeout(megaMenuTimeoutRef.current);
-    setMegaMenuOpen(true);
-  }, []);
-  const handleMegaLeave = useCallback(() => {
-    megaMenuTimeoutRef.current = setTimeout(() => setMegaMenuOpen(false), 200);
-  }, []);
 
   /* ─── Search results ─── */
   const searchResults = searchQuery.trim().length > 1
@@ -524,6 +516,10 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
               <a href="/track-order" className={navLinkClass('/track-order')}>
                 Track Order
                 {isActive('/track-order') && <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: BRAND_BLUE }} />}
+              </a>
+              <a href="/customer-hub" className={navLinkClass('/customer-hub')}>
+                Customer Hub
+                {isActive('/customer-hub') && <span className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: BRAND_BLUE }} />}
               </a>
               <a href="/calculator" className={navLinkClass('/calculator')}>
                 Calculator
@@ -788,6 +784,7 @@ const Header: React.FC<HeaderProps> = ({ cartItemsCount, onCartClick, onMenuClic
             <div className="space-y-0.5 mb-4">
               <MobileNavLink icon={<Package className="w-[16px] h-[16px]" />} label="Products" onClick={() => { onMenuClick(); setMobileMenuOpen(false); }} />
               <MobileNavLink icon={<Truck className="w-[16px] h-[16px]" />} label="Track Order" href="/track-order" />
+              <MobileNavLink icon={<UserIcon className="w-[16px] h-[16px]" />} label="Customer Hub" href="/customer-hub" />
             </div>
 
             {/* Account Section */}

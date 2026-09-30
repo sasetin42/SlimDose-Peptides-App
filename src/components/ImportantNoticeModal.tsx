@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, ShieldCheck, Heart, Truck, CheckCircle2, X, Calendar, Clock, PackageCheck, Sun } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, Heart, Truck, X, Calendar, Clock, PackageCheck, Sun } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 
 const STORAGE_KEY = 'slimdose_notice_acknowledged';

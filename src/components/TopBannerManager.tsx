@@ -10,15 +10,11 @@ import {
   Clock,
   RotateCcw,
   CheckCircle2,
-  AlertCircle,
   MoveHorizontal,
   Flame,
-  Zap,
-  Info,
   Check,
-  ChevronRight,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
@@ -133,8 +129,8 @@ export const TopBannerManager: React.FC<TopBannerManagerProps> = ({
 
       let foundContent: any = null;
       if (!error && data && data.length > 0) {
-        const barItem = data.find(d => d.page_id === 'announcement_bar' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
-        const headerItem = data.find(d => d.page_id === 'header' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+        const barItem = data.find((d: any) => d.page_id === 'announcement_bar' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
+        const headerItem = data.find((d: any) => d.page_id === 'header' && d.content && (d.content.announcement_text !== undefined || d.content.background_color !== undefined));
         foundContent = barItem?.content || headerItem?.content || data[0]?.content;
       }
 
@@ -145,12 +141,12 @@ export const TopBannerManager: React.FC<TopBannerManagerProps> = ({
         .in('id', ['announcement_text', 'announcement_active', 'announcement_bg_color', 'announcement_text_color', 'announcement_style', 'announcement_link_url']);
 
       if (siteSettingsData && siteSettingsData.length > 0) {
-        const textSetting = siteSettingsData.find(s => s.id === 'announcement_text')?.value;
-        const activeSetting = siteSettingsData.find(s => s.id === 'announcement_active')?.value;
-        const bgSetting = siteSettingsData.find(s => s.id === 'announcement_bg_color')?.value;
-        const textColSetting = siteSettingsData.find(s => s.id === 'announcement_text_color')?.value;
-        const styleSetting = siteSettingsData.find(s => s.id === 'announcement_style')?.value;
-        const linkSetting = siteSettingsData.find(s => s.id === 'announcement_link_url')?.value;
+        const textSetting = siteSettingsData.find((s: any) => s.id === 'announcement_text')?.value;
+        const activeSetting = siteSettingsData.find((s: any) => s.id === 'announcement_active')?.value;
+        const bgSetting = siteSettingsData.find((s: any) => s.id === 'announcement_bg_color')?.value;
+        const textColSetting = siteSettingsData.find((s: any) => s.id === 'announcement_text_color')?.value;
+        const styleSetting = siteSettingsData.find((s: any) => s.id === 'announcement_style')?.value;
+        const linkSetting = siteSettingsData.find((s: any) => s.id === 'announcement_link_url')?.value;
 
         foundContent = {
           announcement_text: foundContent?.announcement_text ?? (textSetting !== undefined && textSetting !== '' ? textSetting : undefined),

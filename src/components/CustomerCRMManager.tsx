@@ -1,25 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Search, 
-  Download, 
-  RefreshCw, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  ShoppingBag, 
-  MessageCircle, 
-  Copy, 
-  Check, 
-  ExternalLink, 
-  ChevronRight, 
+import {
+  Search,
+  Download,
+  RefreshCw,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  ShoppingBag,
+  MessageCircle,
+  Copy,
+  Check,
+  ChevronRight,
   ChevronLeft,
-  X, 
-  Clock, 
-  DollarSign, 
-  Award, 
-  Users, 
-  TrendingUp, 
+  X,
+  Clock,
+  DollarSign,
+  Award,
+  Users,
+  TrendingUp,
   SlidersHorizontal,
   Calendar,
   Package,
@@ -34,18 +33,14 @@ import {
   Loader2,
   Share2,
   Trash2,
-  Lock,
-  CheckCircle,
-  Tag
+  Tag,
 } from 'lucide-react';
 import { supabase, getDeletedIdsForTable, markIdsAsDeleted } from '../lib/supabase';
-import { db, doc, setDoc, deleteDoc, collection, getDocs, onSnapshot } from '../lib/firebase';
+import { db, collection, getDocs, onSnapshot } from '../lib/firebase';
 import { provisionCustomerAccount, deleteUserAccountAdmin } from '../services/firebaseAuth';
 import { fireToast } from './ToastNotification';
 import { formatOrderId } from '../utils/orderUtils';
-import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
-import { dispatchMarketingEmail, dispatchOrderEmail } from '../services/emailService';
+import { dispatchMarketingEmail } from '../services/emailService';
 
 export interface Customer {
   id: string;
@@ -110,16 +105,6 @@ function getInitialCachedCustomers(): Customer[] {
     }
   } catch {}
 
-  // 2. Fallback to live scraped customers for instant 0ms mount
-  (liveScrapedCustomers as Customer[]).forEach(c => {
-    const email = (c.email || '').toLowerCase().trim();
-    const idStr = String(c.id || '');
-    if (email && !seen.has(email) && !deletedIds.has(idStr) && !deletedIds.has(email)) {
-      seen.add(email);
-      list.push({ ...c, email });
-    }
-  });
-
   return list;
 }
 
@@ -131,7 +116,7 @@ function getInitialCachedOrders(): CustomerOrder[] {
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch {}
-  return (liveScrapedOrders as CustomerOrder[]) || [];
+  return [];
 }
 
 export default function CustomerCRMManager() {
@@ -145,7 +130,7 @@ export default function CustomerCRMManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(50);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  const [_lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
 
@@ -274,10 +259,7 @@ export default function CustomerCRMManager() {
       // 3. Supabase customers
       fetchedCustomers.forEach(addUniqueCustomer);
 
-      // 4. liveScrapedCustomers (ensure pre-loaded customer accounts are present unless deleted)
-      (liveScrapedCustomers as Customer[]).forEach(addUniqueCustomer);
-
-      // 5. Guest checkout orders
+      // 4. Guest checkout orders
       fetchedOrders.forEach(o => {
         const email = String(o.customer_email || '').trim().toLowerCase();
         if (!email || knownEmails.has(email) || deletedIds.has(email)) return;
@@ -296,7 +278,7 @@ export default function CustomerCRMManager() {
         });
       });
 
-      const finalOrders = fetchedOrders.length > 0 ? fetchedOrders : (liveScrapedOrders as CustomerOrder[]);
+      const finalOrders = fetchedOrders;
 
       setCustomers(combinedCustomers);
       setOrders(finalOrders);
@@ -323,7 +305,7 @@ export default function CustomerCRMManager() {
     if (!customerToDelete) return;
     const emailKey = customerToDelete.email.toLowerCase().trim();
     const idKey = String(customerToDelete.id || '');
-    const displayName = customerToDelete.full_name || customerToDelete.name || emailKey;
+    const displayName = customerToDelete.full_name || emailKey;
 
     // 1. Immediately record in permanent Tombstone registry
     try {
@@ -550,7 +532,7 @@ export default function CustomerCRMManager() {
   };
 
   const copyAllCustomerEmails = (format: 'plain' | 'csv' | 'credentials' = 'plain') => {
-    const rawList = customers.length > 0 ? customers : (liveScrapedCustomers as Customer[]);
+    const rawList = customers.length > 0 ? customers : [];
     const uniqueEmailMap = new Map<string, Customer>();
 
     rawList.forEach((c) => {
@@ -668,7 +650,7 @@ export default function CustomerCRMManager() {
     setSyncResults(null);
 
     // 1. Enforce strict in-memory email deduplication before initiating sync
-    const rawList = customers.length > 0 ? customers : (liveScrapedCustomers as Customer[]);
+    const rawList = customers.length > 0 ? customers : [];
     const uniqueEmailMap = new Map<string, Customer>();
 
     rawList.forEach((c) => {
@@ -771,14 +753,14 @@ export default function CustomerCRMManager() {
     const headers = ['ID', 'Full Name', 'Email', 'Phone', 'Created At', 'Status', 'Segment Tier', 'Total Orders', 'Total Spend (PHP)', 'Last Order Date', 'Firebase Auth Synced'];
     const rows = filteredAndSortedCustomers.map(c => {
       const stats = customerStatsMap[c.email.toLowerCase().trim()] || { totalSpent: 0, orderCount: 0, lastOrderDate: null, tier: 'Prospect' };
-      const isSynced = c.auth_linked || !!usersAuthMap[c.email.toLowerCase().trim()];
+      const isSynced = 'auth_linked' in c ? Boolean((c as any).auth_linked) : false;
       return [
         `"${c.id}"`,
         `"${c.full_name || ''}"`,
         `"${c.email}"`,
         `"${c.phone || ''}"`,
         `"${c.created_at || ''}"`,
-        `"${c.status || 'Active'}"`,
+        `"${'status' in c ? String((c as any).status || 'Active') : 'Active'}"`,
         `"${stats.tier}"`,
         stats.orderCount,
         stats.totalSpent.toFixed(2),
@@ -1313,7 +1295,7 @@ export default function CustomerCRMManager() {
                           <button
                             type="button"
                             disabled={syncingSingleId === c.id}
-                            onClick={(e) => handleSyncSingleCustomerToFirebase(c, e)}
+                            onClick={(e) => handleSyncSingleToFirebase(c, e)}
                             className="p-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-500 hover:text-white text-amber-600 dark:text-amber-400 border border-amber-200/70 dark:border-amber-800/60 transition-all cursor-pointer shadow-xs disabled:opacity-50"
                             title="Sync/Link this account to Firebase Auth & Firestore"
                           >
@@ -1743,7 +1725,7 @@ export default function CustomerCRMManager() {
                   <button
                     type="button"
                     disabled={syncingSingleId === activeCustomer.id}
-                    onClick={() => handleSyncSingleCustomerToFirebase(activeCustomer)}
+                    onClick={() => handleSyncSingleToFirebase(activeCustomer)}
                     className="py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer shrink-0 disabled:opacity-50"
                     title="Sync and link this user profile into Firebase Authentication"
                   >

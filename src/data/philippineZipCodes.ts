@@ -2515,6 +2515,36 @@ export function resolveExactPhilippineZipCode(
   const cleanProv = cleanGeoString(provinceName || '');
   const cleanBrgy = cleanGeoString(barangayName || '');
 
+  // ─── TIER 0: DYNAMIC ADMIN DATABASE OVERRIDES & REGISTRY ───
+  if (typeof window !== 'undefined') {
+    try {
+      const storedZips = localStorage.getItem('slimdose_db_zipcodes_v1');
+      if (storedZips) {
+        const parsed: Array<{ province?: string; city?: string; barangay?: string; zip_code?: string }> = JSON.parse(storedZips);
+        if (Array.isArray(parsed)) {
+          // 1. Exact Barangay match
+          if (cleanBrgy) {
+            const foundBrgy = parsed.find(
+              z => z.barangay &&
+              cleanGeoString(z.barangay) === cleanBrgy &&
+              (!cleanCity || cleanGeoString(z.city || '').includes(cleanCity) || cleanCity.includes(cleanGeoString(z.city || '')))
+            );
+            if (foundBrgy?.zip_code) return foundBrgy.zip_code;
+          }
+          // 2. Exact City & Province match
+          if (cleanCity) {
+            const foundCity = parsed.find(
+              z => !z.barangay &&
+              (cleanGeoString(z.city || '') === cleanCity || cleanGeoString(z.city || '').includes(cleanCity)) &&
+              (!cleanProv || cleanGeoString(z.province || '').includes(cleanProv) || cleanProv.includes(cleanGeoString(z.province || '')))
+            );
+            if (foundCity?.zip_code) return foundCity.zip_code;
+          }
+        }
+      }
+    } catch {}
+  }
+
   // ─── TIER 1: SPECIFIC BARANGAY / DISTRICT RESOLUTION ───
   if (cleanBrgy) {
     // Check Metro Manila & multi-district cities first

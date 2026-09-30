@@ -65,7 +65,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   smtp_secure: 'true',
   smtp_auth_required: 'true',
   smtp_user: 'noreply@slimdoseph.com',
-  smtp_pass: 'PWqa@7kQ',
+  smtp_pass: '',
   smtp_from_email: 'noreply@slimdoseph.com',
   smtp_from_name: 'SlimDose Peptides',
   smtp_reply_to_email: 'noreply@slimdoseph.com',

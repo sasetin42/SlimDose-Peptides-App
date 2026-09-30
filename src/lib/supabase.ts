@@ -3,9 +3,7 @@ import {
   collection,
   doc,
   getDocs,
-  getDoc,
   setDoc,
-  updateDoc,
   deleteDoc,
   query as firestoreQuery,
   where,
@@ -16,43 +14,6 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-
-import { liveScrapedProducts } from '../data/liveScrapedProducts';
-import { liveScrapedCategories } from '../data/liveScrapedCategories';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
-import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
-import { liveScrapedGuideTopics } from '../data/liveScrapedGuideTopics';
-import { liveScrapedPaymentMethods } from '../data/liveScrapedPaymentMethods';
-import { liveScrapedPromoCodes } from '../data/liveScrapedPromoCodes';
-import { liveScrapedProductReviews } from '../data/liveScrapedProductReviews';
-// Flatten variations from products
-const allLiveScrapedVariations = liveScrapedProducts.flatMap((p: any) => p.variations || []);
-
-export const getLiveScrapedFallback = (table: string): any[] => {
-  switch (table) {
-    case 'products':
-      return liveScrapedProducts;
-    case 'product_variations':
-      return allLiveScrapedVariations;
-    case 'categories':
-      return liveScrapedCategories;
-    case 'orders':
-      return liveScrapedOrders;
-    case 'customers':
-    case 'subscribers':
-      return liveScrapedCustomers;
-    case 'guide_topics':
-      return liveScrapedGuideTopics;
-    case 'payment_methods':
-      return liveScrapedPaymentMethods;
-    case 'promo_codes':
-      return liveScrapedPromoCodes;
-    case 'product_reviews':
-      return liveScrapedProductReviews;
-    default:
-      return [];
-  }
-};
 
 const DELETED_ITEMS_KEY = 'slimdose_deleted_ids_by_table';
 
@@ -100,6 +61,58 @@ export const unmarkIdAsDeleted = (tableName: string, ids: string[]) => {
   }
 };
 
+const TABLE_CACHE_PREFIX = 'slimdose_table_cache_';
+
+export const getLocalTableCache = (tableName: string): any[] => {
+  try {
+    if (typeof window === 'undefined') return [];
+    const raw = localStorage.getItem(`${TABLE_CACHE_PREFIX}${tableName}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+export const saveLocalTableCache = (tableName: string, items: any[]) => {
+  try {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(`${TABLE_CACHE_PREFIX}${tableName}`, JSON.stringify(items));
+  } catch (e) {
+    console.warn(`[Local Cache] Failed to save table cache for ${tableName}:`, e);
+  }
+};
+
+export const upsertLocalTableCache = (tableName: string, newOrUpdated: any[]) => {
+  try {
+    const existing = getLocalTableCache(tableName);
+    const map = new Map<string, any>();
+    existing.forEach(item => {
+      if (item.id) map.set(String(item.id), item);
+    });
+    newOrUpdated.forEach(item => {
+      if (item.id) {
+        map.set(String(item.id), { ...(map.get(String(item.id)) || {}), ...item });
+      }
+    });
+    saveLocalTableCache(tableName, Array.from(map.values()));
+  } catch (e) {
+    console.warn(`[Local Cache] Failed to upsert table cache for ${tableName}:`, e);
+  }
+};
+
+export const removeLocalTableCacheIds = (tableName: string, ids: string[]) => {
+  try {
+    const existing = getLocalTableCache(tableName);
+    const idSet = new Set(ids.map(String));
+    const filtered = existing.filter(item => !idSet.has(String(item.id)));
+    saveLocalTableCache(tableName, filtered);
+  } catch (e) {
+    console.warn(`[Local Cache] Failed to remove ids from table cache:`, e);
+  }
+};
+
 // Helper to recursively strip undefined properties from documents for Firestore compatibility
 const cleanUndefined = (obj: any): any => {
   if (obj === null || typeof obj !== 'object') {
@@ -136,7 +149,7 @@ class SupabaseChannel {
     return this;
   }
 
-  subscribe() {
+  subscribe(onStatusChange?: (status: string) => void) {
     this.subscriptions.forEach((callbacks, table) => {
       const colRef = collection(db, table);
       let isInitialSnapshot = true;
@@ -173,6 +186,7 @@ class SupabaseChannel {
       );
       this.unsubs.push(unsub);
     });
+    if (onStatusChange) onStatusChange('SUBSCRIBED');
     return this;
   }
 
@@ -264,7 +278,7 @@ class SupabaseQueryBuilder {
   }
 
   or(filterString: string) {
-    // Parse comma-separated Supabase .or string e.g. "customer_id.eq.abc,customer_email.eq.xyz"
+    // Parse comma-separated filter string e.g. "customer_id.eq.abc,customer_email.eq.xyz"
     const conditions = filterString.split(',').map(cond => {
       const parts = cond.split('.');
       if (parts.length >= 3) {
@@ -272,7 +286,7 @@ class SupabaseQueryBuilder {
       }
       return null;
     }).filter(Boolean);
-    
+
     (this as any).orConditions = conditions;
     return this;
   }
@@ -291,12 +305,14 @@ class SupabaseQueryBuilder {
     return this;
   }
 
-  insert(values: any | any[]) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  insert(values: any | any[], _options?: { onConflict?: string }) {
     this.insertData = Array.isArray(values) ? values : [values];
     return this;
   }
 
-  update(values: any) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  update(values: any, _options?: { onConflict?: string }) {
     this.updateData = values;
     return this;
   }
@@ -306,62 +322,23 @@ class SupabaseQueryBuilder {
     return this;
   }
 
-  upsert(values: any | any[]) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  upsert(values: any | any[], _options?: { onConflict?: string }) {
     this.isUpsert = true;
     this.insertData = Array.isArray(values) ? values : [values];
     return this;
   }
 
-  async then(resolve: any, reject: any) {
-    try {
-      const res = await this.execute();
-      if (resolve) resolve(res);
-      return res;
-    } catch (err) {
-      if (reject) reject(err);
-      throw err;
-    }
+  then<T = any>(
+    resolve?: ((value: any) => T | PromiseLike<T>) | null,
+    reject?: ((reason: any) => void) | null
+  ): Promise<T> {
+    return this.execute().then(resolve as any, reject as any);
   }
 
   async execute() {
     try {
       const colRef = collection(db, this.tableName);
-
-      // Seed default admin users if collection is empty
-      if (this.tableName === 'admin_users') {
-        try {
-          const checkSnap = await getDocs(colRef);
-          if (checkSnap.empty) {
-            console.log('🌱 No admin users found. Seeding default admin users...');
-            const adminSeeds = [
-              { email: 'admin@gmail.com', password_hash: '123456#', role: 'super_admin', name: 'Super Admin', id: 'nRN46sB5qdPt7Mo6hkqu0A0HZvH3' },
-              { email: 'superadmin@slimdose.ph', password_hash: 'superadmin2026', role: 'super_admin', name: 'Super Admin' },
-              { email: 'admin@slimdose.ph', password_hash: 'admin2026', role: 'admin', name: 'Store Admin' },
-              { email: 'editor@slimdose.ph', password_hash: 'editor2026', role: 'content_editor', name: 'Content Editor' },
-              { email: 'ordermanager@slimdose.ph', password_hash: 'orders2026', role: 'order_manager', name: 'Order Manager' }
-            ];
-            for (const s of adminSeeds) {
-              await setDoc(doc(db, 'admin_users', s.email), {
-                id: s.id || s.email.replace(/[^a-zA-Z0-9]/g, '-'),
-                email: s.email,
-                password_hash: s.password_hash,
-                role: s.role,
-                name: s.name,
-                created_at: new Date().toISOString()
-              });
-
-              // Also seed in Firebase Auth in the background if possible
-              try {
-                await createUserWithEmailAndPassword(auth, s.email, s.password_hash);
-              } catch (e) {
-                // Ignore if user already exists in Firebase Auth
-              }
-            }
-          }
-        } catch (seedErr) {
-          console.warn('⚠️ Seeding admin_users skipped (expected when security rules enforce restricted access).');
-        }
-      }
 
       // Fetch from Firestore (optimized using query constraints if available)
       let docsData: any[] = [];
@@ -410,28 +387,22 @@ class SupabaseQueryBuilder {
           }));
         }
       } catch (e) {
-        console.warn(`[Firestore Adapter] Query on ${this.tableName} using live scraped dataset:`, e);
+        console.warn(`[Firestore Adapter] Query on ${this.tableName} failed:`, e);
+        return { data: null, error: e };
       }
 
-      // If Firestore returned data, it is the 100% authoritative live database.
-      // Fallback is ONLY used if Firestore query returned 0 documents (e.g. completely unseeded or offline).
+      // The database is the single source of truth — no static fallbacks.
       if (docsData.length === 0) {
         const deletedIds = getDeletedIdsForTable(this.tableName);
-        let fallback = getLiveScrapedFallback(this.tableName);
-        if (fallback && fallback.length > 0) {
-          if (deletedIds.size > 0) {
-            fallback = fallback.filter(f => {
-              const id = String(f.id || '');
-              const email = String(f.email || '').toLowerCase().trim();
-              const orderNum = String(f.order_number || '');
-              return !deletedIds.has(id) && (!email || !deletedIds.has(email)) && (!orderNum || !deletedIds.has(orderNum));
-            });
-          }
-          docsData = [...fallback];
+        const localCached = getLocalTableCache(this.tableName);
+        if (localCached && localCached.length > 0) {
+          // Local cache holds records created this session that may not be visible
+          // yet due to read-after-write lag; merge them in.
+          docsData = localCached.filter(item => !deletedIds.has(String(item.id)));
         }
       }
 
-      // Apply any fallback wheres client-side
+      // Apply any remaining wheres client-side
       for (const w of this.wheres) {
         docsData = docsData.filter((item: any) => {
           const val = item[w.column];
@@ -476,6 +447,7 @@ class SupabaseQueryBuilder {
             const val = item[cond.column];
             if (cond.op === 'eq') return String(val) === String(cond.value);
             if (cond.op === 'neq') return String(val) !== String(cond.value);
+            if (cond.op === 'ilike') return String(val || '').toLowerCase().includes(String(cond.value).replace(/^%+|%+$/g, '').toLowerCase());
             return false;
           });
         });
@@ -485,7 +457,7 @@ class SupabaseQueryBuilder {
       if (this.isDelete) {
         const targetId = this.wheres.find(w => w.column === 'id' && w.op === '==')?.value;
         const targetInIds = this.wheres.find(w => w.column === 'id' && w.op === 'in')?.value;
-        
+
         let idsToDelete: string[] = [];
         if (targetId) {
           idsToDelete = [String(targetId)];
@@ -495,9 +467,10 @@ class SupabaseQueryBuilder {
           idsToDelete = docsData.map(d => String(d.id));
         }
 
-        // Record in tombstone registry immediately
+        // Record in tombstone registry and local cache immediately
         if (idsToDelete.length > 0) {
           markIdsAsDeleted(this.tableName, idsToDelete);
+          removeLocalTableCacheIds(this.tableName, idsToDelete);
         }
 
         const targets = docsData.length > 0 ? docsData : idsToDelete.map(id => ({ id }));
@@ -548,12 +521,13 @@ class SupabaseQueryBuilder {
           ...item,
           ...sanitizedUpdate,
         }));
+        upsertLocalTableCache(this.tableName, updated);
         return { data: updated, error: null };
       }
 
       // Handle Insert or Upsert (Parallelized for maximum speed)
       if (this.insertData) {
-        const docPromises = this.insertData.map(async (item) => {
+        const docPromises = this.insertData.map(async (item: any) => {
           const docId = item.id || doc(collection(db, this.tableName)).id;
           const docRef = doc(db, this.tableName, docId);
           const docData = cleanUndefined({ ...item, id: docId });
@@ -567,6 +541,7 @@ class SupabaseQueryBuilder {
         });
 
         const results = await Promise.all(docPromises);
+        upsertLocalTableCache(this.tableName, results);
         return { data: this.insertData.length === 1 ? results[0] : results, error: null };
       }
 
@@ -639,11 +614,11 @@ export const supabase = {
         const total_orders = inRange.length;
         const total_revenue = inRange.reduce((acc: number, o: any) => acc + (Number(o.total_price) || 0), 0);
         const total_units = inRange.reduce((acc: number, o: any) => {
-          const items = o.order_items || [];
+          const items = Array.isArray(o.order_items) ? o.order_items : [];
           return acc + items.reduce((iAcc: number, item: any) => iAcc + (Number(item.quantity) || 1), 0);
         }, 0);
         const total_cost = inRange.reduce((acc: number, o: any) => {
-          const items = o.order_items || [];
+          const items = Array.isArray(o.order_items) ? o.order_items : [];
           return acc + items.reduce((iAcc: number, item: any) => iAcc + ((Number(item.raw_price) || (Number(item.price) * 0.4)) * (Number(item.quantity) || 1)), 0);
         }, 0);
         const total_profit = total_revenue - total_cost;
@@ -677,7 +652,7 @@ export const supabase = {
 
         const productMap: Record<string, { product_name: string; units_sold: number; revenue: number; cost: number; profit: number }> = {};
         inRange.forEach((o: any) => {
-          const items = o.order_items || [];
+          const items = Array.isArray(o.order_items) ? o.order_items : [];
           items.forEach((item: any) => {
             const name = item.product_name || item.name || 'Unknown Product';
             if (!productMap[name]) {
@@ -701,7 +676,7 @@ export const supabase = {
 
       return { data: [], error: null };
     } catch (err: any) {
-      console.warn(`[Supabase RPC] Error invoking ${fnName}:`, err);
+      console.warn(`[RPC] Error invoking ${fnName}:`, err);
       return { data: [], error: err };
     }
   },
@@ -742,58 +717,17 @@ export const supabase = {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const firebaseUser = userCredential.user;
-
-        const userDocRef = doc(db, 'admin_users', email.toLowerCase().trim());
-        const userDoc = await getDoc(userDocRef);
-
-        let role = 'admin';
-        let name = 'Store Admin';
-        if (userDoc.exists()) {
-          role = userDoc.data().role || 'admin';
-          name = userDoc.data().name || 'Store Admin';
-        } else {
-          if (email.toLowerCase().trim() === 'admin@gmail.com') {
-            role = 'super_admin';
-            name = 'Super Admin';
-          }
-          const newDoc = {
-            email: email.toLowerCase().trim(),
-            role,
-            name,
-            password_hash: password,
-            created_at: new Date().toISOString()
-          };
-          await setDoc(userDocRef, newDoc);
-        }
-
-        const mappedUid = email.toLowerCase().trim() === 'admin@gmail.com' ? 'nRN46sB5qdPt7Mo6hkqu0A0HZvH3' : firebaseUser.uid;
-        if (email.toLowerCase().trim() === 'admin@gmail.com') {
-          role = 'super_admin';
-        }
-
         return {
           data: {
-            user: { email: firebaseUser.email, id: mappedUid },
+            user: { email: firebaseUser.email, id: firebaseUser.uid },
             session: {
               access_token: 'authenticated_v1',
-              user: { email: firebaseUser.email, id: mappedUid, role, name }
+              user: { email: firebaseUser.email, id: firebaseUser.uid, role: 'admin', name: 'Store Admin' }
             }
           },
           error: null
         };
       } catch (err: any) {
-        if (email.toLowerCase().trim() === 'admin@gmail.com' && password === '123456#') {
-          return {
-            data: {
-              user: { email: 'admin@gmail.com', id: 'nRN46sB5qdPt7Mo6hkqu0A0HZvH3' },
-              session: {
-                access_token: 'authenticated_v1',
-                user: { email: 'admin@gmail.com', id: 'nRN46sB5qdPt7Mo6hkqu0A0HZvH3', role: 'super_admin', name: 'Super Admin' }
-              }
-            },
-            error: null
-          };
-        }
         return { data: null, error: err };
       }
     },
@@ -808,15 +742,11 @@ export const supabase = {
     getSession: async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
-        const userDocRef = doc(db, 'admin_users', currentUser.email?.toLowerCase().trim() || '');
-        const userDoc = await getDoc(userDocRef);
-        const role = userDoc.exists() ? userDoc.data().role : 'admin';
-        const name = userDoc.exists() ? userDoc.data().name : 'Store Admin';
         return {
           data: {
             session: {
               access_token: 'authenticated_v1',
-              user: { email: currentUser.email, id: currentUser.uid, role, name }
+              user: { email: currentUser.email, id: currentUser.uid, role: 'admin', name: 'Store Admin' }
             }
           },
           error: null
@@ -831,201 +761,4 @@ export const supabase = {
       return { data: { success: true, dedicatedFirebase: true }, error: null };
     }
   },
-};
-
-export type Database = {
-  public: {
-    Tables: {
-      categories: {
-        Row: {
-          id: string;
-          name: string;
-          icon: string;
-          sort_order: number;
-          active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          name: string;
-          icon: string;
-          sort_order?: number;
-          active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          icon?: string;
-          sort_order?: number;
-          active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      products: {
-        Row: {
-          id: string;
-          name: string;
-          description: string;
-          category: string;
-          base_price: number;
-          discount_price: number | null;
-          discount_start_date: string | null;
-          discount_end_date: string | null;
-          discount_active: boolean;
-          purity_percentage: number;
-          molecular_weight: string | null;
-          cas_number: string | null;
-          sequence: string | null;
-          storage_conditions: string;
-          inclusions: string[] | null;
-          stock_quantity: number;
-          available: boolean;
-          featured: boolean;
-          image_url: string | null;
-          safety_sheet_url: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description: string;
-          category: string;
-          base_price: number;
-          discount_price?: number | null;
-          discount_start_date?: string | null;
-          discount_end_date?: string | null;
-          discount_active?: boolean;
-          purity_percentage?: number;
-          molecular_weight?: string | null;
-          cas_number?: string | null;
-          sequence?: string | null;
-          storage_conditions?: string;
-          inclusions?: string[] | null;
-          stock_quantity?: number;
-          available?: boolean;
-          featured?: boolean;
-          image_url?: string | null;
-          safety_sheet_url?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          description?: string;
-          category?: string;
-          base_price?: number;
-          discount_price?: number | null;
-          discount_start_date?: string | null;
-          discount_end_date?: string | null;
-          discount_active?: boolean;
-          purity_percentage?: number;
-          molecular_weight?: string | null;
-          cas_number?: string | null;
-          sequence?: string | null;
-          storage_conditions?: string;
-          inclusions?: string[] | null;
-          stock_quantity?: number;
-          available?: boolean;
-          featured?: boolean;
-          image_url?: string | null;
-          safety_sheet_url?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      product_variations: {
-        Row: {
-          id: string;
-          product_id: string;
-          name: string;
-          quantity_mg: number;
-          price: number;
-          stock_quantity: number;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          product_id: string;
-          name: string;
-          quantity_mg: number;
-          price: number;
-          stock_quantity?: number;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          product_id?: string;
-          name?: string;
-          quantity_mg?: number;
-          price?: number;
-          stock_quantity?: number;
-          created_at?: string;
-        };
-      };
-      payment_methods: {
-        Row: {
-          id: string;
-          name: string;
-          account_number: string;
-          account_name: string;
-          qr_code_url: string;
-          active: boolean;
-          sort_order: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          name: string;
-          account_number: string;
-          account_name: string;
-          qr_code_url: string;
-          active?: boolean;
-          sort_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          account_number?: string;
-          account_name?: string;
-          qr_code_url?: string;
-          active?: boolean;
-          sort_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      site_settings: {
-        Row: {
-          id: string;
-          value: string;
-          type: string;
-          description: string | null;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          value: string;
-          type?: string;
-          description?: string | null;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          value?: string;
-          type?: string;
-          description?: string | null;
-          updated_at?: string;
-        };
-      };
-    };
-  };
 };

@@ -19,8 +19,22 @@ interface COAReport {
 
 const COA: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [coaReports, setCOAReports] = useState<COAReport[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [coaReports, setCOAReports] = useState<COAReport[]>(() => {
+    try {
+      const cached = localStorage.getItem('slimdose_cached_coa_reports');
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('slimdose_cached_coa_reports') === null;
+    } catch {
+      return false;
+    }
+  });
+
+  const { coaPageEnabled, loading: settingLoading } = useCOAPageSetting();
 
   useEffect(() => {
     fetchCOAReports();
@@ -34,7 +48,11 @@ const COA: React.FC = () => {
         .order('test_date', { ascending: false });
 
       if (error) throw error;
-      setCOAReports(data || []);
+      const reports = data || [];
+      setCOAReports(reports);
+      try {
+        localStorage.setItem('slimdose_cached_coa_reports', JSON.stringify(reports));
+      } catch {}
     } catch (error) {
       console.error('Error fetching COA reports:', error);
     } finally {
@@ -42,14 +60,13 @@ const COA: React.FC = () => {
     }
   };
 
-  // ... (inside component)
-  const { coaPageEnabled, loading: settingLoading } = useCOAPageSetting();
-
-  // ... (after loading check)
-  if (settingLoading || loading) {
+  if ((settingLoading && !coaPageEnabled) || (loading && coaReports.length === 0)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50 flex items-center justify-center">
-        <div className="spinner"></div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin w-9 h-9 border-3 border-sky-500 border-t-transparent rounded-full" />
+          <span className="text-xs font-semibold text-slate-500">Loading Certificates...</span>
+        </div>
       </div>
     );
   }

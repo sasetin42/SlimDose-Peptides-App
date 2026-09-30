@@ -1,21 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  X, User, ShoppingBag, MapPin, Phone, Mail, LogOut, CheckCircle, Clock,
-  Package, Truck, Loader2, Save, LayoutDashboard, Heart, Bell, HelpCircle,
-  Shield, Settings, ChevronDown, ChevronRight, Search, Filter, Download,
-  RefreshCw, AlertTriangle, Star, Eye, RotateCcw, XCircle, ArrowRight,
-  Plus, Trash2, Edit3, Check, AlertCircle, Lock, Smartphone, Globe,
-  MessageSquare, Send, ChevronUp, Info, BarChart2, CreditCard, Home,
-  Building2, Navigation, Copy, ExternalLink, Zap, BadgeCheck, Sparkles,
-  ToggleLeft, ToggleRight, Camera, EyeOff, ShieldCheck, FileText
+  X,
+  User,
+  ShoppingBag,
+  MapPin,
+  Phone,
+  Mail,
+  LogOut,
+  CheckCircle,
+  Clock,
+  Package,
+  Truck,
+  Loader2,
+  Save,
+  LayoutDashboard,
+  Heart,
+  Bell,
+  HelpCircle,
+  Shield,
+  Settings,
+  ChevronDown,
+  ChevronRight,
+  Search,
+  Download,
+  RefreshCw,
+  AlertTriangle,
+  Eye,
+  RotateCcw,
+  XCircle,
+  ArrowRight,
+  Plus,
+  Trash2,
+  Edit3,
+  Check,
+  Smartphone,
+  Globe,
+  MessageSquare,
+  Send,
+  Info,
+  BarChart2,
+  CreditCard,
+  Home,
+  Building2,
+  Copy,
+  ExternalLink,
+  Sparkles,
+  Camera,
+  ShieldCheck,
+  FileText,
+  KeyRound,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
-import { auth, db } from '../lib/firebase';
-import { updatePassword as firebaseUpdatePassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 
-import { demoProducts } from '../data/demoProducts';
+import { formatOrderId } from '../utils/orderUtils';
 
 // ─── Product Image Lookup Helper ───────────────────────────────────────────
 const getProductImageFallback = (item: any): string | null => {
@@ -26,22 +64,16 @@ const getProductImageFallback = (item: any): string | null => {
 
   const rawName = item?.product_name || item?.name || item?.product?.name || '';
   if (!rawName) return null;
-  const nameLower = rawName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-  const match = demoProducts.find(p => {
-    const pName = p.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const pSlug = p.slug.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return pName.includes(nameLower) || nameLower.includes(pName) || pSlug.includes(nameLower) || nameLower.includes(pSlug);
-  });
-
-  return match?.image_url || null;
+  return null;
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface CustomerDashboardProps {
   customer: any;
-  onClose: () => void;
+  onClose?: () => void;
   onLogout: () => void;
+  embedded?: boolean;
+  initialTab?: TabId;
 }
 
 type TabId = 'dashboard' | 'profile' | 'orders' | 'wishlist' | 'addresses' | 'notifications' | 'support' | 'security' | 'preferences';
@@ -89,7 +121,7 @@ interface WishlistItem {
 
 
 // ─── Helper Components ────────────────────────────────────────────────────────
-const StatusBadge: React.FC<{ status: string; type?: 'order' | 'payment' | 'ticket'; compact?: boolean }> = ({ status, type = 'order', compact = false }) => {
+const StatusBadge: React.FC<{ status: string; type?: 'order' | 'payment' | 'ticket'; compact?: boolean }> = ({ status }) => {
   const configs: Record<string, { label: string; cls: string; icon: React.ReactNode }> = {
     new:         { label: 'New',         cls: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/80',       icon: <Clock className="w-2.5 h-2.5" /> },
     confirmed:   { label: 'Confirmed',   cls: 'bg-blue-50 text-[#3C6CA8] border-blue-200/80 dark:bg-[#3C6CA8]/20 dark:text-blue-300 dark:border-[#3C6CA8]/40',           icon: <CheckCircle className="w-2.5 h-2.5" /> },
@@ -178,8 +210,8 @@ const InputField: React.FC<InputFieldProps> = ({
 };
 
 // ─── Main Component ────────────────────────────────────────────────────────────
-export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, onClose, onLogout }) => {
-  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, onClose, onLogout, embedded = false, initialTab }) => {
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab || 'dashboard');
   const cacheKey = `slimdose_orders_${customer?.id || customer?.email || 'guest'}`;
 
   const [orders, setOrders] = useState<any[]>(() => {
@@ -267,12 +299,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
   };
 
   // Security state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPw, setShowCurrentPw] = useState(false);
-  const [showNewPw, setShowNewPw] = useState(false);
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   // Orders state
   const [orderSearch, setOrderSearch] = useState('');
@@ -327,14 +353,15 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // ── Background Scroll Lock ──────────────────────────────────────────────────
+  // ── Background Scroll Lock (Only when rendered in fixed overlay modal mode) ──
   useEffect(() => {
+    if (embedded) return;
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = originalOverflow;
     };
-  }, []);
+  }, [embedded]);
 
   // ── Load Orders (Live Supabase & Real-Time Sync) ────────────────────────────
   useEffect(() => {
@@ -373,8 +400,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
     }, 3500);
 
     try {
-      // Query all orders from database
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
@@ -444,127 +470,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ customer, 
       fireToast('Failed to update profile. Please try again.', 'error');
     } finally {
       setSavingProfile(false);
-    }
-  };
-
-  // ── Password strength ─────────────────────────────────────────────────────
-  const getPasswordStrength = (pw: string) => {
-    if (!pw) return { score: 0, label: '', color: '' };
-    let score = 0;
-    if (pw.length >= 8) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-    const colors = ['', 'bg-rose-500', 'bg-amber-500', 'bg-[#3C6CA8]', 'bg-emerald-500'];
-    return { score, label: labels[score], color: colors[score] };
-  };
-
-  // Helper function to hash password client-side using Web Crypto API
-  const sha256Hex = async (message: string): Promise<string> => {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentPassword) { 
-      fireToast('Enter your current password.', 'error'); 
-      return; 
-    }
-    if (newPassword.length < 8) { 
-      fireToast('New password must be at least 8 characters.', 'error'); 
-      return; 
-    }
-    if (newPassword !== confirmPassword) { 
-      fireToast('Passwords do not match.', 'error'); 
-      return; 
-    }
-
-    try {
-      setIsUpdatingPassword(true);
-      const emailLower = (customer?.email || '').trim().toLowerCase();
-      const currentPwHash = await sha256Hex(currentPassword);
-      const newPwHash = await sha256Hex(newPassword);
-
-      // 1. Verify current password credentials in customers table or Firebase
-      const { data: existingCust } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('email', emailLower)
-        .maybeSingle();
-
-      const isDefaultPassword = currentPassword === '123456#';
-      const isHashMatch = existingCust && existingCust.password_hash === currentPwHash;
-      const isPlainMatch = existingCust && existingCust.password === currentPassword;
-
-      if (existingCust && !isHashMatch && !isPlainMatch && !isDefaultPassword) {
-        fireToast('Current password is incorrect. Please verify and try again.', 'error');
-        setIsUpdatingPassword(false);
-        return;
-      }
-
-      // 2. Update password hash & live timestamp in Firestore customers collection
-      const updatePayload: any = {
-        password_hash: newPwHash,
-        password: newPassword,
-        updated_at: new Date().toISOString()
-      };
-
-      if (customer?.id) {
-        await supabase
-          .from('customers')
-          .update(updatePayload)
-          .eq('id', customer.id);
-      } else {
-        await supabase
-          .from('customers')
-          .update(updatePayload)
-          .eq('email', emailLower);
-      }
-
-      // Also ensure indexed customer record by email in customers table is updated
-      if (customer?.id && emailLower) {
-        await supabase
-          .from('customers')
-          .update(updatePayload)
-          .eq('email', emailLower);
-      }
-
-      // 3. Update local session & customer storage
-      const updatedCustomer = { 
-        ...customer, 
-        password_hash: newPwHash, 
-        password: newPassword,
-        updated_at: new Date().toISOString() 
-      };
-      localStorage.setItem('slimdose_customer', JSON.stringify(updatedCustomer));
-      window.dispatchEvent(new Event('storage'));
-
-      // 4. Update Firebase Auth credential if current user is logged into Firebase Auth
-      try {
-        if (auth.currentUser) {
-          await firebaseUpdatePassword(auth.currentUser, newPassword);
-          await setDoc(doc(db, 'users', auth.currentUser.uid), {
-            password_hash: newPwHash,
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
-        }
-      } catch (fbAuthErr) {
-        console.debug('[handlePasswordChange] Firebase Auth direct update note:', fbAuthErr);
-      }
-
-      fireToast('Password successfully updated! Your account credentials are now secured. 🔒', 'success');
-      setCurrentPassword(''); 
-      setNewPassword(''); 
-      setConfirmPassword('');
-    } catch (err: any) {
-      console.error('Password change error:', err);
-      fireToast(`Failed to update password: ${err.message || 'Please check your connection'}`, 'error');
-    } finally {
-      setIsUpdatingPassword(false);
     }
   };
 
@@ -793,18 +698,9 @@ Shipping Target: ${deliveryAddr}
     );
   };
 
-  // Helper formatters
-  const formatOrderDate = (d: any) => {
-    if (!d) return 'Recently';
-    const parsed = new Date(d);
-    if (isNaN(parsed.getTime())) return 'Recently';
-    return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
   const getOrderRef = (o: any) => {
-    if (o?.order_number) return `#${o.order_number}`;
-    if (o?.id) return `#ORD-${o.id.slice(0, 8).toUpperCase()}`;
-    return '#SDP-ORDER';
+    const formatted = formatOrderId(o, { prefix: false });
+    return `#${formatted}`;
   };
 
   const getOrderDateParts = (d: any) => {
@@ -1637,6 +1533,69 @@ Shipping Target: ${deliveryAddr}
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
+  if (embedded) {
+    return (
+      <>
+        {trackingOrder && <TrackOrderModal order={trackingOrder} onClose={() => setTrackingOrder(null)} />}
+        <div className="w-full bg-white dark:bg-slate-900 shadow-xl rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col border border-gray-200 dark:border-slate-800 min-h-[500px]">
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-r from-[#3C6CA8] to-[#2D5383] shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-4 h-4 text-white" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-extrabold text-white text-sm sm:text-base leading-tight truncate">Customer Account Portal</h3>
+                <p className="text-white/80 text-xs truncate">{customer.full_name || customer.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={onLogout} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-xs font-bold rounded-xl transition-all cursor-pointer">
+                <LogOut className="w-3.5 h-3.5" />Logout
+              </button>
+            </div>
+          </div>
+
+          {/* ── Body: Sidebar + Content ── */}
+          <div className="flex flex-col md:flex-row flex-1">
+            {/* ── Desktop Sidebar ── */}
+            <nav className="hidden md:flex flex-col w-56 shrink-0 bg-gray-50 dark:bg-slate-950 border-r border-gray-200 dark:border-slate-800 py-4 self-stretch">
+              {NAV_ITEMS.map(item => (
+                <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center gap-3 px-4 py-2.5 mx-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer relative mb-0.5 ${activeTab === item.id ? 'bg-[#3C6CA8] text-white shadow-sm font-bold' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-200/70 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
+                  {item.icon}
+                  <span className="flex-1 text-left">{item.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            {/* ── Main Content ── */}
+            <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6 bg-white dark:bg-slate-900">
+              {renderTabContent()}
+            </main>
+          </div>
+
+          {/* ── Mobile Tab Bar ── */}
+          <div className="md:hidden shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 z-20 flex items-center gap-1 overflow-x-auto px-2 py-2 shadow-lg no-scrollbar">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2.5 shrink-0 rounded-xl relative transition-all duration-200 cursor-pointer ${
+                  activeTab === item.id
+                    ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] dark:text-blue-400 font-extrabold'
+                    : 'text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-slate-200 font-medium'
+                }`}
+              >
+                {item.icon}
+                <span className="text-[9px] tracking-tight whitespace-nowrap">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       {trackingOrder && <TrackOrderModal order={trackingOrder} onClose={() => setTrackingOrder(null)} />}
@@ -1655,7 +1614,9 @@ Shipping Target: ${deliveryAddr}
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
               <button onClick={onLogout} className="flex items-center gap-1 px-2.5 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 text-white text-[11px] sm:text-xs font-bold rounded-xl transition-all cursor-pointer"><LogOut className="w-3.5 h-3.5" />Logout</button>
-              <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"><X className="w-4 h-4" /></button>
+              {onClose && (
+                <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"><X className="w-4 h-4" /></button>
+              )}
             </div>
           </div>
 

@@ -3,22 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import MenuItemCard from './MenuItemCard';
 import Hero from './Hero';
 import type { Product, ProductVariation, CartItem } from '../types';
-import { 
-  Search, 
-  ChevronDown, 
-  Package, 
-  ChevronLeft, 
-  ChevronRight, 
-  Star, 
+import {
+  Search,
+  ChevronDown,
+  Package,
   ArrowRight,
   Tag,
   Sparkles,
-  SlidersHorizontal,
   ArrowDown,
   ArrowUp,
-  ShieldCheck,
-  Award,
-  Gem,
   Coins,
   Layout,
   Flame,
@@ -40,9 +33,9 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
   const { tiersByProduct } = useBundleTiers(productIds);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'price' | 'most-sold'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'price' | 'most-sold' | 'purity'>('name');
   const [priceRange, setPriceRange] = useState<string>('all');
-  const [purityFilter, setPurityFilter] = useState<string>('all');
+  const [purityFilter, _setPurityFilter] = useState<string>('all');
   const productsRef = useRef<HTMLDivElement | null>(null);
 
   // Dropdown Open States
@@ -112,24 +105,11 @@ const Menu: React.FC<MenuProps> = ({ menuItems, loading = false, addToCart, cart
   });
 
   // Dropdown Configs & Labels
-  const sortLabels: Record<typeof sortBy, string> = {
-    name: 'Most Popular',
-    price: 'Price: Low to High',
-    'most-sold': 'Most Sold 🔥',
-  };
-
   const priceOptions = [
     { value: 'all', label: 'All Prices', icon: Tag },
     { value: 'under-2000', label: 'Under ₱2,000', icon: ArrowDown },
     { value: '2000-3000', label: '₱2,000 – ₱3,000', icon: ArrowRight },
     { value: 'over-3000', label: 'Over ₱3,000', icon: ArrowUp },
-  ];
-
-  const purityOptions = [
-    { value: 'all', label: 'All Purity', icon: Sparkles },
-    { value: '99', label: '99%+ Purity', icon: ShieldCheck },
-    { value: '99.5', label: '99.5%+ Purity', icon: Award },
-    { value: '99.8', label: '99.8%+ Purity', icon: Gem },
   ];
 
   const sortOptions = [

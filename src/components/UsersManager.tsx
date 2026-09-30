@@ -7,41 +7,25 @@ import {
   ShieldAlert,
   ShieldCheck,
   KeyRound,
-  Lock,
-  Mail,
   Phone,
   Search,
-  Filter,
   RefreshCw,
   Edit2,
   Trash2,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   ChevronRight,
   ChevronLeft,
   Copy,
-  ExternalLink,
   Download,
   Eye,
-  EyeOff,
   X,
-  FileText,
-  Clock,
-  Sparkles,
   Briefcase,
   User as UserIcon,
-  Layers,
-  Database,
-  ArrowUpDown,
-  SlidersHorizontal,
-  Key,
   MapPin,
-  ShoppingBag,
-  DollarSign,
-  Share2,
 } from 'lucide-react';
 import { fireToast } from './ToastNotification';
+import { ROLE_PERMISSIONS, ROLE_LABELS, VIEW_PERMISSION, type Permission } from '../lib/auth';
 import {
   getAllUserAccounts,
   createUserAccountAdmin,
@@ -49,11 +33,9 @@ import {
   deleteUserAccountAdmin,
   AdminUserAccount,
   DEFAULT_CUSTOMER_PASSWORD,
-  createFirebaseUserHeadless,
   resetPassword,
 } from '../services/firebaseAuth';
 import { dispatchPasswordResetOtpEmail } from '../services/emailService';
-import { liveScrapedCustomers } from '../data/liveScrapedCustomers';
 import { db, collection, onSnapshot } from '../lib/firebase';
 
 interface UsersManagerProps {
@@ -86,41 +68,22 @@ const getInitialCachedUsers = (): AdminUserAccount[] => {
       updatedAt: new Date().toISOString(),
       authLinked: true,
     },
-    ...((liveScrapedCustomers || []) as any[]).map((c: any) => ({
-      uid: c.id,
-      email: (c.email || '').trim().toLowerCase(),
-      displayName: c.full_name || 'Customer User',
-      role: 'customer' as const,
-      phone: c.phone || '',
-      customerId: c.id,
-      status: 'active' as const,
-      emailVerified: true,
-      createdAt: c.created_at || new Date().toISOString(),
-      updatedAt: c.created_at || new Date().toISOString(),
-      shippingAddress: c.shipping_address || '',
-      defaultPassword: DEFAULT_CUSTOMER_PASSWORD,
-      authLinked: true,
-    }))
   ];
 
   return baseline;
 };
 
-export const UsersManager: React.FC<UsersManagerProps> = ({
-  onNavigateToSettings,
-  onNavigateToCRM,
-}) => {
+export const UsersManager: React.FC<UsersManagerProps> = () => {
   const initialCache = useMemo(() => getInitialCachedUsers(), []);
   const [users, setUsers] = useState<AdminUserAccount[]>(initialCache);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'email' | 'role' | 'created'>('created');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, _setSortBy] = useState<'name' | 'email' | 'role' | 'created'>('created');
+  const [sortOrder, _setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(50);
-  const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
 
   // Reset pagination on filter or search change
   useEffect(() => {
@@ -132,7 +95,7 @@ export const UsersManager: React.FC<UsersManagerProps> = ({
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [editUser, setEditUser] = useState<AdminUserAccount | null>(null);
   const [passwordResetUser, setPasswordResetUser] = useState<AdminUserAccount | null>(null);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [_isSyncing, setIsSyncing] = useState<boolean>(false);
 
   // Form inputs for Add User
   const [addForm, setAddForm] = useState({
@@ -499,7 +462,7 @@ export const UsersManager: React.FC<UsersManagerProps> = ({
               <span>Export CSV</span>
             </button>
             <button
-              onClick={loadUsers}
+              onClick={() => loadUsers()}
               disabled={loading}
               className="inline-flex items-center gap-2 p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs transition-all cursor-pointer disabled:opacity-50"
               title="Refresh users"
@@ -533,6 +496,42 @@ export const UsersManager: React.FC<UsersManagerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Role Permission Matrix */}
+      <details className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <summary className="flex items-center justify-between cursor-pointer select-none">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-[#3C6CA8]" />
+            <span className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Role Permission Matrix</span>
+          </div>
+          <span className="text-[10px] font-bold text-slate-400">Click to expand the full access reference</span>
+        </summary>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {Object.entries(ROLE_PERMISSIONS).map(([role, perms]) => (
+            <div key={role} className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/70 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-black text-slate-800 dark:text-white">{ROLE_LABELS[role] || role}</span>
+                <span className="text-[10px] font-bold text-slate-400">{perms.length} permissions</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {perms.map((perm: Permission) => (
+                  <span key={perm} className="px-1.5 py-0.5 bg-[#3C6CA8]/10 text-[#3C6CA8] rounded text-[9.5px] font-extrabold uppercase">{perm.replace('manage_', '')}</span>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">
+                {(() => {
+                  const ownedViews = Object.entries(VIEW_PERMISSION)
+                    .filter(([, viewPerm]) => (perms as string[]).includes(viewPerm))
+                    .map(([view]) => view);
+                  return ownedViews.length > 0
+                    ? `Owns ${ownedViews.length} admin sections (e.g. ${ownedViews.slice(0, 3).join(', ')})`
+                    : 'General permission granted by this role';
+                })()}
+              </p>
+            </div>
+          ))}
+        </div>
+      </details>
 
       {/* Filter & Search Bar */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">

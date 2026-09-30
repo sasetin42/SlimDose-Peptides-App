@@ -1,38 +1,24 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import {
-    ChevronLeft,
-    RefreshCw,
-    TrendingUp,
-    TrendingDown,
-    DollarSign,
-    ShoppingBag,
-    Package,
-    Activity,
-    Trophy,
-    Medal,
-    Flame,
-    Clock,
-    Box,
-    Download,
-    PiggyBank,
-    Coins,
-    Percent,
-    ArrowUpRight,
-    Sparkles,
-    Calendar,
-    Users,
-    CreditCard,
-    MapPin,
-    ShieldCheck,
-    Truck,
-    CheckCircle2,
-    BarChart3,
-    PieChart,
-    ExternalLink
+  ChevronLeft,
+  RefreshCw,
+  TrendingUp,
+  DollarSign,
+  ShoppingBag,
+  Activity,
+  Trophy,
+  Clock,
+  Box,
+  Download,
+  PiggyBank,
+  Coins,
+  ArrowUpRight,
+  CreditCard,
+  ShieldCheck,
+  CheckCircle2,
 } from 'lucide-react';
 import { formatOrderId } from '../utils/orderUtils';
-import { liveScrapedOrders } from '../data/liveScrapedOrders';
 
 interface SalesAnalyticsManagerProps {
     onBack?: () => void;
@@ -214,8 +200,8 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack, o
     // Breakdown States
     const [rankings, setRankings] = useState<ProductRanking[]>([]);
     const [channelStats, setChannelStats] = useState<ChannelStat[]>([]);
-    const [regionStats, setRegionStats] = useState<RegionStat[]>([]);
-    const [statusStats, setStatusStats] = useState<StatusStat[]>([]);
+    const [_regionStats, setRegionStats] = useState<RegionStat[]>([]);
+    const [_statusStats, setStatusStats] = useState<StatusStat[]>([]);
     const [recentSales, setRecentSales] = useState<RecentSale[]>([]);
     const [sortBy, setSortBy] = useState<'units' | 'revenue' | 'profit'>('units');
 
@@ -228,16 +214,12 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack, o
 
         try {
             let allOrders: any[] = [];
-            const { data: rawOrders, error } = await supabase
+            const { data: rawOrders } = await supabase
                 .from('orders')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (rawOrders && rawOrders.length > 0) {
-                allOrders = rawOrders;
-            } else {
-                allOrders = liveScrapedOrders || [];
-            }
+            allOrders = rawOrders || [];
             const { startDate, endDate, previousStartDate, previousEndDate } = range;
 
             // Filter Current Period Orders
@@ -629,6 +611,8 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack, o
                 {timeframe === 'custom' && (
                     <div className="flex items-center gap-2 px-2">
                         <input
+                            id="analytics-start-date"
+                            name="analytics_start_date"
                             type="date"
                             value={customStart}
                             onChange={(e) => setCustomStart(e.target.value)}
@@ -636,6 +620,8 @@ const SalesAnalyticsManager: React.FC<SalesAnalyticsManagerProps> = ({ onBack, o
                         />
                         <span className="text-xs text-slate-400 font-bold">to</span>
                         <input
+                            id="analytics-end-date"
+                            name="analytics_end_date"
                             type="date"
                             value={customEnd}
                             onChange={(e) => setCustomEnd(e.target.value)}

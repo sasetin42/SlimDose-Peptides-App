@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { 
-  ArrowLeft, Mail, Phone, Clock, MessageSquare, Shield, 
-  Microscope, Snowflake, Zap, Sparkles, Package, FileText, 
-  Calculator, ChevronRight, ArrowRight, CheckCircle2, Send 
+import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Mail,
+  Clock,
+  MessageSquare,
+  Shield,
+  Zap,
+  Sparkles,
+  Package,
+  FileText,
+  Calculator,
+  ChevronRight,
+  CheckCircle2,
+  Send,
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { supabase } from '../lib/supabase';
@@ -56,14 +66,12 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
   const navigate = useNavigate();
   const { siteSettings } = useSiteSettings();
   const [pageData, setPageData] = useState<any>(DEFAULT_PAGE_CONTENTS[pageId]);
-  const [loading, setLoading] = useState(true);
 
   const communityTelegramUrl = siteSettings?.community_telegram_url || pageData?.telegram_group || 'https://t.me/+fGtShIUkbB84YzZl';
 
   useEffect(() => {
     const fetchPageContent = async () => {
       try {
-        setLoading(true);
         const { data, error } = await supabase
           .from('page_contents')
           .select('content')
@@ -78,8 +86,6 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
         }
       } catch (err) {
         console.warn(`Failed to fetch page contents for ${pageId}:`, err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -107,15 +113,6 @@ export const DynamicPage: React.FC<DynamicPageProps> = ({ pageId }) => {
       document.title = "SlimDose Peptides";
     };
   }, [pageData]);
-
-  if (loading) {
-    return (
-      <div className="flex-grow flex items-center justify-center py-24 text-charcoal-500 bg-cream-50 dark:bg-[#0F1219]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-accent mr-2"></div>
-        <span className="dark:text-gray-300">Loading Page...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-cream-50 dark:bg-[#0B0D13] min-h-screen text-gray-900 dark:text-gray-100 font-inter transition-colors duration-300">

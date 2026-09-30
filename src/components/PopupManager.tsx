@@ -6,9 +6,7 @@ import {
   X,
   Clock,
   Eye,
-  Check,
   CheckCircle2,
-  AlertTriangle,
   SlidersHorizontal,
   ExternalLink,
   ShieldAlert,
@@ -17,12 +15,8 @@ import {
   Bell,
   FileText,
   MousePointerClick,
-  RefreshCw,
-  Zap,
-  Info,
-  Calendar,
   Truck,
-  Heart
+  Heart,
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { useImageUpload } from '../hooks/useImageUpload';

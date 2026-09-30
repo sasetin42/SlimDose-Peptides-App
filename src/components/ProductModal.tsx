@@ -4,7 +4,6 @@ import {
   Save,
   Package,
   Sparkles,
-  Info,
   DollarSign,
   FlaskConical,
   Boxes,
@@ -12,19 +11,15 @@ import {
   Gift,
   Plus,
   Trash2,
-  CheckCircle2,
   ExternalLink,
-  ChevronRight,
-  ChevronLeft,
   Percent,
   Warehouse,
   Clock,
-  Video,
   FileCheck,
-  AlertTriangle
 } from 'lucide-react';
 import type { Product, ProductBundleTier, Category } from '../types';
 import { supabase } from '../lib/supabase';
+import { saveBundleTiersToCache } from '../hooks/useBundleTiers';
 import ImageUpload from './ImageUpload';
 import { fireToast } from './ToastNotification';
 
@@ -37,7 +32,7 @@ interface ProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product | null; // null for Create, Product for Edit
-  categories: Category[];
+  categories: Array<Pick<Category, 'id' | 'name'> & Partial<Category>>;
   peptalkVideos?: PepTalkOption[];
   peptalkArticles?: PepTalkOption[];
   onSaveSuccess: () => Promise<void>;
@@ -85,6 +80,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     slug: '',
+    sku: '',
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: '',
     description: '',
     category: categories[0]?.id || 'peptides',
     base_price: 0,
@@ -151,6 +150,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
     setActiveTab('basic');
 
     if (product) {
+      // Clear bundle tiers before fetching to prevent stale state from previous product
+      setBundleTiers([]);
+
       // Editing Mode
       setFormData({
         ...product,
@@ -165,8 +167,34 @@ const ProductModal: React.FC<ProductModalProps> = ({
       });
       setIsSetProduct(product.inclusions !== null && product.inclusions !== undefined);
 
-      // Fetch Bundle Tiers for editing product
+      // Fetch Bundle Tiers for editing product (with instant cache hydration + database sync)
       let isCancelled = false;
+
+      // 1. Instant Cache Hydration: Read immediately from localStorage cache so user never sees empty tiers
+      try {
+        if (typeof window !== 'undefined') {
+          const cached = localStorage.getItem('slimdose_bundle_tiers_cache');
+          if (cached) {
+            const map = JSON.parse(cached);
+            const cachedTiers = map[product.id];
+            if (Array.isArray(cachedTiers) && cachedTiers.length > 0) {
+              setBundleTiers(
+                cachedTiers.map((t: any) => ({
+                  id: t.id,
+                  min_quantity: t.min_quantity,
+                  discount_percentage: Number(t.discount_percentage),
+                  active: t.active,
+                  most_popular: t.most_popular ?? false,
+                }))
+              );
+            }
+          }
+        }
+      } catch (cacheErr) {
+        console.warn('Error reading cached bundle tiers:', cacheErr);
+      }
+
+      // 2. Fetch authoritative database tiers
       (async () => {
         try {
           const { data } = await supabase
@@ -175,7 +203,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
             .eq('product_id', product.id)
             .order('min_quantity', { ascending: true });
 
-          if (!isCancelled && data) {
+          if (!isCancelled && data && data.length > 0) {
             setBundleTiers(
               (data as ProductBundleTier[]).map((t) => ({
                 id: t.id,
@@ -187,7 +215,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
             );
           }
         } catch (e) {
-          console.warn('Error loading product bundle tiers:', e);
+          console.warn('Error loading product bundle tiers from database:', e);
         }
       })();
 
@@ -262,37 +290,59 @@ const ProductModal: React.FC<ProductModalProps> = ({
   // Persist Bundle Tiers Helper
   const persistBundleTiers = async (productId: string) => {
     try {
-      const { data: existing } = await supabase
+      const { data: existing, error: fetchErr } = await supabase
         .from('product_bundle_tiers')
         .select('id')
         .eq('product_id', productId);
+
+      if (fetchErr) {
+        console.error('Error fetching existing bundle tiers:', fetchErr);
+      }
 
       const existingIds = new Set(((existing as { id: string }[]) ?? []).map((t) => t.id));
       const keepIds = new Set(bundleTiers.filter((t) => t.id).map((t) => t.id as string));
       const toDelete = [...existingIds].filter((id) => !keepIds.has(id));
 
       if (toDelete.length > 0) {
-        await supabase.from('product_bundle_tiers').delete().in('id', toDelete);
+        const { error: delErr } = await supabase.from('product_bundle_tiers').delete().in('id', toDelete);
+        if (delErr) {
+          console.error('Error deleting stale bundle tiers:', delErr);
+        }
       }
 
+      const now = new Date().toISOString();
+      const savedTiers: ProductBundleTier[] = [];
+
       for (const tier of bundleTiers) {
+        const minQty = Math.max(2, Math.floor(Number(tier.min_quantity) || 2));
+        const discountPct = Math.min(100, Math.max(0.5, Number(tier.discount_percentage) || 1));
+
         const payload: any = {
           product_id: productId,
-          min_quantity: tier.min_quantity,
-          discount_percentage: tier.discount_percentage,
-          active: tier.active,
-          most_popular: tier.most_popular,
-          updated_at: new Date().toISOString(),
+          min_quantity: minQty,
+          discount_percentage: discountPct,
+          active: tier.active !== false,
+          most_popular: Boolean(tier.most_popular),
+          updated_at: now,
         };
 
         if (tier.id) {
           await supabase.from('product_bundle_tiers').update(payload).eq('id', tier.id);
+          savedTiers.push({ ...payload, id: tier.id });
         } else {
-          await supabase.from('product_bundle_tiers').insert([payload]);
+          payload.created_at = now;
+          const { data: inserted } = await supabase.from('product_bundle_tiers').insert([payload]).select().single();
+          const newId = inserted && (inserted as any).id ? (inserted as any).id : `tier_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+          tier.id = newId;
+          savedTiers.push({ ...payload, id: newId });
         }
       }
+
+      // Immediately write the authoritative tiers to local cache so page refresh never loses them
+      saveBundleTiersToCache(productId, savedTiers);
     } catch (err) {
       console.error('Failed to persist bundle tiers:', err);
+      throw err;
     }
   };
 
@@ -321,6 +371,10 @@ const ProductModal: React.FC<ProductModalProps> = ({
       const preparedPayload: any = {
         name: formData.name.trim(),
         slug: formData.slug ? slugify(formData.slug) : slugify(formData.name.trim()),
+        sku: formData.sku?.trim() || null,
+        seo_title: formData.seo_title?.trim() || null,
+        seo_description: formData.seo_description?.trim() || null,
+        seo_keywords: formData.seo_keywords?.trim() || null,
         description: formData.description?.trim() || '',
         category: formData.category || categories[0]?.id || 'peptides',
         base_price: Number(formData.base_price),
@@ -357,8 +411,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
         const res = await updateProduct(product.id, preparedPayload);
         if (!res.success) throw new Error(res.error || 'Failed to update product');
 
-        await persistBundleTiers(product.id);
-        logAdminAction?.('update_product', { id: product.id, name: preparedPayload.name, data: preparedPayload });
+        const targetProductId = res.data?.id || product.id;
+        await persistBundleTiers(targetProductId);
+        logAdminAction?.('update_product', { id: targetProductId, name: preparedPayload.name, data: preparedPayload });
         fireToast(`Product "${preparedPayload.name}" updated successfully!`, 'success');
       } else {
         // Create new product
@@ -497,22 +552,65 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   />
                 </div>
 
-                {/* URL Slug */}
-                <div className="md:col-span-2">
-                  <label htmlFor="productmodal-product-url-slug" className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                    Product URL Slug
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-500 font-bold">
-                      /products/
-                    </span>
-                    <input id="productmodal-product-url-slug" name="product_url_slug" type="text"
-                      value={formData.slug || ''}
-                      onChange={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
-                      placeholder="tirzepatide-10mg"
-                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8]"
+                {/* SKU + URL Slug */}
+                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="productmodal-sku" className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                      SKU / Stock Code
+                    </label>
+                    <input id="productmodal-sku" name="product_sku" type="text"
+                      value={formData.sku || ''}
+                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                      placeholder="SDP-TIRZ-10"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] transition-all"
                     />
                   </div>
+                  <div>
+                    <label htmlFor="productmodal-product-url-slug" className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                      Product URL Slug
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-500 font-bold">/</span>
+                      <input id="productmodal-product-url-slug" name="product_url_slug" type="text"
+                        value={formData.slug || ''}
+                        onChange={(e) => setFormData({ ...formData, slug: slugify(e.target.value) })}
+                        placeholder="tirzepatide-10mg"
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono text-xs outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEO & Meta */}
+                <div className="md:col-span-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/50 space-y-2.5">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">SEO &amp; Meta (Search Engines)</span>
+                  <div>
+                    <input id="productmodal-seo-title" name="seo_title" type="text"
+                      maxLength={70}
+                      value={formData.seo_title || ''}
+                      onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                      placeholder={`Buy ${formData.name || 'Peptide'} Online — SlimDose`}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                    />
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Meta Title · {(formData.seo_title || '').length}/70</span>
+                  </div>
+                  <div>
+                    <textarea id="productmodal-seo-description" name="seo_description"
+                      rows={2}
+                      maxLength={180}
+                      value={formData.seo_description || ''}
+                      onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                      placeholder="Short description shown in search results..."
+                      className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 resize-none"
+                    />
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Meta Description · {(formData.seo_description || '').length}/180</span>
+                  </div>
+                  <input id="productmodal-seo-keywords" name="seo_keywords" type="text"
+                    value={formData.seo_keywords || ''}
+                    onChange={(e) => setFormData({ ...formData, seo_keywords: e.target.value })}
+                    placeholder="Meta keywords (comma-separated)"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
                 </div>
 
                 {/* Category */}
@@ -1074,6 +1172,8 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                   <div className="flex items-center gap-2 pt-1">
                     <input
+                      id="product-custom-peptalk-id"
+                      name="custom_peptalk_id"
                       type="text"
                       placeholder="Or enter custom PepTalk ID / external guide URL..."
                       value={formData.linked_peptalk_id || ''}
@@ -1172,33 +1272,47 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
                       return (
                         <div
-                          key={idx}
+                          key={tier.id || `tier-${idx}`}
                           className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-indigo-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs"
                         >
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 flex-1 items-center">
                             <div>
-                              <span className="text-[9.5px] uppercase font-bold text-slate-400 block">Min Qty</span>
-                              <input id="productmodal-input-12" name="input_12" type="number"
+                              <label htmlFor={`productmodal-tier-min-qty-${idx}`} className="text-[9.5px] uppercase font-bold text-slate-400 block cursor-pointer">Min Qty</label>
+                              <input
+                                id={`productmodal-tier-min-qty-${idx}`}
+                                name={`tier_min_qty_${idx}`}
+                                type="number"
                                 min={2}
-                                value={tier.min_quantity}
+                                value={tier.min_quantity === 0 ? '' : tier.min_quantity}
                                 onChange={(e) => {
-                                  const val = Math.max(2, Number(e.target.value) || 2);
-                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, min_quantity: val } : t)));
+                                  const raw = e.target.value;
+                                  const val = raw === '' ? 0 : Math.floor(Number(raw));
+                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, min_quantity: isNaN(val) ? 2 : val } : t)));
+                                }}
+                                onBlur={() => {
+                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, min_quantity: Math.max(2, t.min_quantity || 2) } : t)));
                                 }}
                                 className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-xs"
                               />
                             </div>
 
                             <div>
-                              <span className="text-[9.5px] uppercase font-bold text-slate-400 block">Discount %</span>
-                              <input id="productmodal-input-13" name="input_13" type="number"
-                                min={1}
+                              <label htmlFor={`productmodal-tier-discount-${idx}`} className="text-[9.5px] uppercase font-bold text-slate-400 block cursor-pointer">Discount %</label>
+                              <input
+                                id={`productmodal-tier-discount-${idx}`}
+                                name={`tier_discount_${idx}`}
+                                type="number"
+                                min={0.5}
                                 max={100}
-                                step="0.5"
-                                value={tier.discount_percentage}
+                                step="any"
+                                value={tier.discount_percentage === 0 ? '' : tier.discount_percentage}
                                 onChange={(e) => {
-                                  const val = Math.min(100, Math.max(1, Number(e.target.value) || 1));
-                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, discount_percentage: val } : t)));
+                                  const raw = e.target.value;
+                                  const val = raw === '' ? 0 : parseFloat(raw);
+                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, discount_percentage: isNaN(val) ? 0 : val } : t)));
+                                }}
+                                onBlur={() => {
+                                  setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, discount_percentage: Math.min(100, Math.max(0.5, t.discount_percentage || 1)) } : t)));
                                 }}
                                 className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold text-xs text-indigo-600"
                               />
@@ -1213,24 +1327,30 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           </div>
 
                           <div className="flex items-center gap-3 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                            <label htmlFor="productmodal-setbundletiers-bundletiers-map" className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-                              <input id="productmodal-checkbox-15" name="checkbox_15" type="checkbox"
+                            <label htmlFor={`productmodal-tier-active-${idx}`} className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+                              <input
+                                id={`productmodal-tier-active-${idx}`}
+                                name={`tier_active_${idx}`}
+                                type="checkbox"
                                 checked={tier.active}
                                 onChange={(e) =>
                                   setBundleTiers(bundleTiers.map((t, i) => (i === idx ? { ...t, active: e.target.checked } : t)))
                                 }
-                                className="w-4 h-4 rounded text-indigo-600"
+                                className="w-4 h-4 rounded text-indigo-600 cursor-pointer"
                               />
                               <span>Active</span>
                             </label>
 
-                            <label className="flex items-center gap-1.5 text-xs font-bold text-amber-600 cursor-pointer">
-                              <input id="productmodal-setbundletiers-bundletiers-map" name="setbundletiers_bundletiers_map" type="checkbox"
+                            <label htmlFor={`productmodal-tier-popular-${idx}`} className="flex items-center gap-1.5 text-xs font-bold text-amber-600 cursor-pointer">
+                              <input
+                                id={`productmodal-tier-popular-${idx}`}
+                                name={`tier_popular_${idx}`}
+                                type="checkbox"
                                 checked={tier.most_popular}
                                 onChange={(e) =>
                                   setBundleTiers(bundleTiers.map((t, i) => ({ ...t, most_popular: i === idx ? e.target.checked : false })))
                                 }
-                                className="w-4 h-4 rounded text-amber-600"
+                                className="w-4 h-4 rounded text-amber-600 cursor-pointer"
                               />
                               <span>Popular</span>
                             </label>

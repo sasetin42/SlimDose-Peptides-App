@@ -41,6 +41,12 @@ export interface Product {
 
   slug: string;
 
+  // SKU & SEO
+  sku?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_keywords?: string | null;
+
   created_at: string;
   updated_at: string;
 
@@ -173,6 +179,13 @@ export interface SiteSettings {
   support_email?: string;
   support_phone?: string;
   contact_phone?: string;
+  operating_hours?: string;
+  compliance_email?: string;
+  maintenance_title?: string;
+  site_mobile_logo?: string;
+  site_favicon_url?: string;
+  vat_inclusive?: string | boolean;
+  smtp_relay_url?: string;
   contact_whatsapp?: string;
   contact_inquiry_text?: string;
   instagram_url?: string;
@@ -314,6 +327,48 @@ export interface SiteSettings {
   // Configuration Snapshots & Auditing
   settings_snapshots_json?: string;
   audit_logs_json?: string;
+
+  // Commerce & Finance section (KV string storage — coerce at usage)
+  payment_sandbox_mode?: string;
+  gcash_account_name?: string;
+  gcash_account_number?: string;
+  gcash_qr_url?: string;
+  maya_account_name?: string;
+  maya_account_number?: string;
+  maya_qr_url?: string;
+  bank_name?: string;
+  bank_account_name?: string;
+  bank_account_number?: string;
+  bank_instructions?: string;
+  or_prefix?: string;
+
+  // Platform Security section (KV string storage — coerce at usage)
+  enforce_strong_passwords?: string;
+  allow_guest_checkout?: string;
+  require_prescript_upload?: string;
+  max_login_attempts?: string;
+  maintenance_allowed_ips?: string;
+
+  // Company & Contact section
+  company_registration_no?: string;
+  company_registered_address?: string;
+  business_hours?: string;
+  contact_email?: string;
+  sales_email?: string;
+  billing_email?: string;
+  medical_support_email?: string;
+  telegram_handle?: string;
+  whatsapp_number?: string;
+  fda_lto_number?: string;
+
+  // Branding section
+  site_dark_logo?: string;
+  site_light_logo?: string;
+  primary_brand_color?: string;
+  secondary_brand_color?: string;
+  neutral_brand_color?: string;
+  font_family_headings?: string;
+  font_family_body?: string;
 }
 
 // Cart Types
@@ -361,5 +416,6 @@ export interface PromoCode {
   usage_limit?: number;
   usage_count: number;
   active: boolean;
+  eligible_product_ids?: string[] | null;
   created_at: string;
 }

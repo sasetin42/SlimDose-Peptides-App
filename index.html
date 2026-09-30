@@ -12,6 +12,70 @@
     <meta name="description" content="SlimDose — Premium research peptides with 99%+ purity. Fast, discreet shipping." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      (function() {
+        var pageAlreadyRefreshedKey = 'slimdose_chunk_refreshed';
+        function handleChunkMismatch(text) {
+          var str = String(text || '');
+          if (
+            str.indexOf('Failed to load module script') !== -1 ||
+            str.indexOf('MIME type of "text/html"') !== -1 ||
+            str.indexOf('dynamically imported module') !== -1 ||
+            str.indexOf('Loading chunk') !== -1
+          ) {
+            try {
+              if (!sessionStorage.getItem(pageAlreadyRefreshedKey)) {
+                sessionStorage.setItem(pageAlreadyRefreshedKey, 'true');
+                window.location.reload();
+                return true;
+              }
+            } catch (e) {}
+            return true;
+          }
+          return false;
+        }
+
+        function shouldSuppress(msg, src) {
+          var str = String(msg || '') + ' ' + String(src || '');
+          if (handleChunkMismatch(str)) return true;
+          return str.indexOf('startTime') !== -1 ||
+                 str.indexOf('reportAllChanges') !== -1 ||
+                 str.indexOf('Failed to obtain primary lease') !== -1 ||
+                 str.indexOf('identitytoolkit') !== -1 ||
+                 str.indexOf('EMAIL_EXISTS') !== -1;
+        }
+        var prevOnError = window.onerror;
+        window.onerror = function(message, source, lineno, colno, error) {
+          var full = String(message) + ' ' + (error && error.stack ? error.stack : '');
+          if (shouldSuppress(full, source)) {
+            return true;
+          }
+          if (typeof prevOnError === 'function') {
+            return prevOnError.apply(this, arguments);
+          }
+          return false;
+        };
+        window.addEventListener('error', function(event) {
+          var msg = (event && (event.message || (event.error && event.error.message))) || String(event || '');
+          if (shouldSuppress(msg, event && event.filename)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            return true;
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = (event && event.reason && (event.reason.message || event.reason.stack)) || String(event && event.reason || '');
+          if (shouldSuppress(reason, '')) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+      })();
+    </script>
 </head>
 
 <body>

@@ -1,23 +1,24 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-// One-to-one mirror of the Supabase tables exported on 2026-04-30.
-// Original Postgres UUIDs are preserved as `id: string` (Convex's `_id` is
-// auto-generated and not user-settable). Numeric `numeric` columns from
-// Postgres come through as strings because pg_dump quotes them; we keep
-// them as strings here to preserve fidelity (e.g. account_number leading
-// zeros, and so the application can JSON.parse decimals as needed).
-//
-// All non-`id` fields are optional because SQL NULLs were stripped during
-// import; absence of a field models NULL.
+// SlimDose Convex mirror schema — fire-and-forget backup of primary Firestore data.
+// Mirrors the collections actively written by the app.
 
 export default defineSchema({
   categories: defineTable({
     id: v.string(),
     name: v.optional(v.string()),
+    slug: v.optional(v.string()),
     icon: v.optional(v.string()),
+    parent_id: v.optional(v.string()),
+    description: v.optional(v.string()),
+    seo_title: v.optional(v.string()),
+    seo_description: v.optional(v.string()),
+    seo_keywords: v.optional(v.string()),
+    image_url: v.optional(v.string()),
     sort_order: v.optional(v.number()),
     active: v.optional(v.boolean()),
+    archived: v.optional(v.boolean()),
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
   }).index("by_uuid", ["id"]),
@@ -56,9 +57,12 @@ export default defineSchema({
   products: defineTable({
     id: v.string(),
     name: v.optional(v.string()),
+    slug: v.optional(v.string()),
+    sku: v.optional(v.string()),
     description: v.optional(v.string()),
     category: v.optional(v.string()),
     base_price: v.optional(v.string()),
+    raw_price: v.optional(v.string()),
     discount_price: v.optional(v.string()),
     discount_start_date: v.optional(v.string()),
     discount_end_date: v.optional(v.string()),
@@ -74,6 +78,11 @@ export default defineSchema({
     featured: v.optional(v.boolean()),
     image_url: v.optional(v.string()),
     safety_sheet_url: v.optional(v.string()),
+    seo_title: v.optional(v.string()),
+    seo_description: v.optional(v.string()),
+    seo_keywords: v.optional(v.string()),
+    tags: v.optional(v.string()),
+    sort_order: v.optional(v.number()),
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
   })
@@ -142,6 +151,7 @@ export default defineSchema({
 
   orders: defineTable({
     id: v.string(),
+    order_number: v.optional(v.string()),
     customer_name: v.optional(v.string()),
     customer_email: v.optional(v.string()),
     customer_phone: v.optional(v.string()),
@@ -156,9 +166,6 @@ export default defineSchema({
     shipping_location: v.optional(v.string()),
     shipping_fee: v.optional(v.string()),
     shipping_note: v.optional(v.string()),
-    // order_items is a JSON-encoded array of line items in the source dump;
-    // kept as a string so the pg_dump payload round-trips losslessly.
-    // Use JSON.parse in queries that need to read it.
     order_items: v.optional(v.string()),
     subtotal: v.optional(v.string()),
     total_price: v.optional(v.string()),
@@ -177,6 +184,8 @@ export default defineSchema({
     tracking_courier: v.optional(v.string()),
     shipped_at: v.optional(v.string()),
     shipping_provider: v.optional(v.string()),
+    source_system: v.optional(v.string()),
+    source_order_id: v.optional(v.string()),
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
   })
@@ -208,6 +217,9 @@ export default defineSchema({
     start_date: v.optional(v.string()),
     end_date: v.optional(v.string()),
     excluded_product_ids: v.optional(v.array(v.string())),
+    eligible_category_ids: v.optional(v.array(v.string())),
+    eligible_product_ids: v.optional(v.array(v.string())),
+    stack_with_promo: v.optional(v.boolean()),
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
   }).index("by_uuid", ["id"]),
@@ -231,6 +243,7 @@ export default defineSchema({
     ),
     is_customized: v.optional(v.boolean()),
     is_active: v.optional(v.boolean()),
+    archived: v.optional(v.boolean()),
     created_at: v.optional(v.string()),
     updated_at: v.optional(v.string()),
     updated_by: v.optional(v.string()),
@@ -251,4 +264,3 @@ export default defineSchema({
     sent_at: v.optional(v.string()),
   }).index("by_recipient", ["recipient"]),
 });
-

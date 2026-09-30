@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '../lib/firebase';
-import {
-  collection,
-  doc,
-  setDoc,
-  deleteDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  orderBy,
-} from 'firebase/firestore';
-import { supabase } from '../lib/supabase';
+import { collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from 'firebase/firestore';
 import {
   mirrorPaymentMethodCreate,
   mirrorPaymentMethodDelete,

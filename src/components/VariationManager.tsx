@@ -1,27 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  Save,
-  X,
-  Package,
-  Sparkles,
-  DollarSign,
-  TrendingUp,
-  Layers,
-  CheckCircle2,
-  AlertCircle,
-  Tag,
-  RefreshCw,
-  Percent,
-  Copy,
-  Info,
-  Sliders,
-  ChevronDown,
-  ChevronUp,
-  ShieldCheck
-} from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Package, Sparkles, Layers, RefreshCw } from 'lucide-react';
 import type { Product, ProductVariation } from '../types';
 import { useMenuContext } from '../contexts/MenuContext';
 import { supabase } from '../lib/supabase';
@@ -98,7 +76,7 @@ export default function VariationManager({ product, onClose }: VariationManagerP
           refreshProducts();
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsLiveConnected(status === 'SUBSCRIBED');
       });
 

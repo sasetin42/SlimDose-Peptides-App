@@ -5,24 +5,15 @@ import {
   Trash2,
   Plus,
   MessageSquare,
-  ShieldAlert,
   User,
   RefreshCw,
   Search,
-  CheckCircle2,
   Clock,
   Sparkles,
   Award,
-  Filter,
   X,
-  ExternalLink,
-  ThumbsUp,
-  SlidersHorizontal,
-  ChevronDown,
-  ChevronUp,
   MessageCircle,
-  FileSpreadsheet,
-  CheckCheck
+  CheckCheck,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
@@ -126,7 +117,7 @@ export default function ProductReviewsManager() {
           loadData(true);
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsLiveConnected(status === 'SUBSCRIBED');
       });
 
@@ -570,7 +561,7 @@ export default function ProductReviewsManager() {
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                     active
                       ? 'bg-white/20 text-white'
-                      : tab.alert
+                      : (tab as { alert?: boolean }).alert
                       ? 'bg-amber-100 text-amber-800'
                       : 'bg-slate-200 text-slate-700'
                   }`}

@@ -23,8 +23,8 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
   const [selectedSyringe, setSelectedSyringe] = useState<SyringeOption>(SYRINGE_OPTIONS[0]);
   const [selectedUnit, setSelectedUnit] = useState<'mg' | 'mcg'>('mg');
   const [vialQuantityMg, setVialQuantityMg] = useState<number | ''>(initialVialSizeMg || '');
-  const [waterAddedMl, setWaterAddedMl] = useState<number | ''>('2');
-  const [desiredDoseMg, setDesiredDoseMg] = useState<number | ''>('0.25');
+  const [waterAddedMl, setWaterAddedMl] = useState<number | ''>(2);
+  const [desiredDoseMg, setDesiredDoseMg] = useState<number | ''>(0.25);
   const [resultUnits, setResultUnits] = useState<number | null>(null);
   const [resultMgPerUnit, setResultMgPerUnit] = useState<number | null>(null);
 
@@ -55,8 +55,8 @@ export const ProductPeptideCalculator: React.FC<ProductPeptideCalculatorProps> =
 
   const handleReset = () => {
     setVialQuantityMg(initialVialSizeMg || '');
-    setWaterAddedMl('2');
-    setDesiredDoseMg('0.25');
+    setWaterAddedMl(2);
+    setDesiredDoseMg(0.25);
     setSelectedUnit('mg');
     setResultUnits(null);
     setResultMgPerUnit(null);

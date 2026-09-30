@@ -13,35 +13,26 @@ import {
   Trash2,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   Search,
   Code2,
-  Layers,
-  ChevronRight,
-  ExternalLink,
   Loader2,
   Tag,
   Settings,
   X,
-  FileCode,
 } from 'lucide-react';
-import {
-  DEFAULT_EMAIL_TEMPLATES,
-  EmailTemplateData,
-  COMMON_VARIABLES,
-  EmailVariableDefinition,
-} from '../utils/emailDefaults';
-import {
-  renderEmailTemplate,
-  renderEmailSubject,
-  PRESET_SAMPLE_DATASETS,
-  SampleContext,
-} from '../utils/emailRenderer';
+import { DEFAULT_EMAIL_TEMPLATES, EmailTemplateData, COMMON_VARIABLES } from '../utils/emailDefaults';
+import { renderEmailTemplate, renderEmailSubject, PRESET_SAMPLE_DATASETS } from '../utils/emailRenderer';
 import { fireToast } from './ToastNotification';
 import { sendTransactionalEmail, getActiveSmtpConfig, SmtpConfig } from '../services/emailService';
 import { LiveEmailViewerModal } from './LiveEmailViewerModal';
+import { mirrorEmailTemplateUpsert, mirrorEmailTemplateRemove } from '../lib/convexMirror';
+import { db } from '../lib/firebase';
+import { collection, getDocs, doc as fsDoc, setDoc as fsSetDoc } from 'firebase/firestore';
+import { logAdminAction } from '../lib/audit';
 
 const STORAGE_KEY = 'slimdose_email_templates_v1';
+const STORAGE_KEY_V2 = 'slimdose_email_templates_v2'; // primary key read by getStoredTemplateByKey
+const FIRESTORE_COLLECTION = 'email_templates';
 
 interface EmailTemplateManagerProps {
   onNavigateToSmtpSettings?: () => void;
@@ -53,9 +44,23 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
       if (typeof window !== 'undefined') {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          const parsed = JSON.parse(stored);
+          const parsed: EmailTemplateData[] = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed;
+            // Keep customized templates; update uncustomized ones with the latest default designs
+            return DEFAULT_EMAIL_TEMPLATES.map((def) => {
+              const custom = parsed.find((p) => p.template_key === def.template_key);
+              if (custom && custom.is_customized) {
+                // Ensure category and variables match the official specification
+                return {
+                  ...custom,
+                  category: def.category,
+                  variables: def.variables,
+                };
+              }
+              return def;
+            }).concat(
+              parsed.filter((p) => !DEFAULT_EMAIL_TEMPLATES.some((def) => def.template_key === p.template_key))
+            );
           }
         }
       }
@@ -71,7 +76,7 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
   const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
   const [selectedSampleIndex, setSelectedSampleIndex] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [copiedHtml, setCopiedHtml] = useState<boolean>(false);
+  const [_copiedHtml, setCopiedHtml] = useState<boolean>(false);
 
   // Live Inspector state
   const [isLiveViewerOpen, setIsLiveViewerOpen] = useState(false);
@@ -104,6 +109,13 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
       setEditHtml(currentTemplate.html_content);
       setEditName(currentTemplate.name);
       setEditDescription(currentTemplate.description);
+
+      // Auto-select relevant sample context for OTP / customer templates
+      if (currentTemplate.category === 'customer' || currentTemplate.template_key.includes('otp')) {
+        setSelectedSampleIndex(2); // Customer Account / OTP (Sofia)
+      } else if (currentTemplate.template_key === 'order-shipped' || currentTemplate.template_key === 'order-dispatched') {
+        setSelectedSampleIndex(1); // Shipped order with tracking
+      }
     }
   }, [currentTemplate?.template_key]);
 
@@ -128,9 +140,10 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
   // Textarea Ref for cursor insertion
   const htmlTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Filtered Templates List
+  // Filtered Templates List (archived templates stay out of the library)
   const filteredTemplates = useMemo(() => {
     return templates.filter((t) => {
+      if (t.archived === true) return false;
       const matchCat = activeCategory === 'all' || t.category === activeCategory;
       const matchQuery =
         !searchQuery.trim() ||
@@ -165,16 +178,131 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
     );
   }, [currentTemplate, editSubject, editHtml, editName, editDescription]);
 
-  // Persist templates array to localStorage
-  const saveTemplatesToStorage = (updatedList: EmailTemplateData[]) => {
+  // Sender identity overrides (per-template)
+  const [editSenderName, setEditSenderName] = useState<string>((currentTemplate as any)?.sender_name || '');
+  const [editSenderEmail, setEditSenderEmail] = useState<string>((currentTemplate as any)?.sender_email || '');
+  useEffect(() => {
+    setEditSenderName((currentTemplate as any)?.sender_name || '');
+    setEditSenderEmail((currentTemplate as any)?.sender_email || '');
+  }, [currentTemplate?.template_key]);
+
+  // Cloud persistence state
+  const [firestoreSynced, setFirestoreSynced] = useState<boolean>(false);
+  const [cloudSyncError, setCloudSyncError] = useState<string | null>(null);
+
+  // Hydrate customized templates from Firestore on mount (DB is authoritative)
+  useEffect(() => {
+    (async () => {
+      try {
+        const snap = await getDocs(collection(db, FIRESTORE_COLLECTION));
+        if (snap.empty) {
+          setFirestoreSynced(true);
+          return;
+        }
+        const cloudRows: EmailTemplateData[] = snap.docs.map((d) => ({
+          ...(d.data() as any),
+          id: (d.data() as any).template_key || d.id,
+        }));
+        setTemplates((prev) => {
+          const merged = prev.map((t) => {
+            const cloud = cloudRows.find((c) => c.template_key === t.template_key);
+            return cloud ? { ...t, ...cloud, category: t.category, variables: t.variables } : t;
+          });
+          // Include cloud-only custom templates
+          for (const c of cloudRows) {
+            if (!merged.some((m) => m.template_key === c.template_key)) merged.push(c);
+          }
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(merged));
+          } catch {}
+          return merged;
+        });
+        setFirestoreSynced(true);
+      } catch (e: any) {
+        console.warn('[EmailTemplateManager] Firestore hydration failed:', e);
+        setCloudSyncError(e?.message || 'Cloud sync unavailable — changes save locally');
+      }
+    })();
+  }, []);
+
+  /** Persist one template to Firestore (upsert by template_key) */
+  const persistTemplateToFirestore = async (template: EmailTemplateData) => {
+    try {
+      await fsSetDoc(fsDoc(db, FIRESTORE_COLLECTION, template.template_key), {
+        template_key: template.template_key,
+        name: template.name,
+        subject: template.subject,
+        description: template.description,
+        category: template.category,
+        html_content: template.html_content,
+        variables: template.variables,
+        is_customized: template.is_customized === true,
+        is_active: template.is_active !== false,
+        archived: template.archived === true,
+        sender_name: (template as any).sender_name || '',
+        sender_email: (template as any).sender_email || '',
+        updated_by: template.updated_by || 'Admin',
+        updated_at: new Date().toISOString(),
+      }, { merge: true });
+      setCloudSyncError(null);
+    } catch (e: any) {
+      console.warn('[EmailTemplateManager] Firestore persist failed:', e);
+      setCloudSyncError(e?.message || 'Cloud save failed — retained locally');
+    }
+  };
+
+  // Persist templates array to localStorage (+ cloud sync for the touched template)
+  const saveTemplatesToStorage = (updatedList: EmailTemplateData[], touchedKey?: string) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+      localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(updatedList));
       setTemplates(updatedList);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('slimdose_email_templates_updated', { detail: updatedList }));
       }
+      if (touchedKey) {
+        const touched = updatedList.find((t) => t.template_key === touchedKey);
+        if (touched) {
+          void persistTemplateToFirestore(touched);
+          try {
+            mirrorEmailTemplateUpsert({
+              template_key: touched.template_key,
+              name: touched.name,
+              subject: touched.subject,
+              description: touched.description,
+              category: touched.category,
+              html_content: touched.html_content,
+              variables: touched.variables,
+              is_customized: touched.is_customized,
+              is_active: touched.is_active !== false,
+              updated_by: touched.updated_by || 'Admin',
+            });
+          } catch {}
+        }
+      }
     } catch (e) {
       console.error('Failed to save email templates to storage:', e);
+    }
+  };
+
+  // Sync a single template to Convex DB (fire-and-forget)
+  const syncTemplateToConvex = (template: EmailTemplateData) => {
+    try {
+      mirrorEmailTemplateUpsert({
+        template_key: template.template_key,
+        name: template.name,
+        subject: template.subject,
+        description: template.description,
+        category: template.category,
+        html_content: template.html_content,
+        variables: template.variables,
+        is_customized: template.is_customized,
+        is_active: true,
+        updated_by: 'Admin',
+      });
+    } catch (e) {
+      console.warn('[EmailTemplateManager] Convex sync failed (non-blocking):', e);
     }
   };
 
@@ -214,20 +342,91 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
             description: editDescription,
             subject: editSubject,
             html_content: editHtml,
+            sender_name: editSenderName,
+            sender_email: editSenderEmail,
             is_customized: true,
+            is_active: t.is_active !== false,
+            updated_by: 'Admin',
             updated_at: new Date().toISOString(),
-          };
+          } as EmailTemplateData;
         }
         return t;
       });
 
-      saveTemplatesToStorage(updatedList);
+      saveTemplatesToStorage(updatedList, currentTemplate.template_key);
+
+      logAdminAction('update_email_template', {
+        module: 'email-templates',
+        record_id: currentTemplate.template_key,
+        details: editName,
+      });
       fireToast(`Template "${editName}" saved successfully! 🎉`, 'success');
     } catch (err: any) {
       fireToast(`Error saving template: ${err.message}`, 'error');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  /** Publish / unpublish a template (inactive templates are skipped by senders) */
+  const handleToggleActive = (template: EmailTemplateData) => {
+    const nextActive = !(template.is_active !== false);
+    const updatedList = templates.map((t) =>
+      t.template_key === template.template_key ? { ...t, is_active: nextActive, updated_at: new Date().toISOString() } : t
+    );
+    saveTemplatesToStorage(updatedList, template.template_key);
+    logAdminAction(nextActive ? 'publish_email_template' : 'unpublish_email_template', {
+      module: 'email-templates',
+      record_id: template.template_key,
+      details: template.name,
+    });
+    fireToast(`Template "${template.name}" ${nextActive ? 'published' : 'unpublished (senders will fall back to defaults)'}.`, nextActive ? 'success' : 'info');
+  };
+
+  /** Archive / restore — archived templates are hidden from the library */
+  const handleToggleArchived = (template: EmailTemplateData) => {
+    const nextArchived = !(template.archived === true);
+    const updatedList = templates.map((t) =>
+      t.template_key === template.template_key ? { ...t, archived: nextArchived, updated_at: new Date().toISOString() } : t
+    );
+    saveTemplatesToStorage(updatedList, template.template_key);
+    logAdminAction(nextArchived ? 'archive_email_template' : 'restore_email_template', {
+      module: 'email-templates',
+      record_id: template.template_key,
+      details: template.name,
+    });
+    fireToast(`Template "${template.name}" ${nextArchived ? 'archived' : 'restored'}.`, 'info');
+  };
+
+  /** Duplicate the current template as a new custom template */
+  const handleDuplicateTemplate = () => {
+    if (!currentTemplate) return;
+    const baseKey = `${currentTemplate.template_key}-copy`;
+    let key = baseKey;
+    let n = 2;
+    while (templates.some((t) => t.template_key === key)) {
+      key = `${baseKey}-${n++}`;
+    }
+    const copy: EmailTemplateData = {
+      ...currentTemplate,
+      id: `custom_${Date.now()}`,
+      template_key: key,
+      name: `${currentTemplate.name} (Copy)`,
+      is_customized: true,
+      is_active: false,
+      archived: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    const updatedList = [...templates, copy];
+    saveTemplatesToStorage(updatedList, key);
+    logAdminAction('duplicate_email_template', {
+      module: 'email-templates',
+      record_id: key,
+      details: `From ${currentTemplate.template_key}`,
+    });
+    setSelectedTemplateKey(key);
+    fireToast(`Duplicated as "${copy.name}" — unpublish until you edit it.`, 'success');
   };
 
   // Restore factory default for current template
@@ -254,6 +453,11 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
       });
 
       saveTemplatesToStorage(updatedList);
+
+      // Sync reset template to Convex
+      const reset = updatedList.find((t) => t.template_key === currentTemplate.template_key);
+      if (reset) syncTemplateToConvex(reset);
+
       fireToast(`Template reset to official factory default. 🔄`, 'info');
     }
   };
@@ -267,7 +471,14 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
       setEditHtml(defaultCurrent.html_content);
       setEditName(defaultCurrent.name);
       setEditDescription(defaultCurrent.description);
-      fireToast('All 9 email templates reset to defaults! 📦', 'success');
+
+      // Sync all defaults to cloud + Convex
+      DEFAULT_EMAIL_TEMPLATES.forEach(async (t) => {
+        try { await persistTemplateToFirestore(t); } catch {}
+        try { syncTemplateToConvex(t); } catch {}
+      });
+
+      fireToast('All email templates reset to defaults! 📦', 'success');
     }
   };
 
@@ -308,6 +519,10 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
     setIsNewTemplateModalOpen(false);
     setNewTemplateName('');
     setNewTemplateKey('');
+
+    // Sync new template to Convex
+    syncTemplateToConvex(newEntry);
+
     fireToast(`New template "${newEntry.name}" created! ✨`, 'success');
   };
 
@@ -323,6 +538,10 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
       const updated = templates.filter((t) => t.template_key !== currentTemplate.template_key);
       saveTemplatesToStorage(updated);
       setSelectedTemplateKey(updated[0]?.template_key || 'order-confirmed');
+
+      // Remove from Convex DB
+      try { mirrorEmailTemplateRemove(currentTemplate.id); } catch (e) {}
+
       fireToast(`Template "${currentTemplate.name}" deleted.`, 'info');
     }
   };
@@ -470,6 +689,44 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
 
           <button
             type="button"
+            onClick={handleDuplicateTemplate}
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Duplicate this template as a new custom template"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            <span>Duplicate</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleToggleActive(currentTemplate)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              currentTemplate?.is_active !== false
+                ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+            }`}
+            title="Publish / unpublish — unpublished templates are skipped by senders"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{currentTemplate?.is_active !== false ? 'Published' : 'Unpublished'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleToggleArchived(currentTemplate)}
+            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              currentTemplate?.archived === true
+                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-950/60 dark:text-amber-300'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+            }`}
+            title="Archive hides this template from the library"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>{currentTemplate?.archived === true ? 'Archived' : 'Archive'}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={handleSaveTemplate}
             disabled={isSaving}
             className="px-4 py-2 rounded-xl bg-[#3C6CA8] hover:bg-[#315A8E] active:bg-[#264874] text-white text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
@@ -479,6 +736,17 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
           </button>
         </div>
       </div>
+
+      {!firestoreSynced && !cloudSyncError && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-slate-800/60 border border-blue-100 dark:border-slate-700 rounded-xl text-[11px] font-bold text-[#3C6CA8]">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Syncing templates from cloud…
+        </div>
+      )}
+      {cloudSyncError && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl text-[11px] font-bold text-amber-700 dark:text-amber-400">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {cloudSyncError}
+        </div>
+      )}
 
       {/* ── Category & Template Selector Strip ── */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 border border-slate-200/90 dark:border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
@@ -541,14 +809,54 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
             </label>
             <select
               value={selectedTemplateKey}
-              onChange={(e) => setSelectedTemplateKey(e.target.value)}
+              onChange={(e) => {
+                const newKey = e.target.value;
+                setSelectedTemplateKey(newKey);
+                const target = templates.find((t) => t.template_key === newKey);
+                if (target && activeCategory !== 'all' && target.category !== activeCategory) {
+                  setActiveCategory(target.category);
+                }
+              }}
               className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none cursor-pointer"
             >
-              {filteredTemplates.map((t) => (
-                <option key={t.template_key} value={t.template_key}>
-                  {t.name} ({t.template_key})
-                </option>
-              ))}
+              {activeCategory === 'all' && !searchQuery.trim() ? (
+                <>
+                  <optgroup label="📦 Order Notifications">
+                    {templates.filter((t) => t.category === 'orders').map((t) => (
+                      <option key={t.template_key} value={t.template_key}>
+                        {t.name} ({t.template_key})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="🎁 Promotions & Retention">
+                    {templates.filter((t) => t.category === 'marketing').map((t) => (
+                      <option key={t.template_key} value={t.template_key}>
+                        {t.name} ({t.template_key})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="👤 Customer Relations & Auth">
+                    {templates.filter((t) => t.category === 'customer').map((t) => (
+                      <option key={t.template_key} value={t.template_key}>
+                        {t.name} ({t.template_key})
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="⚙️ System Alerts">
+                    {templates.filter((t) => t.category === 'system').map((t) => (
+                      <option key={t.template_key} value={t.template_key}>
+                        {t.name} ({t.template_key})
+                      </option>
+                    ))}
+                  </optgroup>
+                </>
+              ) : (
+                filteredTemplates.map((t) => (
+                  <option key={t.template_key} value={t.template_key}>
+                    {t.name} ({t.template_key})
+                  </option>
+                ))
+              )}
             </select>
 
             {/* Template Metadata Details */}
@@ -568,6 +876,29 @@ export const EmailTemplateManager: React.FC<EmailTemplateManagerProps> = ({ onNa
                 <span className="block px-3 py-1.5 text-xs font-bold uppercase rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                   {currentTemplate?.category || 'orders'}
                 </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-400">Sender Name (optional override)</label>
+                  <input
+                    type="text"
+                    value={editSenderName}
+                    onChange={(e) => setEditSenderName(e.target.value)}
+                    placeholder="e.g. SlimDose Orders"
+                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-[#3C6CA8]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-400">Sender Email (optional override)</label>
+                  <input
+                    type="email"
+                    value={editSenderEmail}
+                    onChange={(e) => setEditSenderEmail(e.target.value)}
+                    placeholder="e.g. orders@slimdoseph.com"
+                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-[#3C6CA8]"
+                  />
+                </div>
               </div>
 
               <div className="sm:col-span-2 space-y-1">

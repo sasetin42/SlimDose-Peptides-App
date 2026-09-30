@@ -1,5 +1,21 @@
 import React, { useEffect, useMemo } from 'react';
-import { Trash2, ShoppingBag, ArrowLeft, CreditCard, Plus, Minus, Sparkles, Heart, Tag, Info, X, Truck, ShieldCheck, Award, MapPin, Clock, Package, Zap, BadgeCheck, Navigation, ChevronDown } from 'lucide-react';
+import {
+  Trash2,
+  ShoppingBag,
+  ArrowLeft,
+  CreditCard,
+  Plus,
+  Minus,
+  Sparkles,
+  Heart,
+  Tag,
+  Info,
+  X,
+  Truck,
+  ShieldCheck,
+  Award,
+  ChevronDown,
+} from 'lucide-react';
 import type { CartItem } from '../types';
 import { useBundleTiers } from '../hooks/useBundleTiers';
 import { useGlobalDiscount } from '../hooks/useGlobalDiscount';

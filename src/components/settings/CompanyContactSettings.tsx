@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { SiteSettings } from '../../types';
-import { Building2, Mail, Phone, Clock, MapPin, ShieldCheck, MessageSquare, Send, Globe, Users } from 'lucide-react';
+import { Building2, Mail, Phone, MapPin, ShieldCheck, MessageSquare, Send, Globe, Users } from 'lucide-react';
 
 interface Props {
   formData: Partial<SiteSettings>;

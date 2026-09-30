@@ -14,7 +14,6 @@ import {
   Trash2,
   Edit2,
   CheckCircle2,
-  XCircle,
   Clock,
   Percent,
   Copy,
@@ -26,7 +25,7 @@ import {
   X,
   SlidersHorizontal,
   ChevronDown,
-  Layers
+  Layers,
 } from 'lucide-react';
 import { fireToast } from './ToastNotification';
 
@@ -76,6 +75,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
     start_date?: string;
     end_date?: string;
     active: boolean;
+    eligible_product_ids: string[];
   }>({
     code: '',
     discount_type: 'percentage',
@@ -86,8 +86,23 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
     is_unlimited_usage: true,
     start_date: undefined,
     end_date: undefined,
-    active: true
+    active: true,
+    eligible_product_ids: []
   });
+
+  // Products for eligibility scoping (fetched once; used by the modal picker)
+  const [products, setProducts] = useState<Array<{ id: string; name: string }>>([]);
+  const [productSearch, setProductSearch] = useState('');
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase.from('products').select('id, name').order('name', { ascending: true });
+        setProducts(((data as any[]) || []).map((p) => ({ id: p.id, name: p.name })));
+      } catch (e) {
+        console.warn('Failed to load products for promo scoping:', e);
+      }
+    })();
+  }, []);
 
   // Audit Log Helper
   const logAction = async (action: string, details?: any) => {
@@ -183,7 +198,8 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
         is_unlimited_usage: !code.usage_limit || code.usage_limit <= 0,
         start_date: code.start_date ? code.start_date.split('T')[0] : undefined,
         end_date: code.end_date ? code.end_date.split('T')[0] : undefined,
-        active: code.active
+        active: code.active,
+        eligible_product_ids: Array.isArray(code.eligible_product_ids) ? code.eligible_product_ids : []
       });
     } else {
       setEditingCode(null);
@@ -197,7 +213,8 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
         is_unlimited_usage: true,
         start_date: undefined,
         end_date: undefined,
-        active: true
+        active: true,
+        eligible_product_ids: []
       });
     }
     setIsModalOpen(true);
@@ -232,6 +249,7 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
         start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
         end_date: formData.end_date ? new Date(`${formData.end_date}T23:59:59.999Z`).toISOString() : null,
         active: Boolean(formData.active),
+        eligible_product_ids: formData.eligible_product_ids.length > 0 ? formData.eligible_product_ids : null,
         updated_at: new Date().toISOString()
       };
 
@@ -337,7 +355,8 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
       is_unlimited_usage: !code.usage_limit || code.usage_limit <= 0,
       start_date: code.start_date ? code.start_date.split('T')[0] : undefined,
       end_date: code.end_date ? code.end_date.split('T')[0] : undefined,
-      active: true
+      active: true,
+      eligible_product_ids: Array.isArray(code.eligible_product_ids) ? code.eligible_product_ids : []
     });
     setIsModalOpen(true);
   };
@@ -1087,6 +1106,68 @@ const PromoCodeManager: React.FC<PromoCodeManagerProps> = ({
                   onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
                   className="w-5 h-5 rounded text-[#3C6CA8] focus:ring-[#3C6CA8] cursor-pointer"
                 />
+              </div>
+
+              {/* Product Scoping (optional) */}
+              <div className="pt-1">
+                <label htmlFor="promocodemanager-eligible-products" className="block font-extrabold text-gray-700 dark:text-slate-300 uppercase tracking-wider text-[11px] mb-1.5">
+                  Limit to Specific Products (optional)
+                </label>
+                <input id="promocodemanager-eligible-products" type="text"
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                  placeholder="Search products to add to this promo code…"
+                  className="w-full px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-xl text-xs bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                />
+                {formData.eligible_product_ids.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {formData.eligible_product_ids.map((pid) => {
+                      const p = products.find((x) => x.id === pid);
+                      return (
+                        <span key={pid} className="inline-flex items-center gap-1 px-2 py-1 bg-[#3C6CA8]/10 text-[#3C6CA8] rounded-lg text-[10px] font-extrabold">
+                          {p ? p.name : pid}
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, eligible_product_ids: formData.eligible_product_ids.filter((x) => x !== pid) })}
+                            className="hover:text-rose-500 cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                {productSearch.trim() !== '' && (
+                  <div className="max-h-40 overflow-y-auto border border-gray-200 dark:border-slate-700 rounded-xl divide-y divide-gray-100 dark:divide-slate-800 mt-2">
+                    {products
+                      .filter((p) =>
+                        p.name.toLowerCase().includes(productSearch.trim().toLowerCase()) &&
+                        !formData.eligible_product_ids.includes(p.id)
+                      )
+                      .slice(0, 8)
+                      .map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, eligible_product_ids: [...formData.eligible_product_ids, p.id] });
+                            setProductSearch('');
+                          }}
+                          className="w-full text-left px-3 py-2 text-xs font-bold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                    {products.filter((p) =>
+                      p.name.toLowerCase().includes(productSearch.trim().toLowerCase()) &&
+                      !formData.eligible_product_ids.includes(p.id)
+                    ).length === 0 && (
+                      <p className="px-3 py-2 text-[11px] text-gray-400">No matching products.</p>
+                    )}
+                  </div>
+                )}
+                <p className="text-[10px] text-gray-400 mt-1">Leave empty to allow this code on any cart. When set, the code only applies if at least one eligible product is present.</p>
               </div>
 
               {/* Modal Action Buttons */}

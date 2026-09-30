@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { SiteSettings } from '../../types';
-import { CreditCard, DollarSign, Receipt, AlertCircle, CheckCircle2, ShieldAlert, Upload, Smartphone } from 'lucide-react';
+import { CreditCard, DollarSign, Receipt, ShieldAlert, Upload, Smartphone } from 'lucide-react';
 
 interface Props {
   formData: Partial<SiteSettings>;
@@ -52,8 +52,8 @@ export const CommerceFinanceSettings: React.FC<Props> = ({ formData, onChange, o
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={formData.payment_links_enabled ?? true}
-              onChange={(e) => onChange({ payment_links_enabled: e.target.checked })}
+              checked={formData.payment_links_enabled !== 'false'}
+              onChange={(e) => onChange({ payment_links_enabled: String(e.target.checked) })}
               className="sr-only peer"
             />
             <div className="w-12 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
@@ -73,14 +73,14 @@ export const CommerceFinanceSettings: React.FC<Props> = ({ formData, onChange, o
           </div>
           <button
             type="button"
-            onClick={() => onChange({ payment_sandbox_mode: !formData.payment_sandbox_mode })}
+            onClick={() => onChange({ payment_sandbox_mode: formData.payment_sandbox_mode === 'true' ? 'false' : 'true' })}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition border ${
-              formData.payment_sandbox_mode
+              formData.payment_sandbox_mode === 'true'
                 ? 'bg-amber-500/10 text-amber-700 border-amber-300'
                 : 'bg-slate-100 text-slate-600 border-slate-200'
             }`}
           >
-            {formData.payment_sandbox_mode ? 'TEST MODE ACTIVE' : 'LIVE PRODUCTION'}
+            {formData.payment_sandbox_mode === 'true' ? 'TEST MODE ACTIVE' : 'LIVE PRODUCTION'}
           </button>
         </div>
       </div>
@@ -333,8 +333,8 @@ export const CommerceFinanceSettings: React.FC<Props> = ({ formData, onChange, o
                 min="0"
                 max="100"
                 step="0.1"
-                value={formData.tax_rate_percent ?? 12}
-                onChange={(e) => onChange({ tax_rate_percent: parseFloat(e.target.value) || 0 })}
+                value={formData.tax_rate_percent ?? '12'}
+                onChange={(e) => onChange({ tax_rate_percent: e.target.value })}
                 className="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 outline-none transition pr-8"
               />
               <span className="absolute right-3.5 top-2.5 text-slate-400 text-sm">%</span>
@@ -375,8 +375,8 @@ export const CommerceFinanceSettings: React.FC<Props> = ({ formData, onChange, o
           <input
             type="checkbox"
             id="vat_inclusive"
-            checked={formData.vat_inclusive ?? true}
-            onChange={(e) => onChange({ vat_inclusive: e.target.checked })}
+            checked={formData.vat_inclusive !== 'false'}
+            onChange={(e) => onChange({ vat_inclusive: String(e.target.checked) })}
             className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
           />
           <label htmlFor="vat_inclusive" className="text-sm text-slate-700 font-medium cursor-pointer">

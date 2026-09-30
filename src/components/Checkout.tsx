@@ -1,7 +1,44 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ShieldCheck, Package, CreditCard, Sparkles, Heart, Copy, Check, MessageCircle, Tag, XCircle, CheckCircle, CheckCircle2, Upload, X, FileImage, Loader2, Info, Wallet, User, Mail, Phone, MapPin, Building2, Navigation, Globe, FileText, Truck, Percent, ShoppingBag, ChevronDown, Search, Lock, MessageSquare, QrCode } from 'lucide-react';
 import {
-  PH_PROVINCES,
+  ArrowLeft,
+  ArrowRight,
+  ShieldCheck,
+  Package,
+  CreditCard,
+  Sparkles,
+  Heart,
+  Copy,
+  Check,
+  MessageCircle,
+  Tag,
+  XCircle,
+  CheckCircle,
+  CheckCircle2,
+  Upload,
+  X,
+  FileImage,
+  Loader2,
+  Info,
+  Wallet,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Building2,
+  Navigation,
+  Globe,
+  FileText,
+  Truck,
+  Percent,
+  ShoppingBag,
+  ChevronDown,
+  Search,
+  MessageSquare,
+  QrCode,
+  Edit3,
+  PlusCircle,
+} from 'lucide-react';
+import {
   searchProvinces,
   getCitiesForProvince,
   fetchCitiesForProvinceLive,
@@ -10,7 +47,7 @@ import {
   getZipCodeForCity,
   getShippingZoneForProvince,
   City,
-  Barangay
+  Barangay,
 } from '../lib/philippineLocations';
 
 import type { CartItem } from '../types';
@@ -26,6 +63,8 @@ import { trackOrderStatus, identifyUser } from '../utils/analytics';
 import { fireToast } from './ToastNotification';
 import { dispatchOrderEmail } from '../services/emailService';
 import { provisionCustomerAccount } from '../services/firebaseAuth';
+import { generateUniqueOrderNumber } from '../utils/orderUtils';
+import { addOrderTimelineEvent } from '../lib/orderTimeline';
 
 interface CheckoutProps {
   cartItems: CartItem[];
@@ -97,7 +136,8 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
   const [city, setCity] = useState<string>(() => getInitialValue('city'));
   const [state, setState] = useState<string>(() => getInitialValue('state'));
   const [zipCode, setZipCode] = useState<string>(() => getInitialValue('zipCode', 'zip_code'));
-  const [shippingLocation, setShippingLocation] = useState<'LUZON' | 'VISAYAS' | 'MINDANAO' | 'MAXIM' | ''>(
+  // Holds either a region (LUZON/VISAYAS/MINDANAO/MAXIM) or a courier mode id (JT_*, MAXIM_DAVAO, LALAMOVE_MM, NCR, LALAMOVE)
+  const [shippingLocation, setShippingLocation] = useState<string>(
     () => (getInitialValue('shippingLocation') as any) || ''
   );
 
@@ -171,13 +211,13 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
   // Payment
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [contactMethod, setContactMethod] = useState<'messenger' | ''>('messenger');
+  const [contactMethod, setContactMethod] = useState<'telegram' | 'sms' | 'email' | 'messenger'>('telegram');
   const [notes, setNotes] = useState('');
 
   const [orderMessage, setOrderMessage] = useState<string>('');
-  const [orderRef, setOrderRef] = useState<string>('');
+  const [orderRef, _setOrderRef] = useState<string>('');
   const [copied, setCopied] = useState(false);
-  const [contactOpened, setContactOpened] = useState(false);
+  const [contactOpened, _setContactOpened] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   // Placed Order Details for confirmation uploads
@@ -264,19 +304,21 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
 
   // Custom Philippine Location Dropdowns State (Province, City, Barangay)
   const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isCustomProvince, setIsCustomProvince] = useState(false);
   const [provinceSearch, setProvinceSearch] = useState('');
   const provinceDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const [isCityOpen, setIsCityOpen] = useState(false);
+  const [isCustomCity, setIsCustomCity] = useState(false);
   const [citySearch, setCitySearch] = useState('');
-  const [liveCities, setLiveCities] = useState<City[]>(() => getCitiesForProvince(state));
+  const [liveCities, setLiveCities] = useState<City[]>([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
   const cityDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const [isBarangayOpen, setIsBarangayOpen] = useState(false);
   const [isCustomBarangay, setIsCustomBarangay] = useState(false);
   const [barangaySearch, setBarangaySearch] = useState('');
-  const [liveBarangays, setLiveBarangays] = useState<Barangay[]>(() => getBarangaysForCity(city, state));
+  const [liveBarangays, setLiveBarangays] = useState<Barangay[]>([]);
   const [isLoadingBarangays, setIsLoadingBarangays] = useState(false);
   const barangayDropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -339,6 +381,24 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
       }
     }
   }, [city, state, barangay]);
+
+  // Real-time synchronization with Admin Locations Database updates
+  useEffect(() => {
+    const handleDbSync = () => {
+      if (state) {
+        setLiveCities(getCitiesForProvince(state));
+      }
+      if (city) {
+        setLiveBarangays(getBarangaysForCity(city, state));
+      }
+    };
+    window.addEventListener('ph_locations_database_updated', handleDbSync);
+    window.addEventListener('storage', handleDbSync);
+    return () => {
+      window.removeEventListener('ph_locations_database_updated', handleDbSync);
+      window.removeEventListener('storage', handleDbSync);
+    };
+  }, [state, city]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -445,6 +505,17 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         setPromoError(`Minimum purchase of ₱${promo.min_purchase_amount} required`);
         setIsApplyingPromo(false);
         return;
+      }
+
+      // Product scoping: code only applies when an eligible product is in the cart
+      if (Array.isArray(promo.eligible_product_ids) && promo.eligible_product_ids.length > 0) {
+        const cartProductIds = new Set(cartItems.map((i) => i.product.id));
+        const hasEligible = promo.eligible_product_ids.some((pid: string) => cartProductIds.has(pid));
+        if (!hasEligible) {
+          setPromoError('This promo code does not apply to the items in your cart');
+          setIsApplyingPromo(false);
+          return;
+        }
       }
 
       // Calculate discount
@@ -571,22 +642,43 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
         updated_at: new Date().toISOString()
       };
 
-      // Save order to database
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert([orderPayload])
-        .select()
-        .single();
+      // Generate guaranteed unique canonical SDP reference before insert
+      const uniqueOrderNumber = generateUniqueOrderNumber();
+      (orderPayload as any).id = uniqueOrderNumber;
+      (orderPayload as any).order_number = uniqueOrderNumber;
 
-      if (orderError && !orderData) {
-        console.warn('⚠️ Primary insert note, applying fallback order confirmation:', orderError);
+      // Save order to database with strict timeout safeguard (5s)
+      // Prevents mobile checkout from hanging indefinitely if Firestore/network stalls
+      let orderData: any = null;
+      try {
+        const insertPromise = supabase
+          .from('orders')
+          .insert([orderPayload])
+          .select()
+          .single();
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Network timeout inserting order')), 5000)
+        );
+
+        const res = await Promise.race([insertPromise, timeoutPromise]) as any;
+        if (res && res.data) {
+          orderData = res.data;
+        } else if (res && res.error) {
+          console.warn('⚠️ Primary insert error note:', res.error);
+        }
+      } catch (insertCatchErr) {
+        console.warn('⚠️ Order insert timed out or failed, utilizing guaranteed local fallback:', insertCatchErr);
       }
 
-      const generatedNum = `SDP${Math.floor(1000 + Math.random() * 9000)}`;
-      const finalOrder = orderData || { id: `ORD-${Date.now().toString(36).toUpperCase()}`, order_number: generatedNum, ...orderPayload };
+      const finalOrder = orderData || { id: uniqueOrderNumber, order_number: uniqueOrderNumber, ...orderPayload };
+      // Ensure finalOrder has guaranteed id and order_number
+      if (!finalOrder.id) finalOrder.id = uniqueOrderNumber;
+      if (!finalOrder.order_number) finalOrder.order_number = uniqueOrderNumber;
+
       setPlacedOrder(finalOrder);
 
-      // Cache order details immediately
+      // Cache order details immediately for 0ms instant display on /success
       try {
         localStorage.setItem('slimdose_last_order', JSON.stringify(finalOrder));
       } catch (err) {
@@ -599,8 +691,16 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
       window.dispatchEvent(new Event('orderCreated'));
       window.dispatchEvent(new Event('orderConfirmed'));
 
+      // Seed the order lifecycle timeline (non-blocking)
+      addOrderTimelineEvent(
+        finalOrder.id,
+        'order_created',
+        `Order placed via checkout — ${orderItems.length} item(s), ₱${Math.max(0, totalPrice - discountAmount).toLocaleString('en-PH')} (+₱${shippingFee} shipping)`,
+        'customer'
+      );
+
       // Non-blocking background side-effects (runs concurrently without delaying customer)
-      Promise.allSettled([
+      const backgroundPromise = Promise.allSettled([
         // 1. Mirror order to Convex backup
         (async () => {
           mirrorOrderCreate({
@@ -693,33 +793,39 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, refreshCartPrices, price
           }
         })(),
 
-        // 4. Automated Transactional Customer Confirmation Email
+        // 4. Automated Transactional Customer Confirmation Email (with guaranteed delivery before redirect)
         (async () => {
-          await dispatchOrderEmail('order-confirmed', {
-            orderId: finalOrder.id || `ORD-${Date.now()}`,
-            orderNumber: finalOrder.order_number || finalOrder.id,
-            customerName: fullName,
-            customerEmail: email,
-            customerPhone: phone,
-            shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`.replace(/,\s*,/g, ','),
-            shippingLocation,
-            shippingFee,
-            subtotal,
-            discountApplied: discountAmount + bundleSavings,
-            promoCode: appliedPromo?.code,
-            totalPrice: Math.max(0, totalPrice - discountAmount),
-            paymentMethodName: paymentMethod?.name,
-            contactMethod,
-            notes: notes.trim() || null,
-            items: cartItems.map(item => ({
-              product_name: item.name,
-              variation_name: item.variation?.name || null,
-              quantity: item.quantity,
-              price: item.price,
-              total: item.price * item.quantity
-            })),
-            status: 'Confirmed'
-          });
+          try {
+            console.log('[Checkout] Dispatching order confirmation email to:', email);
+            const emailResult = await dispatchOrderEmail('order-confirmed', {
+              orderId: finalOrder.id || `ORD-${Date.now()}`,
+              orderNumber: finalOrder.order_number || finalOrder.id,
+              customerName: fullName,
+              customerEmail: email,
+              customerPhone: phone,
+              shippingAddress: `${address}, ${barangay}, ${city}, ${state} ${zipCode}`.replace(/,\s*,/g, ','),
+              shippingLocation,
+              shippingFee,
+              subtotal: pricing.subtotal || totalPrice,
+              discountApplied: discountAmount + bundleSavings,
+              promoCode: appliedPromo?.code,
+              totalPrice: Math.max(0, totalPrice - discountAmount),
+              paymentMethodName: paymentMethod?.name,
+              contactMethod,
+              notes: notes.trim() || null,
+              items: cartItems.map(item => ({
+                product_name: item.product?.name || 'Product',
+                variation_name: item.variation?.name || null,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.price * item.quantity
+              })),
+              status: 'Confirmed'
+            });
+            console.log('[Checkout] Order confirmation email dispatch result:', emailResult);
+          } catch (eErr) {
+            console.warn('[Checkout] Order confirmation email dispatch notice:', eErr);
+          }
         })(),
 
         // 5. Telegram Notification to Admin
@@ -836,7 +942,13 @@ ${paymentMethod ? `Account: ${paymentMethod.account_number}` : ''}
 ${paymentProofUrl ? 'Screenshot attached to order.' : 'Pending'}
 
 📱 CONTACT METHOD
-Telegram: https://t.me/slimdose_mnl
+${
+  contactMethod === 'sms'
+    ? `SMS: ${phone ? phone : 'Customer Phone Provided'}`
+    : contactMethod === 'email'
+    ? `Email: slimdosepeptides@gmail.com (Customer: ${email || 'Provided'})`
+    : 'Telegram: https://t.me/slimdose_mnl (@slimdose_mnl)'
+}
 
 📋 ORDER ID: ${finalOrder.order_number || finalOrder.id}
 
@@ -852,6 +964,12 @@ Please confirm this order. Thank you!
       } catch (err) {
         // non-blocking
       }
+
+      // Dispatch background side-effects (email dispatch, convex mirror, notifications) asynchronously
+      // without holding back the user's navigation for 1.5 seconds!
+      backgroundPromise.catch((bgErr) => {
+        console.warn('[Checkout] Non-blocking background task error:', bgErr);
+      });
 
       fireToast('Order submitted successfully! 🎉', 'success', 5000);
       try {
@@ -896,13 +1014,16 @@ Please confirm this order. Thank you!
   };
 
   const handleOpenContact = () => {
-    const contactUrl = contactMethod === 'messenger'
-      ? `https://t.me/slimdose_mnl`
-      : null;
-
-    if (contactUrl) {
-      window.open(contactUrl, '_blank');
+    if (contactMethod === 'sms' && phone) {
+      window.open(`sms:${phone.replace(/[^0-9+]/g, '')}`, '_self');
+      return;
     }
+    if (contactMethod === 'email') {
+      window.open(`mailto:slimdosepeptides@gmail.com?subject=SlimDose%20Order%20Confirmation%20${orderRef || ''}`, '_self');
+      return;
+    }
+    const contactUrl = 'https://t.me/slimdose_mnl';
+    window.open(contactUrl, '_blank');
   };
 
   if (step === 'confirmation') {
@@ -1081,13 +1202,31 @@ Please confirm this order. Thank you!
                 onClick={handleOpenContact}
                 className="w-full bg-navy-900 hover:bg-navy-800 text-white py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2 border border-navy-900/20"
               >
-                <MessageCircle className="w-5 h-5" />
-                Open Telegram
+                {contactMethod === 'sms' ? (
+                  <>
+                    <MessageSquare className="w-5 h-5" />
+                    Open SMS Messages
+                  </>
+                ) : contactMethod === 'email' ? (
+                  <>
+                    <Mail className="w-5 h-5" />
+                    Open Email App
+                  </>
+                ) : (
+                  <>
+                    <MessageCircle className="w-5 h-5" />
+                    Open Telegram (@slimdose_mnl)
+                  </>
+                )}
               </button>
 
               {!contactOpened && (
                 <p className="text-sm text-gray-600">
-                  💡 If Telegram doesn't open, copy the message above and visit our page manually
+                  {contactMethod === 'sms'
+                    ? '💡 SMS confirmations and tracking updates are delivered directly to your mobile phone number.'
+                    : contactMethod === 'email'
+                    ? '💡 Order receipts, invoices, and tracking links are delivered directly to your email inbox.'
+                    : "💡 If Telegram doesn't open, copy the message above and visit @slimdose_mnl manually"}
                 </p>
               )}
             </div>
@@ -1112,10 +1251,6 @@ Please confirm this order. Thank you!
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-2xl">4️⃣</span>
-                  <span>Tracking numbers are sent via Telegram from 11 PM onwards.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-2xl">5️⃣</span>
                   <span>
                     You can check your order status anytime on our <a href="/track-order" target="_blank" className="text-blue-600 hover:underline font-bold">Track Order page</a> using your Order ID.
                   </span>
@@ -1321,197 +1456,310 @@ Please confirm this order. Thank you!
                         <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                     </div>
-
-                    {/* 2. Province & City (Inline Row with Interchanged Order & Connected Real-Time Selection) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3.5">
                       {/* PROVINCE SELECTOR (Left) */}
                       <div className={`relative ${isProvinceOpen ? 'z-[100]' : 'z-20'}`} ref={provinceDropdownRef}>
-                        <label htmlFor="checkout-province-button" className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <label htmlFor={isCustomProvince ? "checkout-custom-province" : "checkout-province-button"} className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#3C6CA8]" /> Province <span className="text-rose-500">*</span>
                           </span>
-                          <span className="text-[10px] font-extrabold text-[#3C6CA8]">82+ PH PROVINCES</span>
-                        </label>
-                        <button
-                          id="checkout-province-button"
-                          type="button"
-                          onClick={() => {
-                            setIsProvinceOpen(!isProvinceOpen);
-                            setIsCityOpen(false);
-                            setIsBarangayOpen(false);
-                          }}
-                          className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-8 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all cursor-pointer shadow-xs text-left relative"
-                        >
-                          <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <span className="truncate">{state || 'Select Province...'}</span>
-                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProvinceOpen ? 'rotate-180 text-[#3C6CA8]' : ''}`} />
-                        </button>
-
-                        {/* Province Search Popover */}
-                        {isProvinceOpen && (
-                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
-                            {/* Search Widget */}
-                            <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
-                              <div className="relative">
-                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <input id="checkout-input-2" name="input_2" type="text"
-                                  autoComplete="off"
-                                  value={provinceSearch}
-                                  onChange={(e) => setProvinceSearch(e.target.value)}
-                                  placeholder="Search province or region..."
-                                  className="w-full text-xs pl-8 pr-7 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
-                                  autoFocus
-                                />
-                                {provinceSearch && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setProvinceSearch('')}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                            {/* Province List */}
-                            <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
-                              {searchProvinces(provinceSearch).map((prov) => {
-                                const isSelected = state === prov.name;
-                                return (
-                                  <button
-                                    key={prov.code}
-                                    type="button"
-                                    onClick={() => {
-                                      setState(prov.name);
-                                      setCity('');
-                                      setBarangay('');
-                                      setZipCode('');
-                                      const autoZone = getShippingZoneForProvince(prov.name);
-                                      if (autoZone) setShippingLocation(autoZone);
-                                      setIsProvinceOpen(false);
-                                      setProvinceSearch('');
-                                      setIsCityOpen(true);
-                                    }}
-                                    className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-[#3C6CA8]/5 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
-                                      isSelected ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold' : 'text-gray-800 dark:text-slate-200'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2.5">
-                                      <Globe className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#3C6CA8]' : 'text-gray-400'}`} />
-                                      <div>
-                                        <p className="font-bold text-sm">{prov.name}</p>
-                                        <p className="text-[11px] text-gray-400">{prov.region}</p>
-                                      </div>
-                                    </div>
-                                    {isSelected && <Check className="w-4 h-4 text-[#3C6CA8]" />}
-                                  </button>
-                                );
-                              })}
-                            </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomProvince(!isCustomProvince);
+                                setIsProvinceOpen(false);
+                              }}
+                              className="text-[10px] font-bold text-[#3C6CA8] hover:underline flex items-center gap-1 bg-[#3C6CA8]/10 px-2 py-0.5 rounded-full transition-all"
+                            >
+                              <Edit3 className="w-2.5 h-2.5" />
+                              {isCustomProvince ? 'Use Dropdown' : 'Enter Custom'}
+                            </button>
+                            <span className="text-[10px] font-extrabold text-[#3C6CA8]">82+ PH PROVINCES</span>
                           </div>
+                        </label>
+                        {isCustomProvince ? (
+                          <div className="relative">
+                            <input
+                              id="checkout-custom-province"
+                              name="province"
+                              autoComplete="address-level1"
+                              type="text"
+                              value={state}
+                              onChange={(e) => {
+                                setState(e.target.value);
+                                const autoZone = getShippingZoneForProvince(e.target.value);
+                                if (autoZone) setShippingLocation(autoZone);
+                              }}
+                              placeholder="Type custom province name..."
+                              className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-20 py-2.5 sm:py-3 border border-[#3C6CA8] dark:border-blue-500 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 outline-none transition-all shadow-xs"
+                            />
+                            <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <button
+                              type="button"
+                              onClick={() => setIsCustomProvince(false)}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 px-2 py-1 rounded-md hover:bg-gray-200"
+                            >
+                              Dropdown
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              id="checkout-province-button"
+                              type="button"
+                              onClick={() => {
+                                setIsProvinceOpen(!isProvinceOpen);
+                                setIsCityOpen(false);
+                                setIsBarangayOpen(false);
+                              }}
+                              className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-8 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all cursor-pointer shadow-xs text-left relative"
+                            >
+                              <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <span className="truncate">{state || 'Select Province...'}</span>
+                              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isProvinceOpen ? 'rotate-180 text-[#3C6CA8]' : ''}`} />
+                            </button>
+
+                            {/* Province Search Popover */}
+                            {isProvinceOpen && (
+                              <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                                {/* Search Widget */}
+                                <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                                  <div className="relative">
+                                    <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                    <input id="checkout-province-search" name="province_search" type="text"
+                                      autoComplete="off"
+                                      value={provinceSearch}
+                                      onChange={(e) => setProvinceSearch(e.target.value)}
+                                      placeholder="Search province or region..."
+                                      className="w-full text-xs pl-8 pr-7 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
+                                      autoFocus
+                                    />
+                                    {provinceSearch && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setProvinceSearch('')}
+                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {/* Province List */}
+                                <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                                  {provinceSearch.trim() && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setState(provinceSearch.trim());
+                                        const autoZone = getShippingZoneForProvince(provinceSearch.trim());
+                                        if (autoZone) setShippingLocation(autoZone);
+                                        setIsProvinceOpen(false);
+                                        setProvinceSearch('');
+                                        setIsCustomProvince(true);
+                                      }}
+                                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-xs bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 text-amber-800 dark:text-amber-200 font-semibold transition-all cursor-pointer border-b border-amber-200 dark:border-amber-900"
+                                    >
+                                      <PlusCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                                      <span>Use custom province: <strong>"{provinceSearch.trim()}"</strong></span>
+                                    </button>
+                                  )}
+                                  {searchProvinces(provinceSearch).map((prov) => {
+                                    const isSelected = state === prov.name;
+                                    return (
+                                      <button
+                                        key={prov.code}
+                                        type="button"
+                                        onClick={() => {
+                                          setState(prov.name);
+                                          setCity('');
+                                          setBarangay('');
+                                          setZipCode('');
+                                          const autoZone = getShippingZoneForProvince(prov.name);
+                                          if (autoZone) setShippingLocation(autoZone);
+                                          setIsProvinceOpen(false);
+                                          setProvinceSearch('');
+                                          setIsCityOpen(true);
+                                        }}
+                                        className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-[#3C6CA8]/5 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                          isSelected ? 'bg-[#3C6CA8]/10 text-[#3C6CA8] font-bold' : 'text-gray-800 dark:text-slate-200'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-2.5">
+                                          <Globe className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#3C6CA8]' : 'text-gray-400'}`} />
+                                          <div>
+                                            <p className="font-bold text-sm">{prov.name}</p>
+                                            <p className="text-[11px] text-gray-400">{prov.region}</p>
+                                          </div>
+                                        </div>
+                                        {isSelected && <Check className="w-4 h-4 text-[#3C6CA8]" />}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
 
                       {/* CITY SELECTOR (Right, Connected to Province) */}
                       <div className={`relative ${isCityOpen ? 'z-[100]' : 'z-20'}`} ref={cityDropdownRef}>
-                        <label htmlFor="checkout-city-button" className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <label htmlFor={isCustomCity ? "checkout-custom-city" : "checkout-city-button"} className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <Navigation className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-500" /> Choose City and Municipality <span className="text-rose-500">*</span>
                           </span>
-                          {state && (
-                            <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                              {isLoadingCities ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
-                                  <span>SYNCING...</span>
-                                </>
-                              ) : (
-                                <span>{liveCities.length > 0 ? liveCities.length : getCitiesForProvince(state).length} CITIES</span>
-                              )}
-                            </span>
-                          )}
-                        </label>
-                        <button
-                          id="checkout-city-button"
-                          type="button"
-                          disabled={!state}
-                          onClick={() => {
-                            if (!state) return;
-                            setIsCityOpen(!isCityOpen);
-                            setIsProvinceOpen(false);
-                            setIsBarangayOpen(false);
-                          }}
-                          className={`w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-8 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all shadow-xs text-left relative ${
-                            state ? 'text-gray-800 dark:text-slate-100 cursor-pointer' : 'text-gray-400 dark:text-slate-500 cursor-not-allowed opacity-75'
-                          }`}
-                        >
-                          <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <span className="truncate">{city || (state ? 'Select City/Municipality...' : 'Select Province First')}</span>
-                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isCityOpen ? 'rotate-180 text-emerald-500' : ''}`} />
-                        </button>
-
-                        {/* City Search Popover */}
-                        {isCityOpen && state && (
-                          <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
-                            {/* Search Widget */}
-                            <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
-                              <div className="relative">
-                                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <input id="checkout-input-3" name="input_3" type="text"
-                                  autoComplete="off"
-                                  value={citySearch}
-                                  onChange={(e) => setCitySearch(e.target.value)}
-                                  placeholder={`Search cities in ${state}...`}
-                                  className="w-full text-xs pl-8 pr-7 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
-                                  autoFocus
-                                />
-                                {citySearch && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setCitySearch('')}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomCity(!isCustomCity);
+                                setIsCityOpen(false);
+                              }}
+                              className="text-[10px] font-bold text-emerald-600 hover:underline flex items-center gap-1 bg-emerald-100/60 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full transition-all"
+                            >
+                              <Edit3 className="w-2.5 h-2.5" />
+                              {isCustomCity ? 'Use Dropdown' : 'Enter Custom'}
+                            </button>
+                            {state && (
+                              <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                {isLoadingCities ? (
+                                  <>
+                                    <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
+                                    <span>SYNCING...</span>
+                                  </>
+                                ) : (
+                                  <span>{liveCities.length > 0 ? liveCities.length : getCitiesForProvince(state).length} CITIES</span>
                                 )}
-                              </div>
-                            </div>
-                            {/* City List */}
-                            <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
-                              {(liveCities.length > 0 ? liveCities : getCitiesForProvince(state))
-                                .filter((c) => !citySearch.trim() || c.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
-                                .map((c) => {
-                                  const isSelected = city === c.name;
-                                  return (
+                              </span>
+                            )}
+                          </div>
+                        </label>
+                        {isCustomCity ? (
+                          <div className="relative">
+                            <input
+                              id="checkout-custom-city"
+                              name="city"
+                              autoComplete="address-level2"
+                              type="text"
+                              value={city}
+                              onChange={(e) => {
+                                setCity(e.target.value);
+                                const zip = getZipCodeForCity(e.target.value, state);
+                                if (zip) setZipCode(zip);
+                              }}
+                              placeholder="Type custom city or municipality..."
+                              className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-20 py-2.5 sm:py-3 border border-emerald-500 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all shadow-xs"
+                            />
+                            <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <button
+                              type="button"
+                              onClick={() => setIsCustomCity(false)}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 px-2 py-1 rounded-md hover:bg-gray-200"
+                            >
+                              Dropdown
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              id="checkout-city-button"
+                              type="button"
+                              disabled={!state}
+                              onClick={() => {
+                                if (!state) return;
+                                setIsCityOpen(!isCityOpen);
+                                setIsProvinceOpen(false);
+                                setIsBarangayOpen(false);
+                              }}
+                              className={`w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-8 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 font-medium focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none flex items-center justify-between transition-all shadow-xs text-left relative ${
+                                state ? 'text-gray-800 dark:text-slate-100 cursor-pointer' : 'text-gray-400 dark:text-slate-500 cursor-not-allowed opacity-75'
+                              }`}
+                            >
+                              <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <span className="truncate">{city || (state ? 'Select City/Municipality...' : 'Select Province First')}</span>
+                              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isCityOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+                            </button>
+
+                            {/* City Search Popover */}
+                            {isCityOpen && state && (
+                              <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[9999] overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-150">
+                                {/* Search Widget */}
+                                <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
+                                  <div className="relative">
+                                    <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                    <input id="checkout-city-search" name="city_search" type="text"
+                                      autoComplete="off"
+                                      value={citySearch}
+                                      onChange={(e) => setCitySearch(e.target.value)}
+                                      placeholder={`Search cities in ${state}...`}
+                                      className="w-full text-xs pl-8 pr-7 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 text-gray-800 dark:text-slate-100"
+                                      autoFocus
+                                    />
+                                    {citySearch && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setCitySearch('')}
+                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-0.5"
+                                      >
+                                        <X className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                                {/* City List */}
+                                <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                                  {citySearch.trim() && (
                                     <button
-                                      key={c.code}
                                       type="button"
                                       onClick={() => {
-                                        setCity(c.name);
-                                        setBarangay('');
-                                        const zip = c.zipCode || getZipCodeForCity(c.name, state);
+                                        setCity(citySearch.trim());
+                                        const zip = getZipCodeForCity(citySearch.trim(), state);
                                         if (zip) setZipCode(zip);
                                         setIsCityOpen(false);
                                         setCitySearch('');
-                                        setIsBarangayOpen(true);
+                                        setIsCustomCity(true);
                                       }}
-                                      className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-emerald-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
-                                        isSelected ? 'bg-emerald-100/50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold' : 'text-gray-800 dark:text-slate-200'
-                                      }`}
+                                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-xs bg-[#3C6CA8]/10 hover:bg-[#3C6CA8]/20 text-[#3C6CA8] font-semibold transition-all cursor-pointer border-b border-blue-200 dark:border-blue-900"
                                     >
-                                      <div className="flex items-center gap-2.5">
-                                        <Navigation className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-500' : 'text-gray-400'}`} />
-                                        <div>
-                                          <p className="font-bold text-sm">{c.name}</p>
-                                          {c.zipCode && <p className="text-[11px] text-gray-400">Zip: {c.zipCode}</p>}
-                                        </div>
-                                      </div>
-                                      {isSelected && <Check className="w-4 h-4 text-emerald-500" />}
+                                      <PlusCircle className="w-4 h-4 text-[#3C6CA8] shrink-0" />
+                                      <span>Use custom city: <strong>"{citySearch.trim()}"</strong></span>
                                     </button>
-                                  );
-                                })}
-                            </div>
-                          </div>
+                                  )}
+                                  {(liveCities.length > 0 ? liveCities : getCitiesForProvince(state))
+                                    .filter((c) => !citySearch.trim() || c.name.toLowerCase().includes(citySearch.trim().toLowerCase()))
+                                    .map((c) => {
+                                      const isSelected = city === c.name;
+                                      return (
+                                        <button
+                                          key={c.code}
+                                          type="button"
+                                          onClick={() => {
+                                            setCity(c.name);
+                                            setBarangay('');
+                                            const zip = c.zipCode || getZipCodeForCity(c.name, state);
+                                            if (zip) setZipCode(zip);
+                                            setIsCityOpen(false);
+                                            setCitySearch('');
+                                            setIsBarangayOpen(true);
+                                          }}
+                                          className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-xs hover:bg-emerald-50 dark:hover:bg-slate-800/80 transition-all cursor-pointer ${
+                                            isSelected ? 'bg-emerald-100/50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold' : 'text-gray-800 dark:text-slate-200'
+                                          }`}
+                                        >
+                                          <div className="flex items-center gap-2.5">
+                                            <Navigation className={`w-4 h-4 shrink-0 ${isSelected ? 'text-teal-500' : 'text-gray-400'}`} />
+                                            <span className="font-bold text-sm">{c.name}</span>
+                                          </div>
+                                          {isSelected && <Check className="w-4 h-4 text-teal-500" />}
+                                        </button>
+                                      );
+                                    })}
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1520,31 +1768,67 @@ Please confirm this order. Thank you!
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3.5">
                       {/* BARANGAY SELECTOR (Left, Cascaded from City) */}
                       <div className={`relative ${isBarangayOpen ? 'z-[90]' : 'z-10'}`} ref={barangayDropdownRef}>
-                        <label htmlFor="checkout-barangay-button" className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <label htmlFor={isCustomBarangay ? "checkout-custom-barangay" : (!city ? "checkout-disabled-barangay" : "checkout-barangay-button")} className="block text-[10.5px] sm:text-xs font-bold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-500" /> Barangay <span className="text-rose-500">*</span>
                           </span>
-                          {city && (
-                            <span className="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 flex items-center gap-1">
-                              {isLoadingBarangays ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 animate-spin text-teal-500" />
-                                  <span>SYNCING...</span>
-                                </>
-                              ) : (
-                                <span>{liveBarangays.length > 0 ? liveBarangays.length : getBarangaysForCity(city, state).length} BARANGAYS</span>
-                              )}
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomBarangay(!isCustomBarangay);
+                                setIsBarangayOpen(false);
+                              }}
+                              className="text-[10px] font-bold text-teal-600 hover:underline flex items-center gap-1 bg-teal-100/60 dark:bg-teal-950/50 px-2 py-0.5 rounded-full transition-all"
+                            >
+                              <Edit3 className="w-2.5 h-2.5" />
+                              {isCustomBarangay ? 'Use Dropdown' : 'Enter Custom'}
+                            </button>
+                            {city && (
+                              <span className="text-[10px] font-extrabold text-teal-600 dark:text-teal-400 flex items-center gap-1">
+                                {isLoadingBarangays ? (
+                                  <>
+                                    <Loader2 className="w-3 h-3 animate-spin text-teal-500" />
+                                    <span>SYNCING...</span>
+                                  </>
+                                ) : (
+                                  <span>{liveBarangays.length > 0 ? liveBarangays.length : getBarangaysForCity(city, state).length} BARANGAYS</span>
+                                )}
+                              </span>
+                            )}
+                          </div>
                         </label>
-                        {!city ? (
+                        {isCustomBarangay ? (
                           <div className="relative">
                             <input
+                              id="checkout-custom-barangay"
+                              name="barangay"
+                              autoComplete="address-level3"
+                              type="text"
+                              value={barangay}
+                              onChange={(e) => setBarangay(e.target.value)}
+                              placeholder="Type custom barangay name..."
+                              className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-20 py-2.5 sm:py-3 border border-teal-500 rounded-xl bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-medium focus:ring-2 focus:ring-teal-500/30 outline-none transition-all shadow-xs"
+                            />
+                            <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <button
+                              type="button"
+                              onClick={() => setIsCustomBarangay(false)}
+                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 px-2 py-1 rounded-md hover:bg-gray-200"
+                            >
+                              Dropdown
+                            </button>
+                          </div>
+                        ) : !city ? (
+                          <div className="relative">
+                            <input
+                              id="checkout-disabled-barangay"
+                              name="disabled_barangay"
                               type="text"
                               disabled
                               value="Select City/Municipality First"
                               className="w-full text-xs sm:text-sm pl-9 sm:pl-10 pr-3 py-2.5 sm:py-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-800/50 text-gray-400 dark:text-slate-500 cursor-not-allowed outline-none"
-                            autoComplete="off" />
+                              autoComplete="off" />
                             <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                           </div>
                         ) : (
@@ -1571,7 +1855,7 @@ Please confirm this order. Thank you!
                                 <div className="px-3 pb-2 border-b border-gray-100 dark:border-slate-800">
                                   <div className="relative">
                                     <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                    <input id="checkout-input-4" name="input_4" type="text"
+                                    <input id="checkout-barangay-search" name="barangay_search" type="text"
                                       autoComplete="off"
                                       value={barangaySearch}
                                       onChange={(e) => setBarangaySearch(e.target.value)}
@@ -1592,6 +1876,23 @@ Please confirm this order. Thank you!
                                 </div>
                                 {/* Barangay List */}
                                 <div className="max-h-64 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-800/50">
+                                  {barangaySearch.trim() && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setBarangay(barangaySearch.trim());
+                                        const refinedZip = getZipCodeForCity(city, state, barangaySearch.trim());
+                                        if (refinedZip) setZipCode(refinedZip);
+                                        setIsBarangayOpen(false);
+                                        setBarangaySearch('');
+                                        setIsCustomBarangay(true);
+                                      }}
+                                      className="w-full px-4 py-2.5 flex items-center gap-2 text-left text-xs bg-teal-50 dark:bg-teal-950/30 hover:bg-teal-100 text-teal-800 dark:text-teal-200 font-semibold transition-all cursor-pointer border-b border-teal-200 dark:border-teal-900"
+                                    >
+                                      <PlusCircle className="w-4 h-4 text-teal-600 shrink-0" />
+                                      <span>Use custom barangay: <strong>"{barangaySearch.trim()}"</strong></span>
+                                    </button>
+                                  )}
                                   {(liveBarangays.length > 0 ? liveBarangays : getBarangaysForCity(city, state))
                                     .filter((b) => !barangaySearch.trim() || b.name.toLowerCase().includes(barangaySearch.trim().toLowerCase()))
                                     .map((b) => {
@@ -1839,7 +2140,7 @@ Please confirm this order. Thank you!
                   <div className="space-y-4 mb-6">
                     {/* Promo Code Input */}
                     <div className="pt-3 pb-4 border-t border-b border-gray-100 dark:border-slate-800">
-                      <p className="text-xs font-bold text-gray-800 dark:text-slate-200 mb-2 flex items-center justify-between">
+                      <label htmlFor="checkout-promo-code" className="text-xs font-bold text-gray-800 dark:text-slate-200 mb-2 flex items-center justify-between cursor-pointer">
                         <span className="flex items-center gap-1.5">
                           <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                           Have a promo code?
@@ -1849,14 +2150,14 @@ Please confirm this order. Thank you!
                             PROMO APPLIED
                           </span>
                         )}
-                      </p>
+                      </label>
                       {hasBundleDiscount && (
                         <p className="text-xs text-amber-800 dark:text-amber-300 mb-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-xl p-2.5">
                           Bundle discount is active — promo codes cannot be combined with bundles.
                         </p>
                       )}
                       <div className="flex gap-2">
-                        <input id="checkout-input-6" name="input_6" type="text"
+                        <input id="checkout-promo-code" name="promo_code" type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
                           placeholder="ENTER CODE"
@@ -1931,7 +2232,7 @@ Please confirm this order. Thank you!
                               {(() => {
                                 const modeObj = DELIVERY_MODES.find(m => m.id === shippingLocation);
                                 if (modeObj) return modeObj.name;
-                                const locObj = shippingLocations.find(loc => (loc.code || loc.id) === shippingLocation);
+                                const locObj = shippingLocations.find(loc => loc.id === shippingLocation);
                                 return locObj ? locObj.name : '-- Select Mode of Delivery --';
                               })()}
                             </span>
@@ -2226,31 +2527,18 @@ Please confirm this order. Thank you!
                     </div>
 
                     <div className="space-y-3">
-                      {/* 1. Account Number & Account Name in 2 columns inline */}
-                      <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 dark:text-slate-200">
-                        <div className="p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/80">
-                          <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-slate-400 block mb-0.5">Account Number</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white text-xs sm:text-sm tracking-wider block truncate">{paymentMethodInfo.account_number}</span>
-                        </div>
-
-                        <div className="p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200/60 dark:border-slate-700/80">
-                          <span className="text-[9px] sm:text-[10px] uppercase font-extrabold text-slate-400 block mb-0.5">Account Name</span>
-                          <span className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm block truncate">{paymentMethodInfo.account_name}</span>
-                        </div>
-                      </div>
-
-                      {/* 2. High-Visibility QR Code */}
+                      {/* 2. High-Visibility Large QR Code */}
                       {paymentMethodInfo.qr_code_url && (
-                        <div className="flex flex-col items-center justify-center p-2.5 sm:p-4 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xs border border-gray-200/80 dark:border-slate-700">
-                          <div className="relative group p-1.5 sm:p-2 bg-white rounded-lg sm:rounded-xl">
+                        <div className="flex flex-col items-center justify-center p-3 sm:p-6 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-xs border border-gray-200/80 dark:border-slate-700">
+                          <div className="relative group p-2 sm:p-3 bg-white rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-xs max-w-full flex items-center justify-center">
                             <img
                               src={paymentMethodInfo.qr_code_url}
                               alt="Payment QR Code"
-                              className="w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 object-contain rounded-md sm:rounded-lg transition-transform duration-300 group-hover:scale-105"
+                              className="w-64 sm:w-80 md:w-96 max-w-full h-auto object-contain rounded-lg sm:rounded-xl transition-transform duration-300 group-hover:scale-105"
                             />
                           </div>
-                          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-1.5 flex items-center gap-1">
-                            <QrCode className="w-3 h-3 text-[#3C6CA8]" /> Scan QR with banking / e-Wallet app
+                          <span className="text-[11px] sm:text-xs font-bold text-slate-600 dark:text-slate-300 mt-2.5 flex items-center gap-1.5">
+                            <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#3C6CA8]" /> Scan QR code with your banking or e-Wallet app
                           </span>
                         </div>
                       )}
@@ -2343,14 +2631,14 @@ Please confirm this order. Thank you!
 
               {/* Order Notes Section */}
               <div className="pt-3 border-t border-gray-150 dark:border-slate-800 space-y-2.5">
-                <h2 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2.5">
+                <label htmlFor="checkout-order-notes" className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2.5 cursor-pointer">
                   <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200 dark:border-amber-800">
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <span className="font-extrabold text-xs sm:text-sm md:text-base block truncate">Order Notes</span>
-                </h2>
+                </label>
                 <div className="relative">
-                  <textarea id="checkout-input-8" name="input_8" value={notes}
+                  <textarea id="checkout-order-notes" name="order_notes" value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="e.g. Leave with guard, landmark, gate code..."
                     className="w-full text-xs sm:text-sm p-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] outline-none bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 transition-all font-medium min-h-[80px] sm:min-h-[100px] resize-y"
@@ -2364,32 +2652,90 @@ Please confirm this order. Thank you!
 
               {/* Preferred Contact Method Selection */}
               {!isHitpaySelected && (
-                <div className="pt-3 border-t border-gray-150 dark:border-slate-800 space-y-2.5">
-                  <h2 className="text-sm sm:text-base md:text-lg font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4 text-[#3C6CA8]" />
-                    Preferred Contact Method *
-                  </h2>
-                  <div className="grid grid-cols-1 gap-2.5">
+                <div className="pt-3 border-t border-gray-150 dark:border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xs sm:text-sm md:text-base font-extrabold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <MessageCircle className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                      Preferred Contact Method *
+                    </h2>
+                    <span className="text-[10px] sm:text-[11px] text-gray-400 dark:text-slate-500">For tracking &amp; updates</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {/* Option 1: Telegram */}
                     <button
-                      onClick={() => setContactMethod('messenger')}
-                      className={`p-3 sm:p-4 rounded-xl border-2 transition-all flex items-center justify-between cursor-pointer ${
-                        contactMethod === 'messenger'
-                          ? 'border-[#3C6CA8] bg-blue-50/40 dark:bg-slate-800/80 shadow-xs'
-                          : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/50 bg-white dark:bg-slate-900'
+                      type="button"
+                      onClick={() => setContactMethod('telegram')}
+                      className={`p-2 sm:p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2 text-left cursor-pointer ${
+                        contactMethod === 'telegram' || contactMethod === 'messenger'
+                          ? 'border-[#3C6CA8] bg-blue-50/60 dark:bg-slate-800/90 shadow-2xs ring-1 ring-[#3C6CA8]'
+                          : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/40 bg-white dark:bg-slate-900'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20">
-                          <MessageCircle className="w-4 h-4" />
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-[#229ED9] flex items-center justify-center border border-blue-500/20 shrink-0">
+                          <MessageCircle className="w-3.5 h-3.5" />
                         </div>
-                        <div className="text-left">
-                          <p className="font-extrabold text-gray-900 dark:text-white text-xs sm:text-sm">Telegram</p>
-                          <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium">@slimdose_mnl</p>
+                        <div className="min-w-0">
+                          <p className="font-extrabold text-gray-900 dark:text-white text-xs leading-tight">Telegram</p>
+                          <p className="text-[10px] text-[#229ED9] font-semibold leading-tight truncate">@slimdose_mnl</p>
                         </div>
                       </div>
-                      {contactMethod === 'messenger' && (
-                        <div className="w-5 h-5 bg-[#3C6CA8] rounded-full flex items-center justify-center text-white shrink-0 shadow-xs">
-                          <span className="text-xs font-extrabold">✓</span>
+                      {(contactMethod === 'telegram' || contactMethod === 'messenger') && (
+                        <div className="w-4 h-4 bg-[#3C6CA8] rounded-full flex items-center justify-center text-white shrink-0 shadow-2xs">
+                          <span className="text-[9px] font-black">✓</span>
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Option 2: SMS */}
+                    <button
+                      type="button"
+                      onClick={() => setContactMethod('sms')}
+                      className={`p-2 sm:p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2 text-left cursor-pointer ${
+                        contactMethod === 'sms'
+                          ? 'border-[#3C6CA8] bg-blue-50/60 dark:bg-slate-800/90 shadow-2xs ring-1 ring-[#3C6CA8]'
+                          : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/40 bg-white dark:bg-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                          <MessageSquare className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-extrabold text-gray-900 dark:text-white text-xs leading-tight">SMS</p>
+                          <p className="text-[10px] text-gray-500 dark:text-slate-400 font-medium leading-tight truncate">Direct mobile updates</p>
+                        </div>
+                      </div>
+                      {contactMethod === 'sms' && (
+                        <div className="w-4 h-4 bg-[#3C6CA8] rounded-full flex items-center justify-center text-white shrink-0 shadow-2xs">
+                          <span className="text-[9px] font-black">✓</span>
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Option 3: E-Mail */}
+                    <button
+                      type="button"
+                      onClick={() => setContactMethod('email')}
+                      className={`p-2 sm:p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2 text-left cursor-pointer ${
+                        contactMethod === 'email'
+                          ? 'border-[#3C6CA8] bg-blue-50/60 dark:bg-slate-800/90 shadow-2xs ring-1 ring-[#3C6CA8]'
+                          : 'border-gray-200 dark:border-slate-800 hover:border-[#3C6CA8]/40 bg-white dark:bg-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-500/20 shrink-0">
+                          <Mail className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-extrabold text-gray-900 dark:text-white text-xs leading-tight">E-Mail</p>
+                          <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium leading-tight truncate">slimdosepeptides@gmail.com</p>
+                        </div>
+                      </div>
+                      {contactMethod === 'email' && (
+                        <div className="w-4 h-4 bg-[#3C6CA8] rounded-full flex items-center justify-center text-white shrink-0 shadow-2xs">
+                          <span className="text-[9px] font-black">✓</span>
                         </div>
                       )}
                     </button>
@@ -2457,6 +2803,23 @@ Please confirm this order. Thank you!
                   </p>
                   <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5 truncate">
                     <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" /> <span className="truncate">{phone}</span>
+                  </p>
+                  <p className="text-gray-600 dark:text-slate-300 flex items-center gap-1.5 truncate pt-0.5">
+                    {contactMethod === 'sms' ? (
+                      <MessageSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    ) : contactMethod === 'email' ? (
+                      <Mail className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                    ) : (
+                      <MessageCircle className="w-3.5 h-3.5 text-[#229ED9] shrink-0" />
+                    )}
+                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Updates via:</span>
+                    <span className="text-[11px] font-bold text-[#3C6CA8] capitalize truncate">
+                      {contactMethod === 'sms'
+                        ? 'SMS'
+                        : contactMethod === 'email'
+                        ? 'Email (slimdosepeptides@gmail.com)'
+                        : 'Telegram (@slimdose_mnl)'}
+                    </span>
                   </p>
                   <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 flex items-start gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />

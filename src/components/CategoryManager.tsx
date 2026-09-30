@@ -8,7 +8,6 @@ import {
   Search,
   RotateCw,
   Package,
-  ArrowUpDown,
   X,
   Layers,
   Sparkles,
@@ -28,6 +27,9 @@ import {
   Brain,
   Leaf,
   Coffee,
+  Link2,
+  Globe,
+  CornerDownRight,
 } from 'lucide-react';
 import { useCategories, Category } from '../hooks/useCategories';
 import { supabase } from '../lib/supabase';
@@ -69,7 +71,6 @@ const STANDARD_CATEGORIES = [
 ];
 
 const CategoryManager: React.FC<CategoryManagerProps> = ({
-  onBack,
   adminEmail = 'admin@slimdose.ph',
   adminRole = 'admin',
 }) => {
@@ -92,10 +93,22 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
   const [formData, setFormData] = useState({
     id: '',
     name: '',
+    slug: '',
+    parent_id: '' as string, // '' = top-level category
     icon: '🔬',
     sort_order: 1,
     active: true,
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: '',
   });
+  const slugManuallyEdited = React.useRef(false);
+
+  // Top-level categories available as parents (never offer self as a parent)
+  const topLevelCategories = useMemo(
+    () => categories.filter((c) => !c.parent_id && (!editingCategory || c.id !== editingCategory.id)),
+    [categories, editingCategory]
+  );
 
   // Log Admin Action
   const logAdminAction = async (action: string, details?: any) => {
@@ -121,7 +134,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
 
       const counts: Record<string, number> = {};
       if (data) {
-        data.forEach((p) => {
+        data.forEach((p: any) => {
           if (p.category) {
             counts[p.category] = (counts[p.category] || 0) + 1;
           }
@@ -160,22 +173,34 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
   const openModal = (cat?: Category) => {
     if (cat) {
       setEditingCategory(cat);
+      slugManuallyEdited.current = (cat.slug || '').length > 0;
       setFormData({
         id: cat.id,
         name: cat.name,
+        slug: cat.slug || '',
+        parent_id: cat.parent_id || '',
         icon: cat.icon || '🔬',
         sort_order: cat.sort_order || 1,
         active: cat.active ?? true,
+        seo_title: cat.seo_title || '',
+        seo_description: cat.seo_description || '',
+        seo_keywords: cat.seo_keywords || '',
       });
     } else {
       setEditingCategory(null);
+      slugManuallyEdited.current = false;
       const nextSort = categories.length > 0 ? Math.max(...categories.map((c) => c.sort_order || 0)) + 1 : 1;
       setFormData({
         id: '',
         name: '',
+        slug: '',
+        parent_id: '',
         icon: '🔬',
         sort_order: nextSort,
         active: true,
+        seo_title: '',
+        seo_description: '',
+        seo_keywords: '',
       });
     }
     setIsModalOpen(true);
@@ -196,25 +221,38 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     }
 
     setIsSaving(true);
+    const cleanSlug = formData.slug.trim() || generateIdFromName(formData.name);
+    const cleanParent = formData.parent_id.trim() || null;
+    const seo = {
+      seo_title: formData.seo_title.trim(),
+      seo_description: formData.seo_description.trim(),
+      seo_keywords: formData.seo_keywords.trim(),
+    };
     try {
       if (editingCategory) {
         await updateCategory(editingCategory.id, {
           name: formData.name.trim(),
+          slug: cleanSlug,
+          parent_id: cleanParent,
           icon: formData.icon.trim() || '🔬',
           sort_order: Number(formData.sort_order) || 1,
           active: formData.active,
+          ...seo,
         });
-        logAdminAction('update_category', { id: editingCategory.id, name: formData.name });
+        logAdminAction('update_category', { id: editingCategory.id, name: formData.name, parent_id: cleanParent, slug: cleanSlug });
         fireToast(`Category "${formData.name}" updated successfully!`, 'success');
       } else {
         await addCategory({
           id: cleanId,
           name: formData.name.trim(),
+          slug: cleanSlug,
+          parent_id: cleanParent,
           icon: formData.icon.trim() || '🔬',
           sort_order: Number(formData.sort_order) || 1,
           active: formData.active,
+          ...seo,
         });
-        logAdminAction('create_category', { id: cleanId, name: formData.name });
+        logAdminAction('create_category', { id: cleanId, name: formData.name, parent_id: cleanParent, slug: cleanSlug });
         fireToast(`Category "${formData.name}" created successfully!`, 'success');
       }
 
@@ -306,6 +344,15 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
     return { total, active, totalProducts, empty };
   }, [categories, categoryProductCounts]);
 
+  // Direct child counts per parent (tree UI + delete guard warnings)
+  const childCountById = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const c of categories) {
+      if (c.parent_id) map[c.parent_id] = (map[c.parent_id] || 0) + 1;
+    }
+    return map;
+  }, [categories]);
+
   // Filter & Sort Categories
   const filteredAndSortedCategories = useMemo(() => {
     const result = categories.filter((c) => {
@@ -346,6 +393,33 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
 
     return result;
   }, [categories, searchTerm, selectedTab, sortBy, categoryProductCounts]);
+
+  // Flatten categories into tree order (parents followed by their children)
+  const flattenedCategories = useMemo<(Category & { depth: number })[]>(() => {
+    const parentSorted = [...filteredAndSortedCategories].sort((a, b) => {
+      if (a.parent_id === b.parent_id) {
+        if (sortBy === 'name_asc') return a.name.localeCompare(b.name);
+        return (a.sort_order || 0) - (b.sort_order || 0);
+      }
+      if (a.parent_id && !b.parent_id) return 1;
+      if (!a.parent_id && b.parent_id) return -1;
+      return (a.sort_order || 0) - (b.sort_order || 0);
+    });
+    const out: (Category & { depth: number })[] = [];
+    for (const parent of parentSorted.filter((c) => !c.parent_id)) {
+      out.push({ ...parent, depth: 0 });
+      for (const child of parentSorted.filter((c) => c.parent_id === parent.id)) {
+        out.push({ ...child, depth: 1 });
+      }
+    }
+    // Safety net: children whose parent is filtered out (e.g. mid-search)
+    for (const c of parentSorted) {
+      if (c.parent_id && !out.some((o) => o.id === c.id)) {
+        out.push({ ...c, depth: 1 });
+      }
+    }
+    return out;
+  }, [filteredAndSortedCategories, sortBy]);
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 font-inter">
@@ -580,8 +654,9 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70 text-xs">
-                  {filteredAndSortedCategories.map((cat, idx) => {
+                  {flattenedCategories.map((cat, idx) => {
                     const productCount = categoryProductCounts[cat.id] || 0;
+                    const childCount = childCountById[cat.id] || 0;
                     return (
                       <tr key={cat.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors group">
                         {/* Order Column */}
@@ -609,18 +684,37 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                           </div>
                         </td>
 
-                        {/* Category & Slug */}
+                        {/* Category & Slug (tree-indented for sub-categories) */}
                         <td className="py-4 px-5">
-                          <div className="flex items-center gap-3">
+                          <div
+                            className="flex items-center gap-3"
+                            style={{ paddingLeft: `${(cat.depth || 0) * 28}px` }}
+                          >
+                            {(cat.depth || 0) > 0 ? (
+                              <CornerDownRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
+                            ) : null}
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3C6CA8]/10 to-blue-50 dark:from-slate-800 dark:to-slate-800/60 border border-[#3C6CA8]/20 flex items-center justify-center shrink-0 shadow-inner text-[#3C6CA8]">
                               <CategoryIcon icon={cat.icon} />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-black text-sm text-[#232323] dark:text-white truncate group-hover:text-[#3C6CA8] transition-colors">
-                                {cat.name}
-                              </h4>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-black text-sm text-[#232323] dark:text-white truncate group-hover:text-[#3C6CA8] transition-colors">
+                                  {cat.name}
+                                </h4>
+                                {(cat.depth || 0) > 0 && (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9.5px] font-extrabold uppercase tracking-wide bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                    <Link2 className="w-2.5 h-2.5" />
+                                    Sub
+                                  </span>
+                                )}
+                                {childCount > 0 && (
+                                  <span className="px-1.5 py-0.5 rounded-md text-[9.5px] font-extrabold uppercase tracking-wide bg-[#3C6CA8]/10 text-[#3C6CA8] dark:bg-[#3C6CA8]/20 dark:text-[#94BBE9]">
+                                    {childCount} {childCount === 1 ? 'Sub' : 'Subs'}
+                                  </span>
+                                )}
+                              </div>
                               <span className="font-mono text-[10.5px] text-slate-400 dark:text-slate-500 block mt-0.5">
-                                slug: <strong className="text-slate-600 dark:text-slate-300">{cat.id}</strong>
+                                slug: <strong className="text-slate-600 dark:text-slate-300">{cat.slug || cat.id}</strong>
                               </span>
                             </div>
                           </div>
@@ -689,21 +783,34 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
 
             {/* Mobile & Tablet Card Deck View (< 1024px) */}
             <div className="block lg:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
-              {filteredAndSortedCategories.map((cat, idx) => {
+              {flattenedCategories.map((cat, idx) => {
                 const productCount = categoryProductCounts[cat.id] || 0;
+                const isChild = (cat.depth || 0) > 0;
                 return (
-                  <div key={cat.id} className="p-4 sm:p-5 space-y-3">
+                  <div key={cat.id} className={`p-4 sm:p-5 space-y-3 ${isChild ? 'bg-slate-50/60 dark:bg-slate-800/30' : ''}`}>
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="flex items-center gap-3 min-w-0"
+                        style={{ paddingLeft: `${(cat.depth || 0) * 20}px` }}
+                      >
+                        {isChild ? (
+                          <CornerDownRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
+                        ) : null}
                         <div className="w-11 h-11 rounded-xl bg-[#3C6CA8]/10 text-[#3C6CA8] flex items-center justify-center shrink-0 border border-[#3C6CA8]/20 shadow-inner">
                           <CategoryIcon icon={cat.icon} />
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-extrabold text-sm sm:text-base text-[#232323] dark:text-white truncate">
                             {cat.name}
+                            {isChild && (
+                              <span className="ml-2 align-middle inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold uppercase bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                <Link2 className="w-2.5 h-2.5" />
+                                Sub
+                              </span>
+                            )}
                           </h4>
                           <span className="text-[10px] text-slate-400 font-mono block truncate">
-                            ID: {cat.id} • Order: #{cat.sort_order || idx + 1}
+                            ID: {cat.id} • slug: {cat.slug || cat.id} • Order: #{cat.sort_order || idx + 1}
                           </span>
                         </div>
                       </div>
@@ -759,7 +866,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
       {/* ─── Create / Edit Category Modal Dialog ────────────────────────── */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
               <div className="flex items-center gap-2.5">
@@ -795,6 +902,10 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                       ...formData,
                       name: val,
                       id: editingCategory ? formData.id : generateIdFromName(val),
+                      slug:
+                        editingCategory || slugManuallyEdited.current
+                          ? formData.slug
+                          : generateIdFromName(val),
                     });
                   }}
                   className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8]"
@@ -816,6 +927,49 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">
                   {editingCategory ? 'Category ID cannot be modified after creation.' : 'Used in storefront URLs and database relations.'}
+                </span>
+              </div>
+
+              {/* Parent Category (Hierarchy) */}
+              <div>
+                <label htmlFor="categorymanager-parent-category" className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px] mb-1.5">
+                  Parent Category
+                </label>
+                <select
+                  id="categorymanager-parent-category"
+                  name="parent_category"
+                  value={formData.parent_id}
+                  onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 focus:border-[#3C6CA8] cursor-pointer"
+                >
+                  <option value="">— Top-Level Category (no parent) —</option>
+                  {topLevelCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.icon} {c.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Sub-categories appear nested under their parent on the storefront menu.
+                </span>
+              </div>
+
+              {/* Storefront URL Slug */}
+              <div>
+                <label htmlFor="categorymanager-url-slug" className="block font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px] mb-1.5">
+                  Storefront URL Slug
+                </label>
+                <input id="categorymanager-url-slug" name="category_url_slug" type="text"
+                  placeholder="e.g. research-peptides"
+                  value={formData.slug}
+                  onChange={(e) => {
+                    slugManuallyEdited.current = true;
+                    setFormData({ ...formData, slug: generateIdFromName(e.target.value) });
+                  }}
+                  className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Auto-generated from the name. Leave blank to fall back to the Category ID.
                 </span>
               </div>
 
@@ -870,6 +1024,55 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
                   className="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl font-bold bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
                 />
                 <span className="text-[10px] text-slate-400 mt-1 block">Lower numbers appear first on the customer navigation bar.</span>
+              </div>
+
+              {/* SEO Fields */}
+              <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/50 space-y-3">
+                <div className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#3C6CA8]" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    SEO &amp; Meta (Search Engines)
+                  </span>
+                </div>
+                <div>
+                  <label htmlFor="categorymanager-seo-title" className="block font-bold text-slate-600 dark:text-slate-300 text-[11px] mb-1">
+                    Meta Title
+                  </label>
+                  <input id="categorymanager-seo-title" name="seo_title" type="text"
+                    maxLength={70}
+                    placeholder={`Buy ${formData.name.trim() || 'Peptides'} Online`}
+                    value={formData.seo_title}
+                    onChange={(e) => setFormData({ ...formData, seo_title: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
+                  <span className="text-[10px] text-slate-400 block mt-0.5">{formData.seo_title.length}/70 characters</span>
+                </div>
+                <div>
+                  <label htmlFor="categorymanager-seo-description" className="block font-bold text-slate-600 dark:text-slate-300 text-[11px] mb-1">
+                    Meta Description
+                  </label>
+                  <textarea id="categorymanager-seo-description" name="seo_description"
+                    maxLength={180}
+                    rows={2}
+                    placeholder="Short description shown in search results..."
+                    value={formData.seo_description}
+                    onChange={(e) => setFormData({ ...formData, seo_description: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30 resize-none"
+                  />
+                  <span className="text-[10px] text-slate-400 block mt-0.5">{formData.seo_description.length}/180 characters</span>
+                </div>
+                <div>
+                  <label htmlFor="categorymanager-seo-keywords" className="block font-bold text-slate-600 dark:text-slate-300 text-[11px] mb-1">
+                    Meta Keywords
+                  </label>
+                  <input id="categorymanager-seo-keywords" name="seo_keywords" type="text"
+                    placeholder="peptides, research, philippines"
+                    value={formData.seo_keywords}
+                    onChange={(e) => setFormData({ ...formData, seo_keywords: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-[#3C6CA8]/30"
+                  />
+                  <span className="text-[10px] text-slate-400 block mt-0.5">Comma-separated keywords.</span>
+                </div>
               </div>
 
               {/* Live Preview Box */}
@@ -933,6 +1136,14 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Are you sure you want to delete <span className="font-bold text-slate-800 dark:text-slate-200">"{categoryToDelete.name}"</span>?
               </p>
+              {(childCountById[categoryToDelete.id] || 0) > 0 && (
+                <div className="mt-3 flex items-start gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl text-left">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-[11px] font-bold text-amber-700 dark:text-amber-400">
+                    This parent has {childCountById[categoryToDelete.id]} sub-categor{childCountById[categoryToDelete.id] === 1 ? 'y' : 'ies'}. Delete is blocked until they are removed or reassigned.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 pt-2">

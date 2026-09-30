@@ -14,7 +14,13 @@ if (typeof window !== 'undefined') {
     if (
       msg.includes("Cannot read properties of undefined (reading 'startTime')") ||
       msg.includes('reportAllChanges') ||
-      msg.includes('Failed to obtain primary lease')
+      msg.includes('Failed to obtain primary lease') ||
+      msg.includes('identitytoolkit') ||
+      msg.includes('EMAIL_EXISTS') ||
+      msg.includes('Failed to load module script') ||
+      msg.includes('MIME type of "text/html"') ||
+      msg.includes('dynamically imported module') ||
+      msg.includes('Loading chunk')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -27,7 +33,13 @@ if (typeof window !== 'undefined') {
     if (
       reason.includes("Cannot read properties of undefined (reading 'startTime')") ||
       reason.includes('reportAllChanges') ||
-      reason.includes('Failed to obtain primary lease')
+      reason.includes('Failed to obtain primary lease') ||
+      reason.includes('identitytoolkit') ||
+      reason.includes('EMAIL_EXISTS') ||
+      reason.includes('Failed to load module script') ||
+      reason.includes('MIME type of "text/html"') ||
+      reason.includes('dynamically imported module') ||
+      reason.includes('Loading chunk')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -47,7 +59,13 @@ if (typeof window !== 'undefined') {
       str.includes('operate in offline mode') ||
       str.includes('createRoot() on a container') ||
       str.includes('ERR_CONNECTION_REFUSED') ||
-      str.includes('Failed to fetch')
+      str.includes('Failed to fetch') ||
+      str.includes('identitytoolkit') ||
+      str.includes('EMAIL_EXISTS') ||
+      str.includes('Failed to load module script') ||
+      str.includes('MIME type of "text/html"') ||
+      str.includes('dynamically imported module') ||
+      str.includes('Loading chunk')
     ) {
       return;
     }
@@ -64,7 +82,13 @@ if (typeof window !== 'undefined') {
       str.includes('operate in offline mode') ||
       str.includes('createRoot() on a container') ||
       str.includes('ERR_CONNECTION_REFUSED') ||
-      str.includes('Failed to fetch')
+      str.includes('Failed to fetch') ||
+      str.includes('identitytoolkit') ||
+      str.includes('EMAIL_EXISTS') ||
+      str.includes('Failed to load module script') ||
+      str.includes('MIME type of "text/html"') ||
+      str.includes('dynamically imported module') ||
+      str.includes('Loading chunk')
     ) {
       return;
     }

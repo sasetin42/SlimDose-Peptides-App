@@ -5,7 +5,6 @@ import {
   FileText,
   RefreshCw,
   ShoppingBag,
-  Calendar,
   Search,
   CheckCircle2,
   Clock,
@@ -16,24 +15,12 @@ import {
   RotateCw,
   Download,
   Copy,
-  ExternalLink,
   Phone,
-  Mail,
   MapPin,
   Eye,
-  SlidersHorizontal,
   ChevronDown,
   ChevronUp,
-  CreditCard,
-  User,
   ShieldCheck,
-  CheckSquare,
-  Sparkles,
-  TrendingUp,
-  DollarSign,
-  Send,
-  MessageCircle,
-  Maximize2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
@@ -71,6 +58,7 @@ interface OrderInfo {
   payment_status?: string;
   order_status?: string;
   notes?: string;
+  subtotal?: number;
   created_at?: string;
 }
 
@@ -136,7 +124,7 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
   const [verifications, setVerifications] = useState<Verification[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastSyncedAt, setLastSyncedAt] = useState<Date>(new Date());
+  const [_lastSyncedAt, setLastSyncedAt] = useState<Date>(new Date());
   const [isLiveConnected, setIsLiveConnected] = useState(true);
 
   // Filters & Search
@@ -221,7 +209,7 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
 
       // Synthesize any uploaded order proofs that may not yet have a record in invoice_verifications
       if (ordersWithProof && ordersWithProof.length > 0) {
-        ordersWithProof.forEach((order) => {
+        ordersWithProof.forEach((order: any) => {
           if (order.payment_proof_url && !existingOrderIds.has(order.id)) {
             verificationsList.push({
               id: `v-sync-${order.id}`,
@@ -274,7 +262,7 @@ export default function InvoiceVerificationsManager({ onNavigateView }: InvoiceV
           loadData(true);
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         setIsLiveConnected(status === 'SUBSCRIBED');
       });
 

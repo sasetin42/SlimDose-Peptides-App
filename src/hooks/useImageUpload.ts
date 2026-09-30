@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
 
 /**
  * Compresses an image client-side to ensure fast mobile uploads and prevent payload limits.
@@ -70,7 +69,7 @@ export const compressImageForUpload = async (file: File, maxDimension = 1600, qu
   });
 };
 
-export const useImageUpload = (folder: string = 'menu-images') => {
+export const useImageUpload = (_folder: string = 'menu-images') => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -106,8 +105,6 @@ export const useImageUpload = (folder: string = 'menu-images') => {
         throw new Error('Please upload a valid image or PDF file.');
       }
 
-      // Generate unique filename
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
 
       // Simulate upload progress
       progressInterval = setInterval(() => {

@@ -7,8 +7,6 @@ import {
   Copy,
   ExternalLink,
   ShieldCheck,
-  Server,
-  Clock,
   Sparkles,
   Smartphone,
   Monitor,

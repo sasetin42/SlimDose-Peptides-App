@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import { getProductReviewsFallback } from '../data/liveScrapedProductReviews';
 
 export interface Review {
   id: string;
@@ -16,12 +15,7 @@ export interface Review {
 }
 
 export function useReviews(productId?: string, adminView: boolean = false) {
-  const [reviews, setReviews] = useState<Review[]>(() => {
-    if (!adminView && productId) {
-      return getProductReviewsFallback(productId) as Review[];
-    }
-    return [];
-  });
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,18 +43,13 @@ export function useReviews(productId?: string, adminView: boolean = false) {
         approved: r.approved !== undefined ? Boolean(r.approved) : Boolean(r.is_approved),
       }));
 
-      // If viewing a product on storefront and no reviews in DB yet, load fallback seed reviews
-      if (!adminView && productId && resultData.length === 0) {
-        resultData = getProductReviewsFallback(productId) as Review[];
-      }
-
       if (!isMountedCheck || isMountedCheck()) {
         setReviews(resultData);
       }
     } catch (err: any) {
-      console.warn('Error fetching reviews, using fallback dataset:', err);
-      if (productId && (!isMountedCheck || isMountedCheck())) {
-        setReviews(getProductReviewsFallback(productId) as Review[]);
+      console.warn('Error fetching reviews:', err);
+      if (!isMountedCheck || isMountedCheck()) {
+        setReviews([]);
       }
       if (!isMountedCheck || isMountedCheck()) {
         setError(err?.message || 'Failed to load reviews');

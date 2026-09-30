@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { SiteSettings } from '../../types';
-import { Database, Key, Webhook, HardDrive, RefreshCw, Download, Upload, Trash2, Copy, Check, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Database, Key, HardDrive, RefreshCw, Download, Upload, Trash2, Copy, Check } from 'lucide-react';
 
 interface Props {
   formData: Partial<SiteSettings>;
@@ -17,7 +17,7 @@ interface ApiKeyItem {
   created_at: string;
 }
 
-export const SystemDataSettings: React.FC<Props> = ({ formData, onChange, onExportBackup, onImportBackup }) => {
+export const SystemDataSettings: React.FC<Props> = ({ onExportBackup, onImportBackup }) => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isFlushingCache, setIsFlushingCache] = useState(false);
   const [cacheFlushSuccess, setCacheFlushSuccess] = useState(false);

@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -23,10 +23,30 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    const msg = String(error?.message || error || '');
+    if (
+      msg.includes('Failed to load module script') ||
+      msg.includes('MIME type of "text/html"') ||
+      msg.includes('dynamically imported module') ||
+      msg.includes('Loading chunk')
+    ) {
+      if (typeof window !== 'undefined') {
+        const key = 'slimdose_chunk_refreshed';
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, 'true');
+          window.location.reload();
+          return;
+        }
+      }
+    }
     console.warn(`[ErrorBoundary${this.props.name ? ` - ${this.props.name}` : ''}] caught an error:`, error, errorInfo);
   }
 
   private handleRetry = () => {
+    const key = 'slimdose_chunk_refreshed';
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(key);
+    }
     this.setState({ hasError: false, error: null });
   };
 

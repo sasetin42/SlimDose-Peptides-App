@@ -1,34 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Layout,
   Home,
   Shield,
   Search,
   Save,
-  RotateCcw,
-  Upload,
-  ExternalLink,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
   Send,
   Lock,
-  Server,
-  Key,
-  RefreshCw,
-  FileText,
-  Check,
   Building2,
   CreditCard,
   History,
-  Sparkles,
   Sliders,
   Globe,
   Database,
   Layers,
-  ChevronRight,
-  Eye,
-  SlidersHorizontal
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
 import { useImageUpload } from '../hooks/useImageUpload';
@@ -37,12 +22,10 @@ import {
   sendTransactionalEmail,
   testSmtpConnection,
   generateSmtpTestEmailHtml,
-  getStoredTemplateByKey,
   getEmailActivityLogs,
   clearStoredEmailLogs,
-  EmailLogEntry,
+  type EmailLogEntry,
 } from '../services/emailService';
-import { renderEmailTemplate, renderEmailSubject } from '../utils/emailRenderer';
 import { LiveEmailViewerModal } from './LiveEmailViewerModal';
 
 // Subcomponents
@@ -103,7 +86,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
   adminEmail = 'admin@slimdose.ph',
   adminRole = 'Super Admin',
 }) => {
-  const { siteSettings, loading, updateSiteSettings, refetch } = useSiteSettings();
+  const { siteSettings, updateSiteSettings, refetch } = useSiteSettings();
   const { uploadImage } = useImageUpload('site-assets');
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('branding');
@@ -329,7 +312,6 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
         host: formData.smtp_host || 'smtp.hostinger.com',
         port: parseInt(formData.smtp_port || '465', 10) || 465,
         user: formData.smtp_user || 'noreply@slimdoseph.com',
-        timestamp,
         customMessage: testEmailMessage.trim() || undefined,
       });
 
@@ -364,7 +346,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
           message: `Test email transmitted successfully to ${testEmailRecipient.trim()}`,
           sentAt: timestamp,
           messageId: res.messageId,
-          provider: res.provider,
+          provider: res.providerUsed,
         });
         handleUpdates({
           smtp_status: 'connected',
@@ -496,7 +478,7 @@ export const SiteSettingsManager: React.FC<SiteSettingsManagerProps> = ({
     );
   }, [searchQuery]);
 
-﻿  return (
+  return (
     <div className="space-y-6 pb-24">
       {/* Top Header Banner */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -6,28 +6,43 @@ import {
   mirrorCategoryUpdate,
 } from '../lib/convexMirror';
 
-import { liveScrapedCategories } from '../data/liveScrapedCategories';
-
 export interface Category {
   id: string;
   name: string;
+  slug: string;
   icon: string;
+  parent_id: string | null;
+  description: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+  image_url: string | null;
   sort_order: number;
   active: boolean;
+  archived: boolean;
   created_at?: string;
   updated_at?: string;
 }
 
-const DEFAULT_STANDARD_CATEGORIES: Category[] = liveScrapedCategories.map((c, idx) => ({
+const normalizeCategory = (c: any): Category => ({
   id: c.id,
-  name: c.name,
+  name: c.name || '',
+  slug: c.slug || '',
   icon: c.icon || '🔬',
-  sort_order: c.sort_order ?? c.display_order ?? idx,
+  parent_id: c.parent_id || null,
+  description: c.description || '',
+  seo_title: c.seo_title || '',
+  seo_description: c.seo_description || '',
+  seo_keywords: c.seo_keywords || '',
+  image_url: c.image_url || null,
+  sort_order: c.sort_order ?? 0,
   active: c.active ?? true,
-  created_at: c.created_at
-}));
+  archived: c.archived === true,
+  created_at: c.created_at,
+  updated_at: c.updated_at,
+});
 
-const CACHE_KEY = 'slimdose_cached_categories';
+const CACHE_KEY = 'slimdose_cached_categories_v2';
 
 // Module-level in-memory cache for instant cross-component, cross-render access
 let memoryCache: Category[] | null = null;
@@ -36,7 +51,7 @@ try {
   if (local) {
     const parsed = JSON.parse(local);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      memoryCache = parsed;
+      memoryCache = parsed.map(normalizeCategory);
     }
   }
 } catch {}
@@ -54,43 +69,32 @@ const invalidateCache = () => {
 };
 
 const getInitialCategories = (activeOnly: boolean): Category[] => {
-  const base = memoryCache && memoryCache.length > 0 ? memoryCache : DEFAULT_STANDARD_CATEGORIES;
-  return activeOnly ? base.filter((c) => c.active) : base;
+  const base = memoryCache || [];
+  return activeOnly ? base.filter((c) => c.active && !c.archived) : base;
 };
 
-export const useCategories = (options?: { activeOnly?: boolean }) => {
+export const useCategories = (options?: { activeOnly?: boolean; includeArchived?: boolean }) => {
   const activeOnly = options?.activeOnly ?? true;
+  const includeArchived = options?.includeArchived ?? false;
   const [categories, setCategories] = useState<Category[]>(() => getInitialCategories(activeOnly));
-  const [loading, setLoading] = useState<boolean>(() => !memoryCache || memoryCache.length === 0);
+  const [loading, setLoading] = useState<boolean>(() => !memoryCache);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCategories = useCallback(async () => {
     try {
-      let query = supabase.from('categories').select('*');
-      if (activeOnly) {
-        query = query.eq('active', true);
-      }
-      const { data, error: fetchError } = await query.order('sort_order', { ascending: true });
+      const { data, error: fetchError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
       if (fetchError) throw fetchError;
 
-      if (data && data.length > 0) {
-        const normalized: Category[] = data.map((c: any) => ({
-          id: c.id,
-          name: c.name || '',
-          icon: c.icon || '🔬',
-          sort_order: c.sort_order ?? 0,
-          active: c.active ?? true,
-          created_at: c.created_at,
-          updated_at: c.updated_at,
-        }));
-        writeCache(normalized);
-        const filtered = activeOnly ? normalized.filter((c) => c.active) : normalized;
-        setCategories(filtered);
-      } else if (data && data.length === 0) {
-        // Firestore returned genuinely empty — clear cache and show empty
-        writeCache([]);
-        setCategories([]);
-      }
+      const normalized: Category[] = (data || []).map(normalizeCategory);
+      writeCache(normalized);
+      let filtered = normalized;
+      if (!includeArchived) filtered = filtered.filter((c) => !c.archived);
+      if (activeOnly) filtered = filtered.filter((c) => c.active);
+      setCategories(filtered);
       setError(null);
     } catch (err) {
       console.error('Error fetching categories:', err);
@@ -98,51 +102,50 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
     } finally {
       setLoading(false);
     }
-  }, [activeOnly]);
+  }, [activeOnly, includeArchived]);
 
-  const addCategory = async (category: Omit<Category, 'created_at' | 'updated_at'>) => {
-    // Optimistic: add to local state immediately
-    const newCat: Category = {
-      ...category,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    setCategories(prev => {
-      const next = activeOnly ? [...prev, newCat].filter(c => c.active) : [...prev, newCat];
-      writeCache(activeOnly ? [...(memoryCache || []), newCat] : next);
-      return next;
-    });
-
+  const addCategory = async (category: Partial<Category> & { id?: string }) => {
     try {
-      const { data, error: insertError } = await supabase
+      const id = category.id || `cat_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+      const payload = {
+        id,
+        name: category.name || 'Untitled Category',
+        slug: category.slug || (category.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+        icon: category.icon || '🔬',
+        parent_id: category.parent_id || null,
+        description: category.description || '',
+        seo_title: category.seo_title || '',
+        seo_description: category.seo_description || '',
+        seo_keywords: category.seo_keywords || '',
+        image_url: category.image_url || null,
+        sort_order: category.sort_order ?? 99,
+        active: category.active ?? true,
+        archived: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: inserted, error: insertError } = await supabase
         .from('categories')
-        .insert({
-          id: category.id,
-          name: category.name,
-          icon: category.icon,
-          sort_order: category.sort_order,
-          active: category.active,
-        })
+        .insert([payload])
         .select()
         .single();
 
       if (insertError) throw insertError;
 
       mirrorCategoryCreate({
-        id: category.id,
-        name: category.name,
-        icon: category.icon,
-        sort_order: category.sort_order,
-        active: category.active,
+        id: payload.id,
+        name: payload.name,
+        icon: payload.icon,
+        sort_order: payload.sort_order,
+        active: payload.active,
       });
 
-      // Authoritative refresh
       invalidateCache();
       await fetchCategories();
-      return data;
+      return (inserted as any) || payload;
     } catch (err) {
       console.error('Error adding category:', err);
-      // Rollback optimistic update
       invalidateCache();
       await fetchCategories();
       throw err;
@@ -150,7 +153,7 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
   };
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
-    // Optimistic: patch local state immediately
+    // Optimistic patch
     setCategories(prev => {
       const next = prev.map(c => c.id === id ? { ...c, ...updates } : c);
       const fullCache = (memoryCache || []).map(c => c.id === id ? { ...c, ...updates } : c);
@@ -159,11 +162,11 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
     });
 
     try {
-      const patch: Record<string, any> = {};
-      if (updates.name !== undefined) patch.name = updates.name;
-      if (updates.icon !== undefined) patch.icon = updates.icon;
-      if (updates.sort_order !== undefined) patch.sort_order = updates.sort_order;
-      if (updates.active !== undefined) patch.active = updates.active;
+      const patch: Record<string, any> = { updated_at: new Date().toISOString() };
+      const fields = ['name', 'slug', 'icon', 'parent_id', 'description', 'seo_title', 'seo_description', 'seo_keywords', 'image_url', 'sort_order', 'active', 'archived'];
+      for (const f of fields) {
+        if (updates[f as keyof Category] !== undefined) patch[f] = updates[f as keyof Category];
+      }
 
       const { error: updateError } = await supabase
         .from('categories')
@@ -172,46 +175,55 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
 
       if (updateError) throw updateError;
 
-      mirrorCategoryUpdate(id, {
-        name: updates.name,
-        icon: updates.icon,
-        sort_order: updates.sort_order,
-        active: updates.active,
-      });
+      mirrorCategoryUpdate(id, patch);
 
-      // Authoritative refresh in background (don't await to keep UI snappy)
       invalidateCache();
       fetchCategories();
     } catch (err) {
       console.error('Error updating category:', err);
-      // Rollback
       invalidateCache();
       await fetchCategories();
       throw err;
     }
   };
 
-  const deleteCategory = async (id: string) => {
+  /**
+   * Delete a category. When `reassignTo` is provided, all products in this
+   * category are moved there first (explicit reassignment confirmation flow).
+   */
+  const deleteCategory = async (id: string, reassignTo?: string | null) => {
     // Check if category has products
     const { data: products, error: checkError } = await supabase
       .from('products')
       .select('id')
-      .eq('category', id)
-      .limit(1);
+      .eq('category', id);
 
     if (checkError) throw checkError;
 
     if (products && products.length > 0) {
-      throw new Error('Cannot delete category that contains products. Please move or delete the products first.');
+      if (!reassignTo) {
+        throw new Error(`CATEGORY_HAS_PRODUCTS:${products.length}`);
+      }
+      // Reassign all products to the target category
+      for (const p of products) {
+        const { error: upErr } = await supabase
+          .from('products')
+          .update({ category: reassignTo, updated_at: new Date().toISOString() })
+          .eq('id', p.id);
+        if (upErr) throw upErr;
+      }
     }
 
-    // Optimistic: remove from local state immediately
-    setCategories(prev => {
-      const next = prev.filter(c => c.id !== id);
-      const fullCache = (memoryCache || []).filter(c => c.id !== id);
-      writeCache(fullCache);
-      return next;
-    });
+    // Prevent deleting a parent that still has children (unless reassigning)
+    const childCheck = (memoryCache || []).filter(c => c.parent_id === id);
+    if (childCheck.length > 0) {
+      if (!reassignTo) {
+        throw new Error(`CATEGORY_HAS_CHILDREN:${childCheck.length}`);
+      }
+      for (const child of childCheck) {
+        await supabase.from('categories').update({ parent_id: reassignTo, updated_at: new Date().toISOString() }).eq('id', child.id);
+      }
+    }
 
     try {
       const { error: deleteError } = await supabase
@@ -237,13 +249,13 @@ export const useCategories = (options?: { activeOnly?: boolean }) => {
     // Optimistic
     const updated = reorderedCategories.map((cat, index) => ({ ...cat, sort_order: index + 1 }));
     writeCache(updated);
-    setCategories(activeOnly ? updated.filter(c => c.active) : updated);
+    setCategories(activeOnly ? updated.filter(c => c.active && !c.archived) : updated);
 
     try {
       for (const [index, cat] of reorderedCategories.entries()) {
         await supabase
           .from('categories')
-          .update({ sort_order: index + 1 })
+          .update({ sort_order: index + 1, updated_at: new Date().toISOString() })
           .eq('id', cat.id);
       }
       invalidateCache();

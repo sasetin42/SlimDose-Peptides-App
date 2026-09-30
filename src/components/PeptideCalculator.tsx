@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, RotateCcw, Syringe, Droplets, FlaskConical, AlertTriangle, Sparkles, Check, Bookmark, Printer, Copy, FileText, Info, Plus, Pencil, Trash2, Settings, ShieldCheck, X, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useCart } from '../hooks/useCart';
+import {
+  Calculator,
+  RotateCcw,
+  Syringe,
+  Droplets,
+  FlaskConical,
+  AlertTriangle,
+  Check,
+  Bookmark,
+  Printer,
+  Copy,
+  FileText,
+  Info,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  ArrowLeft,
+  ArrowRight,
+} from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fireToast } from './ToastNotification';
 import { PrintPreviewModal } from './PrintPreviewModal';

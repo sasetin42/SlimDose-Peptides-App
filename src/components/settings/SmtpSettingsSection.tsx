@@ -12,13 +12,11 @@ import {
   Sparkles,
   Send,
   Radio,
-  FileText,
   Clock,
   Trash2,
   CheckCircle2,
   XCircle,
   Globe,
-  HelpCircle,
 } from 'lucide-react';
 import { EmailLogEntry } from '../../services/emailService';
 

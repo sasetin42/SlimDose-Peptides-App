@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Flame, Zap, Tag, Heart } from 'lucide-react';
 import { fireToast } from './ToastNotification';
 import type { Product, ProductVariation, GlobalDiscount, ProductBundleTier } from '../types';
@@ -35,15 +35,25 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
   const soldCount = Number(product.sales_count || 0);
 
-  const firstAvailableVariation = product.variations && product.variations.length > 0
-    ? (product.variations.find((v) => v.stock_quantity > 0) || product.variations[0])
+  const sortedVariations = useMemo(() => {
+    if (!product.variations || product.variations.length === 0) return [];
+    return [...product.variations].sort((a, b) => {
+      const priceA = a.discount_active && a.discount_price !== null ? a.discount_price : a.price;
+      const priceB = b.discount_active && b.discount_price !== null ? b.discount_price : b.price;
+      if (priceA !== priceB) return priceA - priceB;
+      return (a.quantity_mg || 0) - (b.quantity_mg || 0);
+    });
+  }, [product.variations]);
+
+  const firstAvailableVariation = sortedVariations.length > 0
+    ? (sortedVariations.find((v) => v.stock_quantity > 0) || sortedVariations[0])
     : undefined;
 
   const pricing = resolveProductPricing(product, firstAvailableVariation, globalDiscount);
   const currentPrice = pricing.price;
   const hasDiscount = pricing.hasDiscount;
   const originalPrice = pricing.originalPrice;
-  const hasMultipleVariations = (product.variations?.length ?? 0) > 1;
+  const hasMultipleVariations = sortedVariations.length > 1;
 
   const hasAnyStock = product.variations && product.variations.length > 0
     ? product.variations.some((v) => v.stock_quantity > 0)

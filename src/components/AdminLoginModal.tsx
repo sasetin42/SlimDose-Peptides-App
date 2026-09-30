@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Lock, Mail, Eye, EyeOff, ShieldAlert, Check, Loader2, Key } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { authenticateAdmin, saveSession } from '../lib/auth';
+import { logAdminAction, setAuditSession } from '../lib/audit';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const LOCAL_ADMINS = [
-  { email: 'admin@gmail.com', password: '123456#', role: 'super_admin', name: 'Super Admin' },
-  { email: 'superadmin@slimdose.ph', password: 'superadmin2026', role: 'super_admin', name: 'Super Admin' },
-  { email: 'admin@slimdose.ph', password: 'admin2026', role: 'admin', name: 'Store Admin' },
-  { email: 'editor@slimdose.ph', password: 'editor2026', role: 'content_editor', name: 'Content Editor' },
-  { email: 'ordermanager@slimdose.ph', password: 'orders2026', role: 'order_manager', name: 'Order Manager' }
-];
 
 export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
@@ -77,78 +70,31 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
     setStatus('loading');
     setErrorMsg('');
 
-    // Simulate delay for biotech auth feel
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    const result = await authenticateAdmin(email, password);
 
-    let authedUser: { email: string; role: string; name: string } | null = null;
-
-    try {
-      // 1. Try Supabase
-      const { data, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', email.toLowerCase().trim())
-        .maybeSingle();
-
-      if (!error && data) {
-        if (data.password_hash === password) {
-          authedUser = {
-            email: data.email,
-            role: data.role,
-            name: data.name || 'Store Admin',
-          };
-        }
-      }
-    } catch (err) {
-      console.warn('Supabase auth error, falling back to local seed accounts:', err);
-    }
-
-    // 2. Local fallback if Supabase fails or not configured
-    if (!authedUser) {
-      const match = LOCAL_ADMINS.find(
-        (u) => u.email === email.toLowerCase().trim() && u.password === password
-      );
-      if (match) {
-        authedUser = {
-          email: match.email,
-          role: match.role,
-          name: match.name,
-        };
-      }
-    }
-
-    if (authedUser) {
+    if (result.ok) {
+      const { session: authedUser } = result;
       // Success flow
       setStatus('success');
       setFailedAttempts(0);
-      
-      // Save session
-      const sessionData = {
-        ...authedUser,
-        token: 'authenticated_v1',
-        loginTime: Date.now()
-      };
-      
-      const storage = rememberMe ? localStorage : sessionStorage;
-      storage.setItem('admin_session', JSON.stringify(sessionData));
 
-      // Log action to audit trail
-      try {
-        await supabase.from('audit_logs').insert([{
-          actor_email: authedUser.email,
-          actor_role: authedUser.role,
-          action: 'LOGIN',
-          details: `Admin user logged in successfully via ${rememberMe ? 'remembered session' : 'standard session'}`
-        }]);
-      } catch (logErr) {
-        console.warn('Failed to save login audit log:', logErr);
-      }
+      // Persist hashed session (v2)
+      saveSession(
+        { email: authedUser.email, role: authedUser.role, name: authedUser.name },
+        rememberMe
+      );
+      setAuditSession({ email: authedUser.email, role: authedUser.role, name: authedUser.name });
+
+      // Log action to audit trail (never blocks login)
+      logAdminAction('admin_login', {
+        module: 'auth',
+        details: `Admin user logged in via ${rememberMe ? 'remembered session' : 'standard session'}`,
+      }).catch(() => {});
 
       // Delay to show success checkmark, then redirect
       setTimeout(() => {
         window.location.href = '/admin';
       }, 1500);
-
     } else {
       // Fail flow
       setStatus('error');

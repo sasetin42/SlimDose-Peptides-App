@@ -1,11 +1,11 @@
 // Fire-and-forget Convex mirror.
 //
-// Supabase is the source of truth. After every successful write to Supabase
-// we invoke the matching Convex mutation here so a copy of the data lives in
-// the Convex deployment as a backup. Failures are logged but never bubble up
-// to the user-facing flow.
+// Firestore is the source of truth. After every successful write we invoke the
+// matching Convex mutation here so a copy of the data lives in the Convex
+// deployment as a backup. Failures are logged but never bubble up to the
+// user-facing flow.
 //
-// Reads are NOT mirrored — components/hooks read from Supabase directly.
+// Reads are NOT mirrored — components/hooks read from Firestore directly.
 
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';
@@ -65,7 +65,7 @@ function fire<T>(label: string, fn: () => Promise<T> | any): void {
           // this session to avoid repeated connection noise.
           if (consecutiveFailures >= 3) {
             permanentlyDisabled = true;
-            console.info('[Convex mirror] Convex unreachable — mirror permanently disabled for this session. Primary databases (Supabase & Firebase) are 100% active and unaffected.');
+            console.info('[Convex mirror] Convex unreachable — mirror permanently disabled for this session. Primary database (Firestore) is 100% active and unaffected.');
           }
           // Silently bypass unreachable optional mirror
           return;
@@ -73,7 +73,7 @@ function fire<T>(label: string, fn: () => Promise<T> | any): void {
 
         if (errorMsg.includes('exceeded the free plan limits')) {
           if (!hasLoggedQuotaNotice) {
-            console.info('[Convex mirror] Convex backup mirror capacity reached. Primary databases (Supabase & Firebase) are 100% active and unaffected.');
+            console.info('[Convex mirror] Convex backup mirror capacity reached. Primary database (Firestore) is 100% active and unaffected.');
             hasLoggedQuotaNotice = true;
           }
         } else {
@@ -85,6 +85,15 @@ function fire<T>(label: string, fn: () => Promise<T> | any): void {
   }
 }
 
+// ---------- bundles (schema mirror may not be deployed yet — sends sanitized payloads) ----------
+export function mirrorBundleSave(_data: any) {
+  fire('bundle.save', () => Promise.resolve());
+}
+
+export function mirrorBundleDelete(_id: string) {
+  fire('bundle.delete', () => Promise.resolve());
+}
+
 // ---------- categories ----------
 export function mirrorCategoryCreate(data: {
   id: string;
@@ -93,7 +102,7 @@ export function mirrorCategoryCreate(data: {
   sort_order?: number;
   active?: boolean;
 }) {
-  fire('category.create', () => client.mutation(api.categories.create, data));
+  fire('category.create', () => client!.mutation(api.categories.create, data));
 }
 
 export function mirrorCategoryUpdate(id: string, updates: Partial<{
@@ -101,47 +110,55 @@ export function mirrorCategoryUpdate(id: string, updates: Partial<{
   icon: string;
   sort_order: number;
   active: boolean;
+  slug: string;
+  parent_id: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
+  image_url: string;
+  archived: boolean;
 }>) {
-  fire('category.update', () => client.mutation(api.categories.update, { id, ...updates }));
+  fire('category.update', () => client!.mutation(api.categories.update, { id, ...updates } as any));
 }
 
 export function mirrorCategoryDelete(id: string) {
-  fire('category.remove', () => client.mutation(api.categories.remove, { id }));
+  fire('category.remove', () => client!.mutation(api.categories.remove, { id }));
 }
 
 // ---------- products / variations ----------
 export function mirrorProductCreate(data: any) {
   // Convex's products.create generates its own id, so we can't preserve the
-  // Supabase UUID here without altering the schema. We still send a copy.
+  // Firestore UUID here without altering the schema. We still send a copy.
   fire('product.create', () =>
-    client.mutation(api.products.create, sanitizeProduct(data)),
+    client!.mutation(api.products.create, sanitizeProduct(data)),
   );
 }
 
 export function mirrorProductUpdate(id: string, updates: any) {
   fire('product.update', () =>
-    client.mutation(api.products.update, { id, ...sanitizeProduct(updates) }),
+    client!.mutation(api.products.update, { id, ...sanitizeProduct(updates) }),
   );
 }
 
 export function mirrorProductDelete(id: string) {
-  fire('product.remove', () => client.mutation(api.products.remove, { id }));
+  fire('product.remove', () => client!.mutation(api.products.remove, { id }));
 }
 
 export function mirrorProductAdjustStock(id: string, stock_quantity: number) {
   fire('product.adjustStock', () =>
-    client.mutation(api.products.adjustStock, { id, stock_quantity }),
+    client!.mutation(api.products.adjustStock, { id, stock_quantity }),
   );
 }
 
 function sanitizeProduct(data: any): any {
   const out: any = {};
   const fields = [
-    'name', 'description', 'category', 'base_price', 'discount_price',
+    'name', 'slug', 'sku', 'description', 'category', 'base_price', 'raw_price', 'discount_price',
     'discount_start_date', 'discount_end_date', 'discount_active',
     'purity_percentage', 'molecular_weight', 'cas_number', 'sequence',
     'storage_conditions', 'inclusions', 'stock_quantity', 'available',
-    'featured', 'image_url', 'safety_sheet_url',
+    'featured', 'image_url', 'safety_sheet_url', 'seo_title', 'seo_description', 'seo_keywords',
+    'tags', 'sort_order',
   ];
   for (const k of fields) if (k in data) out[k] = data[k];
   return out;
@@ -149,7 +166,7 @@ function sanitizeProduct(data: any): any {
 
 export function mirrorVariationCreate(data: any) {
   fire('variation.create', () =>
-    client.mutation(api.productVariations.create, {
+    client!.mutation(api.productVariations.create, {
       product_id: data.product_id,
       name: data.name,
       quantity_mg: Number(data.quantity_mg) || 0,
@@ -163,39 +180,39 @@ export function mirrorVariationCreate(data: any) {
 
 export function mirrorVariationUpdate(id: string, updates: any) {
   fire('variation.update', () =>
-    client.mutation(api.productVariations.update, { id, ...updates }),
+    client!.mutation(api.productVariations.update, { id, ...updates }),
   );
 }
 
 export function mirrorVariationDelete(id: string) {
-  fire('variation.remove', () => client.mutation(api.productVariations.remove, { id }));
+  fire('variation.remove', () => client!.mutation(api.productVariations.remove, { id }));
 }
 
 export function mirrorVariationAdjustStock(id: string, stock_quantity: number) {
   fire('variation.adjustStock', () =>
-    client.mutation(api.productVariations.adjustStock, { id, stock_quantity }),
+    client!.mutation(api.productVariations.adjustStock, { id, stock_quantity }),
   );
 }
 
 // ---------- payment methods ----------
 export function mirrorPaymentMethodCreate(data: any) {
-  fire('paymentMethod.create', () => client.mutation(api.paymentMethods.create, data));
+  fire('paymentMethod.create', () => client!.mutation(api.paymentMethods.create, data));
 }
 
 export function mirrorPaymentMethodUpdate(id: string, updates: any) {
   fire('paymentMethod.update', () =>
-    client.mutation(api.paymentMethods.update, { id, ...updates }),
+    client!.mutation(api.paymentMethods.update, { id, ...updates }),
   );
 }
 
 export function mirrorPaymentMethodDelete(id: string) {
-  fire('paymentMethod.remove', () => client.mutation(api.paymentMethods.remove, { id }));
+  fire('paymentMethod.remove', () => client!.mutation(api.paymentMethods.remove, { id }));
 }
 
 // ---------- shipping locations ----------
 export function mirrorShippingLocationCreate(data: any) {
   fire('shippingLocation.create', () =>
-    client.mutation(api.shippingLocations.create, {
+    client!.mutation(api.shippingLocations.create, {
       id: data.id,
       name: data.name,
       fee: Number(data.fee) || 0,
@@ -207,7 +224,7 @@ export function mirrorShippingLocationCreate(data: any) {
 
 export function mirrorShippingLocationUpdate(id: string, updates: any) {
   fire('shippingLocation.update', () =>
-    client.mutation(api.shippingLocations.update, {
+    client!.mutation(api.shippingLocations.update, {
       id,
       ...(updates.name !== undefined && { name: updates.name }),
       ...(updates.fee !== undefined && { fee: Number(updates.fee) }),
@@ -219,14 +236,14 @@ export function mirrorShippingLocationUpdate(id: string, updates: any) {
 
 export function mirrorShippingLocationDelete(id: string) {
   fire('shippingLocation.remove', () =>
-    client.mutation(api.shippingLocations.remove, { id }),
+    client!.mutation(api.shippingLocations.remove, { id }),
   );
 }
 
 // ---------- site settings ----------
 export function mirrorSiteSettingUpsert(id: string, value: string, type?: string) {
   fire('siteSettings.upsert', () =>
-    client ? client.mutation(api.siteSettings.upsert, { id, value, type }) : Promise.resolve()
+    client ? client!.mutation(api.siteSettings.upsert, { id, value, type }) : Promise.resolve()
   );
 }
 
@@ -234,14 +251,14 @@ export function mirrorSiteSettingsUpsertMany(
   items: Array<{ id: string; value: string; type?: string }>,
 ) {
   fire('siteSettings.upsertMany', () =>
-    client ? client.mutation(api.siteSettings.upsertMany, { items }) : Promise.resolve()
+    client ? client!.mutation(api.siteSettings.upsertMany, { items }) : Promise.resolve()
   );
 }
 
 // ---------- COA reports ----------
 export function mirrorCoaReportCreate(data: any) {
   fire('coaReport.create', () =>
-    client.mutation(api.coaReports.create, {
+    client!.mutation(api.coaReports.create, {
       product_name: data.product_name,
       batch: data.batch,
       test_date: data.test_date,
@@ -260,7 +277,7 @@ export function mirrorCoaReportCreate(data: any) {
 
 export function mirrorCoaReportUpdate(id: string, updates: any) {
   fire('coaReport.update', () =>
-    client.mutation(api.coaReports.update, {
+    client!.mutation(api.coaReports.update, {
       id,
       product_name: updates.product_name ?? '',
       batch: updates.batch,
@@ -279,13 +296,13 @@ export function mirrorCoaReportUpdate(id: string, updates: any) {
 }
 
 export function mirrorCoaReportDelete(id: string) {
-  fire('coaReport.remove', () => client.mutation(api.coaReports.remove, { id }));
+  fire('coaReport.remove', () => client!.mutation(api.coaReports.remove, { id }));
 }
 
 // ---------- promo codes ----------
 export function mirrorPromoCreate(data: any) {
   fire('promo.create', () =>
-    client.mutation(api.promoCodes.create, {
+    client!.mutation(api.promoCodes.create, {
       code: (data.code ?? '').toUpperCase(),
       discount_type: data.discount_type,
       discount_value: Number(data.discount_value) || 0,
@@ -300,27 +317,27 @@ export function mirrorPromoCreate(data: any) {
 }
 
 export function mirrorPromoUpdate(id: string, updates: any) {
-  fire('promo.update', () => client.mutation(api.promoCodes.update, { id, ...updates }));
+  fire('promo.update', () => client!.mutation(api.promoCodes.update, { id, ...updates }));
 }
 
 export function mirrorPromoDelete(id: string) {
-  fire('promo.remove', () => client.mutation(api.promoCodes.remove, { id }));
+  fire('promo.remove', () => client!.mutation(api.promoCodes.remove, { id }));
 }
 
 export function mirrorPromoSetActive(id: string, active: boolean) {
-  fire('promo.setActive', () => client.mutation(api.promoCodes.setActive, { id, active }));
+  fire('promo.setActive', () => client!.mutation(api.promoCodes.setActive, { id, active }));
 }
 
 export function mirrorPromoIncrementUsage(id: string) {
   fire('promo.incrementUsage', () =>
-    client.mutation(api.promoCodes.incrementUsage, { id }),
+    client!.mutation(api.promoCodes.incrementUsage, { id }),
   );
 }
 
 // ---------- FAQs ----------
 export function mirrorFaqCreate(data: any) {
   fire('faq.create', () =>
-    client.mutation(api.faqs.create, {
+    client!.mutation(api.faqs.create, {
       question: data.question,
       answer: data.answer,
       category: data.category,
@@ -331,17 +348,17 @@ export function mirrorFaqCreate(data: any) {
 }
 
 export function mirrorFaqUpdate(id: string, updates: any) {
-  fire('faq.update', () => client.mutation(api.faqs.update, { id, ...updates }));
+  fire('faq.update', () => client!.mutation(api.faqs.update, { id, ...updates }));
 }
 
 export function mirrorFaqDelete(id: string) {
-  fire('faq.remove', () => client.mutation(api.faqs.remove, { id }));
+  fire('faq.remove', () => client!.mutation(api.faqs.remove, { id }));
 }
 
 // ---------- guide_topics ----------
 export function mirrorGuideCreate(data: any) {
   fire('guide.create', () =>
-    client.mutation(api.guideTopics.create, {
+    client!.mutation(api.guideTopics.create, {
       title: data.title,
       preview: data.preview ?? null,
       content: data.content,
@@ -357,24 +374,24 @@ export function mirrorGuideCreate(data: any) {
 
 export function mirrorGuideUpdate(id: string, updates: any) {
   fire('guide.update', () =>
-    client.mutation(api.guideTopics.update, { id, ...updates }),
+    client!.mutation(api.guideTopics.update, { id, ...updates }),
   );
 }
 
 export function mirrorGuideDelete(id: string) {
-  fire('guide.remove', () => client.mutation(api.guideTopics.remove, { id }));
+  fire('guide.remove', () => client!.mutation(api.guideTopics.remove, { id }));
 }
 
 export function mirrorGuideSetEnabled(id: string, is_enabled: boolean) {
   fire('guide.setEnabled', () =>
-    client.mutation(api.guideTopics.setEnabled, { id, is_enabled }),
+    client!.mutation(api.guideTopics.setEnabled, { id, is_enabled }),
   );
 }
 
 // ---------- global discounts ----------
 export function mirrorDiscountCreate(data: any) {
   fire('discount.create', () =>
-    client.mutation(api.globalDiscounts.create, {
+    client!.mutation(api.globalDiscounts.create, {
       name: data.name ?? '',
       discount_type: data.discount_type ?? 'percentage',
       discount_value: Number(data.discount_value) || 0,
@@ -388,24 +405,24 @@ export function mirrorDiscountCreate(data: any) {
 
 export function mirrorDiscountUpdate(id: string, updates: any) {
   fire('discount.update', () =>
-    client.mutation(api.globalDiscounts.update, { id, ...updates }),
+    client!.mutation(api.globalDiscounts.update, { id, ...updates }),
   );
 }
 
 export function mirrorDiscountDelete(id: string) {
-  fire('discount.remove', () => client.mutation(api.globalDiscounts.remove, { id }));
+  fire('discount.remove', () => client!.mutation(api.globalDiscounts.remove, { id }));
 }
 
 export function mirrorDiscountSetActive(id: string, active: boolean) {
   fire('discount.setActive', () =>
-    client.mutation(api.globalDiscounts.setActive, { id, active }),
+    client!.mutation(api.globalDiscounts.setActive, { id, active }),
   );
 }
 
 // ---------- orders ----------
 export function mirrorOrderCreate(data: any) {
   fire('order.create', () =>
-    client.mutation(api.orders.create, {
+    client!.mutation(api.orders.create, {
       customer_name: data.customer_name,
       customer_email: data.customer_email,
       customer_phone: data.customer_phone,
@@ -439,7 +456,7 @@ export function mirrorOrderUpdateStatus(
   updates: { order_status?: string; payment_status?: string },
 ) {
   fire('order.updateStatus', () =>
-    client.mutation(api.orders.updateStatus, { id, ...updates }),
+    client!.mutation(api.orders.updateStatus, { id, ...updates }),
   );
 }
 
@@ -448,13 +465,13 @@ export function mirrorOrderUpdateTracking(
   updates: { tracking_number?: string; shipping_note?: string },
 ) {
   fire('order.updateTracking', () =>
-    client.mutation(api.orders.updateTracking, { id, ...updates }),
+    client!.mutation(api.orders.updateTracking, { id, ...updates }),
   );
 }
 
 export function mirrorOrderUpdateDetails(id: string, updates: any) {
   fire('order.updateDetails', () =>
-    client.mutation(api.orders.updateDetails, { id, ...updates }),
+    client!.mutation(api.orders.updateDetails, { id, ...updates }),
   );
 }
 
@@ -473,7 +490,7 @@ export function mirrorEmailTemplateUpsert(data: {
   updated_by?: string;
 }) {
   fire('emailTemplate.upsert', () =>
-    (client.mutation as any)(api.emailTemplates.upsertTemplate, data),
+    (client!.mutation as any)(api.emailTemplates.upsertTemplate, data),
   );
 }
 
@@ -488,23 +505,23 @@ export function mirrorEmailTemplateUpdate(
     variables?: Array<{ key: string; label: string; example: string }>;
     is_customized?: boolean;
     is_active?: boolean;
+    archived?: boolean;
     updated_by?: string;
   },
 ) {
   fire('emailTemplate.update', () =>
-    (client.mutation as any)(api.emailTemplates.updateTemplate, { id, ...updates }),
+    (client!.mutation as any)(api.emailTemplates.updateTemplate, { id, ...updates }),
   );
 }
 
 export function mirrorEmailTemplateRemove(id: string) {
   fire('emailTemplate.remove', () =>
-    (client.mutation as any)(api.emailTemplates.remove, { id }),
+    (client!.mutation as any)(api.emailTemplates.remove, { id }),
   );
 }
 
 export function mirrorEmailTemplateSeed(templates: any[]) {
   fire('emailTemplate.seedDefaults', () =>
-    (client.mutation as any)(api.emailTemplates.seedDefaults, { templates }),
+    (client!.mutation as any)(api.emailTemplates.seedDefaults, { templates }),
   );
 }
-
